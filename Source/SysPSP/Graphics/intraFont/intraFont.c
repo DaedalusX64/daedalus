@@ -39,7 +39,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <math.h>
-#include <intraFont.h>
+#include "intraFont.h"
 #if defined(_OSLIB_H_)
 #define OSLIB_FREE(a) free((a))
 #else 

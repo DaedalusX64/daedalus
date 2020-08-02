@@ -117,26 +117,25 @@ public:
 		FiniJob = &DoJobComplete;
 	}
 
-  ~SAddSamplesJob() {}
+	~SAddSamplesJob() {}
 
-  static int DoAddSamplesStatic( SJob * arg )
-  {
-    SAddSamplesJob *    job( static_cast< SAddSamplesJob * >( arg ) );
-    job->DoAddSamples();
-    return 0;
-  }
+	static int DoAddSamplesStatic( SJob * arg )
+	{
+		SAddSamplesJob *    job( static_cast< SAddSamplesJob * >( arg ) );
+		job->DoAddSamples();
+		return 0;
+	}
 
-  int DoAddSamples()
-  {
-    mBuffer->AddSamples( mSamples, mNumSamples, mFrequency, mOutputFreq );
-    return 0;
-  }
+	int DoAddSamples()
+	{
+		mBuffer->AddSamples( mSamples, mNumSamples, mFrequency, mOutputFreq );
+		return 0;
+	}
 
-  static int DoJobComplete( SJob * arg )
-   {
-   }
-
-
+	static int DoJobComplete( SJob * arg )
+	{
+		return 0;
+	}
 };
 
 static AudioPluginPSP * ac;
@@ -157,7 +156,7 @@ EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
 AudioPluginPSP::AudioPluginPSP()
 :mKeepRunning (false)
 //: mAudioBuffer( kAudioBufferSize )
-, mFrequency( 44100 )
+,	mFrequency( kOutputFrequency )
 ,	mSemaphore( sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, nullptr ) )
 //, mAudioThread ( kInvalidThreadHandle )
 //, mKeepRunning( false )
@@ -166,7 +165,7 @@ AudioPluginPSP::AudioPluginPSP()
 	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
 	void * mem = malloc_64( sizeof( CAudioBuffer ) );
 	mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
-  mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
+	mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
 	// Ideally we could just invalidate this range?
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 }
@@ -199,14 +198,12 @@ void	AudioPluginPSP::StopEmulation()
 
 void	AudioPluginPSP::DacrateChanged( int system_type )
 {
-u32 clock = (system_type == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
-u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
-u32 frequency = clock / (dacrate + 1);
+	u32 clock = (system_type == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
+	u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
+	u32 frequency = clock / (dacrate + 1);
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
-DBGConsole_Msg(0, "Audio frequency: %d", frequency);
-#endif
-mFrequency = frequency;
+	DBGConsole_Msg(0, "Audio frequency: %d", frequency);
+	mFrequency = frequency;
 }
 
 
@@ -231,35 +228,35 @@ class SHLEStartJob : public SJob
 public:
 	SHLEStartJob()
 	{
-		 InitJob = nullptr;
-		 DoJob = &DoHLEStartStatic;
-		 FiniJob = &DoHLEFinishedStatic;
+		InitJob = nullptr;
+		DoJob = &DoHLEStartStatic;
+		FiniJob = &DoHLEFinishedStatic;
 	}
 
 	static int DoHLEStartStatic( SJob * arg )
 	{
-		 SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		 job->DoHLEStart();
-     return 0;
+		SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
+		job->DoHLEStart();
+		return 0;
 	}
 
 	static int DoHLEFinishedStatic( SJob * arg )
 	{
-		 SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		 job->DoHLEFinish();
-     return 0;
+		SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
+		job->DoHLEFinish();
+		return 0;
 	}
 
 	int DoHLEStart()
 	{
-		 Audio_Ucode();
-		 return 0;
+		Audio_Ucode();
+		return 0;
 	}
 
 	int DoHLEFinish()
 	{
-		 CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
-		 return 0;
+		CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
+		return 0;
 	}
 };
 
@@ -327,6 +324,14 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
 	u32 num_samples = length / sizeof( Sample );
 
+	//Adapt Audio to sync% //Corn
+	/*u32 output_freq = kOutputFrequency;
+	if (gAudioRateMatch)
+	{
+		if (gSoundSync > 88200)			output_freq = 88200;	//limit upper rate
+		else if (gSoundSync < 44100)	output_freq = 44100;	//limit lower rate
+		else							output_freq = gSoundSync;
+	}*/
 	switch( gAudioPluginEnabled )
 	{
 	case APM_DISABLED:
