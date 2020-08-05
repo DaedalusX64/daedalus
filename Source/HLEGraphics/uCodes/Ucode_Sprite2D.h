@@ -176,10 +176,17 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 
 		// Nothing todo if either next instruction is invalid
 		// Glover does this by calling RDP Sync before drawing the sky
-		if (command2.inst.cmd != G_GBI1_SPRITE2D_SCALEFLIP || 
-			command3.inst.cmd != G_GBI1_SPRITE2D_DRAW)
+		if (command2.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP)
 		{
-			pc += 16;
+			if (command3.inst.cmd != G_GBI1_SPRITE2D_DRAW)
+			{
+				pc += 16;
+				break;
+			}
+		} 
+		else
+		{
+			pc += 8;
 			break;
 		}
 
