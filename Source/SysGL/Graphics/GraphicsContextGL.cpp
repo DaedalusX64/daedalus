@@ -13,8 +13,7 @@
 static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
 
-SDL_Window * gWindow = NULL;
-
+SDL_Window * gWindow = nullptr;
 
 class GraphicsContextGL : public CGraphicsContext
 {
@@ -53,9 +52,9 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 
 GraphicsContextGL::~GraphicsContextGL()
 {
-		SDL_DestroyWindow(gWindow);
-		gWindow = NULL;
-		SDL_Quit();
+	SDL_DestroyWindow(gWindow);
+	gWindow = NULL;
+	SDL_Quit();
 }
 
 static void error_callback(int error, const char* description)
@@ -74,38 +73,39 @@ bool GraphicsContextGL::Initialise()
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
-		//Use OpenGL 3.3 core
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
-		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-		//Create window
-		gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL );
 
-		if( gWindow == NULL )
-		{
-			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
-			return false;
-		}
+	//Use OpenGL 3.3 core
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-			//Create context
-	SDL_GLContext	gContext = SDL_GL_CreateContext( gWindow );
+	//Create window
+	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL );
+	if (gWindow == nullptr)
+	{
+		printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
+		return false;
+	}
+
+	//Create context
+	SDL_GLContext gContext = SDL_GL_CreateContext( gWindow );
 
 	SDL_GL_SetSwapInterval(1);
 
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)
 	{
-	SDL_DestroyWindow(gWindow);
-
+		SDL_DestroyWindow(gWindow);
 		gWindow = NULL;
 		SDL_Quit();
 		return false;
 	}
-//ClearColBufferAndDepth(0,0,0,0);
-UpdateFrame(false);
-return initgl();
+
+	//ClearColBufferAndDepth(0,0,0,0);
+	UpdateFrame(false);
+	return initgl();
 }
 
 

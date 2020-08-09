@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SysGL/Interface/UI.h"
 
+#include <SDL2/SDL.h>
 #include <stdio.h>
 
 #include "Core/CPU.h"
@@ -11,125 +12,95 @@
 #include "Utility/IO.h"
 #include "Utility/Thread.h"
 
+// TODO: Implemenent fullscreen toggle and window resize
 static bool toggle_fullscreen = false;
-static void HandleKeys(){}
-/*
-	if (action == GLFW_PRESS)
+
+static s32 get_saveslot_from_keysym(s32 keysym)
+{
+    switch (keysym) 
 	{
-		if (key >= '0' && key <= '9')
-		{
-			int idx = key - '0';
-
-			bool ctrl_down = (mods & GLFW_MOD_CONTROL) != 0;
-
-			char filename_ss[64];
-			sprintf( filename_ss, "saveslot%u.ss", idx );
-
-			IO::Filename path_sub;
-			sprintf( path_sub, "SaveStates\\%s", g_ROM.settings.GameName.c_str());
-
-			IO::Filename path_ss;
-			IO::Path::Combine( path_ss, gDaedalusExePath, path_sub );
-			IO::Directory::EnsureExists( path_ss );		// Ensure this dir exists
-
-			IO::Filename filename;
-			IO::Path::Combine(filename, path_ss, filename_ss);
-
-			if (ctrl_down)
-			{
-				CPU_RequestSaveState(filename);
-			}
-			else
-			{
-				if (IO::File::Exists(filename))
-				{
-					CPU_RequestLoadState(filename);
-				}
-			}
-					}
-				}
-			}
-
-
-		// TODO: ADD SDL Window close functions
-// Proper full screen toggle still not fully implemented in GLF3
-// BUT is in the roadmap for future 3XX release
-
-#if 0
-		if(key == GLFW_KEY_F1)
-		{
-			GLFWmonitor *monitor = NULL;
-
-			// Toggle fullscreen on/off
-			toggle_fullscreen ^= 1;
-
-			u32 width = 640; //SCR_WIDTH
-			u32 height= 480; //SCR_HEIGHT
-			if(toggle_fullscreen)
-			{
-				monitor = glfwGetPrimaryMonitor();
-
-				// Get destop resolution, this should tell us the max resolution we can use
-				const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-				width = mode->width;
-				height= mode->height;
-			}
-
-			// Arg need to close and re open window to toggle fullscreen :(
-			// Hopefully future releases of GLFW should make this simpler
-			glfwDestroyWindow(gWindow);
-
-			glfwWindowHint(GLFW_SAMPLES, 4);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-
-		#ifdef DAEDALUS_OSX
-			// OSX 10.7+ only supports 3.2 with core profile/forward compat.
-			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-		#endif
-
-			glfwWindowHint(GLFW_DEPTH_BITS, 24);
-			//glfwWindowHint(GLFW_STENCIL_BITS, 0);
-
-			// Open a window and create its OpenGL context
-			gWindow = glfwCreateWindow( width, height,
-										"Daedalus",
-										monitor, NULL );
-
-			glfwSetWindowSize(gWindow, width, height);
-			if( !gWindow)
-			{
-				// FIX ME: What to do here? Should exit?
-				fprintf( stderr, "Failed to re open GLFW window!\n" );
-				//glfwTerminate();
-				return;
-			}
-		}
-#endif
-		if (key == GLFW_KEY_ESCAPE)
-		{
-			glfwSetWindowShouldClose(window, GL_TRUE);
-		}
-	}
+    case SDL_SCANCODE_0:
+        return 0;
+    case SDL_SCANCODE_1:
+        return 1;
+    case SDL_SCANCODE_2:
+        return 2;
+    case SDL_SCANCODE_3:
+        return 3;
+    case SDL_SCANCODE_4:
+        return 4;
+    case SDL_SCANCODE_5:
+        return 5;
+    case SDL_SCANCODE_6:
+        return 6;
+    case SDL_SCANCODE_7:
+        return 7;
+    case SDL_SCANCODE_8:
+        return 8;
+    case SDL_SCANCODE_9:
+        return 9;
+    default:
+        return -1;
+    }
 }
 
 static void PollKeyboard(void * arg)
 {
-	glfwPollEvents();
-	if (glfwWindowShouldClose(gWindow))
-		CPU_Halt("Window Closed");
+	SDL_Event event;
+	while (SDL_PollEvent( &event) != 0)
+	{
+		if (event.type == SDL_QUIT)
+		{
+			CPU_Halt("Window Closed");	// SDL window was closed
+		}
+		else if(event.type == SDL_KEYDOWN)
+		{
+			if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+			{
+				CPU_Halt("Window Closed");	// User pressed escape to exit
+			}
+			s32 idx = -1;
+			if ((idx = get_saveslot_from_keysym(event.key.keysym.scancode)) >= 0)
+			{
+				char filename_ss[64];
+				sprintf( filename_ss, "saveslot%u.ss", idx );
+
+				IO::Filename path_sub;
+				sprintf( path_sub, "SaveStates/%s", IO::Path::FindFileName(g_ROM.settings.GameName.c_str()));
+
+				IO::Filename path_ss;
+				IO::Path::Combine( path_ss, gDaedalusExePath, path_sub );
+				IO::Directory::EnsureExists( path_ss );		// Ensure this dir exists
+
+				IO::Filename filename;
+				IO::Path::Combine(filename, path_ss, filename_ss);
+
+				bool ctrl_down = event.key.keysym.mod & ( KMOD_LCTRL | KMOD_RCTRL );
+				if (ctrl_down)
+				{
+					CPU_RequestSaveState(filename);
+				}
+				else
+				{
+					if (IO::File::Exists(filename))
+					{
+						CPU_RequestLoadState(filename);
+					}
+				}
+			}
+		}
+	}
 }
-*/
+
 bool UI_Init()
 {
-	DAEDALUS_ASSERT(gWindow != NULL, "The SDL window should already have been initialised");
-	//glfwSetKeyCallback(gWindow, &HandleKeys);
-//	CPU_RegisterVblCallback(&PollKeyboard, NULL);
+	DAEDALUS_ASSERT(gWindow != nullptr, "The SDL window should already have been initialised");
+
+	CPU_RegisterVblCallback(&PollKeyboard, nullptr);
 	return true;
 }
 
 void UI_Finalise()
 {
-//	CPU_UnregisterVblCallback(&PollKeyboard, NULL);
+	CPU_UnregisterVblCallback(&PollKeyboard, nullptr);
 }

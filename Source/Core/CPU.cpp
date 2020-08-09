@@ -421,9 +421,7 @@ void CPU_SelectCore()
 bool CPU_RequestSaveState( const char * filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
-	#endif
 	MutexLock lock( &gSaveStateMutex );
 
 	// Abort if already in the process of loading/saving
@@ -442,9 +440,7 @@ bool CPU_RequestSaveState( const char * filename )
 bool CPU_RequestLoadState( const char * filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
-	#endif
 	MutexLock lock( &gSaveStateMutex );
 
 	// Abort if already in the process of loading/saving
@@ -462,9 +458,7 @@ bool CPU_RequestLoadState( const char * filename )
 
 static void HandleSaveStateOperationOnVerticalBlank()
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-		DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
-	#endif
+	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
 	if( gSaveStateOperation == SSO_NONE )
 		return;
 
@@ -476,21 +470,15 @@ static void HandleSaveStateOperationOnVerticalBlank()
 	switch( gSaveStateOperation )
 	{
 	case SSO_NONE:
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unreachable" );
-		#endif
 		break;
 	case SSO_SAVE:
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Saving '%s'\n", gSaveStateFilename.c_str());
-		#endif
 		SaveState_SaveToFile( gSaveStateFilename.c_str() );
 		gSaveStateOperation = SSO_NONE;
 		break;
 	case SSO_LOAD:
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Loading '%s'\n", gSaveStateFilename.c_str());
-		#endif
 		// Try to load the savestate immediately. If this fails, it
 		// usually means that we're running the correct rom (we should have a
 		// separate return code to check this case). In that case we
@@ -527,13 +515,11 @@ static bool HandleSaveStateOperationOnCPUStopRunning()
 		System_Open(rom_filename);
 		SaveState_LoadFromFile(gSaveStateFilename.c_str());
 	}
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DBGConsole_Msg(0, "Couldn't find matching rom for %s\n", gSaveStateFilename.c_str());
 		// Keep running with the current rom.
 	}
-	#endif
 
 	return true;
 }
@@ -547,9 +533,7 @@ bool CPU_Run()
 	{
 		gCPURunning = true;
 		gCPUStopOnSimpleState = false;
-		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT(gSaveStateOperation == SSO_NONE, "Shouldn't have a save state operation queued.");
-		#endif
 		RESET_EVENT_QUEUE_LOCK();
 
 		while (gCPURunning)
@@ -560,18 +544,13 @@ bool CPU_Run()
 		if (!HandleSaveStateOperationOnCPUStopRunning())
 			break;
 	}
-
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(!gCPURunning, "gCPURunning should be false by now.");
-	#endif
 	return true;
 }
 
 void CPU_Halt( const char * reason )
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg( 0, "CPU Halting: %s", reason );
-	#endif
 	gCPUStopOnSimpleState = true;
 	gCPUState.AddJob( CPU_STOP_RUNNING );
 }

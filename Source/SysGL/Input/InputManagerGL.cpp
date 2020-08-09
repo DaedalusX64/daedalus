@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "SysGL/GL.h"
 
+//TODO: Implement gamepad support with SDL
+//#define GAMEPAD_SUPPORT
 
 class IInputManager : public CInputManager
 {
@@ -42,23 +44,27 @@ public:
 	virtual const char *		GetConfigurationDescription( u32 configuration_idx ) const;
 	virtual void				SetConfiguration( u32 configuration_idx );
 	virtual u32					GetConfigurationFromName( const char * name ) const;
-
+#ifdef GAMEPAD_SUPPORT
 	void						GetGamePadStatus();
 
 private:
 	void GetJoyPad(OSContPad *pPad);
 	bool mGamePadAvailable;
+#endif
 };
-
-IInputManager::IInputManager()
-:	mGamePadAvailable(false)
-{
-}
 
 IInputManager::~IInputManager()
 {
 }
 
+IInputManager::IInputManager()
+#ifdef GAMEPAD_SUPPORT
+:	mGamePadAvailable(false)
+#endif
+{
+}
+
+#ifdef GAMEPAD_SUPPORT
 static void CheckPadStatusVblHandler( void * arg )
 {
 	IInputManager * manager = static_cast< IInputManager * >( arg );
@@ -71,47 +77,51 @@ static void CheckPadStatusVblHandler( void * arg )
 	}
 	++count;
 }
+#endif
 
 bool IInputManager::Initialise()
 {
+#ifdef GAMEPAD_SUPPORT	
 	CPU_RegisterVblCallback( &CheckPadStatusVblHandler, this );
+#endif
 	return true;
 
 }
 
 void IInputManager::Finalise()
 {
+#ifdef GAMEPAD_SUPPORT
 	CPU_UnregisterVblCallback( &CheckPadStatusVblHandler, this );
+#endif
 }
 
-
+#ifdef GAMEPAD_SUPPORT
 void IInputManager::GetGamePadStatus()
 {
-	//mGamePadAvailable = glfwJoystickPresent(GLFW_JOYSTICK_1) ? true : false;
+	mGamePadAvailable = glfwJoystickPresent(GLFW_JOYSTICK_1) ? true : false;
 }
 
-void IInputManager::GetJoyPad(OSContPad *pPad)
+void InputManager::GetJoyPad(OSContPad *pPad)
 {
-	/*
 	static const s32 N64_ANALOGUE_STICK_RANGE =  80;
 
 	int num_axes;
-//	const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &num_axes);
-//    if(!axes || num_axes < 2)
-//	{
+	const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &num_axes);
+    if(!axes || num_axes < 2)
+	{
 		// gamepad was disconnected?
-  //      DAEDALUS_ERROR("Couldn't read axes");
-    //    return;
-  //  }
+        DAEDALUS_ERROR("Couldn't read axes");
+        return;
+    }
 
     int num_buttons;
-//	const u8 * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &num_buttons);
-//	if(!buttons || num_buttons < 24)
-//	{
+	const u8 * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &num_buttons);
+	if(!buttons || num_buttons < 24)
+	{
 		// gamepad was disconnected?
-//		DAEDALUS_ERROR("Couldn't read buttons");
-//		return;
-//	}
+		DAEDALUS_ERROR("Couldn't read buttons");
+		return;
+	}
 
 	//ToDo: Different gamepads will need different configuration, this is for PS3/PS2 controller
 	if (buttons[11])	pPad->button |= START_BUTTON;
@@ -146,9 +156,8 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 
 	pPad->stick_x =  s8(axes[0] * N64_ANALOGUE_STICK_RANGE);
 	pPad->stick_y =  s8(axes[1] * N64_ANALOGUE_STICK_RANGE);
-	*/
 }
-
+#endif
 void IInputManager::GetState( OSContPad pPad[4] )
 {
 	// Clear the initial state
@@ -159,53 +168,42 @@ void IInputManager::GetState( OSContPad pPad[4] )
 		pPad[cont].stick_y = 0;
 	}
 
-	// Check if a gamepad is connected, If not fallback to keyboard
+	if(SDL_Window* window = gWindow)
+	{
+		const u8* keys = SDL_GetKeyboardState( NULL );
+
+		if (keys [ SDL_SCANCODE_UP ] ) {pPad[0].stick_y = +80;}
+		if (keys [ SDL_SCANCODE_DOWN ] ) {pPad[0].stick_y = -80;}
+		if (keys [ SDL_SCANCODE_LEFT ] ) {pPad[0].stick_x = -80;}
+		if (keys [ SDL_SCANCODE_RIGHT ] ) {pPad[0].stick_x = +80;}
+
+		if (keys [ SDL_SCANCODE_X ] ) {pPad[0].button |= A_BUTTON;}
+		if (keys [ SDL_SCANCODE_C ] ) {pPad[0].button |= B_BUTTON;}
+		if (keys [ SDL_SCANCODE_Z ] ) {pPad[0].button |= Z_TRIG;}
+		if (keys [ SDL_SCANCODE_A ] ) {pPad[0].button |= L_TRIG;}
+		if (keys [ SDL_SCANCODE_S ] ) {pPad[0].button |= R_TRIG;}
+
+
+		if (keys [ SDL_SCANCODE_RETURN ] ) {pPad[0].button |= START_BUTTON;}
+
+		if (keys [ SDL_SCANCODE_KP_8 ] ){  pPad[0].button |= U_JPAD;}
+		if (keys [ SDL_SCANCODE_KP_2 ] ){  pPad[0].button |= D_JPAD;}
+		if (keys [ SDL_SCANCODE_KP_4 ] ){  pPad[0].button |= L_JPAD;}
+		if (keys [ SDL_SCANCODE_KP_6 ] ){  pPad[0].button |= R_JPAD;}
+
+		if (keys [ SDL_SCANCODE_HOME ] ){  pPad[0].button |= U_CBUTTONS;}
+		if (keys [ SDL_SCANCODE_END ] ){  pPad[0].button |= D_CBUTTONS;}
+		if (keys [ SDL_SCANCODE_DELETE ] ){  pPad[0].button |= L_CBUTTONS;}
+		if (keys [ SDL_SCANCODE_PAGEDOWN ] ){  pPad[0].button |= R_CBUTTONS;}
+	}
+#ifdef GAMEPAD_SUPPORT
+	// Override the keyboard with the gamepad if it's available.
 	if(mGamePadAvailable)
 	{
 		GetJoyPad(&pPad[0]);
 	}
-	else if(SDL_Window* window = gWindow)
-	{
-		SDL_Event key;
-		while (SDL_PollEvent( &key) != 0)
-		{
-			 // User request quit
-			 if (key.type == SDL_QUIT)
-			 {
-				 SDL_Quit();
-			 }
-		 }
-
-
-const Uint8* keys = SDL_GetKeyboardState( NULL );
-
-if (keys [ SDL_SCANCODE_UP ] ) {pPad[0].stick_y = +80;}
-if (keys [ SDL_SCANCODE_DOWN ] ) {pPad[0].stick_y = -80;}
-if (keys [ SDL_SCANCODE_LEFT ] ) {pPad[0].stick_x = -80;}
-if (keys [ SDL_SCANCODE_RIGHT ] ) {pPad[0].stick_x = +80;}
-
-if (keys [ SDL_SCANCODE_X ] ) {pPad[0].button |= A_BUTTON;}
-if (keys [ SDL_SCANCODE_C ] ) {pPad[0].button |= B_BUTTON;}
-if (keys [ SDL_SCANCODE_Z ] ) {pPad[0].button |= Z_TRIG;}
-if (keys [ SDL_SCANCODE_A ] ) {pPad[0].button |= L_TRIG;}
-if (keys [ SDL_SCANCODE_S ] ) {pPad[0].button |= R_TRIG;}
-
-
-if (keys [ SDL_SCANCODE_RETURN ] ) {pPad[0].button |= START_BUTTON;}
-
-if (keys [ SDL_SCANCODE_KP_8 ] ){  pPad[0].button |= U_JPAD;}
-if (keys [ SDL_SCANCODE_KP_2 ] ){  pPad[0].button |= D_JPAD;}
-if (keys [ SDL_SCANCODE_KP_4 ] ){  pPad[0].button |= L_JPAD;}
-if (keys [ SDL_SCANCODE_KP_6 ] ){  pPad[0].button |= R_JPAD;}
-
-if (keys [ SDL_SCANCODE_HOME ] ){  pPad[0].button |= U_CBUTTONS;}
-if (keys [ SDL_SCANCODE_END ] ){  pPad[0].button |= D_CBUTTONS;}
-if (keys [ SDL_SCANCODE_DELETE ] ){  pPad[0].button |= L_CBUTTONS;}
-if (keys [ SDL_SCANCODE_PAGEDOWN ] ){  pPad[0].button |= R_CBUTTONS;}
-
-
-			 }
-		}
+#endif
+}
 
 template<> bool	CSingleton< CInputManager >::Create()
 {
