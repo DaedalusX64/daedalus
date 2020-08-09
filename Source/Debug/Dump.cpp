@@ -116,7 +116,7 @@ void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char
 
 	// Form the filename from the file spec (i.e. strip path and replace the extension)
 	IO::Filename file_name;
-	IO::Path::Assign(file_name, rom_filename);
+	IO::Path::Assign(file_name, IO::Path::FindFileName(rom_filename));
 	IO::Path::SetExtension(file_name, extension);
 
 	IO::Path::Combine(rootdir, path_name, file_name);

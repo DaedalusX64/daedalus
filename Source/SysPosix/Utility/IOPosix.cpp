@@ -137,7 +137,7 @@ namespace IO
 			}
 			else
 			{
-				return NULL;
+				return p_path;
 			}
 		}
 

@@ -34,7 +34,7 @@ namespace IO
 	};
 	SceIoDirentGuarded	gDirEntry;
 
-	const char gPathSeparator( '/' );
+	const char gPathSeparator = '/';
 	namespace File
 	{
 		bool	Move( const char * p_existing, const char * p_new )
@@ -150,7 +150,7 @@ namespace IO
 			}
 			else
 			{
-				return nullptr;
+				return p_path;
 			}
 		}
 
