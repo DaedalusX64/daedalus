@@ -131,35 +131,6 @@ static void ConvertGeneric( const TextureDestInfo & dsti,
 	}
 }
 
-// FIXME: This function assumes dst is RGBA and little endian machine
-static void ConvertGenericYUVBlocks( const TextureDestInfo & dsti, const TextureInfo & ti)
-{
-	u32 *		dst  = reinterpret_cast< u32 * >( dsti.Data );
-	const u8 *	src  = g_pu8RamBase;
-	u32			src_offset = ti.GetLoadAddress();
-
-	u32 width = ti.GetWidth();
-	u32 height = ti.GetHeight();
-
-	u32 *mb = (u32*)(src + src_offset);
-
-	//yuv macro block contains 16x16 texture.
-	for (u32 h = 0; h < height; h++)
-	{
-		// Do two pixels at a time
-		for (u32 w = 0; w < width; w+=2)
-		{
-			u32 t = *(mb++); //each u32 contains 2 pixels
-			u8 y1 = (u8)(t    )&0xFF;
-			u8 v  = (u8)(t>>8 )&0xFF;
-			u8 y0 = (u8)(t>>16)&0xFF;
-			u8 u  = (u8)(t>>24)&0xFF;
-			*(dst++) = YUV16(y0, u, v);
-			*(dst++) = YUV16(y1, u, v);
-		}
-	}
-}
-
 };
 
 typedef void (*ConvertPalettisedRowFunction)( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const NativePf8888 * palette );
@@ -254,9 +225,7 @@ struct SConvert
 	template < typename OutT, u32 InFiddle, u32 OutFiddle >
 	static inline void ConvertRow( OutT * dst, const u8 * src, u32 src_offset, u32 width )
 	{
-		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_DL_ASSERT( IsAligned( src_offset, sizeof( InT ) ), "Offset should be correctly aligned" );
-		#endif
 		//
 		//	Need to be careful of this - ensure that it's doing the right thing in all cases and not overflowing rows.
 		//	This is to ensure that we correctly convert all the texels in a row, even when we're fiddling.
@@ -287,20 +256,8 @@ struct SConvert
 												 ConvertRow< OutT, Fiddle, 0 > );
 	}
 
-	template < typename OutT >
-	static inline void ConvertYUVTextureT( const TextureDestInfo & dsti, const TextureInfo & ti )
-	{
-		SConvertGeneric< OutT >::ConvertGenericYUVBlocks( dsti, ti);
-	}
-
 	static void ConvertTexture( const TextureDestInfo & dsti, const TextureInfo & ti )
 	{
-		if (ti.GetFormat() == G_IM_FMT_YUV)
-		{
-			ConvertYUVTextureT< NativePf8888 >( dsti, ti ); // NOTE: Hardcoded to RGB8888
-			return;
-		}
-
 		switch( dsti.Format )
 		{
 		case TexFmt_5650:	ConvertTextureT< NativePf5650 >( dsti, ti ); return;
@@ -312,9 +269,8 @@ struct SConvert
 		case TexFmt_CI8_8888: break;
 
 		}
-		#ifdef DAEDALUS_DEBUG_CONSOLE
+
 		DAEDALUS_DL_ERROR( "Unhandled format" );
-		#endif
 	}
 };
 
@@ -374,9 +330,8 @@ struct SConvertIA4
 		case TexFmt_CI8_8888: break;
 
 		}
-		#ifdef DAEDALUS_DEBUG_CONSOLE
+
 		DAEDALUS_DL_ERROR( "Unhandled format" );
-		#endif
 	}
 };
 
@@ -438,9 +393,8 @@ struct SConvertI4
 		case TexFmt_CI8_8888: break;
 
 		}
-		#ifdef DAEDALUS_DEBUG_CONSOLE
+
 		DAEDALUS_DL_ERROR( "Unhandled format" );
-		#endif
 	}
 };
 
@@ -491,10 +445,6 @@ static void ConvertCI4_Row( NativePfCI44 * dst, const u8 * src, u32 src_offset, 
 template< u32 F >
 static void ConvertCI4_Row_To_8888( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const NativePf8888 * palette )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT(palette, "No palette");
-	#endif
-
 	for (u32 x = 0; x+1 < width; x+=2)
 	{
 		u8 b = src[src_offset ^ F];
@@ -532,10 +482,6 @@ static void ConvertCI8_Row( NativePfCI8 * dst, const u8 * src, u32 src_offset, u
 template< u32 F >
 static  void ConvertCI8_Row_To_8888( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const NativePf8888 * palette )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT(palette, "No palette");
-	#endif
-
 	for (u32 x = 0; x < width; x++)
 	{
 		u8 b     {src[src_offset ^ F]};
@@ -604,17 +550,58 @@ static void ConvertCI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 							   ConvertCI8_Row< 0x3 > );
 		break;
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
 		DAEDALUS_ERROR( "Unhandled format for CI8 textures" );
 		break;
-		#endif
 	}
 }
 
 static void ConvertYUV16(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
-	SConvert< N64Pf8888 >::ConvertTexture( dsti, ti ); // NOTE: Passeed format is just bogus
+	u32 * dst = static_cast<u32*>(dsti.Data);
+	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
+	u32 dst_row_offset = 0;
+
+	const u8 * src = g_pu8RamBase;
+	u32 src_row_stride = ti.GetPitch();
+	u32 src_row_offset = ti.GetLoadAddress();
+
+	u32 width = ti.GetWidth();
+	u32 height = ti.GetHeight();
+
+	// NB! YUV/16 line needs to be doubled.
+	src_row_stride *= 2;
+
+	if (ti.IsSwapped())
+	{
+		//TODO: This should be easy to implement but I would like to find first a game that uses it
+		DAEDALUS_ERROR("Swapped YUV16 textures are not supported yet");
+	}
+	else
+	{
+		for (u32 y = 0; y < height; y++)
+		{
+			u32 src_offset = src_row_offset;
+			u32 dst_offset = dst_row_offset;
+
+			// Do two pixels at a time
+			for (u32 x = 0; x < width; x += 2)
+			{
+				s32 y0 = src[src_offset+2];
+				s32 y1 = src[src_offset+0];
+				s32 u0 = src[src_offset+3];
+				s32 v0 = src[src_offset+1];
+
+				dst[dst_offset+0] = YUV16(y0,u0,v0);
+				dst[dst_offset+1] = YUV16(y1,u0,v0);
+
+				src_offset += 4;
+				dst_offset += 2;
+			}
+			src_row_offset += src_row_stride;
+			dst_row_offset += dst_row_stride;	
+		}
+	}
 }
 
 static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
@@ -640,11 +627,9 @@ static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 							   ConvertCI4_Row< 0x3 > );
 		break;
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
 		DAEDALUS_ERROR( "Unhandled format for CI4 textures" );
 		break;
-		#endif
 	}
 }
 
@@ -653,15 +638,15 @@ static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 typedef void ( *ConvertFunction )( const TextureDestInfo & dsti, const TextureInfo & ti);
 static const ConvertFunction gConvertFunctions[ 32 ] =
 {
-	    // 4bpp             8bpp              16bpp				32bpp
-	   nullptr,         nullptr,      ConvertRGBA16,    ConvertRGBA32,		// RGBA
-	   nullptr,         nullptr,       ConvertYUV16,          nullptr,		// YUV
-	ConvertCI4,      ConvertCI8,            nullptr,          nullptr,		// CI
-	ConvertIA4,      ConvertIA8,        ConvertIA16,          nullptr,		// IA
-	 ConvertI4,       ConvertI8,            nullptr,          nullptr,		// I
-	   nullptr,         nullptr,            nullptr,          nullptr,		// ?
-	   nullptr,         nullptr,            nullptr,          nullptr,		// ?
-	   nullptr,         nullptr,            nullptr,          nullptr		// ?
+	// 4bpp          8bpp              16bpp				32bpp
+	nullptr,         nullptr,      	ConvertRGBA16,    ConvertRGBA32,// RGBA
+	nullptr,         nullptr,      	ConvertYUV16,     nullptr,		// YUV
+	ConvertCI4,      ConvertCI8,   	nullptr,          nullptr,		// CI
+	ConvertIA4,      ConvertIA8,   	ConvertIA16,      nullptr,		// IA
+	ConvertI4,       ConvertI8,		nullptr,          nullptr,		// I
+	nullptr,         nullptr,       nullptr,          nullptr,		// ?
+	nullptr,         nullptr,       nullptr,          nullptr,		// ?
+	nullptr,         nullptr,       nullptr,          nullptr		// ?
 };
 
 bool ConvertTexture(const TextureInfo & ti,
@@ -670,12 +655,6 @@ bool ConvertTexture(const TextureInfo & ti,
 					ETextureFormat texture_format,
 					u32 pitch)
 {
-	//Do nothing if palette address is nullptr or close to nullptr in a palette texture //Corn
-	//Loading a SaveState (OOT -> SSV) dont bring back our TMEM data which causes issues for the first rendered frame.
-	//Checking if the palette pointer is less than 0x1000 (rather than just nullptr) fixes it.
-	// Seems to happen on the first frame of Goldeneye too?
-	if( (ti.GetFormat() == G_IM_FMT_CI) && (ti.GetTlutAddress() < 0x1000) ) return false;
-
 	//memset( texels, 0, buffer_size );
 
 	TextureDestInfo dsti( texture_format );
