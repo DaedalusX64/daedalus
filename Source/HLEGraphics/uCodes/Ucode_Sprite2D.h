@@ -134,8 +134,8 @@ static void Draw_Sprite2D( MicroCodeCommand command, const Sprite2DStruct *sprit
 
 	f32 uls = sprite->imageX; //left
 	f32 ult = sprite->imageY; //top
-	f32 lrs = sprite->imageX + sprite->imageW - 1; //right
-	f32 lrt = sprite->imageY + sprite->imageH - 1; //bottom
+	f32 lrs = sprite->imageX + sprite->imageW; //right
+	f32 lrt = sprite->imageY + sprite->imageH; //bottom
 	if (g_ROM.GameHacks == WCW_NITRO)
 	{
 		ult /= info.scaleY;
