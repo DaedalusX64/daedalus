@@ -34,35 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 //
 //*****************************************************************************
-struct uObjBg
-{
-	u16 imageW;
-	u16 imageX;
-	u16 frameW;
-	s16 frameX;
-	u16 imageH;
-	u16 imageY;
-	u16 frameH;
-	s16 frameY;
-
-	u32 imagePtr;
-	u8  imageSiz;
-	u8  imageFmt;
-	u16 imageLoad;
-	u16 imageFlip;
-	u16 imagePal;
-
-	u16 tmemH;
-	u16 tmemW;
-	u16 tmemLoadTH;
-	u16 tmemLoadSH;
-	u16 tmemSize;
-	u16 tmemSizeW;
-};
-
-//*****************************************************************************
-//
-//*****************************************************************************
 struct uObjMtx
 {
 	s32	  A, B, C, D;
@@ -133,43 +104,43 @@ struct	uObjScaleBg
 //*****************************************************************************
 //
 //*****************************************************************************
-struct	uObjTxtrBlock //PSP Format
+struct	uObjTxtrBlock
 {
-	  u32	type;
-	  u32	image;
+	u32	type;
+	u32	image;
 
-	  u16	tsize;
-	  u16	tmem;
+	u16	tsize;
+	u16	tmem;
 
-	  u16	sid;
-	  u16	tline;
+	u16	sid;
+	u16	tline;
 
-	  u32	flag;
-	  u32	mask;
+	u32	flag;
+	u32	mask;
 };
 
 //*****************************************************************************
 //
 //*****************************************************************************
-struct uObjTxtrTile //PSP Format
+struct uObjTxtrTile
 {
-	  u32	type;
-	  u32	image;
+	u32	type;
+	u32	image;
 
-	  u16	twidth;
-	  u16	tmem;
+	u16	twidth;
+	u16	tmem;
 
-	  u16	sid;
-	  u16	theight;
+	u16	sid;
+	u16	theight;
 
-	  u32	flag;
-	  u32	mask;
+	u32	flag;
+	u32	mask;
 };
 
 //*****************************************************************************
 //
 //*****************************************************************************
-struct uObjTxtrTLUT // PSP Format
+struct uObjTxtrTLUT
 {
 	u32	type;
 	u32	image;
@@ -240,7 +211,34 @@ enum ESpriteMode
 };
 
 static uObjTxtr *gObjTxtr = NULL;
-void DLParser_OB_YUV(const uObjSprite *sprite);
+//*****************************************************************************
+//
+//*****************************************************************************
+static void Load_BgSprite( const uObjScaleBg *objBg )
+{
+	TextureInfo ti;
+	ti.SetLoadAddress(RDPSegAddr(objBg->imagePtr));
+	ti.SetFormat(objBg->imageFmt);
+	ti.SetSize(objBg->imageSiz);
+
+	u32 width = objBg->imageW>>2;
+	u32 height = objBg->imageH>>2;
+
+	ti.SetWidth(width);
+	ti.SetHeight(height);
+	ti.SetPitch(((((width) << objBg->imageSiz) >> 1)>>3)<<3); //force 8-bit alignment
+
+	ti.SetSwapped(false);
+	ti.SetPalette(objBg->imagePal);
+	ti.SetTlutAddress(gTlutLoadAddresses[0]);
+	ti.SetTLutFormat(kTT_RGBA16);
+
+	DL_PF( "    S2DEX BG Texture:[Width:%d, Height:%d] -> Address[0x%08x] Format[%s] TLUT[0x%x] Pitch[%d]",
+		ti.GetWidth(), ti.GetHeight(), ti.GetLoadAddress(), ti.GetFormatName(), ti.GetTlutAddress(), ti.GetPitch());
+
+	gRenderer->LoadTextureDirectly(ti);
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -357,6 +355,124 @@ static void Draw_ObjSprite( const uObjSprite *sprite )
 		break;
 	}
 }
+
+//*****************************************************************************
+//
+//*****************************************************************************
+//Ogre Battle needs to copy YUV texture to frame buffer
+static void DLParser_OB_YUV(const uObjSprite *sprite)
+{
+	f32 imageW = sprite->imageW / 32.0f;
+	f32 imageH = sprite->imageH / 32.0f;
+	f32 scaleW = sprite->scaleW / 1024.0f;
+	f32 scaleH = sprite->scaleH / 1024.0f;
+
+	f32 objX = sprite->objX / 4.0f;
+	f32 objY = sprite->objY / 4.0f;
+
+	u16 ul_x = (u16)(objX/mat2D.BaseScaleX + mat2D.X);
+	u16 lr_x = (u16)((objX + imageW/scaleW)/mat2D.BaseScaleX + mat2D.X);
+	u16 ul_y = (u16)(objY/mat2D.BaseScaleY + mat2D.Y);
+	u16 lr_y = (u16)((objY + imageH/scaleH)/mat2D.BaseScaleY + mat2D.Y);
+
+	u32 ci_width = g_CI.Width;
+	u32 ci_height = scissors.bottom;
+
+	if( (ul_x >= ci_width) || (ul_y >= ci_height) )
+		return;
+
+	u32 width = 16;
+	if (lr_x > ci_width)	
+		width = ci_width - ul_x;
+
+	u32 height = 16;
+	if (lr_y > ci_height)	
+		height = ci_height - ul_y;
+
+	const u32 *mb = (const u32*)(g_pu8RamBase + g_TI.Address); //pointer to the first macro block
+	u16 *dst = (u16*)(g_pu8RamBase + g_CI.Address);
+	dst += ul_x + ul_y * ci_width;
+
+	//yuv macro block contains 16x16 texture. we need to put it in the proper place inside cimg
+	for (u16 h = 0; h < 16; h++)
+	{
+		for (u16 w = 0; w < 16; w+=2)
+		{
+			u32 t = *(mb++); //each u32 contains 2 pixels
+			if ((h < height) && (w < width)) //clipping. texture image may be larger than color image
+			{
+				u8 y0 = (u8)t&0xFF;
+				u8 v  = (u8)(t>>8)&0xFF;
+				u8 y1 = (u8)(t>>16)&0xFF;
+				u8 u  = (u8)(t>>24)&0xFF;
+				*(dst++) = YUVtoRGBA(y0, u, v);
+				*(dst++) = YUVtoRGBA(y1, u, v);
+			}
+		}
+		dst += ci_width - 16;
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+static void DLParser_Yoshi_MemRect( MicroCodeCommand command )
+{
+	//
+	// Fetch the next two instructions
+	//
+	u32 pc = gDlistStack.address[gDlistStackPointer];
+	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
+	gDlistStack.address[gDlistStackPointer]+= 16;
+
+	RDP_MemRect mem_rect;
+	mem_rect.cmd0 = command.inst.cmd0;
+	mem_rect.cmd1 = command.inst.cmd1;
+	mem_rect.cmd2 = pCmdBase[1];
+
+	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( mem_rect.tile_idx ) );
+
+	u32	x0 = mem_rect.x0;
+	u32	y0 = mem_rect.y0;
+	u32	y1 = mem_rect.y1;
+	if (y1 > scissors.bottom)
+		y1 = scissors.bottom;
+
+	// Get base address of texture
+	u32 tile_addr = gRDPStateManager.GetTileAddress( rdp_tile.tmem );
+
+	DL_PF ("    MemRect->Addr[0x%08x] (%d, %d -> %d, %d) Width[%d]", tile_addr, x0, y0, mem_rect.x1, y1, g_CI.Width);
+#if 1	//1->Optimized, 0->Generic
+	// This assumes Yoshi always copy 16 bytes per line and dst is aligned and we force alignment on src!!! //Corn
+	u32 tex_width = rdp_tile.line << 3;
+	uintptr_t texaddr = ((uintptr_t)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
+	uintptr_t fbaddr = (uintptr_t)g_pu8RamBase + g_CI.Address + x0;
+	for (u32 y = y0; y < y1; y++)
+	{
+		u32 *src = (u32*)(texaddr + (y - y0) * tex_width);
+		u32 *dst = (u32*)(fbaddr + y * g_CI.Width);
+
+		dst[0] = src[0];
+		dst[1] = src[1];
+		dst[2] = src[2];
+		dst[3] = src[3];
+	}
+#else
+	u32	x1 = mem_rect.x1;
+	u32 width = x1 - x0;
+	u32 tex_width = rdp_tile.line << 3;
+	u8 * texaddr = g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5);
+	u8 * fbaddr = g_pu8RamBase + g_CI.Address + x0;
+
+	for (u32 y = y0; y < y1; y++)
+	{
+		u8 *src = texaddr + (y - y0) * tex_width;
+		u8 *dst = fbaddr + y * g_CI.Width;
+		memcpy(dst, src, width);
+	}
+#endif
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -494,124 +610,6 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
-{
-	//
-	// Fetch the next two instructions
-	//
-	u32 pc = gDlistStack.address[gDlistStackPointer];
-	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
-	gDlistStack.address[gDlistStackPointer]+= 16;
-
-	RDP_MemRect mem_rect;
-	mem_rect.cmd0 = command.inst.cmd0;
-	mem_rect.cmd1 = command.inst.cmd1;
-	mem_rect.cmd2 = pCmdBase[1];
-
-	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( mem_rect.tile_idx ) );
-
-	u32	x0 = mem_rect.x0;
-	u32	y0 = mem_rect.y0;
-	u32	y1 = mem_rect.y1;
-	if (y1 > scissors.bottom)
-		y1 = scissors.bottom;
-
-	// Get base address of texture
-	u32 tile_addr = gRDPStateManager.GetTileAddress( rdp_tile.tmem );
-
-	DL_PF ("    MemRect->Addr[0x%08x] (%d, %d -> %d, %d) Width[%d]", tile_addr, x0, y0, mem_rect.x1, y1, g_CI.Width);
-#if 1	//1->Optimized, 0->Generic
-	// This assumes Yoshi always copy 16 bytes per line and dst is aligned and we force alignment on src!!! //Corn
-	u32 tex_width = rdp_tile.line << 3;
-	uintptr_t texaddr = ((uintptr_t)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
-	uintptr_t fbaddr = (uintptr_t)g_pu8RamBase + g_CI.Address + x0;
-	for (u32 y = y0; y < y1; y++)
-	{
-		u32 *src = (u32*)(texaddr + (y - y0) * tex_width);
-		u32 *dst = (u32*)(fbaddr + y * g_CI.Width);
-
-		dst[0] = src[0];
-		dst[1] = src[1];
-		dst[2] = src[2];
-		dst[3] = src[3];
-	}
-#else
-	u32	x1 = mem_rect.x1;
-	u32 width = x1 - x0;
-	u32 tex_width = rdp_tile.line << 3;
-	u8 * texaddr = g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5);
-	u8 * fbaddr = g_pu8RamBase + g_CI.Address + x0;
-
-	for (u32 y = y0; y < y1; y++)
-	{
-		u8 *src = texaddr + (y - y0) * tex_width;
-		u8 *dst = fbaddr + y * g_CI.Width;
-		memcpy(dst, src, width);
-	}
-#endif
-
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-//Ogre Battle needs to copy YUV texture to frame buffer
-void DLParser_OB_YUV(const uObjSprite *sprite)
-{
-	f32 imageW = sprite->imageW / 32.0f;
-	f32 imageH = sprite->imageH / 32.0f;
-	f32 scaleW = sprite->scaleW / 1024.0f;
-	f32 scaleH = sprite->scaleH / 1024.0f;
-
-	f32 objX = sprite->objX / 4.0f;
-	f32 objY = sprite->objY / 4.0f;
-
-	u16 ul_x = (u16)(objX/mat2D.BaseScaleX + mat2D.X);
-	u16 lr_x = (u16)((objX + imageW/scaleW)/mat2D.BaseScaleX + mat2D.X);
-	u16 ul_y = (u16)(objY/mat2D.BaseScaleY + mat2D.Y);
-	u16 lr_y = (u16)((objY + imageH/scaleH)/mat2D.BaseScaleY + mat2D.Y);
-
-	u32 ci_width = g_CI.Width;
-	u32 ci_height = scissors.bottom;
-
-	if( (ul_x >= ci_width) || (ul_y >= ci_height) )
-		return;
-
-	u32 width = 16;
-	if (lr_x > ci_width)	
-		width = ci_width - ul_x;
-
-	u32 height = 16;
-	if (lr_y > ci_height)	
-		height = ci_height - ul_y;
-
-	const u32 *mb = (const u32*)(g_pu8RamBase + g_TI.Address); //pointer to the first macro block
-	u16 *dst = (u16*)(g_pu8RamBase + g_CI.Address);
-	dst += ul_x + ul_y * ci_width;
-
-	//yuv macro block contains 16x16 texture. we need to put it in the proper place inside cimg
-	for (u16 h = 0; h < 16; h++)
-	{
-		for (u16 w = 0; w < 16; w+=2)
-		{
-			u32 t = *(mb++); //each u32 contains 2 pixels
-			if ((h < height) && (w < width)) //clipping. texture image may be larger than color image
-			{
-				u8 y0 = (u8)t&0xFF;
-				u8 v  = (u8)(t>>8)&0xFF;
-				u8 y1 = (u8)(t>>16)&0xFF;
-				u8 u  = (u8)(t>>24)&0xFF;
-				*(dst++) = YUVtoRGBA(y0, u, v);
-				*(dst++) = YUVtoRGBA(y1, u, v);
-			}
-		}
-		dst += ci_width - 16;
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 {
 	//RDP: RSP_S2DEX_RDPHALF_0 (0xe449c0a8 0x003b40a4)
@@ -647,23 +645,8 @@ void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 {
-	const uObjBg *objBg = (const uObjBg*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
-
-	TextureInfo ti;
-	ti.SetFormat(objBg->imageFmt);
-	ti.SetSize(objBg->imageSiz);
-
-	ti.SetLoadAddress(RDPSegAddr(objBg->imagePtr));
-	ti.SetWidth(objBg->imageW>>2);
-	ti.SetHeight(objBg->imageH>>2);
-	ti.SetPitch(((((objBg->imageW>>2) << objBg->imageSiz) >> 1)>>3)<<3); //force 8-bit alignment
-
-	ti.SetSwapped(false);
-	ti.SetPalette(objBg->imagePal);
-	ti.SetTlutAddress(gTlutLoadAddresses[0]);
-	ti.SetTLutFormat(kTT_RGBA16);
-
-	gRenderer->LoadTextureDirectly(ti);
+	const uObjScaleBg *objBg = (const uObjScaleBg*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	Load_BgSprite( objBg );
 
 	u16 imageX = objBg->imageX >> 5;
 	u16 imageY = objBg->imageY >> 5;
@@ -689,24 +672,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 		return;
 
 	const uObjScaleBg *objBg = (const uObjScaleBg*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
-
-
-	TextureInfo ti;
-	ti.SetFormat(objBg->imageFmt);
-	ti.SetSize(objBg->imageSiz);
-
-	ti.SetLoadAddress(RDPSegAddr(objBg->imagePtr));
-	ti.SetWidth(objBg->imageW/4);
-	ti.SetHeight(objBg->imageH/4);
-	ti.SetPitch(((((objBg->imageW/4) << ti.GetSize()) >> 1)>>3)<<3); //force 8-bit alignment, this what sets our correct viewport.
-
-	ti.SetSwapped(false);
-
-	ti.SetPalette(objBg->imagePal);
-	ti.SetTlutAddress(gTlutLoadAddresses[0]);
-	ti.SetTLutFormat(kTT_RGBA16);
-
-	gRenderer->LoadTextureDirectly(ti);
+	Load_BgSprite( objBg );
 
 	f32 frameX = objBg->frameX / 4.0f;
 	f32 frameY = objBg->frameY / 4.0f;
