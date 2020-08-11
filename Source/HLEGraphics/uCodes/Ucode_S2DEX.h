@@ -24,12 +24,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Needed by S2DEX
 //*****************************************************************************
 
-#define	G_GBI2_SELECT_DL		0x04
 #define	S2DEX_OBJLT_TXTRBLOCK	0x00001033
 #define	S2DEX_OBJLT_TXTRTILE	0x00fc1034
 #define	S2DEX_OBJLT_TLUT		0x00000030
 #define	S2DEX_BGLT_LOADBLOCK	0x0033
 #define	S2DEX_BGLT_LOADTILE		0xfff4
+#define S2DEX_BG_FLAG_FLIPS		0x01
+#define	S2DEX_BG_FLAG_FLIPT		0x10
+
 
 //*****************************************************************************
 //
@@ -322,8 +324,12 @@ static void Draw_ObjSprite( const uObjSprite *sprite )
 		x3 = mat2D.A*objX + mat2D.B*objH + mat2D.X;
 		y3 = mat2D.C*objX + mat2D.D*objH + mat2D.Y;
 
-		DAEDALUS_ASSERT( (sprite->imageFlags&1) == 0, "Need to flip X" );
-		DAEDALUS_ASSERT( (sprite->imageFlags&0x10) == 0, "Need to flip Y" );
+		// Used by Worms
+		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPS)
+			Swap< f32 >( x0, x1 );
+
+		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPT)
+			Swap< f32 >( y0, y1 );
 
 		gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 		break;
@@ -331,8 +337,8 @@ static void Draw_ObjSprite( const uObjSprite *sprite )
 	case PARTIAL_ROTATION:
 		x0 = mat2D.X + objX / mat2D.BaseScaleX;
 		y0 = mat2D.Y + objY / mat2D.BaseScaleY;
-		x1 = mat2D.X + objW / mat2D.BaseScaleX - 1.0f;
-		y1 = mat2D.Y + objH / mat2D.BaseScaleY - 1.0f;
+		x1 = mat2D.X + objW / mat2D.BaseScaleX;
+		y1 = mat2D.Y + objH / mat2D.BaseScaleY;
 
 		// Partial rotation doesn't flip sprites
 		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
@@ -341,14 +347,14 @@ static void Draw_ObjSprite( const uObjSprite *sprite )
 	case NO_ROTATION:
 		x0 = objX;
 		y0 = objY;
-		x1 = objW - 1.0f;
-		y1 = objH - 1.0f;
+		x1 = objW;
+		y1 = objH;
 
 		// Used by Worms
-		if( sprite->imageFlags&1 )
+		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPS)
 			Swap< f32 >( x0, x1 );
 
-		if( sprite->imageFlags&0x10 )
+		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPT)
 			Swap< f32 >( y0, y1 );
 
 		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
