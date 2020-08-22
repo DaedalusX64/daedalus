@@ -27,9 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "HLEAudio/audiohle.h"
-#include "HLEAudio/AudioHLEProcessor.h"
-#include "OSHLE/ultra_sptask.h"
+#include "HLEAudio/HLEAudioInternal.h"
+#include "HLEAudio/HLEAudioState.h"
+#include "Ultra/ultra_sptask.h"
 #include "Utility/Profiler.h"
 
 // Audio UCode lists

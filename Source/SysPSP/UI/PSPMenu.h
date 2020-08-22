@@ -1,7 +1,7 @@
 #ifndef SYSPSP_UI_PSPMENU_H_
 #define SYSPSP_UI_PSPMENU_H_
 
-#include "Utility/DaedalusTypes.h"
+#include "Base/Types.h"
 #include "SysPSP/Utility/PathsPSP.h"
 
 // User Interface Variables

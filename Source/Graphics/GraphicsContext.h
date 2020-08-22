@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef GRAPHICS_GRAPHICSCONTEXT_H_
 #define GRAPHICS_GRAPHICSCONTEXT_H_
 
-#include "Utility/DaedalusTypes.h"
-#include "Utility/Singleton.h"
+#include "Base/Types.h"
+#include "Base/Singleton.h"
 
 class c32;
 

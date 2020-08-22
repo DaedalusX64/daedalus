@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/UI/UISetting.h"
 #include "SysPSP/UI/UISpacer.h"
 #include "SysPSP/UI/UICommand.h"
-#include "Utility/Preferences.h"
+#include "Interface/Preferences.h"
 
 
 namespace

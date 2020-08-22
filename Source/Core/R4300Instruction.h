@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CORE_R4300INSTRUCTION_H_
 #define CORE_R4300INSTRUCTION_H_
 
-#include "Utility/DaedalusTypes.h"
+#include "Base/Types.h"
 
 // Through various tests, it seems the compiler generates much better code by
 // passing the opcode as a primitive datatype (as it can stick the value directly

@@ -25,14 +25,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string>
 #include "System/Paths.h"
 
-#include "Utility/IO.h"
+#include "System/IO.h"
 #include "Utility/StringUtil.h"
 #include "Utility/Translate.h"
 #include "Utility/VolatileMem.h"
 
 #include "SysPSP/Utility/PathsPSP.h"
 
-#include "Utility/Macros.h"
+#include "Base/Macros.h"
 #define TRANSLATE_DUMP_VALUE 0xDAEDDAED
 //*****************************************************************************
 //

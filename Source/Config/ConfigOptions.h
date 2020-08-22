@@ -23,7 +23,7 @@
 #ifndef CONFIG_CONFIGOPTIONS_H_
 #define CONFIG_CONFIGOPTIONS_H_
 
-#include "Utility/IO.h"
+#include "System/IO.h"
 
 // Config stuff
 struct DaedalusConfig

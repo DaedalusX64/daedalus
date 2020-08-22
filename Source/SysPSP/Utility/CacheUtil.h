@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSPSP_UTILITY_CACHEUTIL_H_
 #define SYSPSP_UTILITY_CACHEUTIL_H_
 
-#include "Math/MathUtil.h"
+#include "Base/MathUtil.h"
 
 // Taken from MediaEnginePRX, assume they're orignally from
 // http://forums.ps2dev.org/viewtopic.php?p=58333#58333

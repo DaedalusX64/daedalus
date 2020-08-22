@@ -3,7 +3,7 @@
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
 #include "Math/Math.h"
-#include "Math/MathUtil.h" // Swap
+#include "Base/MathUtil.h" // Swap
 
 #ifdef DAEDALUS_PSP
 #include <pspvfpu.h>
@@ -330,7 +330,7 @@ void myMulMatrixCPU(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *
 }
 */
 
-//#include "Utility/Timing.h"
+//#include "System/Timing.h"
 
 Matrix4x4 Matrix4x4::operator*( const Matrix4x4 & rhs ) const
 {

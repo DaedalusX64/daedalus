@@ -6,9 +6,9 @@
 
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
-#include "HLEAudio/audiohle.h"
-#include "HLEAudio/AudioHLEProcessor.h"
-#include "Math/MathUtil.h"
+#include "HLEAudio/HLEAudioInternal.h"
+#include "HLEAudio/HLEAudioState.h"
+#include "Base/MathUtil.h"
 
 
 

@@ -2,8 +2,8 @@
 #define MATH_VECTOR4_H_
 
 #include "Math/Math.h"	// VFPU Math
-#include "Utility/Alignment.h"
-#include "Utility/DaedalusTypes.h"
+#include "Base/Alignment.h"
+#include "Base/Types.h"
 
 ALIGNED_TYPE(class, v4, 16)
 {

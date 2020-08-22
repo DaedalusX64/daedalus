@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSPSP_GRAPHICS_VIDEOMEMORYMANAGER_H_
 #define SYSPSP_GRAPHICS_VIDEOMEMORYMANAGER_H_
 
-#include "Utility/DaedalusTypes.h"
-#include "Utility/Singleton.h"
+#include "Base/Types.h"
+#include "Base/Singleton.h"
 
 class CVideoMemoryManager : public CSingleton< CVideoMemoryManager >
 {

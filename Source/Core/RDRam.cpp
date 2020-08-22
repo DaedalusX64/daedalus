@@ -32,7 +32,7 @@
 #include "Debug/DBGConsole.h"
 #include "Core/Memory.h"
 #include "Core/RDRam.h"
-#include "OSHLE/ultra_sptask.h"
+#include "Ultra/ultra_sptask.h"
 
 /* FIXME: assume presence of expansion pack */
 #define MEMMASK 0x7FFFFF

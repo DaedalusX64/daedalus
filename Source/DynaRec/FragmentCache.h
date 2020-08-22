@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DYNAREC_FRAGMENTCACHE_H_
 #define DYNAREC_FRAGMENTCACHE_H_
 
-#include "Utility/DaedalusTypes.h"
+#include "Base/Types.h"
 
 class	CFragment;
 class	CJumpLocation;

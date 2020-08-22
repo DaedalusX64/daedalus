@@ -25,11 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
-#include "Math/MathUtil.h"
+#include "Base/MathUtil.h"
 #include "Math/Vector2.h"
 #include "SysPSP/Graphics/DrawText.h"
 #include "SysPSP/Utility/PathsPSP.h"
-#include "Utility/Macros.h"
+#include "Base/Macros.h"
 #include "Utility/String.h"
 #include "Utility/Translate.h"
 #include "SysPSP/UI/PSPMenu.h"

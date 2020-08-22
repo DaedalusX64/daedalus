@@ -13,10 +13,10 @@
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/TextureCache.h"
-#include "Math/MathUtil.h"
+#include "Base/MathUtil.h"
 #include "SysPSP/HLEGraphics/RendererPSP.h"
-#include "OSHLE/ultra_gbi.h"
-#include "Utility/IO.h"
+#include "Ultra/ultra_gbi.h"
+#include "System/IO.h"
 #include "Utility/Profiler.h"
 
 

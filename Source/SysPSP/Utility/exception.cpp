@@ -15,7 +15,7 @@
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
 #include "Debug/Dump.h"
-#include "Utility/PrintOpCode.h"
+#include "Core/PrintOpCode.h"
 
 
 PspDebugRegBlock *exception_regs;

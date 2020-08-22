@@ -23,7 +23,7 @@
 #ifndef INTERFACE_ROMDB_H_
 #define INTERFACE_ROMDB_H_
 
-#include "Utility/Singleton.h"
+#include "Base/Singleton.h"
 
 #include "Core/ROM.h"
 

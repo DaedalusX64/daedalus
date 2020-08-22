@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DYNAREC_BRANCHTYPE_H_
 #define DYNAREC_BRANCHTYPE_H_
 
-#include "Utility/DaedalusTypes.h"
+#include "Base/Types.h"
 #include <stdlib.h>
 
 struct OpCode;

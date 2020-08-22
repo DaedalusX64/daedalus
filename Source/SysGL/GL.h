@@ -5,7 +5,7 @@
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL.h>
 
-#include "Utility/DaedalusTypes.h"
+#include "Base/Types.h"
 
 extern SDL_Window * gWindow;
 

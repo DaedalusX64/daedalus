@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioBuffer.h"
-#include "Utility/Thread.h"
+#include "System/Thread.h"
 
 #ifdef DAEDALUS_PSP
 #include <pspsdk.h>

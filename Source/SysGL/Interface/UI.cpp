@@ -9,8 +9,8 @@
 
 #include "SysGL/GL.h"
 #include "System/Paths.h"
-#include "Utility/IO.h"
-#include "Utility/Thread.h"
+#include "System/IO.h"
+#include "System/Thread.h"
 
 // TODO: Implemenent fullscreen toggle and window resize
 static bool toggle_fullscreen = false;

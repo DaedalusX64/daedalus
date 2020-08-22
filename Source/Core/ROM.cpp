@@ -33,20 +33,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "Interface/RomDB.h"
-#include "Math/MathUtil.h"
+#include "Base/MathUtil.h"
 #include "OSHLE/patch.h"			// Patch_ApplyPatches
-#include "OSHLE/ultra_os.h"		// System type
-#include "OSHLE/ultra_R4300.h"
-#include "Plugins/AudioPlugin.h"
-#include "Plugins/GraphicsPlugin.h"
+#include "Ultra/ultra_os.h"		// System type
+#include "Ultra/ultra_R4300.h"
+#include "HLEAudio/AudioPlugin.h"
+#include "HLEGraphics/GraphicsPlugin.h"
 #include "Utility/CRC.h"
-#include "Utility/FramerateLimiter.h"
-#include "Utility/IO.h"
-#include "Utility/Macros.h"
-#include "Utility/Preferences.h"
-#include "Utility/ROMFile.h"
+#include "Core/FramerateLimiter.h"
+#include "System/IO.h"
+#include "Base/Macros.h"
+#include "Interface/Preferences.h"
+#include "RomFile/RomFile.h"
 #include "Utility/Stream.h"
-#include "Utility/Synchroniser.h"
+#include "Debug/Synchroniser.h"
 
 #if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
 // This isn't really the most appropriate place. Need to check with

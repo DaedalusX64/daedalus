@@ -28,8 +28,8 @@ Copyright (C) 2001 StrmnNrmn
 #include "HLEGraphics/N64PixelFormat.h"
 #include "HLEGraphics/RDP.h"
 #include "HLEGraphics/TextureInfo.h"
-#include "Math/MathUtil.h"
-#include "OSHLE/ultra_gbi.h"
+#include "Base/MathUtil.h"
+#include "Ultra/ultra_gbi.h"
 
 namespace
 {

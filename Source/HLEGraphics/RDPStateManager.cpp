@@ -28,10 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/TMEM.h"
 #include "HLEGraphics/uCodes/UcodeDefs.h"
-#include "Math/MathUtil.h"
-#include "OSHLE/ultra_gbi.h"
-#include "Utility/Alignment.h"
-#include "Utility/Macros.h"
+#include "Base/MathUtil.h"
+#include "Ultra/ultra_gbi.h"
+#include "Base/Alignment.h"
+#include "Base/Macros.h"
 
 extern SImageDescriptor g_TI;		//Texture data from Timg ucode
 

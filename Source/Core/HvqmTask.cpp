@@ -37,7 +37,7 @@
 #include "Core/Memory.h"
 #include "Core/RDRam.h"
 #include "Debug/DBGConsole.h"
-#include "OSHLE/ultra_sptask.h"
+#include "Ultra/ultra_sptask.h"
 
  /* Nest size  */
 #define HVQM2_NESTSIZE_L 70	/* Number of elements on long side */

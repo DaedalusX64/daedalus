@@ -11,13 +11,13 @@
 #include "Graphics/NativeTexture.h"
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/RDPStateManager.h"
-#include "OSHLE/ultra_gbi.h"
+#include "Ultra/ultra_gbi.h"
 #include "SysGL/GL.h"
 #include "SysGL/HLEGraphics/RendererGL.h"
 
 #include "System/Paths.h"
-#include "Utility/IO.h"
-#include "Utility/Macros.h"
+#include "System/IO.h"
+#include "Base/Macros.h"
 #include "Utility/Profiler.h"
 
 BaseRenderer * gRenderer   = NULL;

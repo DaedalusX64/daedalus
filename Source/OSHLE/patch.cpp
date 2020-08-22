@@ -41,13 +41,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/OSMesgQueue.h"
 #include "OSHLE/patch.h"
 #include "OSHLE/patch_symbols.h"
-#include "OSHLE/ultra_os.h"
-#include "OSHLE/ultra_R4300.h"
-#include "OSHLE/ultra_rcp.h"
-#include "OSHLE/ultra_sptask.h"
-#include "Plugins/AudioPlugin.h"
+#include "Ultra/ultra_os.h"
+#include "Ultra/ultra_R4300.h"
+#include "Ultra/ultra_rcp.h"
+#include "Ultra/ultra_sptask.h"
+#include "HLEAudio/AudioPlugin.h"
 #include "Utility/CRC.h"
-#include "Utility/Endian.h"
+#include "System/Endian.h"
 #include "Utility/FastMemcpy.h"
 #include "Utility/Profiler.h"
 
@@ -58,7 +58,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DUMPOSFUNCTIONS
 #include "Debug/Dump.h"
-#include "Utility/IO.h"
+#include "System/IO.h"
 
 static const char * const gEventStrings[23] =
 {

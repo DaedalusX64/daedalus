@@ -1,7 +1,7 @@
 #ifndef MATH_MATRIX4X4_H_
 #define MATH_MATRIX4X4_H_
 
-#include "Utility/Alignment.h"
+#include "Base/Alignment.h"
 
 #include "Vector3.h"
 class v4;

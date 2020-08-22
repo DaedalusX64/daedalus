@@ -20,8 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "FileNameHandler.h"
 
-#include "Utility/IO.h"
-#include "Utility/Macros.h"
+#include "System/IO.h"
+#include "Base/Macros.h"
 
 // MODIFIED BY Lkb - 21/jul/2001 - savestate support
 FileNameHandler::FileNameHandler(LPCTSTR szSectionName,

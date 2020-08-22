@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/IndirectExitMap.h"
 #include "DynaRec/StaticAnalysis.h"
 #include "DynaRec/Trace.h"
-#include "OSHLE/ultra_R4300.h"
+#include "Ultra/ultra_R4300.h"
 
 #include "SysW32/DynaRec/x86/CodeGeneratorX86.h"
 

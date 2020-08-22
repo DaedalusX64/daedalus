@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSPSP_UTILITY_JOBMANAGER_H_
 #define SYSPSP_UTILITY_JOBMANAGER_H_
 
-#include "Utility/DaedalusTypes.h"
+#include "Base/Types.h"
 
 
 enum ETaskMode

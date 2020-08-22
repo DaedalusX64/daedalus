@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
-#include "Plugins/AudioPlugin.h"
+#include "HLEAudio/AudioPlugin.h"
 
 #include <stdio.h>
 
@@ -37,10 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioBuffer.h"
-#include "HLEAudio/audiohle.h"
-#include "Utility/FramerateLimiter.h"
-#include "Utility/Thread.h"
-#include "Utility/Timing.h"
+#include "HLEAudio/HLEAudioInternal.h"
+#include "Core/FramerateLimiter.h"
+#include "System/Thread.h"
+#include "System/Timing.h"
 
 EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
 

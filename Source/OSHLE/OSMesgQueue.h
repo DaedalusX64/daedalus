@@ -4,7 +4,7 @@
 
 
 #include "Core/Memory.h"
-#include "OSHLE/ultra_os.h"
+#include "Ultra/ultra_os.h"
 
 #include <stddef.h>		// ofsetof
 

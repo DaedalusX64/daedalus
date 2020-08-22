@@ -32,8 +32,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/CacheUtil.h"
 #include "SysPSP/Utility/JobManager.h"
 #include "SysPSP/Utility/ModulePSP.h"
-#include "Utility/Mutex.h"
-#include "Utility/Thread.h"
+#include "System/Mutex.h"
+#include "System/Thread.h"
 #include "Utility/FastMemcpy.h"
 
 #ifdef DAEDALUS_PSP_USE_ME

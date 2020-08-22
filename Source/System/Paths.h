@@ -2,7 +2,7 @@
 #ifndef SYSTEM_PATHS_H_
 #define SYSTEM_PATHS_H_
 
-#include "Utility/IO.h"
+#include "System/IO.h"
 
 extern IO::Filename gDaedalusExePath;
 

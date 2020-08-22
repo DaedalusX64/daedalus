@@ -36,12 +36,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/Fragment.h"
 #include "DynaRec/IndirectExitMap.h"
 #include "DynaRec/StaticAnalysis.h"
-#include "Utility/Macros.h"
-#include "Utility/PrintOpCode.h"
+#include "Base/Macros.h"
+#include "Core/PrintOpCode.h"
 #include "Utility/Profiler.h"
-#include "Utility/Synchroniser.h"
+#include "Debug/Synchroniser.h"
 
-#include "OSHLE/ultra_R4300.h"
+#include "Ultra/ultra_R4300.h"
 #include "OSHLE/patch.h"
 
 

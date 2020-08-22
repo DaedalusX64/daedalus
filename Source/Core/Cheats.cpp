@@ -30,9 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 #include "Config/ConfigOptions.h"
 
-#include "OSHLE/ultra_R4300.h"
+#include "Ultra/ultra_R4300.h"
 #include "System/Paths.h"
-#include "Utility/IO.h"
+#include "System/IO.h"
 #include "Utility/StringUtil.h"
 #include "Utility/VolatileMem.h"
 

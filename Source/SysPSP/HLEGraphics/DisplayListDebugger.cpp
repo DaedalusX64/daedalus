@@ -39,17 +39,17 @@
 #include "Core/ROM.h"
 #include "Debug/Dump.h"
 
-#include "Utility/IO.h"
-#include "Utility/Preferences.h"
+#include "System/IO.h"
+#include "Interface/Preferences.h"
 #include "Utility/Timer.h"
-#include "Utility/Timing.h"
+#include "System/Timing.h"
 
 #include <set>
 #include <vector>
 #include <algorithm>
 
 #include "Math/Math.h"	// VFPU Math
-#include "Math/MathUtil.h"
+#include "Base/MathUtil.h"
 
 #include <pspctrl.h>
 #include <pspgu.h>

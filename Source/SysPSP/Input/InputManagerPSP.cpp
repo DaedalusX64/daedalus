@@ -13,14 +13,14 @@
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math
-#include "Math/MathUtil.h"
+#include "Base/MathUtil.h"
 #include "SysPSP/Utility/PathsPSP.h"
 #include "Utility/IniFile.h"
-#include "Utility/IO.h"
-#include "Utility/Macros.h"
-#include "Utility/Preferences.h"
+#include "System/IO.h"
+#include "Base/Macros.h"
+#include "Interface/Preferences.h"
 #include "Utility/Stream.h"
-#include "Utility/Synchroniser.h"
+#include "Debug/Synchroniser.h"
 
 namespace
 {

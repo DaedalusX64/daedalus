@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "AudioPluginPSP.h"
 #include "AudioOutput.h"
-#include "HLEAudio/audiohle.h"
+#include "HLEAudio/HLEAudioInternal.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"

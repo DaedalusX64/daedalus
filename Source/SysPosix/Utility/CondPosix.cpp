@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "Utility/Cond.h"
-#include "Utility/Mutex.h"
+#include "System/Condition.h"
+#include "System/Mutex.h"
 
 #include <pthread.h>
 #include <stdlib.h>

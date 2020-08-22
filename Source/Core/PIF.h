@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CORE_PIF_H_
 #define CORE_PIF_H_
 
-#include "Utility/Singleton.h"
+#include "Base/Singleton.h"
 
 // XXXX GCC
 //enum	ESaveType;

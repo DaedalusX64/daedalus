@@ -39,14 +39,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 #include "Core/RSP_HLE.h"
 #include "Debug/DBGConsole.h"
-#include "HLEAudio/audiohle.h"
+#include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/AudioBuffer.h"
-#include "Plugins/AudioPlugin.h"
+#include "HLEAudio/AudioPlugin.h"
 #include "SysPSP/Utility/JobManager.h"
 #include "SysPSP/Utility/CacheUtil.h"
 #include "SysPSP/Utility/JobManager.h"
-#include "Utility/FramerateLimiter.h"
-#include "Utility/Thread.h"
+#include "Core/FramerateLimiter.h"
+#include "System/Thread.h"
 
 #define RSP_AUDIO_INTR_CYCLES     1
 extern u32 gSoundSync;

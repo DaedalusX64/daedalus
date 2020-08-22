@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "Graphics/ColourValue.h"
-#include "Math/MathUtil.h"
+#include "Base/MathUtil.h"
 #include "Math/Vector4.h"
 
 //

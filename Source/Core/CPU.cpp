@@ -38,22 +38,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROMBuffer.h"
 #include "Core/RSP_HLE.h"
 #include "Core/Save.h"
-#include "Core/SaveState.h"
+#include "Interface/SaveState.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
-#include "OSHLE/ultra_R4300.h"
-#include "System/System.h"
-#include "Utility/AtomicPrimitives.h"
-#include "Utility/FramerateLimiter.h"
+#include "Ultra/ultra_R4300.h"
+#include "System/SystemInit.h"
+#include "System/AtomicPrimitives.h"
+#include "Core/FramerateLimiter.h"
 #include "Utility/Hash.h"
-#include "Utility/Macros.h"
-#include "Utility/PrintOpCode.h"
-#include "Utility/Synchroniser.h"
-#include "Utility/Thread.h"
-#include "Utility/Mutex.h"
+#include "Base/Macros.h"
+#include "Core/PrintOpCode.h"
+#include "Debug/Synchroniser.h"
+#include "System/Thread.h"
+#include "System/Mutex.h"
 
 #ifdef DAEDALUS_W32
-#include "Plugins/AudioPlugin.h"
+#include "HLEAudio/AudioPlugin.h"
 #endif
 
 extern void R4300_Init();

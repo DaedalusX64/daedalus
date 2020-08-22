@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // This file contains high level os emulation routines
 #include "OSHLE/OS.h"
 #include "OSHLE/OSMesgQueue.h"
-#include "OSHLE/ultra_R4300.h"
+#include "Ultra/ultra_R4300.h"
 
 #ifdef DUMPOSFUNCTIONS
 #ifdef DAED_OS_MESSAGE_QUEUES

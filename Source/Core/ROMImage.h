@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CORE_ROMIMAGE_H_
 #define CORE_ROMIMAGE_H_
 
-#include "Utility/DaedalusTypes.h"
+#include "Base/Types.h"
 
 //const u32 RAMROM_FONTDATA_SIZE		= 1152;
 //const u32 RAMROM_CLOCKRATE_MASK		= 0xfffffff0;

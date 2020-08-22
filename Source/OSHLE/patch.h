@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/Registers.h"		// For SRHACK_???? etc
 #include "Core/CPU.h"		// Breakpoint stuff
-#include "ultra_R4300.h"
+#include "Ultra/ultra_R4300.h"
 
 //#define DUMPOSFUNCTIONS
 

@@ -1,7 +1,7 @@
 #ifndef OSHLE_OSTASK_H_
 #define OSHLE_OSTASK_H_
 
-#include "OSHLE/ultra_sptask.h"
+#include "Ultra/ultra_sptask.h"
 
 class COSTask
 {

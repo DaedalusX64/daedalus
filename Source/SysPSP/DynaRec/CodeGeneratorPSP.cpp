@@ -33,12 +33,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "DynaRec/AssemblyUtils.h"
 #include "DynaRec/Trace.h"
-#include "Math/MathUtil.h"
-#include "OSHLE/ultra_R4300.h"
+#include "Base/MathUtil.h"
+#include "Ultra/ultra_R4300.h"
 #include "SysPSP/DynaRec/CodeGeneratorPSP.h"
 #include "SysPSP/DynaRec/N64RegisterCachePSP.h"
-#include "Utility/Macros.h"
-#include "Utility/PrintOpCode.h"
+#include "Base/Macros.h"
+#include "Core/PrintOpCode.h"
 #include "Utility/Profiler.h"
 
 using namespace AssemblyUtils;

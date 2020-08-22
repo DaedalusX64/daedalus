@@ -13,9 +13,9 @@
 #include "HLEGraphics/DLParser.h"
 #include "HLEGraphics/DisplayListDebugger.h"
 
-#include "Plugins/GraphicsPlugin.h"
+#include "HLEGraphics/GraphicsPlugin.h"
 
-#include "Utility/Timing.h"
+#include "System/Timing.h"
 
 #include "SysGL/GL.h"
 
@@ -111,6 +111,12 @@ class CGraphicsPluginImpl : public CGraphicsPlugin
 	private:
 		u32					LastOrigin;
 };
+
+
+
+CGraphicsPlugin::~CGraphicsPlugin()
+{
+}
 
 CGraphicsPluginImpl::CGraphicsPluginImpl()
 :	LastOrigin( 0 )

@@ -40,11 +40,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/FragmentCache.h"
 #include "DynaRec/TraceRecorder.h"
 #include "OSHLE/patch.h"				// GetCorrectOp
-#include "OSHLE/ultra_R4300.h"
-#include "Utility/IO.h"
-#include "Utility/Macros.h"
+#include "Ultra/ultra_R4300.h"
+#include "System/IO.h"
+#include "Base/Macros.h"
 #include "Utility/Profiler.h"
-#include "Utility/Synchroniser.h"
+#include "Debug/Synchroniser.h"
 
 #ifdef DAEDALUS_ENABLE_DYNAREC
 

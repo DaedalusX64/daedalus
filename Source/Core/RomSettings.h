@@ -79,7 +79,7 @@ struct RomSettings
 	void	Reset();
 };
 
-#include "Utility/Singleton.h"
+#include "Base/Singleton.h"
 
 //*****************************************************************************
 //

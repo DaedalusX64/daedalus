@@ -27,10 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DebugLog.h"
 #include "Interface/RomDB.h"
 #include "System/Paths.h"
-#include "System/System.h"
+#include "System/SystemInit.h"
 #include "Test/BatchTest.h"
-#include "Utility/IO.h"
-#include "Utility/Preferences.h"
+#include "System/IO.h"
+#include "Interface/Preferences.h"
 #include "Utility/Profiler.h"		// CProfiler::Create/Destroy
 
 int __cdecl main(int argc, char **argv)

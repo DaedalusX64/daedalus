@@ -27,12 +27,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/DisplayListDebugger.h"
 
 #include "Graphics/GraphicsContext.h"
-#include "Plugins/GraphicsPlugin.h"
+#include "HLEGraphics/GraphicsPlugin.h"
 
 #include "Utility/Profiler.h"
-#include "Utility/FramerateLimiter.h"
-#include "Utility/Preferences.h"
-#include "Utility/Timing.h"
+#include "Core/FramerateLimiter.h"
+#include "Interface/Preferences.h"
+#include "System/Timing.h"
 
 #include <pspdebug.h>
 
@@ -136,6 +136,12 @@ class CGraphicsPluginImpl : public CGraphicsPlugin
 CGraphicsPluginImpl::~CGraphicsPluginImpl()
 {
 }
+
+
+CGraphicsPlugin::~CGraphicsPlugin()
+{
+}
+
 
 bool CGraphicsPluginImpl::Initialise()
 {

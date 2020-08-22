@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/R4300Instruction.h"
 #include "Core/R4300OpCode.h"
 #include "Core/TLB.h"
-#include "Utility/SpinLock.h"
+#include "System/SpinLock.h"
 
 //*****************************************************************************
 //

@@ -7,8 +7,8 @@
 #include "HLEGraphics/RDP.h"
 #include "HLEGraphics/TextureInfo.h"
 #include "Graphics/NativePixelFormat.h"
-#include "Utility/Endian.h"
-#include "Utility/Alignment.h"
+#include "System/Endian.h"
+#include "Base/Alignment.h"
 
 #include <vector>
 

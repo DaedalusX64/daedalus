@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/FragmentCache.h"
 #include "Debug/DBGConsole.h"
 #include "Utility/Profiler.h"
-#include "Utility/IO.h"
+#include "System/IO.h"
 
 //Define to show hash table statistics cache hit/miss
 //#define HASH_TABLE_STATS

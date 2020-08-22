@@ -22,9 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "HLEGraphics/CachedTexture.h"
 
-#include "Utility/Singleton.h"
+#include "Base/Singleton.h"
 #include "Utility/RefCounted.h"
-#include "Utility/Mutex.h"
+#include "System/Mutex.h"
 
 #include <vector>
 

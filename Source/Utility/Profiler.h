@@ -8,7 +8,7 @@
 
 #ifdef DAEDALUS_ENABLE_PROFILING
 
-#include "Utility/Singleton.h"
+#include "Base/Singleton.h"
 
 struct SProfileItemHandle;
 

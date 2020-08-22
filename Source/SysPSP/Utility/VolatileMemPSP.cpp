@@ -16,7 +16,7 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 #include <psppower.h>
 #include <pspsuspend.h>
 
-#include "Debug/DaedalusAssert.h"
+#include "Base/Assert.h"
 #include "SysPSP/Utility/ModulePSP.h"
 
 

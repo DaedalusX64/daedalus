@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_UCODES_UCODEDEFS_H_
 #define HLEGRAPHICS_UCODES_UCODEDEFS_H_
 
-#include "Utility/DaedalusTypes.h"
+#include "Base/Types.h"
 
 /*
 struct MicroCodeCommand

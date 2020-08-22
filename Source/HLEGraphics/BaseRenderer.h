@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/DaedalusVtx.h"
 #include "HLEGraphics/TextureInfo.h"
 #include "Graphics/ColourValue.h"
-#include "Utility/Preferences.h"
+#include "Interface/Preferences.h"
 
 #ifdef DAEDALUS_PSP
 #include <pspgu.h>

@@ -7,7 +7,7 @@
 
 #include "Utility/VolatileMem.h"
 #include "Utility/MemoryHeap.h"
-#include "Math/MathUtil.h"
+#include "Base/MathUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"
 
 const u32 ERAM(3 * 512 * 1024);	//Amount of extra (volatile)RAM to use for textures in addition to VRAM //Corn

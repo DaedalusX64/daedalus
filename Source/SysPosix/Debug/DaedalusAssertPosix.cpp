@@ -19,7 +19,7 @@
 */
 
 #include "stdafx.h"
-#include "Debug/DaedalusAssert.h"
+#include "Base/Assert.h"
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 
