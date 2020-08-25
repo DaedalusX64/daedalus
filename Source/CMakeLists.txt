@@ -93,12 +93,25 @@ project (DaedalusX64)
 				set (MAC_AUDIO SysPosix/HLEAudio/AudioPluginOSX.cpp)
 
 
-if (PSP_RELEASE)
-	message("PSP Release Build..")
-	add_definitions("-DNDEBUG  -march=allegrex -O2 -msingle-float -mfix-r4000 -W ")
+## Check for debug / Profile flags, if neither are selected, do a release build instead
+# This will be more refined eventually as having macro processing tucked away sucks.
+
+if(DEBUG)
+	message("Debug Build")
+	include_directories(${PROJECT_SOURCE_DIR}/Base/Dev)
+	add_definitions("-g -O2 -G0 -D_DEBUG -MD -Wall")
+elseif(PROFILE)
+	message("Profile Build")
+	include_directories(${PROJECT_SOURCE_DIR}/Base/Profile)
+else()
+	message("Release Build")
+	include_directories(${PROJECT_SOURCE_DIR}/Base/Release)
+	add_definitions("-DNDEBUG -O2 -W ")
+endif(DEBUG)
+
+if (PSP)
 	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
-	include_directories(${PROJECT_SOURCE_DIR}/Base/Release)
 	add_library(pspkubridge STATIC IMPORTED)
 	set_property(TARGET pspkubridge PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/SysPSP/Include/lib/libpspkubridge.a)
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include)
@@ -107,87 +120,40 @@ if (PSP_RELEASE)
 	set_target_properties(daedalus.elf PROPERTIES LINK_FLAGS "-specs=${PSPSDK}/lib/prxspecs -Wl,-q,-T${PSPSDK}/lib/linkfile.prx ${PSPSDK}/lib/prxexports.o -L${PSPSDK}/lib")
 	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
 	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lpng -lz -lc -lg -lm -lpspfpu pspkubridge ${PSPSDK_LIBS})
-endif (PSP_RELEASE)
+endif (PSP)
 
 
+if (LINUX)
+	add_definitions(-DDAEDALUS_LINUX)
+	## Assume Linux uses X11 for now
+	set (OS_LIBS X11)
+	set (AUDIO_DRIVER ${LINUX_AUDIO})
+endif (LINUX)
 
-#Only difference between PSP Release and Debug is the definitions and Config Dev File - Try and merge
-
-if (PSP_DEBUG)
-	message("PSP Debug Build..")
-	include_directories(${PROJECT_SOURCE_DIR}/Base/Dev)
-	add_definitions("-g -O2 -fno-omit-frame-pointer -G0 -D_DEBUG -MD -Wall")
-	add_compile_options(-DPSP_FW_VERSION=661)
-	add_definitions(-DDAEDALUS_PSP )
-	add_library(pspkubridge STATIC IMPORTED)
-set_property(TARGET pspkubridge PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/SysPSP/Include/lib/libpspkubridge.a)
-	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include)
-	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD} ${DEBUG_ONLY})
-	add_executable(daedalus.elf ${PSP_MAIN_FILES})
-	set_target_properties(daedalus.elf PROPERTIES LINK_FLAGS "-specs=${PSPSDK}/lib/prxspecs -Wl,-q,-T${PSPSDK}/lib/linkfile.prx ${PSPSDK}/lib/prxexports.o -L${PSPSDK}/lib")
-	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lpng -lz -lc -lg -lm -lpspfpu pspkubridge ${PSPSDK_LIBS})
-endif (PSP_DEBUG)
-
-if (MAC_RELEASE OR LINUX_RELEASE)
-
-add_definitions("-DNDEBUG -O3 -DDAEDALUS_POSIX")
-	add_definitions(-DDAEDALUS_POSIX)
-		include_directories(${PROJECT_SOURCE_DIR}/Base/Release)
-include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysPosix/Include)
-
-endif (MAC_RELEASE OR LINUX_RELEASE)
-
-if (MAC_DEBUG OR LINUX_DEBUG)
-
-add_definitions("-D_DEBUG -g -DDAEDALUS_POSIX")
-	add_definitions(-DDAEDALUS_POSIX)
-		include_directories(${PROJECT_SOURCE_DIR}/Base/Dev)
-include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Dev ${PROJECT_SOURCE_DIR}/SysPosix/Include)
-
-endif (MAC_DEBUG OR LINUX_DEBUG)
-
-
-if (LINUX_RELEASE OR LINUX_DEBUG)
-
-
-		message("Linux Release Build..")
-		    add_definitions("-DDAEDALUS_LINUX" "-DDAEDALUS_GL" -g)
-
-		#Build SysGL Lib
-		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL GL GLEW -lSDL2 dl X11  )
-
-		#Build Daedalus Lib
-		add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${LINUX_AUDIO} )
-	target_link_libraries(daedalus.lib sysGL -lGL  -lSDL2 -lGLEW png z minizip pthread)
-
-		#Build and Link Executable
-			add_executable(daedalus ${POSIX_MAIN_FILES})
-		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
-endif (LINUX_RELEASE OR LINUX_DEBUG)
-
-
-if (MAC_RELEASE OR MAC_DEBUG)
-
-		message("Mac Release Build..")
-FIND_PATH(OPENGL_INCLUDE_DIR gl.h)
+if (MAC)
+	set (OS_LIBS "-framework OpenGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")
+	set (AUDIO_DRIVER ${MAC_AUDIO})
+	include_directories(${PROJECT_SOURCE_DIR/HLEGraphics}) # Why are we including this?
+	FIND_PATH(OPENGL_INCLUDE_DIR gl.h) #Is this required?
 	FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
-		include_directories(/usr/local/include -framework OpenGL)
-		link_directories(/usr/local/lib)
+	include_directories(/usr/local/include -framework OpenGL) # Is this required? 
+	link_directories(/usr/local/lib) ## Is this required?
+endif (MAC)
 
-    add_definitions("-DDAEDALUS_OSX -DDAEDALUS_GL -g -Wno-narrowing")
-		#Build SysGL Lib
-		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL -lGLEW -lSDL2 -ldl "-framework OpeNGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo"  )
+if (MAC OR LINUX)
+	add_definitions(-DDAEDALUS_POSIX -DDAEDALUS_GL)
+	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPosix/Include ${PROJECT_SOURCE_DIR})
+	
+	#Build SysGL
+	add_library(sysGL STATIC ${SYSGL_BUILD})
+	target_link_libraries(sysGL GL GLEW SDL2 dl ${OS_LIBS})
 
-		#Build Daedalus Lib
-		add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${MAC_AUDIO} )
+	#Build Daedalus Lib
+	add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${AUDIO_DRIVER} )
 	target_link_libraries(daedalus.lib sysGL png z minizip pthread)
 
-		#Build and Link Executable
-			add_executable(daedalus ${POSIX_MAIN_FILES})
-		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
-endif (MAC_RELEASE OR MAC_DEBUG)
+	#Build and Link Executable
+	add_executable(daedalus ${POSIX_MAIN_FILES})
+	target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
+
+endif (MAC OR LINUX)
