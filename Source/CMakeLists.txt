@@ -126,7 +126,7 @@ endif (PSP)
 if (LINUX)
 	add_definitions(-DDAEDALUS_LINUX)
 	## Assume Linux uses X11 for now
-	set (OS_LIBS X11)
+	set (OS_LIBS X11 GL)
 	set (AUDIO_DRIVER ${LINUX_AUDIO})
 endif (LINUX)
 
@@ -146,7 +146,7 @@ if (MAC OR LINUX)
 	
 	#Build SysGL
 	add_library(sysGL STATIC ${SYSGL_BUILD})
-	target_link_libraries(sysGL GL GLEW SDL2 dl ${OS_LIBS})
+	target_link_libraries(sysGL GLEW SDL2 dl ${OS_LIBS})
 
 	#Build Daedalus Lib
 	add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${AUDIO_DRIVER} )
