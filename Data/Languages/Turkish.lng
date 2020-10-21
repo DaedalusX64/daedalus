@@ -1,0 +1,177 @@
+//
+// Translation file for DaedalusX64
+// Language : Turkish
+// Last Updated : 16.10.2020
+// Version : 1.0
+// Translation by : Soner Çakir
+//
+//
+// To modify:
+// Please make sure this file is always encoded as UTF-8
+// To create a new translation please use the Default.lng inside Default.7z as base
+// Do not move/remove or translate the first line named as MAGIC NUMBER
+
+// The hash # for your language is : (Which is used to display your language name in the GUI)
+// Please check hash.txt inside Default.7z for list of hash numbers for most languages
+// Please add it below MAGIC NUMBER and make sure to translate it
+//
+
+00000000,MAGIC NUMBER
+9dc1820c,Önizleme Yok
+a03fa94a,Önyükleme:
+19db9e32,Ülke:
+09543b05,Boyut:
+08d5d6b9,Kaydet:
+ee537eb0,(X) -> Yükle
+ee5b9cf1,([ ]) -> Ayarlar
+29d22763,(/\\) -> Dosya Adlari
+7b3eaf50,(HOME) -> Çikis
+59466b27,(SELECT) -> Sil
+183f4586,Çikmak istediginizden Eminmisiniz?
+859c733e,(X) -> Onayla
+1e85c445,Press any button to continue
+13b51271,(X) Onayla       (O) Vazgeç
+b7ca4f3e,Global Ayarlar
+051a94d5,Roms
+9b692907,Seçili Rom
+c1170d2b,Kayit noktalari
+DAEDDAED,Hakkinda
+a786de62,Daedalus yüklenecek rom bulamadi.
+dcafd211,Bellek çubugunuzdaki \\ N64 \\ dizinine rom ekleyebilirsiniz,
+df73ecf1,veya Daedalus klasörü içindeki Roms dizini.
+d72277a0,Daedalus bir dizi farkli dosya türünü tanir,
+4f01e7b5,formatlar .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.
+bdd1275c,Tercihleri ​​Düzenle
+ba9c614e,Gelismis Seçenekler
+7f8644c8,Hileler
+e8ad4e74,Emülasyonu Baslat
+85b79ea0,Bu rom için çesitli tercihleri ​​düzenleyin.
+e6fa21a3,Bu rom için gelismis seçenekleri düzenleyin.
+037a6ee9,Bu rom için hileleri etkinlestirin ve seçin.
+88f3a4c2,Seçilen romu taklit etmeye baslayin.
+bfb757ff,Kaydedilecek yuvayi seçin
+4bd9a865,Yüklenecek yuvayi seçin
+11183fe7,Yüklenecek Kayit Noktasi yok
+72b02b7e,Kaydedilecek yuvayi seçin [X:kaydet O:geri]
+7d24bdfa,yüklenecek yuvayi seçin [X:yükle O:geri []:sil]
+26145f81,Bu kayit alanini silmek için Üçgen'e basin
+0981b45a,Yuva
+1670fc01,<bos>
+6c81a8ee,Kaydediliyor ...
+d44916e4,Yükleniyor ...
+24f6055a,Duraklatildi
+57d4e678,Kaydedilecek Yuva Seçin
+da257eb4,Durumu Kaydet
+284f6577,Durum Yükle / Sil
+27df9ed3,Ekran Görüntüsü Al
+bb5092ca,Mevcut durumu kaydedin.
+24312e7d,Önceden kaydedilmis bir durumu geri yükleyin veya silin.
+cdec8d9c,özgeçmiste ekran görüntüsü al.
+4aaa99d7,Emülasyonu Sürdür
+1e25cde5,Ana Menüye Dön
+79139258,Ana menüye dönülsün mü?
+17beb20d,Copyright (C) 2008-2012 DaedalusX64 Ekibi
+191b0de3,Telif Hakki (C) 2001-2009 StrmnNrmn
+b27fe8d9,Azimer'den Ses HLE kodu
+82a39ef2,Haberler ve güncellemeler için bu adresi ziyaret edin:
+8eb50a08,Devre Disi
+34fcd0e7,Etkin
+11240414,Eszamansiz
+af304fb7,Senkron
+ec4156ec,Bilinmeyen
+00001f35,Hayir
+000e02bd,evet
+930db968,Tam hiz
+e265bfa8,Yarim hiz
+55eef632,Doku Güncelleme Kontrolü
+ce12dd96,Frameskip
+05985a81,Büyüt
+492c372a,Kare Hizi Sinirla
+d62ec48b,Dinamik Yeniden Derleme
+477417d2,Yüksek Düzey Emülasyon
+9a686c92,Ses
+28675d34,Denetleyici
+e3a9b7b3,Kareler arasinda doku güncellemelerinin kontrol edilip edilmeyecegi. Bazi ROM'larda grafik kalitesi pahasina kare hizini iyilestirmek için bunu devre disi birakin.
+37ee9082,Bu, yeni bir çerçeve olusturmadan önce kaç karenin atlanacagini belirler. Bu degeri artirmak, daha sarsintili grafikler pahasina küçük bir hiz artisi saglamalidir.
+74b87a6d,Ekran boyutunu artirin, deger varsayilan ekran boyutunu geçersiz kilar,% 100 varsayilandir.
+b950b01f,Yenileme oranini 50 / 25Hz (PAL) veya 60 / 30Hz (NTSC) ile sinirlayin.
+48917b8a,Dinamik yeniden derleme, ROM emülasyonu için önemli bir hizlanma saglar.
+ad549ea7,Gerçek olanlari taklit etmek (daha yavas) yerine çogaltilmis isletim sistemi islevi çagrilarinin (daha hizli) kullanilip kullanilmayacagi (UYARI, bazi ROM'larda kararsizliga ve / veya çökmeye neden olabilir).
+e0366a74,Ses emülasyonunun etkinlestirilip etkinlestirilmeyecegi ve sesin eszamansiz (hizli / hatali) veya eszamanli (yavas) olarak islenip islenmeyecegi.
+487f2ed5,Kaydet ve Geri Dön
+54a93276,iptal
+beb13b0c,Ayarlarda yapilan degisiklikleri onaylayin ve geri dönün.
+442b79c8,Ayarlarda yapilan degisiklikleri iptal edin ve geri dönün.
+2462a960,Rom Tercihleri
+4c3230e6,Hile Kodlarini Etkinlestir
+c6aa2aab,Hile Kodlari Frekansini Uygula
+04564e07,Bu ROM için hile kodlarinin kullanilip kullanilmayacagi
+b5ca15d7,Bu deger ne kadar yüksekse, belirli hilelerin düzgün çalismamasi pahasina o kadar az hile emülatörü zorlar.
+276e1699,Bu giris için hile kodu bulunamadi
+48119424,4:3 ölçeklenmemis (320x240)
+c9a48cf8,4:3 ölçekli (362x272)
+c4d3e6cb,Tam Ekran (480x272)
+1cadb15b,HLE önbellegi sifirlansin mi?
+8ade5a3b,Ayarlar sifirlansin mi?
+7c43b365,Daedalus simdi çikacak
+22bc6816,Baslamak için X'e Basin
+02123b1a,Klasik
+a00e4b11,Siyah
+000cebbf,Kirmizi
+bf706ca5,Yesil
+c6c78d35,Eflatun
+041e9694,Mavi
+b85ffe49,Turkuaz
+1ab89f90,Turuncu
+a0d31d90,Mor
+046e1a7f,Gri
+04dbb2b8,Yok
+4d60c1e6,Ekran Bilgileri
+d45b8b73,Görüntü Alani Boyutu
+49ff4d2c,Dogrusal Filtreyi Zorla
+f096e88f,Denetleyici eklentisi
+2cd3ab78,Çubuk Deadzone
+23d8d78c,Büyük ROM Arabellegi Kullan
+d228ec17,Düsük Pil Uyarisi
+2e167ec2,GUI Tarzi
+ca887fd8,GUI Rengi
+6a4df2ac,Ayarlari Sifirla
+a3bdb5f5,Rom çalisirken ek bilgilerin gösterilip gösterilmeyecegi. Bazi modlar yalnizca DEBUG modunda kullanilabilir
+1bfe167d,PSP'deki görüntü alaninin boyutu.
+7f9bdebd,Dogrusal filtreyi zorlamayi etkinlestirin, bu dokularin görünümünü iyilestirebilir
+b4478cb3,MemPak veya RumblePak'i etkinlestirin
+a342ced3,Oynarken PSP çubuguna uygulanan ölü bölgenin boyutunu ayarlayin. Düzenlemek için Baslat / X dügmesine basin.
+67c8709b,Büyük ROM'larda sahne degisiklikleri sirasinda küçük bir yavaslama ile daha hizli yükleme için bunu devre disi birakin. Yalnizca ROM yüklenirken etkili olur.
+a53edd7e,Daedalus'un pil zayifladiginda bildirimde bulunmasina izin verilip verilmeyecegi.
+48580c6c,Tercihleri ​​varsayilana sifirlama ve önbellek dosyalarini kullanma konusunda size rehberlik edecek. Not: ayarlar sifirlanirsa emülatör çikacak
+e1134e27,Bellek Erisim Optimizasyonu
+f1da3d39,Temiz Sahne
+c75e1b17,Dinamik Döngü Optimizasyonu
+679a7a90,Çift Ekran Listeleri
+5936df5c,Video Hizi Eslesmesi
+931034db,Ses Hizi Eslesmesi
+73180dbe,Sis Emülasyonu
+d64510cd,Hizlanma için etkinlestir (UYARI, bazi ROM'larda kararsizliga ve / veya çökmeye neden olabilir).
+6be51f9b,Herhangi bir temel öge çizmeden önce çerçeve arabellegini temizlemeye zorla
+cae93146,Hizlandirma için Çift Ekran Listeleri etkinlestirildi (çogu ROM'da çalisir)
+b0b8ff1a,Ses hizinin kare hiziyla eslestirilip eslestirilmeyecegi (daha az patlama ve tiklama)
+1213a2e9,Video hizinin kare hiziyla eslestirilip eslestirilmeyecegi (bazi oyunlari daha az yavas yapar)
+1a61c1b8,Sis emülasyonunun etkinlestirilip etkinlestirilmeyecegi (Deneysel, yalnizca birkaç oyunda çalisir)
+ba9c614e,Gelismis Seçenekler
+3580e011,Minimum ve maksimum ölü bölge bölgelerini ayarlayin. Yukari / Asagi: Ölü bölgeyi artirin veya azaltin. Sol / Sag: Ayarlamak için minimum veya maksimum ölü bölgeyi seçin. Üçgen: Varsayilanlara sifirlayin. Baslat / X: Onaylayin. Seç / Daire: iptal "
+f3a27e37,Çubuk Deadzone'u Ayarla
+f4d401e4,Dil Seçin
+0206e784,Dil
+15865cd2,16Bit Renk Seçildi
+3f7ccd28,32Bit Renk Seçildi
+7c7ac31a,Kalan
+657b212f,Batarya
+053916eb,Zaman
+f5381b95,Kalan:  --h--m
+5e53f605,Sarj oluyor ...
+5df55264,Dahili
+753ea645,Yayin
+f2b17060,DaedalusX64 / Türkçe Çeviri:Soner Çakir
+636197c3,Minimum ve maksimum ölü bölge bölgelerini ayarlayin. Yukari / Asagi: Ölü bölgeyi artirin veya azaltin. Sol / Sag: Ayarlamak için minimum veya maksimum ölü bölgeyi seçin. Üçgen: Varsayilanlara sifirlayin. Baslat / X: Onaylayin. Seç / Daire: iptal
+000c2620,Min
+000c2302,Maks.
