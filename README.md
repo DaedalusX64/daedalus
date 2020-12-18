@@ -19,6 +19,19 @@ To install Daedalus to your PSP, download the latest release from the Releases p
 Next, plug your PSP into your computer and navigate to /PSP/GAME/. Create a folder called "daedalus" there, and place the EBOOT.PBP file inside. Place your ROM files in daedalus/Roms/ and they will automatically appear in Daedalus.
  
 Note: If the release is a ZIP file with a folder containing an EBOOT.PBP file when extracted, simply drag and drop the extracted folder into /PSP/GAME/.
+
+## Building for Windows 
+
+1) Clone and open the repo in Visual studio 2019
+
+2) Build All
+
+## Building for Linux and MAC
+
+1) Clone this repo 
+
+2) Open a terminal and run build_daedalus.sh with the argument for the os you would like to build for 
+Example: ./build_daedalus.sh LINUX
  
 ## More Info
  
