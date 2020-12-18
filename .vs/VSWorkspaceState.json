@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Source",
+    "\\Source\\SysPosix\\Utility",
+    "\\Source\\SysPSP",
+    "\\Source\\System",
+    "\\Source\\SysW32",
+    "\\Source\\SysW32\\Include",
+    "\\Source\\SysW32\\Utility"
+  ],
+  "SelectedNode": "\\Source\\SysPSP\\main.cpp",
+  "PreviewInSolutionExplorer": false
+}

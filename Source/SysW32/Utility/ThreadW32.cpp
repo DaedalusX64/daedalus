@@ -126,7 +126,8 @@ void ThreadSleepMs( u32 ms )
 void ThreadSleepTicks( u32 ticks )
 {
 	// FIXME: not sure what units this is in.
-	::Sleep( ticks );
+	// This is broken in Win 32??
+	//::Sleep( ticks );
 }
 
 void ThreadYield()

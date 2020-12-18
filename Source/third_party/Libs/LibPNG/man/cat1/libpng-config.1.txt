@@ -1,0 +1,68 @@
+libpng12-config(1)      Debian GNU/Linux     libpng12-config(1)
+
+
+
+NAME
+       libpng12-config - get information about installed libpng
+       library
+
+SYNOPSIS
+       libpng12-config [OPTION] ...
+
+DESCRIPTION
+       Provides information about libpng library.
+
+       Known values for OPTION are:
+
+       --prefix
+              print libpng prefix
+
+       --libdir
+              print path to directory containing library
+
+       --libs print library linking information
+
+       --ccopts
+              print compiler options
+
+       --cppflags
+              print pre-processor flags
+
+       --cflags
+              print preprocessor flags,  I_opts,  and  compiler
+              options
+
+       --I_opts
+              print "-I" include options
+
+       --L_opts
+              print linker "-L" flags for dynamic linking
+
+       --R_opts
+              print dynamic linker "-R" or "-rpath" flags
+
+       --ldopts
+              print linker options
+
+       --ldflags
+              print  linker  flags (ldopts, L_opts, R_opts, and
+              libs)
+
+       --static
+              revise subsequent outputs for static linking
+
+       --help print this help and exit
+
+       --version
+              print version information
+
+AUTHOR
+       This  manpage  has  been  written  by   Junichi   Uekawa
+       <dancer@debian.org>  for  Debian  GNU/Linux system, with
+       the help of help2man, and may be used by others.
+
+
+
+
+
+libpng                    15 Jan 2003        libpng12-config(1)

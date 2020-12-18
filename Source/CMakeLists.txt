@@ -76,11 +76,14 @@ project (DaedalusX64)
 
 				#Windows -- Not sure if it works yet
 				set (WIN_AUDIO SysW32/HLEAudio/AudioPluginW32.cpp)
-				set (WIN_DEBUG SysW32/Debug/DaedalusAssertW32.cpp SysW32/Debug/DebugConsoleW32.cpp)
-				set (WIN_UTILITY SysW32/Utility/IOW32.cpp SysW32/Utility/ThreadW32.cpp SysW32/Utility/TimingW32.cpp)
-				set (WIN_BUILD ${WIN_AUDIO} ${WIN_DEBUG} ${WIN_UTILITY})
+				set (WIN_DEBUG SysW32/Debug/DaedalusAssertW32.cpp)
+				set (WIN_DYNAREC SysW32/DynaRec/x86/AssemblyUtilsX86.cpp SysW32/DynaRec/x86/AssemblyWriterX86.cpp SysW32/DynaRec/x86/CodeBufferManagerX86.cpp SysW32/DynaRec/x86/CodeGeneratorX86.cpp)
+				set (WIN_INTERFACE SysW32/Interface/FileNameHandler.cpp)
+				set (WIN_MAIN_FILES SysW32/main.cpp)
+				set (WIN_UTILITY SysW32/Utility/IOW32.cpp SysW32/Utility/ThreadW32.cpp SysW32/Utility/TimingW32.cpp SysW32/Utility/CondW32.cpp SysW32/Utility/DISASM86.cpp)
+				set (WIN_BUILD ${WIN_DYNAREC} ${WIN_AUDIO} ${WIN_DEBUG} ${WIN_INTERFACE} ${WIN_UTILITY})
 
-        #Posix
+				#Posix
 				set (POSIX_DEBUG SysPosix/Debug/DaedalusAssertPosix.cpp SysPosix/Debug/DebugConsolePosix.cpp SysPosix/Debug/WebDebug.cpp SysPosix/Debug/WebDebugTemplate.cpp third_party/webby/webby.c)
 				set (POSIX_DYNAREC SysPosix/DynaRec/CodeBufferManagerPosix.cpp)
 				set (POSIX_HLEGRAPHICS SysPosix/HLEGraphics/DisplayListDebugger.cpp)
@@ -99,14 +102,16 @@ project (DaedalusX64)
 if(DEBUG)
 	message("Debug Build")
 	include_directories(${PROJECT_SOURCE_DIR}/Base/Dev)
-	add_definitions("-g -O2 -G0 -D_DEBUG -MD -Wall")
+	if (MAC OR LINUX OR PSP)
+	add_definitions("-g -G0 -D_DEBUG -MD ")
+	endif (MAC OR LINUX OR PSP)
 elseif(PROFILE)
 	message("Profile Build")
 	include_directories(${PROJECT_SOURCE_DIR}/Base/Profile)
 else()
 	message("Release Build")
 	include_directories(${PROJECT_SOURCE_DIR}/Base/Release)
-	add_definitions("-DNDEBUG -O2 -W ")
+	add_definitions("-DNDEBUG")
 endif(DEBUG)
 
 if (PSP)
@@ -157,3 +162,30 @@ if (MAC OR LINUX)
 	target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
 
 endif (MAC OR LINUX)
+
+if(WIN32)
+add_definitions(-DDAEDALUS_WIN32 -DDAEDALUS_GL)
+	#add_compile_options("/Od")
+	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/glew-2.1.0/include)
+	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/SDL2-2.0.12/include)
+	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/LibPNG/include)
+	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/Zlib/include)
+	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/Minizip)
+	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysW32/Include ${PROJECT_SOURCE_DIR})
+	
+	link_directories(${PROJECT_SOURCE_DIR}/third_party/Libs/Lib)
+
+	#Build SysGL
+	add_library(sysGL STATIC ${SYSGL_BUILD})
+	target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 ${OS_LIBS})
+
+	#Build Daedalus Lib
+	add_library(daedalus.lib STATIC ${BUILD} ${WIN_BUILD} ${AUDIO_DRIVER} )
+	target_link_libraries(daedalus.lib dsound dxguid sysGL libpng zlib zlibwapi)
+
+	#Build and Link Executable
+	add_executable(daedalus ${WIN_MAIN_FILES})
+	target_link_libraries(daedalus LINK_PUBLIC daedalus.lib Shlwapi.lib)
+
+
+endif (WIN32)

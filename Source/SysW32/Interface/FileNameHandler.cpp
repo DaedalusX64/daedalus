@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/IO.h"
 #include "Base/Macros.h"
 
+HINSTANCE g_hInstance;
+
 // MODIFIED BY Lkb - 21/jul/2001 - savestate support
 FileNameHandler::FileNameHandler(LPCTSTR szSectionName,
 								 LPCTSTR szFilter, int nFilterIndex, LPCTSTR szDefExt, LPCTSTR pszDefaultDir)

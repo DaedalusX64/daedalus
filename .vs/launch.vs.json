@@ -1,0 +1,24 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "name": "daedalus.exe (Release\\daedalus.exe)",
+      "project": "Source\\CMakeLists.txt",
+      "projectTarget": "daedalus.exe (Release\\daedalus.exe)",
+      "type": "default",
+      "args": [
+        "rom.z64"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "Source\\CMakeLists.txt",
+      "projectTarget": "daedalus.exe (Debug\\daedalus.exe)",
+      "name": "daedalus.exe (Debug\\daedalus.exe)",
+      "args": [
+        "rom.z64"
+      ]
+    }
+  ]
+}
