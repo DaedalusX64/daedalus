@@ -3,7 +3,7 @@
     {
       "name": "Daedalus",
       "generator": "Visual Studio 16 2019",
-      "configurationType": "Debug",
+      "configurationType": "Release",
       "inheritEnvironments": [ "msvc_x86" ],
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
