@@ -303,6 +303,9 @@ void IInputManager::GetState( OSContPad pPad[4] )
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) { pPad[0].button |= U_JPAD; }
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) { pPad[0].button |= D_JPAD; }
 
+		if (Player1->GetState().Gamepad.bLeftTrigger > 30) { pPad[0].button |= Z_TRIG; }
+		if (Player1->GetState().Gamepad.bRightTrigger > 30 ) { pPad[0].button |= Z_TRIG; }
+
 		pPad[0].stick_x = s8(Player1->GetState().Gamepad.sThumbLX / 500);
 		pPad[0].stick_y = s8(Player1->GetState().Gamepad.sThumbLY / 500);
 

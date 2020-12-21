@@ -2,13 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\Source",
+    "\\Source\\Core",
     "\\Source\\SysGL",
     "\\Source\\SysGL\\Input",
-    "\\Source\\SysPSP",
     "\\Source\\SysPSP\\Input",
     "\\Source\\SysW32",
-    "\\Source\\SysW32\\Interface"
+    "\\Source\\SysW32\\Utility"
   ],
-  "SelectedNode": "\\Source\\SysPSP\\Input\\InputManagerPSP.cpp",
+  "SelectedNode": "\\Source\\HLEAudio",
   "PreviewInSolutionExplorer": false
 }
