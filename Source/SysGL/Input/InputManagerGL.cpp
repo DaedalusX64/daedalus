@@ -291,8 +291,10 @@ void IInputManager::GetState( OSContPad pPad[4] )
 #ifdef DAEDALUS_WIN32
 	if (Player1->IsConnected())
 	{
+#define XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  7849
+#define XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE 8689
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A){ pPad[0].button |= A_BUTTON;}
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B){ pPad[0].button |= A_BUTTON;}
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B){ pPad[0].button |= B_BUTTON;}
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START) { pPad[0].button |= START_BUTTON; }
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) { pPad[0].button |= L_TRIG; }
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) { pPad[0].button |= R_TRIG; }
@@ -301,9 +303,15 @@ void IInputManager::GetState( OSContPad pPad[4] )
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) { pPad[0].button |= U_JPAD; }
 		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) { pPad[0].button |= D_JPAD; }
 
-		pPad[0].stick_x = s8(Player1->GetState().Gamepad.sThumbLX * .05);
-		pPad[0].stick_y = s8(Player1->GetState().Gamepad.sThumbLY * .05);
+		pPad[0].stick_x = s8(Player1->GetState().Gamepad.sThumbLX / 500);
+		pPad[0].stick_y = s8(Player1->GetState().Gamepad.sThumbLY / 500);
 
+		//Xinput Righstick to C buttons
+		if (s8(Player1->GetState().Gamepad.sThumbRX / 500 ) < -40) pPad[0].button |= L_CBUTTONS;
+		if (s8(Player1->GetState().Gamepad.sThumbRX / 500 ) > 40) pPad[0].button |= R_CBUTTONS;
+		if (s8(Player1->GetState().Gamepad.sThumbRY / 500 ) < -40) pPad[0].button |= D_CBUTTONS;
+		if (s8(Player1->GetState().Gamepad.sThumbRY / 500 ) > 40) pPad[0].button |= U_CBUTTONS;
+	
 	}
 #endif
 
