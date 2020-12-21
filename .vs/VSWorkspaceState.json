@@ -1,7 +1,14 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Source",
+    "\\Source\\SysGL",
+    "\\Source\\SysGL\\Input",
+    "\\Source\\SysPSP",
+    "\\Source\\SysPSP\\Input",
+    "\\Source\\SysW32",
+    "\\Source\\SysW32\\Interface"
   ],
-  "SelectedNode": "\\CMake Targets View",
+  "SelectedNode": "\\Source\\SysPSP\\Input\\InputManagerPSP.cpp",
   "PreviewInSolutionExplorer": false
 }

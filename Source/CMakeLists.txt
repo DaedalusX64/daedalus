@@ -177,7 +177,7 @@ add_definitions(-DDAEDALUS_WIN32 -DDAEDALUS_GL)
 
 	#Build SysGL
 	add_library(sysGL STATIC ${SYSGL_BUILD})
-	target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 ${OS_LIBS})
+	target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 Xinput ${OS_LIBS})
 
 	#Build Daedalus Lib
 	add_library(daedalus.lib STATIC ${BUILD} ${WIN_BUILD} ${AUDIO_DRIVER} )

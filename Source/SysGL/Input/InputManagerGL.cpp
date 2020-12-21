@@ -25,6 +25,78 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "SysGL/GL.h"
 
+//Windows Xinput support 
+#ifdef DAEDALUS_WIN32
+#include <iostream>
+#include <Windows.h>
+#include <Xinput.h>
+
+class CXBOXController
+{
+private:
+	XINPUT_STATE _controllerState;
+	int _controllerNum;
+public:
+	CXBOXController(int playerNumber);
+	XINPUT_STATE GetState();
+	bool IsConnected();
+	void Vibrate(int leftVal = 0, int rightVal = 0);
+};
+
+CXBOXController::CXBOXController(int playerNumber)
+{
+	// Set the Controller Number
+	_controllerNum = playerNumber - 1;
+}
+
+XINPUT_STATE CXBOXController::GetState()
+{
+	// Zeroise the state
+	ZeroMemory(&_controllerState, sizeof(XINPUT_STATE));
+
+	// Get the state
+	XInputGetState(_controllerNum, &_controllerState);
+
+	return _controllerState;
+}
+
+bool CXBOXController::IsConnected()
+{
+	// Zeroise the state
+	ZeroMemory(&_controllerState, sizeof(XINPUT_STATE));
+
+	// Get the state
+	DWORD Result = XInputGetState(_controllerNum, &_controllerState);
+
+	if (Result == ERROR_SUCCESS)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void CXBOXController::Vibrate(int leftVal, int rightVal)
+{
+	// Create a Vibraton State
+	XINPUT_VIBRATION Vibration;
+
+	// Zeroise the Vibration
+	ZeroMemory(&Vibration, sizeof(XINPUT_VIBRATION));
+
+	// Set the Vibration Values
+	Vibration.wLeftMotorSpeed = leftVal;
+	Vibration.wRightMotorSpeed = rightVal;
+
+	// Vibrate the controller
+	XInputSetState(_controllerNum, &Vibration);
+}
+
+#endif
+
+
 //TODO: Implement gamepad support with SDL
 //#define GAMEPAD_SUPPORT
 
@@ -51,6 +123,15 @@ private:
 	void GetJoyPad(OSContPad *pPad);
 	bool mGamePadAvailable;
 #endif
+#ifdef DAEDALUS_WIN32
+
+	CXBOXController* Player1;
+	CXBOXController* Player2;
+	CXBOXController* Player3;
+	CXBOXController* Player4;
+
+#endif
+
 };
 
 IInputManager::~IInputManager()
@@ -81,6 +162,16 @@ static void CheckPadStatusVblHandler( void * arg )
 
 bool IInputManager::Initialise()
 {
+#ifdef DAEDALUS_WIN32
+	Player1 = new CXBOXController(1);
+	if (Player1->IsConnected()){
+		std::cout << "Xinput device detected! ";
+	}
+	else{
+		std::cout << "Xinput device not detected!";
+	}
+#endif
+
 #ifdef GAMEPAD_SUPPORT	
 	CPU_RegisterVblCallback( &CheckPadStatusVblHandler, this );
 #endif
@@ -196,6 +287,26 @@ void IInputManager::GetState( OSContPad pPad[4] )
 		if (keys [ SDL_SCANCODE_DELETE ] ){  pPad[0].button |= L_CBUTTONS;}
 		if (keys [ SDL_SCANCODE_PAGEDOWN ] ){  pPad[0].button |= R_CBUTTONS;}
 	}
+
+#ifdef DAEDALUS_WIN32
+	if (Player1->IsConnected())
+	{
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A){ pPad[0].button |= A_BUTTON;}
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B){ pPad[0].button |= A_BUTTON;}
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START) { pPad[0].button |= START_BUTTON; }
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) { pPad[0].button |= L_TRIG; }
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) { pPad[0].button |= R_TRIG; }
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) { pPad[0].button |= L_JPAD; }
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) { pPad[0].button |= R_JPAD; }
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) { pPad[0].button |= U_JPAD; }
+		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) { pPad[0].button |= D_JPAD; }
+
+		pPad[0].stick_x = s8(Player1->GetState().Gamepad.sThumbLX * .05);
+		pPad[0].stick_y = s8(Player1->GetState().Gamepad.sThumbLY * .05);
+
+	}
+#endif
+
 #ifdef GAMEPAD_SUPPORT
 	// Override the keyboard with the gamepad if it's available.
 	if(mGamePadAvailable)
