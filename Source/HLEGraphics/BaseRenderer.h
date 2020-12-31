@@ -355,6 +355,7 @@ public:
 	inline float		N64ToScreenX(float x) const				{ return x * mN64ToScreenScale.x + mN64ToScreenTranslate.x; }
 	inline float		N64ToScreenY(float y) const				{ return y * mN64ToScreenScale.y + mN64ToScreenTranslate.y; }
 
+
 	CRefPtr<CNativeTexture> LoadTextureDirectly( const TextureInfo & ti );
 
 protected:

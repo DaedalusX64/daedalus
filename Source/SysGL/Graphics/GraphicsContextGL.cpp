@@ -82,13 +82,14 @@ bool GraphicsContextGL::Initialise()
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	//Create window
-	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL );
+	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 	if (gWindow == nullptr)
 	{
 		printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
 
+	
 	//Create context
 	SDL_GLContext gContext = SDL_GL_CreateContext( gWindow );
 

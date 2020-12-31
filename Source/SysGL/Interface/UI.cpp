@@ -59,6 +59,20 @@ static void PollKeyboard(void * arg)
 			{
 				CPU_Halt("Window Closed");	// User pressed escape to exit
 			}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_F11)
+			{
+				if (toggle_fullscreen == false) {
+					SDL_SetWindowFullscreen(gWindow, SDL_TRUE);
+					toggle_fullscreen = true;
+				}
+				else
+				{
+					SDL_SetWindowFullscreen(gWindow, SDL_FALSE);
+					toggle_fullscreen = false;
+				}
+			}
+
 			s32 idx = -1;
 			if ((idx = get_saveslot_from_keysym(event.key.keysym.scancode)) >= 0)
 			{
