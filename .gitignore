@@ -25,3 +25,4 @@ Source/tmp
 .vscode/tasks.json
 *build
 *build_*
+.vs
