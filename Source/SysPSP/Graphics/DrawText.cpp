@@ -54,7 +54,7 @@ void CDrawText::Initialise()
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	for (u32 i = 0; i < NUM_FONTS; ++i)
 	{
-		DAEDALUS_ASSERT(gFonts[i] != nullptr, "Unable to load font (or forgot!)");
+		DAEDALUS_ASSERT(gFonts[i] != NULL, "Unable to load font (or forgot!)");
 	}
 #endif
 }
