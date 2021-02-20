@@ -111,7 +111,7 @@ elseif(PROFILE)
 else()
 	message("Release Build")
 	include_directories(${PROJECT_SOURCE_DIR}/Base/Release)
-	add_definitions("-DNDEBUG")
+	add_definitions("-O2 -DNDEBUG")
 endif(DEBUG)
 
 if (PSP)
