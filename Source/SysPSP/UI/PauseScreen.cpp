@@ -247,12 +247,18 @@ void	IPauseScreen::Render()
 			sprintf(info," [%s %d%% %s %2dh %2dm]",
 			Translate_String("Battery / "), bat,
 			Translate_String("Time"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
-	}
 
+	}
+	else
+	{
+			sprintf(info,"[%s]" ,
+			Translate_String("Battery is Charging"));
+	}
 // Battery Info
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 	mpContext->DrawTextAlign( 0, SCREEN_WIDTH - LIST_TEXT_LEFT, AT_RIGHT, CATEGORY_TEXT_TOP, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
+	
 	p_option_text = gMenuOptionNames[ previous ];
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
 
@@ -265,6 +271,7 @@ void	IPauseScreen::Render()
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_RIGHT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( next ) ? valid_colour : invalid_colour );
 
 	mOptionComponents[ mCurrentOption ]->Render();
+
 }
 
 void	IPauseScreen::Run()
