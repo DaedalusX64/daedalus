@@ -87,3 +87,7 @@ case "$1" in
     echo "Building debug or profile builds requires DEBUG or PROFILE after build option"
     ;;
     esac
+    
+if [[ $1 = "LINUX" ]]; then
+    cp Source/SysGL/HLEGraphics/n64.psh LINUXbuild
+fi
