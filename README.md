@@ -2,7 +2,7 @@
 
 <h1 align="center">
     <a href="https://github.com/DaedalusX64/Daedalus" target="_blank">
-        <img height="60%" width="50%" src="Pic/ICON0.PNG"><br>
+        <img height="60%" width="50%" src="pic/ICON0.PNG"><br>
 </h1>
 
 
@@ -22,13 +22,13 @@
 
 | Consoles                       | Available               | Latest Version |
 | ------------------------------- | ---------------------------- | --------------------- |
-| [![pic](Pic/PSP.png)](https://github.com/DaedalusX64/daedalus)                          | ✓                       | 1.1.8 |
-| [![pic](Pic/PSVita-removebg-preview.png)](https://github.com/Rinnegatamante/DaedalusX64-vitaGL)                 | ✓              | 0.6 |
-| [![pic](Pic/PS2-removebg-preview.png)](https://github.com/belek666/daedalus)                         | ✓        | 1.1.8 r2 |
-| [![pic](Pic/3DS-removebg-preview.png)](https://github.com/masterfeizz/DaedalusX64-3DS)                              | ✓                  | Beta 0.2 |
-| ![pic](Pic/PC.png)                              | !               | ! |
-| ![pic](Pic/1280px-MacOS_wordmark_(2017).svg.png)                              | !                | ! |
-| ![pic](Pic/Linux-removebg-preview.png)                       | !                   | ! |
+| [![pic](pic/PSP.png)](https://github.com/DaedalusX64/daedalus)                          | ✓                       | 1.1.8 |
+| [![pic](pic/PSVita.png)](https://github.com/Rinnegatamante/DaedalusX64-vitaGL)                 | ✓              | 0.6 |
+| [![pic](pic/PS2.png)](https://github.com/belek666/daedalus)                         | ✓        | 1.1.8 r2 |
+| [![pic](pic/3DS.png)](https://github.com/masterfeizz/DaedalusX64-3DS)                              | ✓                  | Beta 0.2 |
+| ![pic](pic/PC.png)                              | !               | ! |
+| ![pic](pic/macOS.png)                              | !                | ! |
+| ![pic](pic/Linux.png)                       | !                   | ! |
  
 ## Features
  
@@ -49,21 +49,13 @@ And many more!
 
 ## Screenshots
 
-⠀                      |  ⠀
-:---------------------------:|:---------------------------:
-![](Pic/1.Conker's%20Bad%20Fur%20Day.png)     | ![](Pic/2.Conker's%20Bad%20Fur%20Day.png)
-
-⠀                    |  ⠀
-:---------------------------:|:---------------------------:
-![](Pic/Starfox64.png)     | ![](Pic/SF64.png)
-
-⠀                      |  ⠀
-:---------------------------:|:---------------------------:
-![](Pic/SM64.png)     | ![](Pic/LZ.png)
-
-⠀                      |  ⠀
-:---------------------------:|:---------------------------:
-![](Pic/MK.png)     | ![](images/screen4.jpg)
+![pic](pic/1.CBFD.png)
+![pic](pic/2.CBFD.png)
+![pic](pic/1.SF64.png)
+![pic](pic/2.SF64.png)
+![pic](pic/SM64.png)
+![pic](pic/LZ.png)
+![pic](pic/MK.png)
 
 ## Compatibility
 
@@ -82,7 +74,7 @@ Install DaedalusX64 to your PSP, download the latest release from the Releases p
 
 <h1 align="center">
     <a href="https://github.com/DaedalusX64/daedalus/releases/download/1.1.8/DaedalusX64_1_1_8.zip" target="_blank">
-        <img height="20%" width="60%" src="Pic/Download.png"></br>
+        <img height="20%" width="60%" src="pic/Download.png"></br>
 </h1>
 
 ##### Next,
@@ -90,6 +82,7 @@ Install DaedalusX64 to your PSP, download the latest release from the Releases p
 Download and Unzip `DaedalusX64.zip` file into `/PSP/GAME/` folder on the memory stick. Place your ROM files in `DaedalusX64/Roms/` and they will automatically appear in Daedalus.
  
 **Note** : If the release is a .zip file with a folder containing an `EBOOT.PBP` file when extracted, simply drag and drop the extracted folder into `/PSP/GAME/`.
+DaedalusX64 supports most rom formats ```.v64```, ```.z64```, ```.rom```
 
 ## Controls
 
@@ -127,7 +120,7 @@ Example: ```./build_daedalus.sh MAC```
 
 ### :: Preferences ::
 
-![Screenshot](Pic/pic_0000.jpg)
+![Screenshot](pic/picp.png)
 
 **Texture Update Check** : Every Frame (This makes sure the game's textures runs smoothly and that no visual glitches occur, may want to disable for more fps but significant drop in quality)
 
@@ -244,9 +237,9 @@ There are still some things that need to be moved, like the PSP PRX sources but 
 <h6>Join our Discord server to talk to other Daedalus users and the developers!</h6>
 <h1 align="center">
     <a href="https://discord.gg/FrVTpBV" target="_blank">
-        <img height="49%" width="58%" src="Pic/DX64.png"><br>
+        <img height="49%" width="58%" src="pic/DX64.png"><br>
     <a href="https://discord.gg/YTwTRy2" target="_blank">
-        <img height="50%" width="58%" src="Pic/phc.png"><br>
+        <img height="50%" width="58%" src="pic/PHC.png"><br>
 </h1>
 <p align="center">
  
@@ -264,8 +257,5 @@ There are still some things that need to be moved, like the PSP PRX sources but 
 Thank you for everyone who has supported us along the way. The realise would not have been possible without your help!.
 
 ### Thanks
-See [Thanks](Thanks.txt)
 
-### Disclaimer
-* **Nintendo 64** is a trademark of *Nintendo Co., Ltd*
-* **PlayStation Portable** is a trademark of *Sony Interactive Entertainment Inc*
+[Thanks](Thanks.txt)
