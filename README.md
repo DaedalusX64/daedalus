@@ -42,7 +42,7 @@
 - Audio support (synchronous and asynchronous)
 - Rumble Pak support and Controller Pak support
 - Multilanguage support
-- Cheats Support
+- [Cheats](Data/Daedalus.cht) Support
 - Several more features
  
 And many more!
@@ -61,12 +61,13 @@ And many more!
 
 DaedalusX64 is a High Compatibility Emulator.
 
+[PSP Compatibility List](https://github.com/DaedalusX64/compatibility-list/issues) + 
+[DaedalusX64.github.io](https://Daedalusx64.github.io)
+
 - Some roms won't boots.
 - Some roms have serious graphical glitches.
 - Some roms have random lockups and crashes, or run slowly.
-
-[PSP Compatibility List](https://github.com/DaedalusX64/compatibility-list/issues) + 
-[DaedalusX64.github.io](https://Daedalusx64.github.io)
+- [SD2DEX](https://github.com/rdx-O/daedalus/blob/3e855a6e458c9c9908dea715aa222ca22bd22a85/Data/S2DEX%20game%20list.txt) Games List
  
 ## Usage
 
@@ -80,6 +81,14 @@ Install DaedalusX64 to your PSP, download the latest release from the Releases p
 ##### Next,
 
 Download and Unzip `DaedalusX64.zip` file into `/PSP/GAME/` folder on the memory stick. Place your ROM files in `DaedalusX64/Roms/` and they will automatically appear in Daedalus.
+
+**Main Menu**
+
+When you first run *DaedalusX64* you will be presented with a nice list of your
+games. To select a game you will press `D-Pad left/right` then `X` to select a
+title, there's various options you can choose from in the menu, every option is
+explained. To cycle through options screens use the left and right shoulder
+buttons.
  
 **Note** : If the release is a .zip file with a folder containing an `EBOOT.PBP` file when extracted, simply drag and drop the extracted folder into `/PSP/GAME/`.
 DaedalusX64 supports most rom formats ```.v64```, ```.z64```, ```.rom```
@@ -258,4 +267,4 @@ Thank you for everyone who has supported us along the way. The realise would not
 
 ### Thanks
 
-[Thanks](Thanks.txt)
+[Thanks](pic/Thanks.txt)
