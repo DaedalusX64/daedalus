@@ -1,0 +1,5 @@
+- [i-am-wells](https://github.com/i-am-wells) - Copy n64.psh for linux.
+- [Lycaena](https://github.com/Lycaena) - Create Turkish.lng
+- [PhantomHorror](https://github.com/PhantomHorror) - Update Ukrainian.lng
+- [Salvy](https://github.com/salvy) - fixed some bugs and improvements
+- [realistiq](https://www.reddit.com/r/vitahacks/comments/97ac4h/daedalusx64_best_settings/?utm_source=amp&utm_medium=&utm_content=post_body)
