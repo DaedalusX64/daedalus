@@ -1,0 +1,7 @@
+				set (WIN_AUDIO SysW32/HLEAudio/AudioPluginW32.cpp)
+				set (WIN_DEBUG SysW32/Debug/DaedalusAssertW32.cpp)
+				set (WIN_DYNAREC SysW32/DynaRec/x86/AssemblyUtilsX86.cpp SysW32/DynaRec/x86/AssemblyWriterX86.cpp SysW32/DynaRec/x86/CodeBufferManagerX86.cpp SysW32/DynaRec/x86/CodeGeneratorX86.cpp)
+				set (WIN_INTERFACE SysW32/Interface/FileNameHandler.cpp)
+				set (WIN_MAIN_FILES SysW32/main.cpp)
+				set (WIN_UTILITY SysW32/Utility/IOW32.cpp SysW32/Utility/ThreadW32.cpp SysW32/Utility/TimingW32.cpp SysW32/Utility/CondW32.cpp SysW32/Utility/DISASM86.cpp)
+				set (OS_BUILD ${WIN_DYNAREC} ${WIN_AUDIO} ${WIN_DEBUG} ${WIN_INTERFACE} ${WIN_UTILITY} PARENT_SCOPE)

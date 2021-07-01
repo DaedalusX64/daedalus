@@ -292,4 +292,5 @@ void IPauseScreen::OnReset()
 {
 	CPU_Halt("Resetting");
 	mIsFinished = true;
+
 }

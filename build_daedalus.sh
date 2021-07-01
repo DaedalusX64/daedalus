@@ -57,6 +57,7 @@ if [[ $PLATFORM = "PSP"* ]] &&  [[ -f "$PWD/daedalus.elf" ]]; then
   psp-prxgen daedalus.elf daedalus.prx
   cp ../Source/SysPSP/Resources/eboot_icons/* "$PWD"
   pack-pbp EBOOT.PBP PARAM.SFO icon0.png NULL NULL pic1.png NULL daedalus.prx NULL
+
 fi
 
 finalPrep
@@ -65,7 +66,7 @@ finalPrep
 #Add Defines for CMake to not mess up the main loop
 if [[ $1 = "PSP" ]]; then
 
-    CMAKEDEFINES+="-DCMAKE_TOOLCHAIN_FILE=../Tools/psptoolchain.cmake"
+    CMAKEDEFINES+="-DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/cmake/PSP.cmake"
 fi
  
 CMAKEDEFINES+=" -D$1=1"

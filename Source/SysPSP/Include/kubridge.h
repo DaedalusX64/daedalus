@@ -30,7 +30,7 @@ SceUID kuKernelLoadModule(const char *path, int flags, SceKernelLMOption *option
 /**
   * Load a module with a specific apitype
   *
-  * @param apìtype - The apitype
+  * @param apï¿½type - The apitype
   * @param path - The path to the module to load.
   * @param flags - Unused, always 0 .
   * @param option  - Pointer to a mod_param_t structure. Can be NULL.

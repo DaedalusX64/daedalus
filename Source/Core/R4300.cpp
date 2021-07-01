@@ -117,7 +117,7 @@ DAEDALUS_FORCEINLINE void SET_ROUND_MODE( ERoundingMode mode )
 	_controlfp( gNativeRoundingModes[ mode ], _MCW_RC );
 }
 
-#elif DAEDALUS_POSIX
+#elif defined(DAEDALUS_POSIX)
 
 static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
 {

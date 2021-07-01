@@ -18,6 +18,7 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 
 #include "Base/Assert.h"
 #include "SysPSP/Utility/ModulePSP.h"
+#include "SysPSP/Utility/VolatileMemPSP.h"
 
 
 bool bVolatileMem  {false};

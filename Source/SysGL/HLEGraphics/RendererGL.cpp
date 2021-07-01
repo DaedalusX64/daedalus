@@ -9,6 +9,7 @@
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
+#include "HLEGraphics/BaseRenderer.h"
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/RDPStateManager.h"
 #include "Ultra/ultra_gbi.h"

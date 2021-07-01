@@ -191,6 +191,8 @@ IGraphicsContext::IGraphicsContext()
 IGraphicsContext::~IGraphicsContext()
 {
 	sceGuTerm();
+	free_volatile(list[0]);
+	free_volatile(list[1]);
 }
 
 //*****************************************************************************
