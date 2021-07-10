@@ -21,6 +21,6 @@ set_property(SOURCE PRX/MediaEngine/MediaEngine.S PROPERTY LANGUAGE C)
 				add_library(plat_input OBJECT Input/InputManagerPSP.cpp)
 				add_library(plat_ui OBJECT UI/AboutComponent.cpp UI/AdjustDeadzoneScreen.cpp UI/AdvancedOptionsScreen.cpp UI/CheatOptionsScreen.cpp UI/ColourPulser.cpp UI/Dialogs.cpp UI/GlobalSettingsComponent.cpp UI/MainMenuScreen.cpp UI/PauseOptionsComponent.cpp UI/PauseScreen.cpp UI/RomPreferencesScreen.cpp UI/RomSelectorComponent.cpp UI/SavestateSelectorComponent.cpp UI/SelectedRomComponent.cpp UI/SplashScreen.cpp UI/UICommand.cpp UI/UIComponent.cpp UI/UIContext.cpp UI/UIElement.cpp UI/UIScreen.cpp UI/UISetting.cpp)
 				add_library(plat_utility OBJECT Utility/AtomicPrimitives.S Utility/BatteryPSP.cpp Utility/Buttons.cpp Utility/DebugMemory.cpp Utility/DisableFPUExceptions.S Utility/exception.cpp Utility/FastMemcpyPSP.cpp Utility/IOPSP.cpp Utility/JobManager.cpp Utility/ModulePSP.cpp Utility/ThreadPSP.cpp Utility/TimingPSP.cpp Utility/VolatileMemPSP.cpp)
-				add_library(psp_plugins PRX/DveMgr/pspDveManager.S PRX/KernelButtons/imposectrl.S PRX/MediaEngine/me.c PRX/MediaEngine/MediaEngine.S)
+				add_library(psp_plugins OBJECT PRX/DveMgr/pspDveManager.S PRX/KernelButtons/imposectrl.S PRX/MediaEngine/me.c PRX/MediaEngine/MediaEngine.S)
 
 				set (GPROF_SRCS Debug/prof.c Debug/mcount.S )

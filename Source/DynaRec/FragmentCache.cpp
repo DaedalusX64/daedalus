@@ -236,7 +236,7 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 		else if( target_address != u32(~0) )
 		{
 			// Store the address for later processing
-			mJumpMap[ target_address ].push_back( jump );
+			mJumpMap[ target_address ].emplace_back( jump );
 		}
 	}
 

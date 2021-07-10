@@ -158,7 +158,7 @@ class	IController : public CController
 		void			CommandWriteRumblePack(u32 channel, u8 *cmd);
 		void			CommandReadRTC(u8 *cmd);
 
-		u8				CalculateDataCrc(const u8 * pBuf) DAEDALUS_ATTRIBUTE_CONST;
+		u8				CalculateDataCrc(const u8 * pBuf);
 		bool			IsEepromPresent() const						{ return mpEepromData != nullptr; }
 
 		void			n64_cic_nus_6105();

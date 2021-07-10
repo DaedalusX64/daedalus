@@ -22,26 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSW32_INCLUDE_PLATFORM_H_
 #define SYSW32_INCLUDE_PLATFORM_H_
 
-//
-//	Make sure this platform is defined correctly
-//
-#ifndef DAEDALUS_W32
-#define DAEDALUS_W32
-#endif
-
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #define _CRT_SECURE_NO_DEPRECATE
 #define _DO_NOT_DECLARE_INTERLOCKED_INTRINSICS_IN_MEMORY
 #define __has_feature(x) 0
-
-
-#define DAEDALUS_ENABLE_DYNAREC
-#undef DAEDALUS_BREAKPOINTS_ENABLED
-#define DAEDALUS_ENABLE_OS_HOOKS
-#define DAEDALUS_COMPRESSED_ROM_SUPPORT
-#define DAEDALUS_ACCURATE_TMEM
-
-#define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
 
 
 // Calling convention for the R4300 instruction handlers.

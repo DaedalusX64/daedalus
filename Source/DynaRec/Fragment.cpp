@@ -558,7 +558,7 @@ void	CFragment::AddPatch( u32 address, CJumpLocation jump_location )
 		patch_details.Address = address;
 		patch_details.Jump = jump_location;
 
-		mPatchList.push_back( patch_details );
+		mPatchList.emplace_back( patch_details );
 	}
 }
 

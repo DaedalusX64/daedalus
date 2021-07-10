@@ -98,7 +98,7 @@ SCPUState *gPtrCPUState = (SCPUState*)0x10000;
 ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
 #endif
 
-static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
+static bool	CPU_IsStateSimple();
 void (* g_pCPUCore)();
 
 typedef void (*VblCallbackFn)(void * arg);
@@ -114,7 +114,7 @@ static std::vector<VblCallback>		gVblCallbacks;
 void CPU_RegisterVblCallback(VblCallbackFn fn, void * arg)
 {
 	VblCallback callback = { fn, arg };
-	gVblCallbacks.push_back(callback);
+	gVblCallbacks.emplace_back(callback);
 }
 
 void CPU_UnregisterVblCallback(VblCallbackFn fn, void * arg)

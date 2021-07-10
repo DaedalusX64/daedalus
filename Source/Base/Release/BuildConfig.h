@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	Config options for the public release build
 //
 ///////////////////////////////////////////////////////////////////////////////
-#define DAEDALUS_CONFIG_VERSION		"Release"
+// #define DAEDALUS_CONFIG_VERSION		"Release"
 
 //#define	DAEDALUS_DEBUG_CONSOLE				// Enable debug console
 //#define	DAEDALUS_DEBUG_DISPLAYLIST			// Enable the display list debugger
@@ -41,6 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define	DAEDALUS_BATCH_TEST_ENABLED			// Enable the batch test
 //#define	ALLOW_TRACES_WHICH_EXCEPT
 //#define	DAEDALUS_LOG						// Enable various logging
-#define	DAEDALUS_DIALOGS						// Enable this to ask confimation dialogs in the GUI
-#define	DAEDALUS_SILENT						    // Undef to enable debug messages. Define this to turn off various debugging features for public release.
+// #define	DAEDALUS_DIALOGS						// Enable this to ask confimation dialogs in the GUI
+// #define	DAEDALUS_SILENT						    // Undef to enable debug messages. Define this to turn off various debugging features for public release.
 #endif // CONFIG_RELEASE_BUILDCONFIG_H_

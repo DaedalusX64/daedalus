@@ -187,12 +187,12 @@ namespace DrawTextUtilities
 				if (p_str[i] == '\n')
 				{
 					j++;
-					lengths.push_back(match);
+					lengths.emplace_back(match);
 				}
 			}
 			if (match)
 			{
-				lengths.push_back(match);
+				lengths.emplace_back(match);
 			}
 
 			return;
@@ -209,7 +209,7 @@ namespace DrawTextUtilities
 
 			if (chunk_width <= width)
 			{
-				lengths.push_back(length_remaining);
+				lengths.emplace_back(length_remaining);
 				p_line_str += length_remaining;
 			}
 			else
@@ -227,7 +227,7 @@ namespace DrawTextUtilities
 						chunk_width = CDrawText::GetTextWidth(font, p_line_str, chunk_length);
 						if (chunk_width <= width)
 						{
-							lengths.push_back(chunk_length);
+							lengths.emplace_back(chunk_length);
 							p_line_str += chunk_length;
 							found_chunk = true;
 							break;
@@ -241,7 +241,7 @@ namespace DrawTextUtilities
 					else
 					{
 						// No more spaces - just render the whole chunk
-						lengths.push_back(p_chunk_end - p_line_str);
+						lengths.emplace_back(p_chunk_end - p_line_str);
 						p_line_str = p_chunk_end;
 						found_chunk = true;
 						break;

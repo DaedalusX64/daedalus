@@ -452,7 +452,7 @@ void	CCodeGeneratorPSP::SpillAtInterval( const SRegisterSpan & live_span )
 		mRegisterCache.SetCachedReg( live_span.Register, 0, psp_reg );
 
 		mActiveIntervals.pop_back();				// Remove the last span
-		mActiveIntervals.push_back( live_span );	// Insert in order of increasing end point
+		mActiveIntervals.emplace_back( live_span );	// Insert in order of increasing end point
 
 		std::sort( mActiveIntervals.begin(), mActiveIntervals.end(), SAscendingSpanEndSort() );		// XXXX - will be quicker to insert in the correct place rather than sorting each time
 	}
@@ -497,7 +497,7 @@ void	CCodeGeneratorPSP::UpdateRegisterCaching( u32 instruction_idx )
 
 						// Pop this register from the available list
 						mAvailableRegisters.pop();
-						mActiveIntervals.push_back( span );		// Insert in order of increasing end point
+						mActiveIntervals.emplace_back( span );		// Insert in order of increasing end point
 
 						std::sort( mActiveIntervals.begin(), mActiveIntervals.end(), SAscendingSpanEndSort() );		// XXXX - will be quicker to insert in the correct place rather than sorting each time
 					}
@@ -514,7 +514,7 @@ RegisterSnapshotHandle	CCodeGeneratorPSP::GetRegisterSnapshot()
 {
 	RegisterSnapshotHandle	handle( mRegisterSnapshots.size() );
 
-	mRegisterSnapshots.push_back( mRegisterCache );
+	mRegisterSnapshots.emplace_back( mRegisterCache );
 
 	return handle;
 }
@@ -2064,7 +2064,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		//
 		//	Keep track of the details we need to generate the jump to the distant handler function
 		//
-		mAddressCheckFixups.push_back( SAddressCheckFixup( branch, handler_label ) );
+		mAddressCheckFixups.emplace_back( SAddressCheckFixup( branch, handler_label ) );
 	}
 	else
 	{
@@ -2341,7 +2341,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 		//
 		//	Keep track of the details we need to generate the jump to the distant handler function
 		//
-		mAddressCheckFixups.push_back( SAddressCheckFixup( branch, handler_label ) );
+		mAddressCheckFixups.emplace_back( SAddressCheckFixup( branch, handler_label ) );
 	}
 	else
 	{

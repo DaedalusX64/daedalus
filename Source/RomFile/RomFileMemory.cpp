@@ -112,11 +112,11 @@ bool IROMFileMemory::IsAvailable()
 //*****************************************************************************
 void * IROMFileMemory::Alloc( u32 size )
 {
-#ifdef DAEDALUS_PSP
-	return mRomMemoryHeap->Alloc( size );
-#else
-	return malloc( size );
-#endif
+// #ifdef DAEDALUS_PSP
+// 	return mRomMemoryHeap->Alloc( size );
+// #else
+ 	return malloc( size );
+// #endif
 }
 
 //*****************************************************************************
@@ -128,5 +128,5 @@ void  IROMFileMemory::Free(void * ptr)
 	mRomMemoryHeap->Free( ptr );
 #else
 	free( ptr );
-#endif
+// #endif
 }
