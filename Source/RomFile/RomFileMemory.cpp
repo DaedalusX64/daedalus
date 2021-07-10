@@ -115,7 +115,7 @@ void * IROMFileMemory::Alloc( u32 size )
 #ifdef DAEDALUS_PSP
 	return mRomMemoryHeap->Alloc( size );
 #else
- 	return malloc( size );
+	return malloc( size );
 #endif
 }
 

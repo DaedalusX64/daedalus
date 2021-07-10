@@ -65,7 +65,7 @@ elseif(PROFILE)
 else()
 	message("Release Build")
 	include_directories(Source)
-	add_definitions("-O3")
+	add_definitions("-O2")
 	add_compile_definitions(
 							DAEDALUS_DIALOGS
 							DAEDALUS_SILENT
@@ -90,6 +90,9 @@ if(WIN32)
 elseif(UNIX)
 	add_compile_definitions(	DAEDALUS_POSIX 
 								DAEDALUS_GL
+								DAEDALUS_COMPRESSED_ROM_SUPPORT
+								DAEDALUS_ENABLE_OS_HOOKS
+								DAEDALUS_ACCURATE_TMEM
 							)
 	add_subdirectory(Source/SysGL)
 	add_subdirectory(Source/SysPosix)
@@ -111,3 +114,18 @@ else(CITRA)
 endif(WIN32)
 
 add_subdirectory(Source)
+
+set(copy_source_dir "${CMAKE_BINARY_DIR}/Source")
+
+set(copy_dest_dir "${CMAKE_SOURCE_DIR}DaedalusX64")
+set(copy_file_name "EBOOT.PBP")
+
+add_custom_command(
+    TARGET daedalus POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${copy_dest_dir}
+)
+add_custom_command(
+    TARGET daedalus POST_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E copy "${copy_source_dir}/${copy_file_name}" "${copy_dest_dir}/${copy_file_name}"
+    COMMENT "Copying ${copy_file_name} to build directory"
+)

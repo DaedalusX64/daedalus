@@ -12,7 +12,7 @@
 
 // DAEDALUS_ENDIAN_MODE should be defined as one of:
 //
-// #define DAEDALUS_ENDIAN_LITTLE 1
+#define DAEDALUS_ENDIAN_LITTLE 1
 #define DAEDALUS_ENDIAN_BIG 2
 
 //

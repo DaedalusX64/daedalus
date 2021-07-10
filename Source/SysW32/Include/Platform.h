@@ -45,5 +45,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Breakpoint
 #define DAEDALUS_HALT					__asm { int 3 }
 
+#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+
+#include <windows.h>
+#include <intrin.h>
+
+#include <algorithm>
+#include <vector>
+#include <map>
+#include <string>
+
+// Pull this in after all stl headers
+#ifdef _DEBUG
+#define _CRTDBG_MAP_ALLOC
+#endif
+#include <crtdbg.h>
+
+#ifdef _DEBUG
+#ifndef NEW_INLINE_WORKAROUND
+#define NEW_INLINE_WORKAROUND new ( _NORMAL_BLOCK, __FILE__, __LINE__ )
+#define new NEW_INLINE_WORKAROUND
+#endif // NEW_INLINE_WORKAROUND
+#endif // _DEBUG
+
+//We link glew statically, so define this
+#define GLEW_STATIC
+
 
 #endif // SYSW32_INCLUDE_PLATFORM_H_
