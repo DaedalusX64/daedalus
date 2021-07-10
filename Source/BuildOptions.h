@@ -20,7 +20,7 @@
 //	If certain options are not defined, defaults are provided below
 //
 #include "Platform.h"
-
+#include "Base/Types.h"
 
 // Calling convention for the R4300 instruction handlers.
 // This is only defined for W32, so provide a default if it's not set up

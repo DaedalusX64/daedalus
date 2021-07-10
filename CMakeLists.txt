@@ -78,12 +78,14 @@ endif(DEBUG)
 if(WIN32)
 	add_compile_definitions(
 		DAEDALUS_W32
+		DAEDALUS_GL
 		DAEDALUS_ENABLE_DYNAREC
 		DAEDALUS_ENABLE_OS_HOOKS
 		DAEDALUS_COMPRESSED_ROM_SUPPORT
 		DAEDALUS_ACCURATE_TMEM	
 	)
 	add_subdirectory(Source/third_party)
+	add_subdirectory(Source/SysGL)
 	add_subdirectory(Source/SysW32)
 elseif(UNIX)
 	add_compile_definitions(	DAEDALUS_POSIX 

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
 #include "HLEAudio/AudioPlugin.h"
 #include "Config/ConfigOptions.h"
 

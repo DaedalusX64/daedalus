@@ -1,3 +1,3 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 #include "Utility/MemoryPool.h"

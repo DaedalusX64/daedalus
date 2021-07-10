@@ -24,7 +24,7 @@
 *
 **/
 
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 #include <stdlib.h>
 #include <string.h>

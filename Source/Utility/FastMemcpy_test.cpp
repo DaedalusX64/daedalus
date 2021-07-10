@@ -1,4 +1,4 @@
-#include <stdafx.h>
+#include "BuildOptions.h"
 #include "Utility/FastMemcpy.h"
 #include "System/Endian.h"
 #include "Base/Alignment.h"

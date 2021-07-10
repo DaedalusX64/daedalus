@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
 #include "System/Condition.h"
 #include "System/Mutex.h"
 

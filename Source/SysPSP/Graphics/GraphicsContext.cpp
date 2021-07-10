@@ -18,7 +18,7 @@
 
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 
 #include <pspgu.h>

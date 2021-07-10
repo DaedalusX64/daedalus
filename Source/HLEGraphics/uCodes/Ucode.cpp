@@ -17,7 +17,7 @@
 
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 #include "HLEGraphics/uCodes/Ucode.h"
 

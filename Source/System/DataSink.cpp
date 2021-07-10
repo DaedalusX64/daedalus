@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 #include "Base/Assert.h"
 #include "System/DataSink.h"

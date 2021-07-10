@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspctrl.h>
 
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 #include "SysPSP/UI/CheatOptionsScreen.h"
 #include "SysPSP/UI/PSPMenu.h"

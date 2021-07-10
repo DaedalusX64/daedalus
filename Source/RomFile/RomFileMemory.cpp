@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 #include "RomFile/RomFileMemory.h"
 #include "Utility/MemoryHeap.h"
@@ -112,11 +112,11 @@ bool IROMFileMemory::IsAvailable()
 //*****************************************************************************
 void * IROMFileMemory::Alloc( u32 size )
 {
-// #ifdef DAEDALUS_PSP
-// 	return mRomMemoryHeap->Alloc( size );
-// #else
+#ifdef DAEDALUS_PSP
+	return mRomMemoryHeap->Alloc( size );
+#else
  	return malloc( size );
-// #endif
+#endif
 }
 
 //*****************************************************************************
@@ -128,5 +128,5 @@ void  IROMFileMemory::Free(void * ptr)
 	mRomMemoryHeap->Free( ptr );
 #else
 	free( ptr );
-// #endif
+#endif
 }

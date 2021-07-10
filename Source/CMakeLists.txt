@@ -1,4 +1,3 @@
-				add_library(base OBJECT StdAfx.cpp)
 				add_library(config OBJECT Config/ConfigOptions.cpp)
 				add_library(core OBJECT Core/HvqmTask.cpp Core/RDRam.cpp Core/Cheats.cpp Core/CPU.cpp Core/DMA.cpp Core/Dynamo.cpp Core/FlashMem.cpp  Core/FramerateLimiter.cpp Core/Interpret.cpp Core/Interrupt.cpp Core/JpegTask.cpp Core/Memory.cpp Core/PIF.cpp Core/PrintOpCode.cpp Core/R4300.cpp Core/Registers.cpp Core/ROM.cpp Core/ROMBuffer.cpp Core/ROMImage.cpp Core/RomSettings.cpp Core/RSP_HLE.cpp Core/Save.cpp Core/TLB.cpp)
 				add_library(dbg OBJECT Debug/DebugConsoleImpl.cpp Debug/DebugLog.cpp Debug/Dump.cpp Debug/Synchroniser.cpp)
@@ -18,7 +17,7 @@
 				link_libraries(hlegraphics graphics plat_hlegraphics plat_ui)
 				link_libraries(oshle dbg)
 				link_libraries(plat_graphics plat_audio plat_input plat_utility )
- 				link_libraries(base config core hleaudio interface math oshle romfile system test utility)
+ 				link_libraries(config core hleaudio interface math oshle romfile system test utility)
 				
 				if(PSP)
 					link_libraries(dynarec plat_dynarec)  ## PSP is only platform that has dynarec ATM
@@ -37,7 +36,8 @@ target_link_libraries(daedalus -lminizip -lpthread
 					)
 
 elseif(WIN32)
-# DO nothing here yet
+add_compile_definitions(DAEDALUS_WIN32
+						DAEDALUS_GL)
 elseif(PSP)
 	add_executable(daedalus SysPSP/main.cpp)
 	target_link_libraries(daedalus -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lg -lm -lpspfpu -lpspkubridge psp_plugins ${PSPSDK_LIBS} ${PNG_LIBRARY} ${ZLIB_LIBRARY})
@@ -69,7 +69,7 @@ add_definitions(-DDAEDALUS_WIN32 -DDAEDALUS_GL)
 	target_link_libraries(daedalus.lib dsound dxguid sysGL libpng zlib zlibwapi)
 
 	#Build and Link Executable
-	add_executable(daedalus ${WIN_MAIN_FILES})
+	add_executable(daedalus SysWin32/main.cpp)
 	target_link_libraries(daedalus LINK_PUBLIC daedalus.lib Shlwapi.lib)
 
 

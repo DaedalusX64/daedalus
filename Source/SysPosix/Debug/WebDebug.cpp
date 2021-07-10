@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include "SysPosix/Debug/WebDebug.h"

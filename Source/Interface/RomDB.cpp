@@ -18,7 +18,7 @@
 
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 #include <algorithm>
 #include <stdio.h>

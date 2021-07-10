@@ -1,5 +1,5 @@
 
-#include "stdafx.h"
+#include "BuildOptions.h"
 
 #include <stdio.h>
 
