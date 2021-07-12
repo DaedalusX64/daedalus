@@ -80,7 +80,7 @@ void	IAboutComponent::Update( float elapsed_time, const v2 & stick, u32 old_butt
 
 void	IAboutComponent::Render()
 {
-#define IsPSPModelValid( ver )		( (ver) >= PSP_MODEL_STANDARD && (ver) < MAX_PSP_MODEL )
+#define IsPSPModelValid( ver )		( (ver) >= static_cast<u32>(PspModel::PSP_MODEL_STANDARD) && (ver) < MAX_PSP_MODEL )
 
 		s16 text_top( 38 );
 

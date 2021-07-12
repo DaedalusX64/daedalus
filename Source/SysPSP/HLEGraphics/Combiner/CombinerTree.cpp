@@ -34,32 +34,38 @@ namespace
 
 const ECombinerInput	CombinerInput32[ 32 ] =
 {
-	CI_COMBINED,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_COMBINED_ALPHA,
-	CI_TEXEL0_ALPHA,	CI_TEXEL1_ALPHA,	CI_PRIMITIVE_ALPHA,	CI_SHADE_ALPHA,	CI_ENV_ALPHA,		CI_LOD_FRACTION,	CI_PRIM_LOD_FRACTION,	CI_K5,
+	ECombinerInput::CI_COMBINED,	ECombinerInput::CI_TEXEL0, 			ECombinerInput::CI_TEXEL1, 			ECombinerInput::CI_PRIMITIVE, 			ECombinerInput::CI_SHADE, ECombinerInput::CI_ENV,	
+	ECombinerInput::CI_1,			ECombinerInput::CI_COMBINED_ALPHA,  ECombinerInput::CI_TEXEL0_ALPHA,	ECombinerInput::CI_TEXEL1_ALPHA,		ECombinerInput::CI_PRIMITIVE_ALPHA,
+	ECombinerInput::CI_SHADE_ALPHA,	ECombinerInput::CI_ENV_ALPHA,		ECombinerInput::CI_LOD_FRACTION,	ECombinerInput::CI_PRIM_LOD_FRACTION,	ECombinerInput::CI_K5,
 
-	CI_UNKNOWN,			CI_UNKNOWN,			CI_UNKNOWN,			CI_UNKNOWN,		CI_UNKNOWN,			CI_UNKNOWN,			CI_UNKNOWN,				CI_UNKNOWN,
-	CI_UNKNOWN,			CI_UNKNOWN,			CI_UNKNOWN,			CI_UNKNOWN,		CI_UNKNOWN,			CI_UNKNOWN,			CI_UNKNOWN,				CI_0,
+	ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			
+	ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,
+	ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,			ECombinerInput::CI_UNKNOWN,				ECombinerInput::CI_0,
 };
 
 const ECombinerInput	CombinerInput16[ 16 ] =
 {
-	CI_COMBINED,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_COMBINED_ALPHA,
-	CI_TEXEL0_ALPHA,	CI_TEXEL1_ALPHA,	CI_PRIMITIVE_ALPHA,	CI_SHADE_ALPHA,	CI_ENV_ALPHA,		CI_LOD_FRACTION,	CI_PRIM_LOD_FRACTION,	CI_0,
+	ECombinerInput::CI_COMBINED,		ECombinerInput::CI_TEXEL0,			ECombinerInput::CI_TEXEL1,			ECombinerInput::CI_PRIMITIVE,		ECombinerInput::CI_SHADE,			
+	ECombinerInput::CI_ENV,				ECombinerInput::CI_1,				ECombinerInput::CI_COMBINED_ALPHA,  ECombinerInput::CI_TEXEL0_ALPHA,	ECombinerInput::CI_TEXEL1_ALPHA,	
+	ECombinerInput::CI_PRIMITIVE_ALPHA,	ECombinerInput::CI_SHADE_ALPHA,		ECombinerInput::CI_ENV_ALPHA,		ECombinerInput::CI_LOD_FRACTION,	ECombinerInput::CI_PRIM_LOD_FRACTION,	ECombinerInput::CI_0,
 };
 
 const ECombinerInput	CombinerInput8[ 8 ] =
 {
-	CI_COMBINED,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_0,
+	ECombinerInput::CI_COMBINED,		ECombinerInput::CI_TEXEL0,			ECombinerInput::CI_TEXEL1,			ECombinerInput::CI_PRIMITIVE,	ECombinerInput::CI_SHADE,			ECombinerInput::CI_ENV,				
+	ECombinerInput::CI_1,				ECombinerInput::CI_0,
 };
 
 const ECombinerInput	CombinerInputAlphaC1_8[ 8 ] =
 {
-	CI_LOD_FRACTION,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_0,
+	ECombinerInput::CI_LOD_FRACTION,		ECombinerInput::CI_TEXEL0,			ECombinerInput::CI_TEXEL1,			ECombinerInput::CI_PRIMITIVE,	ECombinerInput::CI_SHADE,			ECombinerInput::CI_ENV,				
+	ECombinerInput::CI_1,					ECombinerInput::CI_0,
 };
 
 const ECombinerInput	CombinerInputAlphaC2_8[ 8 ] =
 {
-	CI_COMBINED,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_0,
+	ECombinerInput::CI_COMBINED,		ECombinerInput::CI_TEXEL0,			ECombinerInput::CI_TEXEL1,			ECombinerInput::CI_PRIMITIVE,	ECombinerInput::CI_SHADE,			
+	ECombinerInput::CI_ENV,				ECombinerInput::CI_1,				ECombinerInput::CI_0,
 };
 
 
@@ -77,15 +83,15 @@ static const CBlendConstantExpression * BuildConstantExpression( const CCombiner
 
 		switch( input->GetInput() )
 		{
-		case CI_PRIMITIVE:			return new CBlendConstantExpressionValue( BC_PRIMITIVE );
-		case CI_ENV:				return new CBlendConstantExpressionValue( BC_ENVIRONMENT );
-		case CI_PRIMITIVE_ALPHA:	return new CBlendConstantExpressionValue( BC_PRIMITIVE_ALPHA );
-		case CI_ENV_ALPHA:			return new CBlendConstantExpressionValue( BC_ENVIRONMENT_ALPHA );
-		case CI_1:					return new CBlendConstantExpressionValue( BC_1 );
-		case CI_0:					return new CBlendConstantExpressionValue( BC_0 );
-		case CI_SHADE:
+		case ECombinerInput::CI_PRIMITIVE:			return new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE );
+		case ECombinerInput::CI_ENV:				return new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT );
+		case ECombinerInput::CI_PRIMITIVE_ALPHA:	return new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE_ALPHA );
+		case ECombinerInput::CI_ENV_ALPHA:			return new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT_ALPHA );
+		case ECombinerInput::CI_1:					return new CBlendConstantExpressionValue( EBlendConstant::BC_1 );
+		case ECombinerInput::CI_0:					return new CBlendConstantExpressionValue( EBlendConstant::BC_0 );
+		case ECombinerInput::CI_SHADE:
 			if( options == BCE_ALLOW_SHADE )
-				return new CBlendConstantExpressionValue( BC_SHADE );
+				return new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE );
 			else
 				return NULL;
 		default:
@@ -114,7 +120,7 @@ static const CBlendConstantExpression * BuildConstantExpression( const CCombiner
 			{
 				if( lhs == NULL )
 				{
-					lhs = new CBlendConstantExpressionValue( BC_0 );
+					lhs = new CBlendConstantExpressionValue( EBlendConstant::BC_0 );
 				}
 
 				sum_expr = new CBlendConstantExpressionSub( lhs, rhs );
@@ -235,10 +241,10 @@ CCombinerOperand *	CCombinerTree::BuildCycle1( ECombinerInput a, ECombinerInput 
 //*****************************************************************************
 CCombinerOperand *	CCombinerTree::BuildCycle2( ECombinerInput a, ECombinerInput b, ECombinerInput c, ECombinerInput d, const CCombinerOperand * cycle_1_output )
 {
-	CCombinerOperand *	input_a( a == CI_COMBINED ? cycle_1_output->Clone() : new CCombinerInput( a ) );
-	CCombinerOperand *	input_b( b == CI_COMBINED ? cycle_1_output->Clone() : new CCombinerInput( b ) );
-	CCombinerOperand *	input_c( c == CI_COMBINED ? cycle_1_output->Clone() : new CCombinerInput( c ) );
-	CCombinerOperand *	input_d( d == CI_COMBINED ? cycle_1_output->Clone() : new CCombinerInput( d ) );
+	CCombinerOperand *	input_a( a == ECombinerInput::CI_COMBINED ? cycle_1_output->Clone() : new CCombinerInput( a ) );
+	CCombinerOperand *	input_b( b == ECombinerInput::CI_COMBINED ? cycle_1_output->Clone() : new CCombinerInput( b ) );
+	CCombinerOperand *	input_c( c == ECombinerInput::CI_COMBINED ? cycle_1_output->Clone() : new CCombinerInput( c ) );
+	CCombinerOperand *	input_d( d == ECombinerInput::CI_COMBINED ? cycle_1_output->Clone() : new CCombinerInput( d ) );
 
 	return Build( input_a, input_b, input_c, input_d );
 }
@@ -299,32 +305,32 @@ void	ApplyAlphaModulateTerm( CAlphaRenderSettings * settings, const CCombinerOpe
 
 		switch( input->GetInput() )
 		{
-		case CI_TEXEL0:
+		case ECombinerInput::CI_TEXEL0:
 			settings->AddTermTexel0();
 			break;
-		case CI_TEXEL1:
+		case ECombinerInput::CI_TEXEL1:
 			settings->AddTermTexel1();
 			break;
-		case CI_SHADE:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_SHADE ) );
+		case ECombinerInput::CI_SHADE:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE ) );
 			break;
-		case CI_PRIMITIVE:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_PRIMITIVE ) );
+		case ECombinerInput::CI_PRIMITIVE:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE ) );
 			break;
-		case CI_ENV:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_ENVIRONMENT ) );
+		case ECombinerInput::CI_ENV:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT ) );
 			break;
-		case CI_PRIMITIVE_ALPHA:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_PRIMITIVE_ALPHA ) );
+		case ECombinerInput::CI_PRIMITIVE_ALPHA:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE_ALPHA ) );
 			break;
-		case CI_ENV_ALPHA:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_ENVIRONMENT_ALPHA ) );
+		case ECombinerInput::CI_ENV_ALPHA:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT_ALPHA ) );
 			break;
-		case CI_0:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_0 ) );
+		case ECombinerInput::CI_0:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_0 ) );
 			break;
-		case CI_1:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_1 ) );
+		case ECombinerInput::CI_1:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_1 ) );
 			break;
 
 		default:
@@ -403,32 +409,32 @@ void	ApplyModulateTerm( CRenderSettingsModulate * settings, const CCombinerOpera
 
 		switch( input->GetInput() )
 		{
-		case CI_TEXEL0:
+		case ECombinerInput::CI_TEXEL0:
 			settings->AddTermTexel0();
 			break;
-		case CI_TEXEL1:
+		case ECombinerInput::CI_TEXEL1:
 			settings->AddTermTexel1();
 			break;
-		case CI_SHADE:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_SHADE ) );
+		case ECombinerInput::CI_SHADE:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE ) );
 			break;
-		case CI_PRIMITIVE:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_PRIMITIVE ) );
+		case ECombinerInput::CI_PRIMITIVE:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE ) );
 			break;
-		case CI_ENV:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_ENVIRONMENT ) );
+		case ECombinerInput::CI_ENV:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT ) );
 			break;
-		case CI_PRIMITIVE_ALPHA:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_PRIMITIVE_ALPHA ) );
+		case ECombinerInput::CI_PRIMITIVE_ALPHA:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_PRIMITIVE_ALPHA ) );
 			break;
-		case CI_ENV_ALPHA:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_ENVIRONMENT_ALPHA ) );
+		case ECombinerInput::CI_ENV_ALPHA:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_ENVIRONMENT_ALPHA ) );
 			break;
-		case CI_0:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_0 ) );
+		case ECombinerInput::CI_0:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_0 ) );
 			break;
-		case CI_1:
-			settings->AddTermConstant( new CBlendConstantExpressionValue( BC_1 ) );
+		case ECombinerInput::CI_1:
+			settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_1 ) );
 			break;
 
 		default:
@@ -537,7 +543,7 @@ void	CCombinerTree::GenerateRenderSettings( CBlendStates * states, const CCombin
 		blend->Stream( str );
 		bool	handled( false );
 
-		if( operand_f->IsInput( CI_TEXEL0 ) )
+		if( operand_f->IsInput( ECombinerInput::CI_TEXEL0 ) )
 		{
 			const CBlendConstantExpression *		expr_a( BuildConstantExpression( operand_a, BCE_ALLOW_SHADE ) );
 			const CBlendConstantExpression *		expr_b( BuildConstantExpression( operand_b, BCE_DISALLOW_SHADE ) );

@@ -43,7 +43,7 @@ static const u32 kPalette8BytesRequired = 256 * sizeof( NativePf8888 );
 //*****************************************************************************
 //
 //*****************************************************************************
-enum	EPspTextureFormat
+enum class	EPspTextureFormat
 {
 	PspTexFmt_5650	= GU_PSM_5650,
 	PspTexFmt_5551	= GU_PSM_5551,
@@ -65,19 +65,19 @@ EPspTextureFormat	GetPspTextureFormat( ETextureFormat texture_format )
 {
 	switch( texture_format )
 	{
-	case TexFmt_5650:		return PspTexFmt_5650;
-	case TexFmt_5551:		return PspTexFmt_5551;
-	case TexFmt_4444:		return PspTexFmt_4444;
-	case TexFmt_8888:		return PspTexFmt_8888;
+	case TexFmt_5650:		return EPspTextureFormat::PspTexFmt_5650;
+	case TexFmt_5551:		return EPspTextureFormat::PspTexFmt_5551;
+	case TexFmt_4444:		return EPspTextureFormat::PspTexFmt_4444;
+	case TexFmt_8888:		return EPspTextureFormat::PspTexFmt_8888;
 
-	case TexFmt_CI4_8888:	return PspTexFmt_T4;
-	case TexFmt_CI8_8888:	return PspTexFmt_T8;
+	case TexFmt_CI4_8888:	return EPspTextureFormat::PspTexFmt_T4;
+	case TexFmt_CI8_8888:	return EPspTextureFormat::PspTexFmt_T8;
 	}
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled texture format" );
 	#endif
-	return PspTexFmt_8888;
+	return EPspTextureFormat::PspTexFmt_8888;
 }
 
 //*****************************************************************************
@@ -353,7 +353,7 @@ void	CNativeTexture::InstallTexture() const
 	else
 	{
 		EPspTextureFormat	psp_texture_format( GetPspTextureFormat( mTextureFormat ) );
-		sceGuTexMode( psp_texture_format, 0, 0, mIsSwizzled ? 1 : 0 );		// maxmips/a2/swizzle = 0
+		sceGuTexMode( static_cast<u32>(psp_texture_format), 0, 0, mIsSwizzled ? 1 : 0 );		// maxmips/a2/swizzle = 0
 		sceGuTexImage( 0, mCorrectedWidth, mCorrectedHeight, mTextureBlockWidth, mpData );
 
 #ifdef DAEDALUS_ENABLE_ASSERTS

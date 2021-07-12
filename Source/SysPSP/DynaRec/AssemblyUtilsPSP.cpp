@@ -44,17 +44,17 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 	PspOpCode *	p_jump_addr( reinterpret_cast< PspOpCode * >( jump.GetWritableU8P() ) );
 	PspOpCode &	op_code( *p_jump_addr );
 
-	if( op_code.op == OP_J || op_code.op == OP_JAL )
+	if( op_code.op == static_cast<u32>(OpCodeValue::OP_J) || op_code.op == static_cast<u32>(OpCodeValue::OP_JAL) )
 	{
 		op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 	}
 	else
 	{
 #ifdef DAEDALUS_ENABLE_ASSERTS
-		bool	is_standard_branch( op_code.op == OP_BNE || op_code.op == OP_BEQ ||
-									op_code.op == OP_BEQL || op_code.op == OP_BNEL ||
-									op_code.op == OP_BLEZ || op_code.op == OP_BGTZ );
-		bool	is_regimm_branch(  (op_code.op == OP_REGIMM && (op_code.regimm_op == RegImmOp_BGEZ ||
+		bool	is_standard_branch( op_code.op == OpCodeValue::OP_BNE || op_code.op == OpCodeValue::OP_BEQ ||
+									op_code.op == OpCodeValue::OP_BEQL || op_code.op == OpCodeValue::OP_BNEL ||
+									op_code.op == OpCodeValue::OP_BLEZ || op_code.op == OpCodeValue::OP_BGTZ );
+		bool	is_regimm_branch(  (op_code.op == OpCodeValue::OP_REGIMM && (op_code.regimm_op == RegImmOp_BGEZ ||
 																op_code.regimm_op == RegImmOp_BLTZ ||
 																op_code.regimm_op == RegImmOp_BGEZL ||
 																op_code.regimm_op == RegImmOp_BLTZL ) ) );
@@ -113,7 +113,7 @@ void		ReplaceBranchWithJump( CJumpLocation branch, CCodeLabel target )
 	PspOpCode &	op_code( *p_jump_addr );
 
 	// Sanity check this is actually a branch?
-	op_code.op = OP_J;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_J);
 	op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 
 //	sceKernelDcacheWritebackRange( branch.GetTargetU8P(), 4 );

@@ -41,14 +41,14 @@ struct SRenderState
 	c32						EnvironmentColour;
 };
 
-enum EPspBlendMode
+enum class EPspBlendMode
 {
 	PBM_MODULATE,
 	PBM_REPLACE,
 	PBM_BLEND,
 };
 
-enum EPspBlendAlphaMode
+enum class EPspBlendAlphaMode
 {
 	PBAM_RGBA,
 	PBAM_RGB,

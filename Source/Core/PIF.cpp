@@ -302,7 +302,7 @@ IController::~IController()
 bool IController::OnRomOpen()
 {
 	ESaveType save_type  = g_ROM.settings.SaveType;
-	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
+	mpPifRam = (u8 *)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_PIF_RAM)];
 
 	if ( mpEepromData )
 	{
@@ -311,7 +311,7 @@ bool IController::OnRomOpen()
 
 	if ( save_type == SAVE_TYPE_EEP4K )
 	{
-		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
+		mpEepromData = (u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_SAVE)];
 		mEepromContType = 0x80;
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", 4096/8 );	// 4k bits
@@ -320,7 +320,7 @@ bool IController::OnRomOpen()
 	else if ( save_type == SAVE_TYPE_EEP16K )
 	{
 
-		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
+		mpEepromData = (u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_SAVE)];
 		mEepromContType = 0xC0;
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", 16384/8 );	// 16 kbits
@@ -335,7 +335,7 @@ bool IController::OnRomOpen()
 
 	for ( u32 channel = 0; channel < NUM_CONTROLLERS; channel++ )
 	{
-		mMemPack[channel] = (u8*)g_pMemoryBuffers[MEM_MEMPACK] + channel * 0x400 * 32;
+		mMemPack[channel] = (u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_MEMPACK)] + channel * 0x400 * 32;
 	}
 
 	return true;

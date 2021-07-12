@@ -49,7 +49,7 @@ static const char * const gCombinerInputNames[] =
 
 const char * GetCombinerInputName( ECombinerInput input )
 {
-	return gCombinerInputNames[ input ];
+	return gCombinerInputNames[ static_cast<u32>(input) ];
 }
 
 
@@ -203,7 +203,7 @@ int CCombinerSum::Compare( const CCombinerOperand & other ) const
 //*****************************************************************************
 void CCombinerSum::Add( CCombinerOperand * operand )
 {
-	if( operand->IsInput( CI_0 ) )
+	if( operand->IsInput( ECombinerInput::CI_0 ) )
 	{
 		// Ignore
 		delete operand;
@@ -237,7 +237,7 @@ void CCombinerSum::Add( CCombinerOperand * operand )
 //*****************************************************************************
 void CCombinerSum::Sub( CCombinerOperand * operand )
 {
-	if( operand->IsInput( CI_0 ) )
+	if( operand->IsInput( ECombinerInput::CI_0 ) )
 	{
 		// Ignore
 		delete operand;
@@ -450,12 +450,12 @@ int CCombinerProduct::Compare( const CCombinerOperand & other ) const
 //*****************************************************************************
 void CCombinerProduct::Mul( CCombinerOperand * operand )
 {
-	if( operand->IsInput( CI_0 ) )
+	if( operand->IsInput( ECombinerInput::CI_0 ) )
 	{
 		Clear();
 		mOperands.emplace_back( Node( operand ) );
 	}
-	else if( operand->IsInput( CI_1 ) )
+	else if( operand->IsInput( ECombinerInput::CI_1 ) )
 	{
 		// Ignore
 		delete operand;

@@ -174,8 +174,8 @@ RendererPSP::RendererPSP()
 		CAlphaRenderSettings *	alpha_settings( new CAlphaRenderSettings( "Fill" ) );
 		CRenderSettingsModulate *	colour_settings( new CRenderSettingsModulate( "Fill" ) );
 
-		alpha_settings->AddTermConstant( new CBlendConstantExpressionValue( BC_SHADE ) );
-		colour_settings->AddTermConstant(  new CBlendConstantExpressionValue( BC_SHADE ) );
+		alpha_settings->AddTermConstant( new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE ) );
+		colour_settings->AddTermConstant(  new CBlendConstantExpressionValue( EBlendConstant::BC_SHADE ) );
 
 		mFillBlendStates->SetAlphaSettings( alpha_settings );
 		mFillBlendStates->AddColourSettings( colour_settings );
@@ -622,12 +622,12 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			u32	tfx = GU_TFX_MODULATE;
 			switch( out.BlendMode )
 			{
-			case PBM_MODULATE:		tfx = GU_TFX_MODULATE; break;
-			case PBM_REPLACE:		tfx = GU_TFX_REPLACE; break;
-			case PBM_BLEND:			tfx = GU_TFX_BLEND; sceGuTexEnvColor( out.TextureFactor.GetColour() ); break;
+			case EPspBlendMode::PBM_MODULATE:		tfx = GU_TFX_MODULATE; break;
+			case EPspBlendMode::PBM_REPLACE:		tfx = GU_TFX_REPLACE; break;
+			case EPspBlendMode::PBM_BLEND:			tfx = GU_TFX_BLEND; sceGuTexEnvColor( out.TextureFactor.GetColour() ); break;
 			}
 
-			sceGuTexFunc( tfx, out.BlendAlphaMode == PBAM_RGB ? GU_TCC_RGB :  GU_TCC_RGBA );
+			sceGuTexFunc( tfx, out.BlendAlphaMode == EPspBlendAlphaMode::PBAM_RGB ? GU_TCC_RGB :  GU_TCC_RGBA );
 
 			if( g_ROM.T1_HACK )
 			{

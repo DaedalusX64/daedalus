@@ -93,7 +93,7 @@ public:
 	const std::set<u64> &	GetRecordedCombinerStates() const		{ return mRecordedCombinerStates; }
 
 private:
-	enum EPlaceholderTextureType
+	enum class EPlaceholderTextureType
 	{
 		PTT_WHITE = 0,
 		PTT_SELECTED,

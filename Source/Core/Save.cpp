@@ -61,7 +61,7 @@ bool Save_Reset()
 		gSaveSize = 0;
 		break;
 	}
-	DAEDALUS_ASSERT( gSaveSize <= MemoryRegionSizes[MEM_SAVE], "Save size is larger than allocated memory");
+	DAEDALUS_ASSERT( gSaveSize <= MemoryRegionSizes[static_cast<u32>(MEMBANKTYPE::MEM_SAVE)], "Save size is larger than allocated memory");
 
 	gSaveDirty = false;
 	if (gSaveSize > 0)
@@ -74,7 +74,7 @@ bool Save_Reset()
 			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName);
 
 			u8 buffer[2048];
-			u8 * dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
+			u8 * dst = (u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_SAVE)];
 
 			for (u32 d = 0; d < gSaveSize; d += sizeof(buffer))
 			{
@@ -100,7 +100,7 @@ bool Save_Reset()
 		if (fp != nullptr)
 		{
 			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gMempackFileName);
-			fread(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
+			fread(g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_MEMPACK)], MemoryRegionSizes[static_cast<u32>(MEMBANKTYPE::MEM_MEMPACK)], 1, fp);
 			fclose(fp);
 			gMempackDirty = false;
 		}
@@ -143,7 +143,7 @@ void Save_Flush()
 		if (fp != nullptr)
 		{
 			u8 buffer[2048];
-			u8 * src = (u8*)g_pMemoryBuffers[MEM_SAVE];
+			u8 * src = (u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_SAVE)];
 
 			for (u32 d = 0; d < gSaveSize; d += sizeof(buffer))
 			{
@@ -165,7 +165,7 @@ void Save_Flush()
 		FILE * fp = fopen(gMempackFileName, "wb");
 		if (fp != nullptr)
 		{
-			fwrite(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
+			fwrite(g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_MEMPACK)], MemoryRegionSizes[static_cast<u32>(MEMBANKTYPE::MEM_MEMPACK)], 1, fp);
 			fclose(fp);
 		}
 		gMempackDirty = false;
@@ -200,9 +200,9 @@ static const u8 gMempackInitialize[] =
 
 static void InitMempackContent()
 {
-	for (size_t dst_off = 0; dst_off < MemoryRegionSizes[MEM_MEMPACK]; dst_off += 32 * 1024)
+	for (size_t dst_off = 0; dst_off < MemoryRegionSizes[static_cast<u32>(MEMBANKTYPE::MEM_MEMPACK)]; dst_off += 32 * 1024)
 	{
-		u8 * mempack = (u8*)g_pMemoryBuffers[MEM_MEMPACK] + dst_off;
+		u8 * mempack = (u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_MEMPACK)] + dst_off;
 
 		memcpy(mempack, gMempackInitialize, 272);
 
@@ -212,7 +212,7 @@ static void InitMempackContent()
 			mempack[i+1] = 0x03;
 		}
 
-		DAEDALUS_ASSERT(dst_off + 0x8000 <= MemoryRegionSizes[MEM_MEMPACK], "Buffer overflow");
-		DAEDALUS_ASSERT(dst_off + sizeof(gMempackInitialize) <= MemoryRegionSizes[MEM_MEMPACK], "Buffer overflow");
+		DAEDALUS_ASSERT(dst_off + 0x8000 <= MemoryRegionSizes[static_cast<u32>(MEMBANKTYPE::MEM_MEMPACK)], "Buffer overflow");
+		DAEDALUS_ASSERT(dst_off + sizeof(gMempackInitialize) <= MemoryRegionSizes[static_cast<u32>(MEMBANKTYPE::MEM_MEMPACK)], "Buffer overflow");
 	}
 }

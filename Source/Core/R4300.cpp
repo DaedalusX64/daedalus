@@ -74,7 +74,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 //	Abstract away the different rounding modes between targets
-enum ERoundingMode
+enum class ERoundingMode
 {
 	RM_ROUND = 0,
 	RM_TRUNC,
@@ -82,11 +82,11 @@ enum ERoundingMode
 	RM_FLOOR,
 	RM_NUM_MODES,
 };
-static ERoundingMode	gRoundingMode( RM_ROUND );
+static ERoundingMode	gRoundingMode( ERoundingMode::RM_ROUND );
 
 #if defined(DAEDALUS_PSP)
 
-static const PspFpuRoundMode		gNativeRoundingModes[ RM_NUM_MODES ] =
+static const PspFpuRoundMode		gNativeRoundingModes[ static_cast<u32>(ERoundingMode::RM_NUM_MODES) ] =
 {
 	PSP_FPU_RN,	// RM_ROUND,
 	PSP_FPU_RZ,	// RM_TRUNC,
@@ -301,33 +301,33 @@ inline s32 f32_to_s32_trunc( f32 x )				{ return pspFpuTrunc(x); }
 inline s32 f32_to_s32_round( f32 x )				{ return pspFpuRound(x); }
 inline s32 f32_to_s32_ceil( f32 x )					{ return pspFpuCeil(x); }
 inline s32 f32_to_s32_floor( f32 x )				{ return pspFpuFloor(x); }
-inline s32 f32_to_s32( f32 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] ); return cvt_w_s( x ); }
+inline s32 f32_to_s32( f32 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ static_cast<u32>(ERoundingMode::RM_ROUND)  ] ); return cvt_w_s( x ); }
 
 //inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)trunc_w_s( x ); }
 inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)truncf( x ); }
 inline s64 f32_to_s64_round( f32 x )				{ return (s64)round_w_s( x ); }
 inline s64 f32_to_s64_ceil( f32 x )					{ return (s64)ceil_w_s( x ); }
 inline s64 f32_to_s64_floor( f32 x )				{ return (s64)floor_w_s( x ); }
-inline s64 f32_to_s64( f32 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] ); return (s64)x; }	// XXXX Need to do a cvt really
+inline s64 f32_to_s64( f32 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ static_cast<u32>(ERoundingMode::RM_ROUND) ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
 inline s32 d64_to_s32_trunc( d64 x )				{ return pspFpuTrunc( (f32)x ); }
 inline s32 d64_to_s32_round( d64 x )				{ return pspFpuRound( (f32)x ); }
 inline s32 d64_to_s32_ceil( d64 x )					{ return pspFpuCeil( (f32)x ); }
 inline s32 d64_to_s32_floor( d64 x )				{ return pspFpuFloor( (f32)x ); }
-inline s32 d64_to_s32( d64 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] ); return cvt_w_s( (f32)x ); }
+inline s32 d64_to_s32( d64 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ static_cast<u32>(ERoundingMode::RM_ROUND) ] ); return cvt_w_s( (f32)x ); }
 
 inline s64 d64_to_s64_trunc( d64 x )				{ return (s64)x; }
 inline s64 d64_to_s64_round( d64 x )				{ return (s64)( x + 0.5f ); }
 inline s64 d64_to_s64_ceil( d64 x )					{ return (s64)ceilf( x ); }
 inline s64 d64_to_s64_floor( d64 x )				{ return (s64)floorf( x ); }
-inline s64 d64_to_s64( d64 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] ); return (s64)x; }	// XXXX Need to do a cvt really
+inline s64 d64_to_s64( d64 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ static_cast<u32>(ERoundingMode::RM_ROUND)  ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
 #else
 
-DAEDALUS_FORCEINLINE s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)truncf(x); }
-DAEDALUS_FORCEINLINE s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)roundf(x); }
-DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceilf(x); }
-DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floorf(x); }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( ERoundingMode::RM_TRUNC ); return (s32)truncf(x); }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( ERoundingMode::RM_ROUND ); return (s32)roundf(x); }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( ERoundingMode::RM_CEIL ); return (s32)ceilf(x); }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( ERoundingMode::RM_FLOOR ); return (s32)floorf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )
 {
 #ifdef ACCURATE_CVT
@@ -344,10 +344,10 @@ DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )
 	return (s32)x;
 #endif
 }
-DAEDALUS_FORCEINLINE s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s64)truncf(x); }
-DAEDALUS_FORCEINLINE s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)roundf(x); }
-DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s64)ceilf(x); }
-DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)floorf(x); }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( ERoundingMode::RM_TRUNC ); return (s64)truncf(x); }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( ERoundingMode::M_ROUND ); return (s64)roundf(x); }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( ERoundingMode::RM_CEIL ); return (s64)ceilf(x); }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( ERoundingMode::RM_FLOOR ); return (s64)floorf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x )
 {
 #ifdef ACCURATE_CVT
@@ -364,10 +364,10 @@ DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x )
 	return (s64)x;
 #endif
 }
-DAEDALUS_FORCEINLINE s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)trunc(x); }
-DAEDALUS_FORCEINLINE s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)round(x); }
-DAEDALUS_FORCEINLINE s32 d64_to_s32_ceil( d64 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceil(x); }
-DAEDALUS_FORCEINLINE s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floor(x); }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( ERoundingMode::RM_TRUNC ); return (s32)trunc(x); }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( ERoundingMode::RM_ROUND ); return (s32)round(x); }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_ceil( d64 x )	{ SET_ROUND_MODE( ERoundingMode::RM_CEIL ); return (s32)ceil(x); }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( ERoundingMode::RM_FLOOR ); return (s32)floor(x); }
 DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x )
 {
 #ifdef ACCURATE_CVT
@@ -384,10 +384,10 @@ DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x )
 	return (s32)x;
 #endif
 }
-DAEDALUS_FORCEINLINE s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)trunc(x); }
-DAEDALUS_FORCEINLINE s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return (s64)round(x); }
-DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)ceil(x); }
-DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)floor(x); }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( ERoundingMode::RM_TRUNC ); return (s64)trunc(x); }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( ERoundingMode::RM_ROUND ); return (s64)round(x); }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( ERoundingMode::RM_CEIL ); return (s64)ceil(x); }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( ERoundingMode::RM_FLOOR ); return (s64)floor(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x )
 {
 #ifdef ACCURATE_CVT
@@ -437,30 +437,30 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 	switch( op_code.op )
 	{
 	// FIXME: These can potentially trow if memory is accessed through a function call?! //Salvy
-	case OP_LWL:
-	case OP_SWL:
-	case OP_LWR:
-	case OP_SWR:
-	case OP_LDL:
-	case OP_LDR:
-	case OP_SDC1:
-	case OP_LDC1:
+	case static_cast<u32>(OpCodeValue::OP_LWL):
+	case static_cast<u32>(OpCodeValue::OP_SWL):
+	case static_cast<u32>(OpCodeValue::OP_LWR):
+	case static_cast<u32>(OpCodeValue::OP_SWR):
+	case static_cast<u32>(OpCodeValue::OP_LDL):
+	case static_cast<u32>(OpCodeValue::OP_LDR):
+	case static_cast<u32>(OpCodeValue::OP_SDC1):
+	case static_cast<u32>(OpCodeValue::OP_LDC1):
 		return false;
 
-	case OP_ADDI:
-	case OP_ADDIU:
-	case OP_SLTI:
-	case OP_SLTIU:
-	case OP_ANDI:
-	case OP_ORI:
-	case OP_XORI:
-	case OP_LUI:
-	case OP_DADDI:
-	case OP_DADDIU:
-	case OP_CACHE:
+	case static_cast<u32>(OpCodeValue::OP_ADDI):
+	case static_cast<u32>(OpCodeValue::OP_ADDIU):
+	case static_cast<u32>(OpCodeValue::OP_SLTI):
+	case static_cast<u32>(OpCodeValue::OP_SLTIU):
+	case static_cast<u32>(OpCodeValue::OP_ANDI):
+	case static_cast<u32>(OpCodeValue::OP_ORI):
+	case static_cast<u32>(OpCodeValue::OP_XORI):
+	case static_cast<u32>(OpCodeValue::OP_LUI):
+	case static_cast<u32>(OpCodeValue::OP_DADDI):
+	case static_cast<u32>(OpCodeValue::OP_DADDIU):
+	case static_cast<u32>(OpCodeValue::OP_CACHE):
 		return false;
 
-	case OP_SPECOP:
+	case static_cast<u32>(OpCodeValue::OP_SPECOP):
 		//return R4300SpecialInstruction[ op_code.funct ];
 
 		switch( op_code.spec_op )
@@ -512,15 +512,15 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 		}
 		return true;
 
-	case OP_REGIMM:
+	case static_cast<u32>(OpCodeValue::OP_REGIMM):
 		// These are all traps or branches
 		return true;
 
-	case OP_COPRO0:
+	case static_cast<u32>(OpCodeValue::OP_COPRO0):
 		// Only ERET needs PC
 		return op_code.cop0tlb_funct == OP_ERET;
 
-	case OP_COPRO1:
+	case static_cast<u32>(OpCodeValue::OP_COPRO1):
 		// Potentially these can all throw, if cop1 is disabled
 		// We explicitly handle this in the dynarec (we check the usuable flag once
 		// per fragment). Care needs to be take if this is used elsewhere.
@@ -549,19 +549,19 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 	// CHECK COP1 UNUSUABLE
 	if( (gCPUState.CPUControl[C0_SR]._u32 & SR_CU1) == 0 )
 	{
-		R4300Instruction[OP_COPRO1] = R4300_CoPro1_Disabled;
-		R4300Instruction[OP_LWC1] = R4300_CoPro1_Disabled;
-		R4300Instruction[OP_LDC1] = R4300_CoPro1_Disabled;
-		R4300Instruction[OP_SWC1] = R4300_CoPro1_Disabled;
-		R4300Instruction[OP_SDC1] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_COPRO1)] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_LWC1)] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_LDC1)] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_SWC1)] = R4300_CoPro1_Disabled;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_SDC1)] = R4300_CoPro1_Disabled;
 	}
 	else
 	{
-		R4300Instruction[OP_COPRO1] = R4300_CoPro1;
-		R4300Instruction[OP_LWC1] = R4300_LWC1;
-		R4300Instruction[OP_LDC1] = R4300_LDC1;
-		R4300Instruction[OP_SWC1] = R4300_SWC1;
-		R4300Instruction[OP_SDC1] = R4300_SDC1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_COPRO1)] = R4300_CoPro1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_LWC1)] = R4300_LWC1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_LDC1)] = R4300_LDC1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_SWC1)] = R4300_SWC1;
+		R4300Instruction[static_cast<u32>(OpCodeValue::OP_SDC1)] = R4300_SDC1;
 	}
 
 	// Serve any pending interrupts
@@ -2215,7 +2215,7 @@ static void R4300_CALL_TYPE R4300_Cop1_CTC1_2( R4300_CALL_SIGNATURE )
 
 		u32		fpcr( gCPUState.FPUControl[ 31 ]._u32 );
 		gRoundingMode = (ERoundingMode)( fpcr & FPCSR_RM_MASK );
-		pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] );
+		pspFpuSetRoundmode( gNativeRoundingModes[ static_cast<u32>(ERoundingMode::RM_ROUND)  ] );
 	}
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
@@ -3260,13 +3260,13 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 {
 	switch( op_code.op )
 	{
-	case OP_SPECOP:
+	case static_cast<u32>(OpCodeValue::OP_SPECOP):
 		return R4300SpecialInstruction[ op_code.spec_op ];
 
-	case OP_REGIMM:
+	case static_cast<u32>(OpCodeValue::OP_REGIMM):
 		return R4300RegImmInstruction[ op_code.regimm_op ];
 
-	case OP_COPRO0:
+	case static_cast<u32>(OpCodeValue::OP_COPRO0):
 		switch( op_code.cop0_op )
 		{
 		case Cop0Op_TLB:
@@ -3275,7 +3275,7 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 			return R4300Cop0Instruction[ op_code.cop0_op ];
 		}
 
-	case OP_COPRO1:
+	case static_cast<u32>(OpCodeValue::OP_COPRO1):
 		// It is the responsibility of the caller to check whether the
 		// copprocessor is enabled, and throw and exception accordingly.
 		switch( op_code.cop1_op )

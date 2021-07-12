@@ -292,7 +292,7 @@ CFragment * CFragment::Simulate()
 		DAEDALUS_ASSERT( gCPUState.Delay == (ti.BranchDelaySlot ? EXEC_DELAY : NO_DELAY), "Delay doesn't match expectations" );
 
 		// Check the cop1 usable flag. Do this only once (theoretically it could be toggled mid-fragment but this is unlikely)
-		if( op_code.op == OP_COPRO1 && !checked_cop1_usable )
+		if( op_code.op == OpCodeValue::OP_COPRO1 && !checked_cop1_usable )
 		{
 			checked_cop1_usable = true;
 			CheckCop1Usable();
@@ -625,7 +625,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 
 		// Check the cop1 usable flag. Do this only once (theoretically it could be toggled mid-fragment but this is unlikely)
 		/*
-		if( op_code.op == OP_COPRO1 && !checked_cop1_usable )
+		if( op_code.op == OpCodeValue::OP_COPRO1 && !checked_cop1_usable )
 		{
 			checked_cop1_usable = true;
 
@@ -758,7 +758,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 #ifdef DAEDALUS_DEBUG_CONSOLE
 			OpCode		delay_op_code( ti.OpCode );
 #endif
-			if( delay_op_code.op == OP_COPRO1 && !checked_cop1_usable )
+			if( delay_op_code.op == OpCodeValue::OP_COPRO1 && !checked_cop1_usable )
 			{
 				checked_cop1_usable = true;
 

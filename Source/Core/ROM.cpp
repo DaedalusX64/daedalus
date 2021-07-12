@@ -82,12 +82,12 @@ static void DumpROMInfo( const ROMHeader & header )
 static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 {
 	// Copy low 1000 bytes to MEM_SP_MEM
-	RomBuffer::GetRomBytesRaw( (u8*)g_pMemoryBuffers[MEM_SP_MEM] + RAMROM_BOOTSTRAP_OFFSET,
+	RomBuffer::GetRomBytesRaw( (u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_SP_MEM)] + RAMROM_BOOTSTRAP_OFFSET,
 		   RAMROM_BOOTSTRAP_OFFSET,
 		   RAMROM_GAME_OFFSET - RAMROM_BOOTSTRAP_OFFSET );
 
 	// Need to copy to SP_IMEM for CIC-6105 boot.
-	u8 * pIMemBase = (u8*)g_pMemoryBuffers[ MEM_SP_MEM ] + 0x1000;
+	u8 * pIMemBase = (u8*)g_pMemoryBuffers[ static_cast<u32>(MEMBANKTYPE::MEM_SP_MEM) ] + 0x1000;
 
 	gCPUState.CPUControl[C0_RAND]._u32 = 0x1F;
 	gCPUState.CPUControl[C0_COUNT]._u32 = 0x5000;
@@ -110,7 +110,7 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 
 	gCPUState.FPUControl[0]._u32 = 0x00000511;
 
-	((u32 *)g_pMemoryBuffers[MEM_RI_REG])[3] = 1;					// RI_CONFIG_REG Skips most of init
+	((u32 *)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_RI_REG)])[3] = 1;					// RI_CONFIG_REG Skips most of init
 
 	gGPR[0]._u64=0x0000000000000000LL;
 	gGPR[1]._u64=0x0000000000000000LL;

@@ -370,7 +370,7 @@ bool CPU_RomOpen()
 
 	Memory_MI_SetRegister(MI_VERSION_REG, 0x02020102);
 
-	((u32 *)g_pMemoryBuffers[MEM_RI_REG])[3] = 1;					// RI_CONFIG_REG Skips most of init
+	((u32 *)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_RI_REG)])[3] = 1;					// RI_CONFIG_REG Skips most of init
 
 	R4300_Init();
 
@@ -577,7 +577,7 @@ void CPU_AddBreakPoint( u32 address )
 		bpt.mTemporaryDisable = false;
 		g_BreakPoints.push_back(bpt);
 
-		pdwOp->op       = OP_DBG_BKPT;
+		pdwOp->op       = OpCodeValue::OP_DBG_BKPT;
 		pdwOp->bp_index = (g_BreakPoints.size() - 1);
 	}
 }
@@ -599,7 +599,7 @@ void CPU_EnableBreakPoint( u32 address, bool enable )
 	{
 		OpCode op_code = *pdwOp;
 
-		if (op_code.op != OP_DBG_BKPT)
+		if (op_code.op != OpCodeValue::OP_DBG_BKPT)
 		{
 			DBGConsole_Msg(0, "[YNo breakpoint is set at 0x%08x]", address);
 			return;

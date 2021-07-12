@@ -142,7 +142,7 @@ void	CAlphaRenderSettings::Finalise()
 {
 	if( mConstantExpression == NULL )
 	{
-		mConstantExpression = new CBlendConstantExpressionValue( BC_1 );
+		mConstantExpression = new CBlendConstantExpressionValue( EBlendConstant::BC_1 );
 	}
 }
 
@@ -158,11 +158,11 @@ void		CAlphaRenderSettings::Apply( bool texture_installed, const SRenderState & 
 		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( texture_installed, "We have a texture, but it's not installed?" );
 		#endif
-		out.BlendAlphaMode = PBAM_RGBA;
+		out.BlendAlphaMode = EPspBlendAlphaMode::PBAM_RGBA;
 	}
 	else
 	{
-		out.BlendAlphaMode = PBAM_RGB;
+		out.BlendAlphaMode = EPspBlendAlphaMode::PBAM_RGB;
 	}
 }
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -274,11 +274,11 @@ void		CRenderSettingsModulate::Apply( bool texture_installed, const SRenderState
 
 		if( mConstantExpression != NULL )
 		{
-			out.BlendMode = PBM_MODULATE;
+			out.BlendMode = EPspBlendMode::PBM_MODULATE;
 		}
 		else
 		{
-			out.BlendMode = PBM_REPLACE;
+			out.BlendMode = EPspBlendMode::PBM_REPLACE;
 		}
 	}
 	else
@@ -367,7 +367,7 @@ void		CRenderSettingsBlend::Apply( bool texture_installed, const SRenderState & 
 	//
 	out.VertexExpressionRGB = mConstantExpressionA;
 	out.TextureFactor = mConstantExpressionB->EvaluateConstant( state.PrimitiveColour, state.EnvironmentColour );
-	out.BlendMode = PBM_BLEND;
+	out.BlendMode = EPspBlendMode::PBM_BLEND;
 }
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************

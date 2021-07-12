@@ -517,42 +517,42 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 	bool handled = false;
 	switch(op_code.op)
 	{
-		case OP_J:			handled = true; break;
-		case OP_JAL:		GenerateJAL( address ); handled = true; break;
-		case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
+		case OpCodeValue::OP_J:			handled = true; break;
+		case OpCodeValue::OP_JAL:		GenerateJAL( address ); handled = true; break;
+		case OpCodeValue::OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
 
 		// For LW, SW, SWC1, LB etc, only generate an exception handler if access wasn't done through the stack (handle = false)
 		// This will have to be reworked once we handle accesses other than the stack!
-		case OP_LW:
+		case OpCodeValue::OP_LW:
 			handled = GenerateLW(rt, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
-		case OP_SW:
+		case OpCodeValue::OP_SW:
 			handled = GenerateSW(rt, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
-		case OP_SWC1:
+		case OpCodeValue::OP_SWC1:
 			handled = GenerateSWC1(ft, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
-		case OP_LB:
+		case OpCodeValue::OP_LB:
 			handled = GenerateLB(rt, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
-		case OP_LBU:
+		case OpCodeValue::OP_LBU:
 			 handled = GenerateLBU(rt, base, s16(op_code.immediate));
 			 exception = !handled;
 			break;
-		case OP_LH:
+		case OpCodeValue::OP_LH:
 			handled = GenerateLH(rt, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
-		case OP_LWC1:
+		case OpCodeValue::OP_LWC1:
 			handled = GenerateLWC1(ft, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
-		case OP_ADDIU:
-		case OP_ADDI:
+		case OpCodeValue::OP_ADDIU:
+		case OpCodeValue::OP_ADDI:
 			GenerateADDIU(rt, rs, s16(op_code.immediate)); handled = true; break;
 			break;
 

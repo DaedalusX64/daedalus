@@ -40,12 +40,15 @@ add_compile_definitions(DAEDALUS_WIN32
 						DAEDALUS_GL)
 elseif(PSP)
 	add_executable(daedalus SysPSP/main.cpp)
-	target_link_libraries(daedalus -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lg -lm -lpspfpu -lpspkubridge psp_plugins ${PSPSDK_LIBS} ${PNG_LIBRARY} ${ZLIB_LIBRARY})
+	target_link_libraries(daedalus -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lg -lm -lpspfpu -lkubridge psp_plugins ${PSPSDK_LIBS} ${PNG_LIBRARY} ${ZLIB_LIBRARY})
 	create_pbp_file( TARGET daedalus 
 					TITLE "DaedalusX64" 
 					ICON_PATH "${CMAKE_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/icon0.png" 
 					PREVIEW_PATH "${CMAKE_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png"
 					)
+
+elseif(3DS)
+			add_executable(daedalus SysCTR/main.cpp)
 endif(UNIX)
 
 if(WIN32)

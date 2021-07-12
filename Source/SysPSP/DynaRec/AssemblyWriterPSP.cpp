@@ -39,7 +39,7 @@ void	CAssemblyWriterPSP::GetLoadConstantOps( EPspReg reg, s32 value, PspOpCode *
 	if ( value >= SHRT_MIN && value <= SHRT_MAX )
 	{
 		// ORI
-		op1.op = OP_ADDIU;
+		op1.op = static_cast<u32>(OpCodeValue::OP_ADDIU);
 		op1.rt = reg;
 		op1.rs = PspReg_R0;
 		op1.immediate = u16( value );
@@ -50,14 +50,14 @@ void	CAssemblyWriterPSP::GetLoadConstantOps( EPspReg reg, s32 value, PspOpCode *
 	else
 	{
 		// It's too large - we need to load in two parts
-		op1.op = OP_LUI;
+		op1.op = static_cast<u32>(OpCodeValue::OP_LUI);
 		op1.rt = reg;
 		op1.rs = PspReg_R0;
 		op1.immediate = u16( value >> 16 );
 
 		if ( u16( value ) != 0 )
 		{
-			op2.op = OP_ORI;
+			op2.op = static_cast<u32>(OpCodeValue::OP_ORI);
 			op2.rt = reg;
 			op2.rs = reg;
 			op2.immediate = u16( value );
@@ -100,7 +100,7 @@ void	CAssemblyWriterPSP::LoadRegister( EPspReg reg_dst, OpCodeValue load_op, EPs
 	PspOpCode		op_code {};
 	op_code._u32 = 0;
 
-	op_code.op = load_op;
+	op_code.op = static_cast<u32>(load_op);
 	op_code.rt = reg_dst;
 	op_code.base = reg_base;
 	op_code.immediate = offset;
@@ -116,7 +116,7 @@ void	CAssemblyWriterPSP::StoreRegister( EPspReg reg_src, OpCodeValue store_op, E
 	PspOpCode		op_code {};
 	op_code._u32 = 0;
 
-	op_code.op = store_op;
+	op_code.op = static_cast<u32>(store_op);
 	op_code.rt = reg_src;
 	op_code.base = reg_base;
 	op_code.immediate = offset;
@@ -139,7 +139,7 @@ void	CAssemblyWriterPSP::NOP()
 
 void	CAssemblyWriterPSP::SW( EPspReg reg_src, EPspReg reg_base, s16 offset )
 {
-	StoreRegister( reg_src, OP_SW, reg_base, offset );
+	StoreRegister( reg_src, OpCodeValue::OP_SW, reg_base, offset );
 }
 
 
@@ -147,7 +147,7 @@ void	CAssemblyWriterPSP::SW( EPspReg reg_src, EPspReg reg_base, s16 offset )
 
 void	CAssemblyWriterPSP::SH( EPspReg reg_src, EPspReg reg_base, s16 offset )
 {
-	StoreRegister( reg_src, OP_SH, reg_base, offset );
+	StoreRegister( reg_src, OpCodeValue::OP_SH, reg_base, offset );
 }
 
 
@@ -155,7 +155,7 @@ void	CAssemblyWriterPSP::SH( EPspReg reg_src, EPspReg reg_base, s16 offset )
 
 void	CAssemblyWriterPSP::SB( EPspReg reg_src, EPspReg reg_base, s16 offset )
 {
-	StoreRegister( reg_src, OP_SB, reg_base, offset );
+	StoreRegister( reg_src, OpCodeValue::OP_SB, reg_base, offset );
 }
 
 
@@ -163,7 +163,7 @@ void	CAssemblyWriterPSP::SB( EPspReg reg_src, EPspReg reg_base, s16 offset )
 
 void	CAssemblyWriterPSP::LB( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 {
-	LoadRegister( reg_dst, OP_LB, reg_base, offset );
+	LoadRegister( reg_dst, OpCodeValue::OP_LB, reg_base, offset );
 }
 
 
@@ -171,7 +171,7 @@ void	CAssemblyWriterPSP::LB( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 
 void	CAssemblyWriterPSP::LBU( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 {
-	LoadRegister( reg_dst, OP_LBU, reg_base, offset );
+	LoadRegister( reg_dst, OpCodeValue::OP_LBU, reg_base, offset );
 }
 
 
@@ -179,7 +179,7 @@ void	CAssemblyWriterPSP::LBU( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 
 void	CAssemblyWriterPSP::LH( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 {
-	LoadRegister( reg_dst, OP_LH, reg_base, offset );
+	LoadRegister( reg_dst, OpCodeValue::OP_LH, reg_base, offset );
 }
 
 
@@ -187,7 +187,7 @@ void	CAssemblyWriterPSP::LH( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 
 void	CAssemblyWriterPSP::LHU( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 {
-	LoadRegister( reg_dst, OP_LHU, reg_base, offset );
+	LoadRegister( reg_dst, OpCodeValue::OP_LHU, reg_base, offset );
 }
 
 
@@ -195,7 +195,7 @@ void	CAssemblyWriterPSP::LHU( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 
 void	CAssemblyWriterPSP::LW( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 {
-	LoadRegister( reg_dst, OP_LW, reg_base, offset );
+	LoadRegister( reg_dst, OpCodeValue::OP_LW, reg_base, offset );
 }
 
 
@@ -206,7 +206,7 @@ void	CAssemblyWriterPSP::LWC1( EPspFloatReg reg_dst, EPspReg reg_base, s16 offse
 	PspOpCode		op_code {};
 	op_code._u32 = 0;
 
-	op_code.op = OP_LWC1;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_LWC1);
 	op_code.ft = reg_dst;
 	op_code.base = reg_base;
 	op_code.immediate = offset;
@@ -222,7 +222,7 @@ void	CAssemblyWriterPSP::SWC1( EPspFloatReg reg_src, EPspReg reg_base, s16 offse
 	PspOpCode		op_code {};
 	op_code._u32 = 0;
 
-	op_code.op = OP_SWC1;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_SWC1);
 	op_code.ft = reg_src;
 	op_code.base = reg_base;
 	op_code.immediate = offset;
@@ -235,7 +235,7 @@ void	CAssemblyWriterPSP::SWC1( EPspFloatReg reg_src, EPspReg reg_base, s16 offse
 void	CAssemblyWriterPSP::LUI( EPspReg reg, u16 value )
 {
 	PspOpCode	op_code {};
-	op_code.op = OP_LUI;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_LUI);
 	op_code.rt = reg;
 	op_code.rs = PspReg_R0;
 	op_code.immediate = value;
@@ -251,7 +251,7 @@ CJumpLocation	CAssemblyWriterPSP::JAL( CCodeLabel target, bool insert_delay )
 
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_JAL;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_JAL);
 	op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 	AppendOp( op_code );
 
@@ -274,7 +274,7 @@ CJumpLocation	CAssemblyWriterPSP::J( CCodeLabel target, bool insert_delay )
 
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_J;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_J);
 	op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 	AppendOp( op_code );
 
@@ -295,7 +295,7 @@ void 	CAssemblyWriterPSP::JR( EPspReg reg_link, bool insert_delay )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_SPECOP;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_SPECOP);
 	op_code.spec_op = SpecOp_JR;
 	op_code.rs = reg_link;
 	AppendOp( op_code );
@@ -318,7 +318,7 @@ CJumpLocation	CAssemblyWriterPSP::BranchOp( EPspReg a, OpCodeValue op, EPspReg b
 
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = op;
+	op_code.op = static_cast<u32>(op);
 	op_code.rs = a;
 	op_code.rt = b;
 	op_code.offset = s16((offset - 4) >> 2);	// Adjust for incremented PC and ignore lower bits
@@ -339,7 +339,7 @@ CJumpLocation	CAssemblyWriterPSP::BranchOp( EPspReg a, OpCodeValue op, EPspReg b
 
 CJumpLocation	CAssemblyWriterPSP::BNE( EPspReg a, EPspReg b, CCodeLabel target, bool insert_delay )
 {
-	return BranchOp( a, OP_BNE, b, target, insert_delay );
+	return BranchOp( a, OpCodeValue::OP_BNE, b, target, insert_delay );
 }
 
 
@@ -347,7 +347,7 @@ CJumpLocation	CAssemblyWriterPSP::BNE( EPspReg a, EPspReg b, CCodeLabel target, 
 
 CJumpLocation	CAssemblyWriterPSP::BEQ( EPspReg a, EPspReg b, CCodeLabel target, bool insert_delay )
 {
-	return BranchOp( a, OP_BEQ, b, target, insert_delay );
+	return BranchOp( a, OpCodeValue::OP_BEQ, b, target, insert_delay );
 }
 
 
@@ -355,7 +355,7 @@ CJumpLocation	CAssemblyWriterPSP::BEQ( EPspReg a, EPspReg b, CCodeLabel target, 
 
 CJumpLocation	CAssemblyWriterPSP::BNEL( EPspReg a, EPspReg b, CCodeLabel target, bool insert_delay )
 {
-	return BranchOp( a, OP_BNEL, b, target, insert_delay );
+	return BranchOp( a, OpCodeValue::OP_BNEL, b, target, insert_delay );
 }
 
 
@@ -363,7 +363,7 @@ CJumpLocation	CAssemblyWriterPSP::BNEL( EPspReg a, EPspReg b, CCodeLabel target,
 
 CJumpLocation	CAssemblyWriterPSP::BEQL( EPspReg a, EPspReg b, CCodeLabel target, bool insert_delay )
 {
-	return BranchOp( a, OP_BEQL, b, target, insert_delay );
+	return BranchOp( a, OpCodeValue::OP_BEQL, b, target, insert_delay );
 }
 
 
@@ -371,7 +371,7 @@ CJumpLocation	CAssemblyWriterPSP::BEQL( EPspReg a, EPspReg b, CCodeLabel target,
 
 CJumpLocation	CAssemblyWriterPSP::BLEZ( EPspReg a, CCodeLabel target, bool insert_delay )
 {
-	return BranchOp( a, OP_BLEZ, PspReg_R0, target, insert_delay );
+	return BranchOp( a, OpCodeValue::OP_BLEZ, PspReg_R0, target, insert_delay );
 }
 
 
@@ -379,7 +379,7 @@ CJumpLocation	CAssemblyWriterPSP::BLEZ( EPspReg a, CCodeLabel target, bool inser
 
 CJumpLocation	CAssemblyWriterPSP::BGTZ( EPspReg a, CCodeLabel target, bool insert_delay )
 {
-	return BranchOp( a, OP_BGTZ, PspReg_R0, target, insert_delay );
+	return BranchOp( a, OpCodeValue::OP_BGTZ, PspReg_R0, target, insert_delay );
 }
 
 
@@ -392,7 +392,7 @@ CJumpLocation	CAssemblyWriterPSP::BranchRegImmOp( EPspReg a, ERegImmOp op, CCode
 
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_REGIMM;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_REGIMM);
 	op_code.rs = a;
 	op_code.regimm_op = op;
 	op_code.offset = s16((offset - 4) >> 2);	// Adjust for incremented PC and ignore lower bits
@@ -448,7 +448,7 @@ void	CAssemblyWriterPSP::ADDI( EPspReg reg_dst, EPspReg reg_src, s16 value )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_ADDI;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_ADDI);
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
 	op_code.immediate = value;
@@ -462,7 +462,7 @@ void	CAssemblyWriterPSP::ADDIU( EPspReg reg_dst, EPspReg reg_src, s16 value )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_ADDIU;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_ADDIU);
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
 	op_code.immediate = value;
@@ -476,7 +476,7 @@ void	CAssemblyWriterPSP::SLTI( EPspReg reg_dst, EPspReg reg_src, s16 value )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_SLTI;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_SLTI);
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
 	op_code.immediate = value;
@@ -490,7 +490,7 @@ void	CAssemblyWriterPSP::SLTIU( EPspReg reg_dst, EPspReg reg_src, s16 value )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_SLTIU;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_SLTIU);
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
 	op_code.immediate = value;
@@ -536,7 +536,7 @@ void	CAssemblyWriterPSP::ANDI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_ANDI;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_ANDI);
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
 	op_code.immediate = immediate;
@@ -550,7 +550,7 @@ void	CAssemblyWriterPSP::ORI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_ORI;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_ORI);
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
 	op_code.immediate = immediate;
@@ -564,7 +564,7 @@ void	CAssemblyWriterPSP::XORI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_XORI;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_XORI);
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
 	op_code.immediate = immediate;
@@ -578,7 +578,7 @@ void	CAssemblyWriterPSP::SLL( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_SPECOP;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_SPECOP);
 	op_code.rd = reg_dst;
 	op_code.rt = reg_src;
 	op_code.sa = shift;
@@ -593,7 +593,7 @@ void	CAssemblyWriterPSP::SRL( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_SPECOP;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_SPECOP);
 	op_code.rd = reg_dst;
 	op_code.rt = reg_src;
 	op_code.sa = shift;
@@ -608,7 +608,7 @@ void	CAssemblyWriterPSP::SRA( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_SPECOP;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_SPECOP);
 	op_code.rd = reg_dst;
 	op_code.rt = reg_src;
 	op_code.sa = shift;
@@ -623,7 +623,7 @@ void	CAssemblyWriterPSP::SpecOpLogical( EPspReg rd, EPspReg rs, ESpecOp op, EPsp
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_SPECOP;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_SPECOP);
 	op_code.rd = rd;
 	op_code.rs = rs;
 	op_code.rt = rt;
@@ -790,7 +790,7 @@ void	CAssemblyWriterPSP::Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg 
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_COPRO1;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.fd = fd;
 	op_code.fs = fs;
 	op_code.ft = ft;
@@ -806,7 +806,7 @@ void	CAssemblyWriterPSP::Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg 
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_COPRO1;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.fd = fd;
 	op_code.fs = fs;
 	op_code.cop1_op = cop1_op;
@@ -821,7 +821,7 @@ void	CAssemblyWriterPSP::CFC1( EPspReg rt, EPspFloatReg fs )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_COPRO1;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.rt = rt;
 	op_code.fs = fs;
 	op_code.cop1_op = Cop1Op_CFC1;
@@ -835,7 +835,7 @@ void	CAssemblyWriterPSP::MFC1( EPspReg rt, EPspFloatReg fs )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_COPRO1;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.rt = rt;
 	op_code.fs = fs;
 	op_code.cop1_op = Cop1Op_MFC1;
@@ -849,7 +849,7 @@ void	CAssemblyWriterPSP::MTC1( EPspFloatReg fs, EPspReg rt )
 {
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_COPRO1;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.rt = rt;
 	op_code.fs = fs;
 	op_code.cop1_op = Cop1Op_MTC1;
@@ -969,7 +969,7 @@ CJumpLocation	CAssemblyWriterPSP::BranchCop1( ECop1BCOp bc_op, CCodeLabel target
 
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
-	op_code.op = OP_COPRO1;
+	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.cop1_op = Cop1Op_BCInstr;
 	op_code.cop1_bc = bc_op;
 	op_code.offset = s16((offset - 4) >> 2);	// Adjust for incremented PC and ignore lower bits

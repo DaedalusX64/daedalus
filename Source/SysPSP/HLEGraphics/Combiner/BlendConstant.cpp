@@ -14,20 +14,20 @@ CBlendConstantExpressionValue::~CBlendConstantExpressionValue()
 
 bool CBlendConstantExpressionValue::IsShade() const
 {
-	return mConstant == BC_SHADE;
+	return mConstant == EBlendConstant::BC_SHADE;
 }
 
 c32 CBlendConstantExpressionValue::Evaluate( c32 shade, c32 primitive, c32 environment ) const
 {
 	switch( mConstant )
 	{
-	case BC_SHADE:				return shade;
-	case BC_PRIMITIVE:			return primitive;
-	case BC_ENVIRONMENT:		return environment;
-	case BC_PRIMITIVE_ALPHA:	return c32( primitive.GetA(), primitive.GetA(), primitive.GetA(), primitive.GetA() );
-	case BC_ENVIRONMENT_ALPHA:	return c32( environment.GetA(), environment.GetA(), environment.GetA(), environment.GetA() );
-	case BC_1:					return c32( 0xffffffff );
-	case BC_0:					return c32( 0x00000000 );
+	case EBlendConstant::BC_SHADE:				return shade;
+	case EBlendConstant::BC_PRIMITIVE:			return primitive;
+	case EBlendConstant::BC_ENVIRONMENT:		return environment;
+	case EBlendConstant::BC_PRIMITIVE_ALPHA:	return c32( primitive.GetA(), primitive.GetA(), primitive.GetA(), primitive.GetA() );
+	case EBlendConstant::BC_ENVIRONMENT_ALPHA:	return c32( environment.GetA(), environment.GetA(), environment.GetA(), environment.GetA() );
+	case EBlendConstant::BC_1:					return c32( 0xffffffff );
+	case EBlendConstant::BC_0:					return c32( 0x00000000 );
 	}
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled constant" );
@@ -40,16 +40,16 @@ c32 CBlendConstantExpressionValue::EvaluateConstant( c32 primitive, c32 environm
 	switch( mConstant )
 	{
 		#ifdef DAEDALUS_DEBUG_CONSOLE
-	case BC_SHADE:				DAEDALUS_ERROR( "Shouldn't be here" ); return c32( 0xffffffff );
+	case EBlendConstant::BC_SHADE:				DAEDALUS_ERROR( "Shouldn't be here" ); return c32( 0xffffffff );
 	#else
-	case BC_SHADE: return c32( 0xffffffff);
+	case EBlendConstant::BC_SHADE: return c32( 0xffffffff);
 	#endif
-	case BC_PRIMITIVE:			return primitive;
-	case BC_ENVIRONMENT:		return environment;
-	case BC_PRIMITIVE_ALPHA:	return c32( primitive.GetA(), primitive.GetA(), primitive.GetA(), primitive.GetA() );
-	case BC_ENVIRONMENT_ALPHA:	return c32( environment.GetA(), environment.GetA(), environment.GetA(), environment.GetA() );
-	case BC_1:					return c32( 0xffffffff );
-	case BC_0:					return c32( 0x00000000 );
+	case EBlendConstant::BC_PRIMITIVE:			return primitive;
+	case EBlendConstant::BC_ENVIRONMENT:		return environment;
+	case EBlendConstant::BC_PRIMITIVE_ALPHA:	return c32( primitive.GetA(), primitive.GetA(), primitive.GetA(), primitive.GetA() );
+	case EBlendConstant::BC_ENVIRONMENT_ALPHA:	return c32( environment.GetA(), environment.GetA(), environment.GetA(), environment.GetA() );
+	case EBlendConstant::BC_1:					return c32( 0xffffffff );
+	case EBlendConstant::BC_0:					return c32( 0x00000000 );
 	}
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled constant" );
@@ -61,13 +61,13 @@ bool CBlendConstantExpressionValue::TryEvaluateConstant( const SRenderState & st
 {
 	switch( mConstant )
 	{
-	case BC_SHADE:				return false;
-	case BC_PRIMITIVE:			*out = state.PrimitiveColour; return true;
-	case BC_ENVIRONMENT:		*out = state.EnvironmentColour; return true;
-	case BC_PRIMITIVE_ALPHA:	*out = c32( state.PrimitiveColour.GetA(), state.PrimitiveColour.GetA(), state.PrimitiveColour.GetA(), state.PrimitiveColour.GetA() ); return true;
-	case BC_ENVIRONMENT_ALPHA:	*out = c32( state.EnvironmentColour.GetA(), state.EnvironmentColour.GetA(), state.EnvironmentColour.GetA(), state.EnvironmentColour.GetA() ); return true;
-	case BC_1:					*out = c32( 0xffffffff ); return true;
-	case BC_0:					*out = c32( 0x00000000 ); return true;
+	case EBlendConstant::BC_SHADE:				return false;
+	case EBlendConstant::BC_PRIMITIVE:			*out = state.PrimitiveColour; return true;
+	case EBlendConstant::BC_ENVIRONMENT:		*out = state.EnvironmentColour; return true;
+	case EBlendConstant::BC_PRIMITIVE_ALPHA:	*out = c32( state.PrimitiveColour.GetA(), state.PrimitiveColour.GetA(), state.PrimitiveColour.GetA(), state.PrimitiveColour.GetA() ); return true;
+	case EBlendConstant::BC_ENVIRONMENT_ALPHA:	*out = c32( state.EnvironmentColour.GetA(), state.EnvironmentColour.GetA(), state.EnvironmentColour.GetA(), state.EnvironmentColour.GetA() ); return true;
+	case EBlendConstant::BC_1:					*out = c32( 0xffffffff ); return true;
+	case EBlendConstant::BC_0:					*out = c32( 0x00000000 ); return true;
 	}
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled constant" );
@@ -78,7 +78,7 @@ bool CBlendConstantExpressionValue::TryEvaluateConstant( const SRenderState & st
 void CBlendConstantExpressionValue::ApplyExpressionRGB( const SRenderState & state ) const
 {
 	// Applying the shade colour leaves the vertex untouched, so bail out
-	if( mConstant != BC_SHADE )
+	if( mConstant != EBlendConstant::BC_SHADE )
 	{
 		c32		new_colour( EvaluateConstant( state.PrimitiveColour, state.EnvironmentColour ) );
 		for( u32 i = 0; i < state.NumVertices; ++i )
@@ -91,7 +91,7 @@ void CBlendConstantExpressionValue::ApplyExpressionRGB( const SRenderState & sta
 void CBlendConstantExpressionValue::ApplyExpressionAlpha( const SRenderState & state ) const
 {
 	// Applying the shade colour leaves the vertex untouched, so bail out
-	if( mConstant != BC_SHADE )
+	if( mConstant != EBlendConstant::BC_SHADE )
 	{
 		c32		new_colour( EvaluateConstant( state.PrimitiveColour, state.EnvironmentColour ) );
 		for( u32 i = 0; i < state.NumVertices; ++i )
@@ -105,13 +105,13 @@ std::string CBlendConstantExpressionValue::ToString() const
 {
 	switch( mConstant )
 	{
-	case BC_SHADE:				return "Shade";
-	case BC_PRIMITIVE:			return "Primitive";
-	case BC_ENVIRONMENT:		return "Environment";
-	case BC_PRIMITIVE_ALPHA:	return "PrimitiveAlpha";
-	case BC_ENVIRONMENT_ALPHA:	return "EnvironmentAlpha";
-	case BC_1:					return "1";
-	case BC_0:					return "0";
+	case EBlendConstant::BC_SHADE:				return "Shade";
+	case EBlendConstant::BC_PRIMITIVE:			return "Primitive";
+	case EBlendConstant::BC_ENVIRONMENT:		return "Environment";
+	case EBlendConstant::BC_PRIMITIVE_ALPHA:	return "PrimitiveAlpha";
+	case EBlendConstant::BC_ENVIRONMENT_ALPHA:	return "EnvironmentAlpha";
+	case EBlendConstant::BC_1:					return "1";
+	case EBlendConstant::BC_0:					return "0";
 	}
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled constant" );

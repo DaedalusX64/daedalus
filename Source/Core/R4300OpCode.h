@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Endian.h"
 #include "N64Reg.h"
 
-enum OpCodeValue {
+enum class OpCodeValue  {
 	OP_SPECOP		= 0,
 	OP_REGIMM		= 1,
 	OP_J			= 2,

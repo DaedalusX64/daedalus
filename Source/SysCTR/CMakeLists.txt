@@ -1,0 +1,10 @@
+# N3DS(CTR)
+
+add_library(plat_debugSysCTR/Debug/DaedalusAssertCTR.cpp SysCTR/Debug/DBGConsoleCTR.cpp )
+add_library(plat_dynarec SysCTR/DynaRec/arm/AssemblyUtilsARM.cpp SysCTR/DynaRec/arm/AssemblyWriterARM.cpp SysCTR/DynaRec/arm/CodeBufferManagerARM.cpp SysCTR/DynaRec/arm/DynarecStubARM.S SysCTR/DynaRec/arm/CodeGeneratorARM.cpp SysCTR/DynaRec/arm/N64RegisterCacheARM.cpp)
+add_library(plat_graphics SysCTR/Graphics/GraphicsContextCTR.cpp SysCTR/Graphics/NativeTextureCTR.cpp)
+add_library(plat_hlegraphics SysCTR/HLEGraphics/GraphicsPluginCTR.cpp SysCTR/HLEGraphics/RendererCTR.cpp SysCTR/HLEGraphics/ColourAdjuster.cpp SysCTR/HLEGraphics/BlendModes.cpp SysCTR/HLEGraphics/Combiner/BlendConstant.cpp SysCTR/HLEGraphics/Combiner/CombinerExpression.cpp SysCTR/HLEGraphics/Combiner/CombinerTree.cpp SysCTR/HLEGraphics/Combiner/RenderSettings.cpp)
+add_library(plat_audio SysCTR/HLEAudio/AudioPluginCTR.cpp SysCTR/HLEAudio/AudioOutput.cpp)
+add_library(plat_input SysCTR/Input/InputManagerCTR.cpp)
+add_library(plat_ui SysCTR/UI/UserInterface.cpp SysCTR/UI/RomSelector.cpp SysCTR/UI/InGameMenu.cpp)
+add_library(plat_utility SysCTR/Utility/ThreadCTR.cpp SysCTR/Utility/IOCTR.cpp SysCTR/Utility/TimingCTR.cpp SysCTR/Utility/MemoryCTR.c SysCTR/Utility/CacheCTR.S)

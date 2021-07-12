@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/AtomicPrimitives.h"
 #include "System/Endian.h"
 
-enum MEMBANKTYPE
+enum class MEMBANKTYPE
 {
 	MEM_UNUSED = 0,			// Simplifies code so that we don't have to check for illegal memory accesses
 
@@ -78,8 +78,8 @@ extern u32		gRamSize;
 extern u32		gTLBReadHit;
 extern u32		gTLBWriteHit;
 #endif
-extern void *	g_pMemoryBuffers[NUM_MEM_BUFFERS];
-extern const u32 MemoryRegionSizes[NUM_MEM_BUFFERS];
+extern void *	g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::NUM_MEM_BUFFERS)];
+extern const u32 MemoryRegionSizes[static_cast<u32>(MEMBANKTYPE::NUM_MEM_BUFFERS)];
 
 bool			Memory_Init();
 void			Memory_Fini();
@@ -171,18 +171,18 @@ inline void QuickWrite32Bits( u8 *p_base, u32 value )
 }
 
 // Useful defines for making code look nicer:
-#define g_pu8RamBase ((u8*)g_pMemoryBuffers[MEM_RD_RAM])
-#define g_ps8RamBase ((s8*)g_pMemoryBuffers[MEM_RD_RAM])
-#define g_pu16RamBase ((u16*)g_pMemoryBuffers[MEM_RD_RAM])
-#define g_pu32RamBase ((u32*)g_pMemoryBuffers[MEM_RD_RAM])
+#define g_pu8RamBase ((u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_RD_RAM)])
+#define g_ps8RamBase ((s8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_RD_RAM)])
+#define g_pu16RamBase ((u16*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_RD_RAM)])
+#define g_pu32RamBase ((u32*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_RD_RAM)])
 
-#define g_pu8SpMemBase ((u8*)g_pMemoryBuffers[MEM_SP_MEM])
-#define g_ps8SpMemBase ((s8*)g_pMemoryBuffers[MEM_SP_MEM])
-#define g_pu16SpMemBase ((u16*)g_pMemoryBuffers[MEM_SP_MEM])
-#define g_pu32SpMemBase ((u32*)g_pMemoryBuffers[MEM_SP_MEM])
+#define g_pu8SpMemBase ((u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_SP_MEM)])
+#define g_ps8SpMemBase ((s8*)g_pMemoryBuffers[MEMBANKTYPE::MEM_SP_MEM])
+#define g_pu16SpMemBase ((u16*)g_pMemoryBuffers[MEMBANKTYPE::MEM_SP_MEM])
+#define g_pu32SpMemBase ((u32*)g_pMemoryBuffers[MEMBANKTYPE::MEM_SP_MEM])
 
-#define g_pu8SpDmemBase	((u8*)g_pMemoryBuffers[MEM_SP_MEM] + SP_DMA_DMEM)
-#define g_pu8SpImemBase	((u8*)g_pMemoryBuffers[MEM_SP_MEM] + SP_DMA_IMEM)
+#define g_pu8SpDmemBase	((u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_SP_MEM)] + SP_DMA_DMEM)
+#define g_pu8SpImemBase	((u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_SP_MEM)] + SP_DMA_IMEM)
 
 #define MEMORY_SIZE_RDRAM				0x400000
 #define MEMORY_SIZE_EXRDRAM				0x400000
@@ -317,14 +317,14 @@ inline void Write8Bits_NoSwizzle( u32 address, u8 data )	{                      
 		return &((u32 *)g_pMemoryBuffers[memory_buffer])[(reg - base_reg) / 4];			\
 	}
 
-REGISTER_FUNCTIONS( MI, MI_BASE_REG, MEM_MI_REG )
-REGISTER_FUNCTIONS( SP, SP_BASE_REG, MEM_SP_REG )
-REGISTER_FUNCTIONS( PC, SP_PC_REG, MEM_SP_PC_REG )
-REGISTER_FUNCTIONS( AI, AI_BASE_REG, MEM_AI_REG )
-REGISTER_FUNCTIONS( VI, VI_BASE_REG, MEM_VI_REG )
-REGISTER_FUNCTIONS( SI, SI_BASE_REG, MEM_SI_REG )
-REGISTER_FUNCTIONS( PI, PI_BASE_REG, MEM_PI_REG )
-REGISTER_FUNCTIONS( DPC, DPC_BASE_REG, MEM_DPC_REG )
+REGISTER_FUNCTIONS( MI, MI_BASE_REG, static_cast<u32>(MEMBANKTYPE::MEM_MI_REG) )
+REGISTER_FUNCTIONS( SP, SP_BASE_REG, static_cast<u32>(MEMBANKTYPE::MEM_SP_REG) )
+REGISTER_FUNCTIONS( PC, SP_PC_REG,  static_cast<u32>(MEMBANKTYPE::MEM_SP_PC_REG ))
+REGISTER_FUNCTIONS( AI, AI_BASE_REG, static_cast<u32>(MEMBANKTYPE::MEM_AI_REG ))
+REGISTER_FUNCTIONS( VI, VI_BASE_REG, static_cast<u32>(MEMBANKTYPE::MEM_VI_REG ))
+REGISTER_FUNCTIONS( SI, SI_BASE_REG, static_cast<u32>(MEMBANKTYPE::MEM_SI_REG ))
+REGISTER_FUNCTIONS( PI, PI_BASE_REG, static_cast<u32>(MEMBANKTYPE::MEM_PI_REG ))
+REGISTER_FUNCTIONS( DPC, DPC_BASE_REG, static_cast<u32>(MEMBANKTYPE::MEM_DPC_REG))
 
 #undef REGISTER_FUNCTIONS
 

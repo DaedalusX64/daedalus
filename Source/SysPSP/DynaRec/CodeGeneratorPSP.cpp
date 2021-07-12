@@ -173,7 +173,7 @@ void Dynarec_ClearedCPUStuffToDo()
 
 		PspOpCode	op_code;
 		op_code._u32 = 0;
-		op_code.op = OP_SPECOP;
+		op_code.op = static_cast<u32>(OpCodeValue::OP_SPECOP);
 		op_code.spec_op = SpecOp_JR;
 		op_code.rs = PspReg_RA;
 		gReplacementOps[0] = op_code;		// JR RA
@@ -1435,7 +1435,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	//
 	switch( op_code.op )
 	{
-	case OP_SPECOP:
+	case static_cast<u32>(OpCodeValue::OP_SPECOP):
 		switch( op_code.spec_op )
 		{
 		case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
@@ -1488,7 +1488,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		}
 		break;
 
-	case OP_REGIMM:
+	case static_cast<u32>(OpCodeValue::OP_REGIMM):
 		switch( op_code.regimm_op )
 		{
 				// These can be handled by the same Generate function, as the 'likely' bit is handled elsewhere
@@ -1502,64 +1502,64 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		}
 		break;
 
-	case OP_J:			/* nothing to do */		handled = true; break;
-	case OP_JAL:		GenerateJAL( address );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_J):			/* nothing to do */		handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_JAL):		GenerateJAL( address );	handled = true; break;
 
-	case OP_BEQ:		GenerateBEQ( rs, rt, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BEQL:		GenerateBEQ( rs, rt, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BNE:		GenerateBNE( rs, rt, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BNEL:		GenerateBNE( rs, rt, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BLEZ:		GenerateBLEZ( rs, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BLEZL:		GenerateBLEZ( rs, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BGTZ:		GenerateBGTZ( rs, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BGTZL:		GenerateBGTZ( rs, p_branch, p_branch_jump ); handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_BEQ):		GenerateBEQ( rs, rt, p_branch, p_branch_jump ); handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_BEQL):		GenerateBEQ( rs, rt, p_branch, p_branch_jump ); handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_BNE):		GenerateBNE( rs, rt, p_branch, p_branch_jump ); handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_BNEL):		GenerateBNE( rs, rt, p_branch, p_branch_jump ); handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_BLEZ):		GenerateBLEZ( rs, p_branch, p_branch_jump ); handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_BLEZL):		GenerateBLEZ( rs, p_branch, p_branch_jump ); handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_BGTZ):		GenerateBGTZ( rs, p_branch, p_branch_jump ); handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_BGTZL):		GenerateBGTZ( rs, p_branch, p_branch_jump ); handled = true; break;
 
-	case OP_ADDI:		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-	case OP_ADDIU:		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SLTI:		GenerateSLTI( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SLTIU:		GenerateSLTIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_ADDI):		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_ADDIU):		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_SLTI):		GenerateSLTI( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_SLTIU):		GenerateSLTIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
 
-	case OP_DADDI:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-	case OP_DADDIU:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_DADDI):		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_DADDIU):		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
 
-	case OP_ANDI:		GenerateANDI( rt, rs, op_code.immediate );			handled = true; break;
-	case OP_ORI:		GenerateORI( rt, rs, op_code.immediate );			handled = true; break;
-	case OP_XORI:		GenerateXORI( rt, rs, op_code.immediate );			handled = true; break;
-	case OP_LUI:		GenerateLUI( rt, s16( op_code.immediate ) );		handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_ANDI):		GenerateANDI( rt, rs, op_code.immediate );			handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_ORI):		GenerateORI( rt, rs, op_code.immediate );			handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_XORI):		GenerateXORI( rt, rs, op_code.immediate );			handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LUI):		GenerateLUI( rt, s16( op_code.immediate ) );		handled = true; break;
 
-	case OP_LB:			GenerateLB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LBU:		GenerateLBU( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LH:			GenerateLH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LHU:		GenerateLHU( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LW:			GenerateLW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LD:			GenerateLD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LWC1:		GenerateLWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LB):			GenerateLB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LBU):		GenerateLBU( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LH):			GenerateLH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LHU):		GenerateLHU( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LW):			GenerateLW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LD):			GenerateLD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LWC1):		GenerateLWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
 #ifdef ENABLE_LDC1
-	case OP_LDC1:		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
+	case static_cast<u32>(OpCodeValue::OP_LDC1):		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
 #endif
 
 #ifdef ENABLE_LWR_LWL
-	case OP_LWL:		GenerateLWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LWR:		GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LWL):		GenerateLWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_LWR):		GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 #endif
 
-	case OP_SB:			GenerateSB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SH:			GenerateSH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SW:			GenerateSW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SD:			GenerateSD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SWC1:		GenerateSWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_SB):			GenerateSB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_SH):			GenerateSH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_SW):			GenerateSW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_SD):			GenerateSD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_SWC1):		GenerateSWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
 #ifdef ENABLE_SDC1
-	case OP_SDC1:		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
+	case static_cast<u32>(OpCodeValue::OP_SDC1):		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
 #endif
 
 #ifdef ENABLE_SWR_SWL
-	case OP_SWL:		GenerateSWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SWR:		GenerateSWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_SWL):		GenerateSWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_SWR):		GenerateSWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 #endif
 
-	case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
+	case static_cast<u32>(OpCodeValue::OP_CACHE):		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
 
-	case OP_COPRO0:
+	case static_cast<u32>(OpCodeValue::OP_COPRO0):
 		switch( op_code.cop0_op )
 		{
 		case Cop0Op_MFC0:	GenerateMFC0( rt, op_code.fs ); handled = true; break;
@@ -1569,7 +1569,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		}
 		break;
 
-	case OP_COPRO1:
+	case static_cast<u32>(OpCodeValue::OP_COPRO1):
 		switch( op_code.cop1_op )
 		{
 		case Cop1Op_MFC1:	GenerateMFC1( rt, op_code.fs ); handled = true; break;
@@ -1840,9 +1840,9 @@ inline bool	CCodeGeneratorPSP::GenerateDirectLoad( EPspReg psp_dst, EN64Reg base
 		u32		base_address( mRegisterCache.GetKnownValue( base, 0 )._u32 );
 		u32		address( (base_address + s32( offset )) ^ swizzle );
 
-		if( load_op == OP_LWL )
+		if( load_op == OpCodeValue::OP_LWL )
 		{
-			load_op = OP_LW;
+			load_op = OpCodeValue::OP_LW;
 			u32 shift = address & 3;
 			address ^= shift;	//Zero low 2 bits in address
 			ADDIU( PspReg_A3, PspReg_R0, shift);	//copy low 2 bits to A3
@@ -1943,7 +1943,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-    if( load_op == OP_LWL )	//We handle both LWL & LWR here
+    if( load_op == OpCodeValue::OP_LWL )	//We handle both LWL & LWR here
     {
 		if(offset != 0)
 		{
@@ -1959,11 +1959,11 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
 		{
 			ADDU( PspReg_A0, PspReg_A0, gMemoryBaseReg );
-			CAssemblyWriterPSP::LoadRegister( psp_dst, OP_LW, PspReg_A0, 0 );
+			CAssemblyWriterPSP::LoadRegister( psp_dst, OpCodeValue::OP_LW, PspReg_A0, 0 );
 			return;
 		}
 
-		load_op = OP_LW;
+		load_op = OpCodeValue::OP_LW;
 		reg_address = PspReg_A0;
 	}
 	else
@@ -2046,7 +2046,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 			reg_address = PspReg_A0;
 		}
 #ifdef ENABLE_LWC1
-		if( load_op == OP_LWC1 )
+		if( load_op == OpCodeValue::OP_LWC1 )
 		{
 			GenerateSlowLoad( current_pc, PspReg_V0, reg_address, p_read_memory );
 			// Copy return value to the FPU destination register
@@ -2085,7 +2085,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 			reg_address = PspReg_A0;
 		}
 #ifdef ENABLE_LWC1
-		if( load_op == OP_LWC1 )
+		if( load_op == OpCodeValue::OP_LWC1 )
 		{
 			GenerateSlowLoad( current_pc, PspReg_V0, reg_address, p_read_memory );
 			// Copy return value to the FPU destination register
@@ -2326,7 +2326,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 			reg_address = PspReg_A0;
 		}
 #ifdef ENABLE_SWC1
-		if( store_op == OP_SWC1 )
+		if( store_op == OpCodeValue::OP_SWC1 )
 		{	//Move value from FPU to CPU
 			MFC1( PspReg_A1, (EPspFloatReg)psp_src );
 			psp_src = PspReg_A1;
@@ -2356,7 +2356,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 			reg_address = PspReg_A0;
 		}
 #ifdef ENABLE_SWC1
-		if( store_op == OP_SWC1 )
+		if( store_op == OpCodeValue::OP_SWC1 )
 		{	//Move value from FPU to CPU
 			MFC1( PspReg_A1, (EPspFloatReg)psp_src );
 			psp_src = PspReg_A1;
@@ -3786,7 +3786,7 @@ inline void	CCodeGeneratorPSP::GenerateLB( u32 address, bool set_branch_delay, E
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
 
-	GenerateLoad( address, reg_dst, base, offset, OP_LB, 3, set_branch_delay ? ReadBitsDirectBD_s8 : ReadBitsDirect_s8 );	// NB this fills the whole of reg_dst
+	GenerateLoad( address, reg_dst, base, offset, OpCodeValue::OP_LB, 3, set_branch_delay ? ReadBitsDirectBD_s8 : ReadBitsDirect_s8 );	// NB this fills the whole of reg_dst
 
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
@@ -3798,7 +3798,7 @@ inline void	CCodeGeneratorPSP::GenerateLBU( u32 address, bool set_branch_delay, 
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
 
-	GenerateLoad( address, reg_dst, base, offset, OP_LBU, 3, set_branch_delay ? ReadBitsDirectBD_u8 : ReadBitsDirect_u8 );	// NB this fills the whole of reg_dst
+	GenerateLoad( address, reg_dst, base, offset, OpCodeValue::OP_LBU, 3, set_branch_delay ? ReadBitsDirectBD_u8 : ReadBitsDirect_u8 );	// NB this fills the whole of reg_dst
 
 	UpdateRegister( rt, reg_dst, URO_HI_CLEAR );
 }
@@ -3810,7 +3810,7 @@ inline void	CCodeGeneratorPSP::GenerateLH( u32 address, bool set_branch_delay, E
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
 
-	GenerateLoad( address, reg_dst, base, offset, OP_LH, 2, set_branch_delay ? ReadBitsDirect_s16 : ReadBitsDirect_s16 );	// NB this fills the whole of reg_dst
+	GenerateLoad( address, reg_dst, base, offset, OpCodeValue::OP_LH, 2, set_branch_delay ? ReadBitsDirect_s16 : ReadBitsDirect_s16 );	// NB this fills the whole of reg_dst
 
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
@@ -3822,7 +3822,7 @@ inline void	CCodeGeneratorPSP::GenerateLHU( u32 address, bool set_branch_delay, 
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
 
-	GenerateLoad( address, reg_dst, base, offset, OP_LHU, 2, set_branch_delay ? ReadBitsDirectBD_u16 : ReadBitsDirect_u16 );	// NB this fills the whole of reg_dst
+	GenerateLoad( address, reg_dst, base, offset, OpCodeValue::OP_LHU, 2, set_branch_delay ? ReadBitsDirectBD_u16 : ReadBitsDirect_u16 );	// NB this fills the whole of reg_dst
 
 	UpdateRegister( rt, reg_dst, URO_HI_CLEAR );
 }
@@ -3843,7 +3843,7 @@ inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, E
 		return;
 	}
 
-	GenerateLoad( address, reg_dst, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	GenerateLoad( address, reg_dst, base, offset, OpCodeValue::OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
@@ -3854,12 +3854,12 @@ inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, E
 inline void	CCodeGeneratorPSP::GenerateLD( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
 	EPspReg	reg_dst_hi( GetRegisterNoLoadHi( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
-	GenerateLoad( address, reg_dst_hi, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	GenerateLoad( address, reg_dst_hi, base, offset, OpCodeValue::OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 	StoreRegisterHi( rt, reg_dst_hi );
 
 	//Adding 4 to offset should be quite safe //Corn
 	EPspReg	reg_dst_lo( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
-	GenerateLoad( address, reg_dst_lo, base, offset + 4, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	GenerateLoad( address, reg_dst_lo, base, offset + 4, OpCodeValue::OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 	StoreRegisterLo( rt, reg_dst_lo );
 }
 
@@ -3878,12 +3878,12 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 #ifdef ENABLE_LWC1
 	//Since LW and LWC1 have same format we do a small hack that let us load directly to
 	//the float reg without passing to the CPU first that saves us the MFC1 instruction //Corn
-	GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	GenerateLoad( address, (EPspReg)psp_ft, base, offset,OpCodeValue::OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 	UpdateFloatRegister( n64_ft );
 #else
 	// TODO: Actually perform LWC1 here
 	EPspReg	reg_dst( PspReg_V0 );				// GenerateLoad is slightly more efficient when using V0
-	GenerateLoad( address, reg_dst, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	GenerateLoad( address, reg_dst, base, offset, OpCodeValue::OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 
 	//SetVar( &gCPUState.FPU[ ft ]._u32, reg_dst );
 	MTC1( psp_ft, reg_dst );
@@ -3902,14 +3902,14 @@ inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay,
 
 	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
 	EPspFloatReg	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
-	//GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	//GenerateLoad( address, (EPspReg)psp_ft, base, offset, OpCodeValue::OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 	LWC1( psp_ft, PspReg_A0, offset);
 	mRegisterCache.MarkFPAsValid( n64_ft, true );
 	mRegisterCache.MarkFPAsDirty( n64_ft, true );
 
 	n64_ft = EN64FloatReg( ft );
 	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
-	//GenerateLoad( address, (EPspReg)psp_ft, base, offset + 4, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	//GenerateLoad( address, (EPspReg)psp_ft, base, offset + 4, OpCodeValue::OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 	LWC1( psp_ft, PspReg_A0, offset+4);
 	mRegisterCache.MarkFPAsValid( n64_ft, true );
 	mRegisterCache.MarkFPAsDirty( n64_ft, true );
@@ -3925,7 +3925,7 @@ inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, 
 {
 
 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
-	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	GenerateLoad( address, PspReg_V0, base, offset, OpCodeValue::OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 
 	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
@@ -3946,7 +3946,7 @@ inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, 
 inline void	CCodeGeneratorPSP::GenerateLWR( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
-	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	GenerateLoad( address, PspReg_V0, base, offset, OpCodeValue::OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 
 	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
@@ -3969,7 +3969,7 @@ inline void	CCodeGeneratorPSP::GenerateSB( u32 current_pc, bool set_branch_delay
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
 
-	GenerateStore( current_pc, reg_value, base, offset, OP_SB, 3, set_branch_delay ? WriteBitsDirectBD_u8 : WriteBitsDirect_u8 );
+	GenerateStore( current_pc, reg_value, base, offset, OpCodeValue::OP_SB, 3, set_branch_delay ? WriteBitsDirectBD_u8 : WriteBitsDirect_u8 );
 }
 
 
@@ -3979,7 +3979,7 @@ inline void	CCodeGeneratorPSP::GenerateSH( u32 current_pc, bool set_branch_delay
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
 
-	GenerateStore( current_pc, reg_value, base, offset, OP_SH, 2, set_branch_delay ? WriteBitsDirectBD_u16 : WriteBitsDirect_u16 );
+	GenerateStore( current_pc, reg_value, base, offset, OpCodeValue::OP_SH, 2, set_branch_delay ? WriteBitsDirectBD_u16 : WriteBitsDirect_u16 );
 }
 
 
@@ -3989,7 +3989,7 @@ inline void	CCodeGeneratorPSP::GenerateSW( u32 current_pc, bool set_branch_delay
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
 
-	GenerateStore( current_pc, reg_value, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	GenerateStore( current_pc, reg_value, base, offset, OpCodeValue::OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 }
 
 
@@ -3998,11 +3998,11 @@ inline void	CCodeGeneratorPSP::GenerateSW( u32 current_pc, bool set_branch_delay
 inline void	CCodeGeneratorPSP::GenerateSD( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg		reg_value_hi( GetRegisterAndLoadHi( rt, PspReg_A1 ) );
-	GenerateStore( current_pc, reg_value_hi, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	GenerateStore( current_pc, reg_value_hi, base, offset, OpCodeValue::OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 
 	//Adding 4 to offset should be quite safe //Corn
 	EPspReg		reg_value_lo( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
-	GenerateStore( current_pc, reg_value_lo, base, offset + 4, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	GenerateStore( current_pc, reg_value_lo, base, offset + 4, OpCodeValue::OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 }
 
 
@@ -4016,10 +4016,10 @@ inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_del
 #ifdef ENABLE_SWC1
 	//Since SW and SWC1 have same format we do a small hack that let us save directly from
 	//the float reg without passing to the CPU first that saves us the MFC1 instruction //Corn
-	GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OpCodeValue::OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 #else
 	MFC1( PspReg_A1, psp_ft );
-	GenerateStore( current_pc, PspReg_A1, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	GenerateStore( current_pc, PspReg_A1, base, offset, OpCodeValue::OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 #endif
 }
 
@@ -4034,8 +4034,8 @@ inline void	CCodeGeneratorPSP::GenerateSDC1( u32 current_pc, bool set_branch_del
 	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
 	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg(n64_ft + 1) ) );
 
-	//GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-	//GenerateStore( current_pc, (EPspReg)psp_ft_sig, base, offset + 4, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	//GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OpCodeValue::OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	//GenerateStore( current_pc, (EPspReg)psp_ft_sig, base, offset + 4, OpCodeValue::OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 	EPspReg		reg_base( GetRegisterAndLoadLo( base, PspReg_A0 ) );
 	ADDU( PspReg_A0, reg_base, gMemoryBaseReg );
 	SWC1( psp_ft, PspReg_A0, offset);
@@ -4051,7 +4051,7 @@ inline void	CCodeGeneratorPSP::GenerateSWL( u32 current_pc, bool set_branch_dela
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
 
-	GenerateStore( current_pc, reg_value, base, offset, OP_SWL, 3, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	GenerateStore( current_pc, reg_value, base, offset, OpCodeValue::OP_SWL, 3, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 }
 
 
@@ -4061,7 +4061,7 @@ inline void	CCodeGeneratorPSP::GenerateSWR( u32 current_pc, bool set_branch_dela
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
 
-	GenerateStore( current_pc, reg_value, base, offset, OP_SWR, 3, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	GenerateStore( current_pc, reg_value, base, offset, OpCodeValue::OP_SWR, 3, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 }
 #endif
 

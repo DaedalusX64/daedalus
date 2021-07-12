@@ -60,7 +60,7 @@ static void MemoryUpdatePIF();
 
 static void Memory_InitTables();
 
-const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
+const u32 MemoryRegionSizes[static_cast<u32>(MEMBANKTYPE::NUM_MEM_BUFFERS)] =
 {
 	0x04,				// This seems enough (Salvy)
 	kMaximumMemSize,	// RD_RAM
@@ -106,7 +106,7 @@ u8 * g_pu8RamBase_8000 = nullptr;
 
 MemFuncRead  	g_MemoryLookupTableRead[0x4000];
 MemFuncWrite 	g_MemoryLookupTableWrite[0x4000];
-void * 			g_pMemoryBuffers[NUM_MEM_BUFFERS];
+void * 			g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::NUM_MEM_BUFFERS)];
 
 
 #include "Memory_Read.inl"
@@ -129,30 +129,30 @@ bool Memory_Init()
 
 	uintptr_t base = reinterpret_cast<uintptr_t>(gMemBase);
 
-	g_pMemoryBuffers[ MEM_RD_RAM    ] = (u8*)VirtualAlloc( (void*)(base+0x00000000),	8*1024*1024,MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_SP_MEM    ] = (u8*)VirtualAlloc( (void*)(base+0x04000000),	0x2000,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_RD_REG0   ] = (u8*)VirtualAlloc( (void*)(base+0x03F00000),	0x30,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_SP_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04040000),	0x20,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_SP_PC_REG ] = (u8*)VirtualAlloc( (void*)(base+0x04080000),	0x08,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_DPC_REG   ] = (u8*)VirtualAlloc( (void*)(base+0x04100000),	0x20,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_MI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04300000),	0x10,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_VI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04400000),	0x38,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_AI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04500000),	0x18,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_PI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04600000),	0x34,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_RI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04700000),	0x20,		MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_SI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04800000),	0x1C,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_RD_RAM    ] = (u8*)VirtualAlloc( (void*)(base+0x00000000),	8*1024*1024,MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_SP_MEM    ] = (u8*)VirtualAlloc( (void*)(base+0x04000000),	0x2000,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_RD_REG0   ] = (u8*)VirtualAlloc( (void*)(base+0x03F00000),	0x30,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_SP_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04040000),	0x20,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_SP_PC_REG ] = (u8*)VirtualAlloc( (void*)(base+0x04080000),	0x08,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_DPC_REG   ] = (u8*)VirtualAlloc( (void*)(base+0x04100000),	0x20,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_MI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04300000),	0x10,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_VI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04400000),	0x38,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_AI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04500000),	0x18,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_PI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04600000),	0x34,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_RI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04700000),	0x20,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_SI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04800000),	0x1C,		MEM_COMMIT, PAGE_READWRITE );
 	//cartDom2                        = (u8*)VirtualAlloc( (void*)(base+0x05000000),	0x10000,	MEM_COMMIT, PAGE_READWRITE );
 	//cartDom1                        = (u8*)VirtualAlloc( (void*)(base+0x06000000),	0x10000,	MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_SAVE      ] = (u8*)VirtualAlloc( (void*)(base+0x08000000),	0x20000,	MEM_COMMIT, PAGE_READWRITE );
-	//g_pMemoryBuffers[MEM_CARTROM  ] = (u8*)VirtualAlloc( (void*)(base+0x10000000),	cart_size,	MEM_COMMIT, PAGE_READWRITE);
-	g_pMemoryBuffers[ MEM_PIF_RAM   ] = (u8*)VirtualAlloc( (void*)(base+0x1FC00000),	0x40,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_SAVE      ] = (u8*)VirtualAlloc( (void*)(base+0x08000000),	0x20000,	MEM_COMMIT, PAGE_READWRITE );
+	//g_pMemoryBuffers[MEMBANKTYPE::MEM_CARTROM  ] = (u8*)VirtualAlloc( (void*)(base+0x10000000),	cart_size,	MEM_COMMIT, PAGE_READWRITE);
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_PIF_RAM   ] = (u8*)VirtualAlloc( (void*)(base+0x1FC00000),	0x40,		MEM_COMMIT, PAGE_READWRITE );
 	//cartDom4                        = (u8*)VirtualAlloc( (void*)(base+0x1FD00000),	0x10000,	MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_MEMPACK   ] = (u8*)VirtualAlloc( nullptr,						0x20000,	MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_UNUSED    ] = new u8[ MemoryRegionSizes[MEM_UNUSED] ];
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_MEMPACK   ] = (u8*)VirtualAlloc( nullptr,						0x20000,	MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEMBANKTYPE::MEM_UNUSED    ] = new u8[ MemoryRegionSizes[MEMBANKTYPE::MEM_UNUSED] ];
 
 #else
 	//u32 count = 0;
-	for (u32 m = 0; m < NUM_MEM_BUFFERS; m++)
+	for (u32 m = 0; m < static_cast<u32>(MEMBANKTYPE::NUM_MEM_BUFFERS); m++)
 	{
 		u32 region_size = MemoryRegionSizes[m];
 		// Skip zero sized areas. An example of this is the cart rom
@@ -178,7 +178,7 @@ bool Memory_Init()
 	//printf("%d bytes used of memory\n",count);
 #endif
 
-	g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0x80000000;
+	g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_RD_RAM)]) - 0x80000000;
 	//g_pu8RamBase_A000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0xa0000000;
 	//g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
 
@@ -200,17 +200,17 @@ void Memory_Fini(void)
 	//
 	//	We have to free this buffer separately
 	//
-	if (g_pMemoryBuffers[MEM_UNUSED])
+	if (g_pMemoryBuffers[MEMBANKTYPE::MEM_UNUSED])
 	{
-		delete [] reinterpret_cast< u8 * >( g_pMemoryBuffers[MEM_UNUSED] );
-		g_pMemoryBuffers[MEM_UNUSED] = nullptr;
+		delete [] reinterpret_cast< u8 * >( g_pMemoryBuffers[MEMBANKTYPE::MEM_UNUSED] );
+		g_pMemoryBuffers[MEMBANKTYPE::MEM_UNUSED] = nullptr;
 	}
 
 	VirtualFree( gMemBase, 0, MEM_RELEASE );
 	gMemBase = nullptr;
 
 #else
-	for (u32 m = 0; m < NUM_MEM_BUFFERS; m++)
+	for (u32 m = 0; m < static_cast<u32>(MEMBANKTYPE::NUM_MEM_BUFFERS); m++)
 	{
 		if (g_pMemoryBuffers[m] != nullptr)
 		{
@@ -249,7 +249,7 @@ bool Memory_Reset()
 
 	// Required - virtual alloc gives zeroed memory but this is also used when resetting
 	// Clear memory
-	for (u32 i = 0; i < NUM_MEM_BUFFERS; i++)
+	for (u32 i = 0; i < static_cast<u32>(MEMBANKTYPE::NUM_MEM_BUFFERS); i++)
 	{
 		if (g_pMemoryBuffers[i])
 		{
@@ -294,7 +294,7 @@ static void Memory_Tlb_Hack()
 	   }
 	}
 
-	g_MemoryLookupTableRead[0x70000000 >> 18].pRead = (u8*)(reinterpret_cast< uintptr_t >( g_pMemoryBuffers[MEM_RD_RAM]) - 0x70000000);
+	g_MemoryLookupTableRead[0x70000000 >> 18].pRead = (u8*)(reinterpret_cast< uintptr_t >( g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_RD_RAM)]) - 0x70000000);
 }
 
 static void Memory_InitFunc(u32 start, u32 size, const u32 ReadRegion, const u32 WriteRegion, mReadFunction ReadFunc, mWriteFunction WriteFunc)
@@ -371,8 +371,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_RDRAM,
 		MEMORY_SIZE_RDRAM_DEFAULT,
-		MEM_RD_RAM,
-		MEM_RD_RAM,
+		static_cast<u32>(MEMBANKTYPE::MEM_RD_RAM),
+		static_cast<u32>(MEMBANKTYPE::MEM_RD_RAM),
 		Read_8000_807F,
 		WriteValue_8000_807F
 	);
@@ -384,8 +384,8 @@ void Memory_InitTables()
 		(
 			MEMORY_START_EXRDRAM,
 			MEMORY_SIZE_EXRDRAM,
-			MEM_UNUSED,
-			MEM_UNUSED,
+			static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
+			static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 			ReadInvalid,
 			WriteValueInvalid
 		);
@@ -396,8 +396,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_RAMREGS0,
 		MEMORY_SIZE_RAMREGS0,
-		MEM_RD_REG0,
-		MEM_RD_REG0,
+		static_cast<u32>(MEMBANKTYPE::MEM_RD_REG0),
+		static_cast<u32>(MEMBANKTYPE::MEM_RD_REG0),
 		Read_83F0_83F0,
 		WriteValue_83F0_83F0
 	);
@@ -408,8 +408,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SPMEM,
 		MEMORY_SIZE_SPMEM,
-		MEM_SP_MEM,
-		MEM_SP_MEM,
+		static_cast<u32>(MEMBANKTYPE::MEM_SP_MEM),
+		static_cast<u32>(MEMBANKTYPE::MEM_SP_MEM),
 		Read_8400_8400,
 		WriteValue_8400_8400
 	);
@@ -419,8 +419,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SPREG_1,
 		MEMORY_SIZE_SPREG_1,
-		MEM_SP_REG,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_SP_REG),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		Read_8404_8404,
 		WriteValue_8404_8404
 	);
@@ -430,8 +430,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SPREG_2,
 		MEMORY_SIZE_SPREG_2,
-		MEM_SP_PC_REG,
-		MEM_SP_PC_REG,
+		static_cast<u32>(MEMBANKTYPE::MEM_SP_PC_REG),
+		static_cast<u32>(MEMBANKTYPE::MEM_SP_PC_REG),
 		Read_8408_8408,
 		WriteValue_8408_8408
 	);
@@ -440,8 +440,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_DPC,
 		MEMORY_SIZE_DPC,
-		MEM_DPC_REG,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_DPC_REG),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		Read_8410_841F,
 		WriteValue_8410_841F
 	);
@@ -451,8 +451,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_DPS,
 		MEMORY_SIZE_DPS,
-		MEM_UNUSED,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		Read_8420_842F,
 		WriteValue_8420_842F
 	);
@@ -462,8 +462,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_MI,
 		MEMORY_SIZE_MI,
-		MEM_MI_REG,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_MI_REG),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		Read_8430_843F,
 		WriteValue_8430_843F
 	);
@@ -473,8 +473,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_VI,
 		MEMORY_SIZE_VI,
-		MEM_UNUSED,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		Read_8440_844F,
 		WriteValue_8440_844F
 	);
@@ -484,8 +484,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_AI,
 		MEMORY_SIZE_AI,
-		MEM_AI_REG,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_AI_REG),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		Read_8450_845F,
 		WriteValue_8450_845F
 	);
@@ -495,8 +495,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_PI,
 		MEMORY_SIZE_PI,
-		MEM_PI_REG,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_PI_REG),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		Read_8460_846F,
 		WriteValue_8460_846F
 	);
@@ -506,8 +506,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_RI,
 		MEMORY_SIZE_RI,
-		MEM_RI_REG,
-		MEM_RI_REG,
+		static_cast<u32>(MEMBANKTYPE::MEM_RI_REG),
+		static_cast<u32>(MEMBANKTYPE::MEM_RI_REG),
 		Read_8470_847F,
 		WriteValue_8470_847F
 	);
@@ -517,8 +517,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SI,
 		MEMORY_SIZE_SI,
-		MEM_SI_REG,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_SI_REG),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		Read_8480_848F,
 		WriteValue_8480_848F
 	);
@@ -531,8 +531,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_C2A1,
 		MEMORY_SIZE_C2A1,
-		MEM_UNUSED,
-		MEM_UNUSED,
+		MEMBANKTYPE::MEM_UNUSED,
+		MEMBANKTYPE::MEM_UNUSED,
 		ReadInvalid,
 		WriteValueInvalid
 	);*/
@@ -542,8 +542,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_C1A1,
 		MEMORY_SIZE_C1A1,
-		MEM_UNUSED,
-		MEM_UNUSED,
+		MEMBANKTYPE::MEM_UNUSED,
+		MEMBANKTYPE::MEM_UNUSED,
 		ReadInvalid,
 		WriteValueInvalid
 	);*/
@@ -553,8 +553,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_PIF,
 		MEMORY_SIZE_PIF,
-		MEM_UNUSED,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		Read_9FC0_9FCF,
 		WriteValue_9FC0_9FCF
 	);
@@ -566,8 +566,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_C2A2,
 		MEMORY_SIZE_C2A2,
-		MEM_UNUSED,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		ReadFlashRam,
 		WriteValue_FlashRam
 	);
@@ -577,8 +577,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_ROM_IMAGE,
 		rom_size,
-		MEM_UNUSED,
-		MEM_UNUSED,
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
+		static_cast<u32>(MEMBANKTYPE::MEM_UNUSED),
 		ReadROM,
 		WriteValue_ROM
 	);
@@ -870,7 +870,7 @@ void MemoryUpdatePI( u32 value )
 // The PIF control byte has been written to - process this command
 void MemoryUpdatePIF()
 {
-	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
+	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[static_cast<u32>(MEMBANKTYPE::MEM_PIF_RAM)];
 	u8 command = pPIFRam[ 0x3F ^ U8_TWIDDLE];
 	if (command == 0x08)
 	{

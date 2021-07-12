@@ -788,7 +788,7 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 
 					// If the opcode at this address is not a Jump/Jal then
 					// this can't match
-					if ( op.op != OP_JAL && op.op != OP_J )
+					if ( op.op != static_cast<u32>(OpCodeValue::OP_JAL) && op.op != static_cast<u32>(OpCodeValue::OP_J) )
 						goto fail_find;
 
 					// This is a jump, the jump target must match the
@@ -869,7 +869,7 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 		}
 		else
 		{
-			if ( op.op  == OP_J )
+			if ( op.op  == static_cast<u32>(OpCodeValue::OP_J) )
 			{
 				op.target = 0;		// Mask out jump location
 			}
