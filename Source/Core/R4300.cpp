@@ -465,47 +465,47 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 
 		switch( op_code.spec_op )
 		{
-		case SpecOp_SLL:
-		case SpecOp_SRL:
-		case SpecOp_SRA:
-		case SpecOp_SLLV:
-		case SpecOp_SRLV:
-		case SpecOp_SRAV:
-		case SpecOp_MFHI:
-		case SpecOp_MTHI:
-		case SpecOp_MFLO:
-		case SpecOp_MTLO:
-		case SpecOp_DSLLV:
-		case SpecOp_DSRLV:
-		case SpecOp_DSRAV:
-		case SpecOp_MULT:
-		case SpecOp_MULTU:
-		case SpecOp_DIV:		// Need to remove this if we can throw exception on divide by 0
-		case SpecOp_DIVU:		// Ditto
-		case SpecOp_DMULT:
-		case SpecOp_DMULTU:
-		case SpecOp_DDIV:		// Ditto
-		case SpecOp_DDIVU:		// Ditto
-		case SpecOp_ADD:		// Potentially can throw
-		case SpecOp_ADDU:
-		case SpecOp_SUB:		// Potentially can throw
-		case SpecOp_SUBU:
-		case SpecOp_AND:
-		case SpecOp_OR:
-		case SpecOp_XOR:
-		case SpecOp_NOR:
-		case SpecOp_SLT:
-		case SpecOp_SLTU:
-		case SpecOp_DADD:		// Potentially can throw
-		case SpecOp_DADDU:
-		case SpecOp_DSUB:		// Potentially can throw
-		case SpecOp_DSUBU:
-		case SpecOp_DSLL:
-		case SpecOp_DSRL:
-		case SpecOp_DSRA:
-		case SpecOp_DSLL32:
-		case SpecOp_DSRL32:
-		case SpecOp_DSRA32:
+		case static_cast<u32>(ESpecOp::SpecOp_SLL):
+		case static_cast<u32>(ESpecOp::SpecOp_SRL):
+		case static_cast<u32>(ESpecOp::SpecOp_SRA):
+		case static_cast<u32>(ESpecOp::SpecOp_SLLV):
+		case static_cast<u32>(ESpecOp::SpecOp_SRLV):
+		case static_cast<u32>(ESpecOp::SpecOp_SRAV):
+		case static_cast<u32>(ESpecOp::SpecOp_MFHI):
+		case static_cast<u32>(ESpecOp::SpecOp_MTHI):
+		case static_cast<u32>(ESpecOp::SpecOp_MFLO):
+		case static_cast<u32>(ESpecOp::SpecOp_MTLO):
+		case static_cast<u32>(ESpecOp::SpecOp_DSLLV):
+		case static_cast<u32>(ESpecOp::SpecOp_DSRLV):
+		case static_cast<u32>(ESpecOp::SpecOp_DSRAV):
+		case static_cast<u32>(ESpecOp::SpecOp_MULT):
+		case static_cast<u32>(ESpecOp::SpecOp_MULTU):
+		case static_cast<u32>(ESpecOp::SpecOp_DIV):		// Need to remove this if we can throw exception on divide by 0
+		case static_cast<u32>(ESpecOp::SpecOp_DIVU):		// Ditto
+		case static_cast<u32>(ESpecOp::SpecOp_DMULT):
+		case static_cast<u32>(ESpecOp::SpecOp_DMULTU):
+		case static_cast<u32>(ESpecOp::SpecOp_DDIV):		// Ditto
+		case static_cast<u32>(ESpecOp::SpecOp_DDIVU):		// Ditto
+		case static_cast<u32>(ESpecOp::SpecOp_ADD):		// Potentially can throw
+		case static_cast<u32>(ESpecOp::SpecOp_ADDU):
+		case static_cast<u32>(ESpecOp::SpecOp_SUB):		// Potentially can throw
+		case static_cast<u32>(ESpecOp::SpecOp_SUBU):
+		case static_cast<u32>(ESpecOp::SpecOp_AND):
+		case static_cast<u32>(ESpecOp::SpecOp_OR):
+		case static_cast<u32>(ESpecOp::SpecOp_XOR):
+		case static_cast<u32>(ESpecOp::SpecOp_NOR):
+		case static_cast<u32>(ESpecOp::SpecOp_SLT):
+		case static_cast<u32>(ESpecOp::SpecOp_SLTU):
+		case static_cast<u32>(ESpecOp::SpecOp_DADD):		// Potentially can throw
+		case static_cast<u32>(ESpecOp::SpecOp_DADDU):
+		case static_cast<u32>(ESpecOp::SpecOp_DSUB):		// Potentially can throw
+		case static_cast<u32>(ESpecOp::SpecOp_DSUBU):
+		case static_cast<u32>(ESpecOp::SpecOp_DSLL):
+		case static_cast<u32>(ESpecOp::SpecOp_DSRL):
+		case static_cast<u32>(ESpecOp::SpecOp_DSRA):
+		case static_cast<u32>(ESpecOp::SpecOp_DSLL32):
+		case static_cast<u32>(ESpecOp::SpecOp_DSRL32):
+		case static_cast<u32>(ESpecOp::SpecOp_DSRA32):
 			return false;
 		default:
 			break;
@@ -901,9 +901,7 @@ static void R4300_CALL_TYPE R4300_BGTZL( R4300_CALL_SIGNATURE ) 		// Branch on G
 static void R4300_CALL_TYPE R4300_LB( R4300_CALL_SIGNATURE ) 			// Load Byte
 {
 	R4300_CALL_MAKE_OP( op_code );
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 
-#endif
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
 	gGPR[op_code.rt]._s64 = (s64)(s8)Read8Bits(address);
@@ -912,9 +910,6 @@ static void R4300_CALL_TYPE R4300_LB( R4300_CALL_SIGNATURE ) 			// Load Byte
 static void R4300_CALL_TYPE R4300_LBU( R4300_CALL_SIGNATURE ) 			// Load Byte Unsigned -- Zero extend byte...
 {
 	R4300_CALL_MAKE_OP( op_code );
-		#ifdef DAEDALUS_DEBUG_CONSOLE
-
-	#endif
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate);
 
@@ -924,9 +919,7 @@ static void R4300_CALL_TYPE R4300_LBU( R4300_CALL_SIGNATURE ) 			// Load Byte Un
 static void R4300_CALL_TYPE R4300_LH( R4300_CALL_SIGNATURE ) 		// Load Halfword
 {
 	R4300_CALL_MAKE_OP( op_code );
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 
-#endif
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
 	gGPR[op_code.rt]._s64 = (s64)(s16)Read16Bits(address);
@@ -935,9 +928,7 @@ static void R4300_CALL_TYPE R4300_LH( R4300_CALL_SIGNATURE ) 		// Load Halfword
 static void R4300_CALL_TYPE R4300_LHU( R4300_CALL_SIGNATURE )			// Load Halfword Unsigned -- Zero extend word
 {
 	R4300_CALL_MAKE_OP( op_code );
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 
-#endif
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
 	gGPR[op_code.rt]._u64 = (u64)(u16)Read16Bits(address);
@@ -947,9 +938,7 @@ static void R4300_CALL_TYPE R4300_LHU( R4300_CALL_SIGNATURE )			// Load Halfword
 static void R4300_CALL_TYPE R4300_LWL( R4300_CALL_SIGNATURE ) 			// Load Word Left
 {
 	R4300_CALL_MAKE_OP( op_code );
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 
-	#endif
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	u32 nMem = Read32Bits(address & ~0x3);
 	u32 nReg = gGPR[op_code.rt]._u32_0;

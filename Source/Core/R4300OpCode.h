@@ -94,7 +94,7 @@ enum class OpCodeValue  {
 	OP_SD			= 63
 };
 
-enum ESpecOp
+enum class ESpecOp
 {
 	SpecOp_SLL				= 0,
 //	SpecOp_UNK11			= 1,
@@ -163,7 +163,7 @@ enum ESpecOp
 
 };
 
-enum ERegImmOp
+enum class ERegImmOp
 {
 	RegImmOp_BLTZ			= 0,
 	RegImmOp_BGEZ			= 1,

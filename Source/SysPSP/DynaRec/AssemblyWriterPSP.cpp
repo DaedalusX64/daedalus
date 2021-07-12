@@ -296,7 +296,7 @@ void 	CAssemblyWriterPSP::JR( EPspReg reg_link, bool insert_delay )
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
 	op_code.op = static_cast<u32>(OpCodeValue::OP_SPECOP);
-	op_code.spec_op = SpecOp_JR;
+	op_code.spec_op = static_cast<u32>(ESpecOp::SpecOp_JR);
 	op_code.rs = reg_link;
 	AppendOp( op_code );
 
@@ -394,7 +394,7 @@ CJumpLocation	CAssemblyWriterPSP::BranchRegImmOp( EPspReg a, ERegImmOp op, CCode
 	op_code._u32 = 0;
 	op_code.op = static_cast<u32>(OpCodeValue::OP_REGIMM);
 	op_code.rs = a;
-	op_code.regimm_op = op;
+	op_code.regimm_op = static_cast<u32>(op);
 	op_code.offset = s16((offset - 4) >> 2);	// Adjust for incremented PC and ignore lower bits
 	AppendOp( op_code );
 
@@ -413,7 +413,7 @@ CJumpLocation	CAssemblyWriterPSP::BranchRegImmOp( EPspReg a, ERegImmOp op, CCode
 
 CJumpLocation	CAssemblyWriterPSP::BLTZ( EPspReg a, CCodeLabel target, bool insert_delay )
 {
-	return BranchRegImmOp( a, RegImmOp_BLTZ, target, insert_delay );
+	return BranchRegImmOp( a, ERegImmOp::RegImmOp_BLTZ, target, insert_delay );
 }
 
 
@@ -421,7 +421,7 @@ CJumpLocation	CAssemblyWriterPSP::BLTZ( EPspReg a, CCodeLabel target, bool inser
 
 CJumpLocation	CAssemblyWriterPSP::BGEZ( EPspReg a, CCodeLabel target, bool insert_delay )
 {
-	return BranchRegImmOp( a, RegImmOp_BGEZ, target, insert_delay );
+	return BranchRegImmOp( a, ERegImmOp::RegImmOp_BGEZ, target, insert_delay );
 }
 
 
@@ -429,7 +429,7 @@ CJumpLocation	CAssemblyWriterPSP::BGEZ( EPspReg a, CCodeLabel target, bool inser
 
 CJumpLocation	CAssemblyWriterPSP::BLTZL( EPspReg a, CCodeLabel target, bool insert_delay )
 {
-	return BranchRegImmOp( a, RegImmOp_BLTZL, target, insert_delay );
+	return BranchRegImmOp( a, ERegImmOp::RegImmOp_BLTZL, target, insert_delay );
 }
 
 
@@ -437,7 +437,7 @@ CJumpLocation	CAssemblyWriterPSP::BLTZL( EPspReg a, CCodeLabel target, bool inse
 
 CJumpLocation	CAssemblyWriterPSP::BGEZL( EPspReg a, CCodeLabel target, bool insert_delay )
 {
-	return BranchRegImmOp( a, RegImmOp_BGEZL, target, insert_delay );
+	return BranchRegImmOp( a, ERegImmOp::RegImmOp_BGEZL, target, insert_delay );
 }
 
 
@@ -582,7 +582,7 @@ void	CAssemblyWriterPSP::SLL( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 	op_code.rd = reg_dst;
 	op_code.rt = reg_src;
 	op_code.sa = shift;
-	op_code.spec_op = SpecOp_SLL;
+	op_code.spec_op = static_cast<u32>(ESpecOp::SpecOp_SLL);
 	AppendOp( op_code );
 }
 
@@ -597,7 +597,7 @@ void	CAssemblyWriterPSP::SRL( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 	op_code.rd = reg_dst;
 	op_code.rt = reg_src;
 	op_code.sa = shift;
-	op_code.spec_op = SpecOp_SRL;
+	op_code.spec_op = static_cast<u32>(ESpecOp::SpecOp_SRL);
 	AppendOp( op_code );
 }
 
@@ -612,7 +612,7 @@ void	CAssemblyWriterPSP::SRA( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 	op_code.rd = reg_dst;
 	op_code.rt = reg_src;
 	op_code.sa = shift;
-	op_code.spec_op = SpecOp_SRA;
+	op_code.spec_op = static_cast<u32>(ESpecOp::SpecOp_SRA);
 	AppendOp( op_code );
 }
 
@@ -627,7 +627,7 @@ void	CAssemblyWriterPSP::SpecOpLogical( EPspReg rd, EPspReg rs, ESpecOp op, EPsp
 	op_code.rd = rd;
 	op_code.rs = rs;
 	op_code.rt = rt;
-	op_code.spec_op = op;
+	op_code.spec_op = static_cast<u32>(op);
 	AppendOp( op_code );
 }
 
@@ -636,7 +636,7 @@ void	CAssemblyWriterPSP::SpecOpLogical( EPspReg rd, EPspReg rs, ESpecOp op, EPsp
 
 void	CAssemblyWriterPSP::SLLV( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_SLLV, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_SLLV, rt );
 }
 
 
@@ -644,7 +644,7 @@ void	CAssemblyWriterPSP::SLLV( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::SRLV( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_SRLV, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_SRLV, rt );
 }
 
 
@@ -652,7 +652,7 @@ void	CAssemblyWriterPSP::SRLV( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::SRAV( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_SRAV, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_SRAV, rt );
 }
 
 
@@ -660,7 +660,7 @@ void	CAssemblyWriterPSP::SRAV( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::MFLO( EPspReg rd )
 {
-	SpecOpLogical( rd, PspReg_R0, SpecOp_MFLO, PspReg_R0 );
+	SpecOpLogical( rd, PspReg_R0, ESpecOp::SpecOp_MFLO, PspReg_R0 );
 }
 
 
@@ -668,7 +668,7 @@ void	CAssemblyWriterPSP::MFLO( EPspReg rd )
 
 void	CAssemblyWriterPSP::MFHI( EPspReg rd )
 {
-	SpecOpLogical( rd, PspReg_R0, SpecOp_MFHI, PspReg_R0 );
+	SpecOpLogical( rd, PspReg_R0, ESpecOp::SpecOp_MFHI, PspReg_R0 );
 }
 
 
@@ -676,7 +676,7 @@ void	CAssemblyWriterPSP::MFHI( EPspReg rd )
 
 void	CAssemblyWriterPSP::MULT( EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( PspReg_R0, rs, SpecOp_MULT, rt );
+	SpecOpLogical( PspReg_R0, rs, ESpecOp::SpecOp_MULT, rt );
 }
 
 
@@ -684,7 +684,7 @@ void	CAssemblyWriterPSP::MULT( EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::MULTU( EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( PspReg_R0, rs, SpecOp_MULTU, rt );
+	SpecOpLogical( PspReg_R0, rs, ESpecOp::SpecOp_MULTU, rt );
 }
 
 
@@ -692,7 +692,7 @@ void	CAssemblyWriterPSP::MULTU( EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::DIV( EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( PspReg_R0, rs, SpecOp_DIV, rt );
+	SpecOpLogical( PspReg_R0, rs, ESpecOp::SpecOp_DIV, rt );
 }
 
 
@@ -700,7 +700,7 @@ void	CAssemblyWriterPSP::DIV( EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::DIVU( EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( PspReg_R0, rs, SpecOp_DIVU, rt );
+	SpecOpLogical( PspReg_R0, rs, ESpecOp::SpecOp_DIVU, rt );
 }
 
 
@@ -708,7 +708,7 @@ void	CAssemblyWriterPSP::DIVU( EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::ADD( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_ADD, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_ADD, rt );
 }
 
 
@@ -716,7 +716,7 @@ void	CAssemblyWriterPSP::ADD( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::ADDU( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_ADDU, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_ADDU, rt );
 }
 
 
@@ -724,7 +724,7 @@ void	CAssemblyWriterPSP::ADDU( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::SUB( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_SUB, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_SUB, rt );
 }
 
 
@@ -732,7 +732,7 @@ void	CAssemblyWriterPSP::SUB( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::SUBU( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_SUBU, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_SUBU, rt );
 }
 
 
@@ -740,7 +740,7 @@ void	CAssemblyWriterPSP::SUBU( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::AND( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_AND, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_AND, rt );
 }
 
 
@@ -748,7 +748,7 @@ void	CAssemblyWriterPSP::AND( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::OR( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_OR, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_OR, rt );
 }
 
 
@@ -756,7 +756,7 @@ void	CAssemblyWriterPSP::OR( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::XOR( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_XOR, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_XOR, rt );
 }
 
 
@@ -764,7 +764,7 @@ void	CAssemblyWriterPSP::XOR( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::NOR( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_NOR, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_NOR, rt );
 }
 
 
@@ -772,7 +772,7 @@ void	CAssemblyWriterPSP::NOR( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::SLT( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_SLT, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_SLT, rt );
 }
 
 
@@ -780,7 +780,7 @@ void	CAssemblyWriterPSP::SLT( EPspReg rd, EPspReg rs, EPspReg rt )
 
 void	CAssemblyWriterPSP::SLTU( EPspReg rd, EPspReg rs, EPspReg rt )
 {
-	SpecOpLogical( rd, rs, SpecOp_SLTU, rt );
+	SpecOpLogical( rd, rs, ESpecOp::SpecOp_SLTU, rt );
 }
 
 

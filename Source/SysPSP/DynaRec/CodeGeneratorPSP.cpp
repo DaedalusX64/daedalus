@@ -174,7 +174,7 @@ void Dynarec_ClearedCPUStuffToDo()
 		PspOpCode	op_code;
 		op_code._u32 = 0;
 		op_code.op = static_cast<u32>(OpCodeValue::OP_SPECOP);
-		op_code.spec_op = SpecOp_JR;
+		op_code.spec_op = static_cast<u32>(ESpecOp::SpecOp_JR);
 		op_code.rs = PspReg_RA;
 		gReplacementOps[0] = op_code;		// JR RA
 		gReplacementOps[1]._u32 = 0;		// NOP
@@ -1438,51 +1438,51 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case static_cast<u32>(OpCodeValue::OP_SPECOP):
 		switch( op_code.spec_op )
 		{
-		case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
-		case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
-		case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
-		case SpecOp_SLLV:	GenerateSLLV( rd, rs, rt );	handled = true; break;
-		case SpecOp_SRAV:	GenerateSRAV( rd, rs, rt );	handled = true; break;
-		case SpecOp_SRLV:	GenerateSRLV( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SLL):	GenerateSLL( rd, rt, sa );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SRA):	GenerateSRA( rd, rt, sa );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SRL):	GenerateSRL( rd, rt, sa );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SLLV):	GenerateSLLV( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SRAV):	GenerateSRAV( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SRLV):	GenerateSRLV( rd, rs, rt );	handled = true; break;
 
-		case SpecOp_JR:		GenerateJR( rs, p_branch, p_branch_jump );	handled = true; break;
-		case SpecOp_JALR:	GenerateJALR( rs, rd, address, p_branch, p_branch_jump );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_JR):		GenerateJR( rs, p_branch, p_branch_jump );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_JALR):	GenerateJALR( rs, rd, address, p_branch, p_branch_jump );	handled = true; break;
 
-		case SpecOp_MFLO:	GenerateMFLO( rd );			handled = true; break;
-		case SpecOp_MFHI:	GenerateMFHI( rd );			handled = true; break;
-		case SpecOp_MTLO:	GenerateMTLO( rd );			handled = true; break;
-		case SpecOp_MTHI:	GenerateMTHI( rd );			handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_MFLO):	GenerateMFLO( rd );			handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_MFHI):	GenerateMFHI( rd );			handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_MTLO):	GenerateMTLO( rd );			handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_MTHI):	GenerateMTHI( rd );			handled = true; break;
 
-		case SpecOp_MULT:	GenerateMULT( rs, rt );		handled = true; break;
-		case SpecOp_MULTU:	GenerateMULTU( rs, rt );	handled = true; break;
-		case SpecOp_DIV:	GenerateDIV( rs, rt );		handled = true; break;
-		case SpecOp_DIVU:	GenerateDIVU( rs, rt );		handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_MULT):	GenerateMULT( rs, rt );		handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_MULTU):	GenerateMULTU( rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DIV):	GenerateDIV( rs, rt );		handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DIVU):	GenerateDIVU( rs, rt );		handled = true; break;
 
-		case SpecOp_DMULT:	GenerateDMULT( rs, rt );	handled = true; break;
-		case SpecOp_DMULTU:	GenerateDMULTU( rs, rt );	handled = true; break;
-		case SpecOp_DDIVU:	GenerateDDIVU( rs, rt );	handled = true; break;
-		case SpecOp_DDIV:	GenerateDDIV( rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DMULT):	GenerateDMULT( rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DMULTU):	GenerateDMULTU( rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DDIVU):	GenerateDDIVU( rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DDIV):	GenerateDDIV( rs, rt );	handled = true; break;
 
-		case SpecOp_ADD:	GenerateADDU( rd, rs, rt );	handled = true; break;
-		case SpecOp_ADDU:	GenerateADDU( rd, rs, rt );	handled = true; break;
-		case SpecOp_SUB:	GenerateSUBU( rd, rs, rt );	handled = true; break;
-		case SpecOp_SUBU:	GenerateSUBU( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_ADD):	GenerateADDU( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_ADDU):	GenerateADDU( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SUB):	GenerateSUBU( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SUBU):	GenerateSUBU( rd, rs, rt );	handled = true; break;
 
-		case SpecOp_AND:	GenerateAND( rd, rs, rt );	handled = true; break;
-		case SpecOp_OR:		GenerateOR( rd, rs, rt );	handled = true; break;
-		case SpecOp_XOR:	GenerateXOR( rd, rs, rt );	handled = true; break;
-		case SpecOp_NOR:	GenerateNOR( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_AND):	GenerateAND( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_OR):		GenerateOR( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_XOR):	GenerateXOR( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_NOR):	GenerateNOR( rd, rs, rt );	handled = true; break;
 
-		case SpecOp_SLT:	GenerateSLT( rd, rs, rt );	handled = true; break;
-		case SpecOp_SLTU:	GenerateSLTU( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SLT):	GenerateSLT( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_SLTU):	GenerateSLTU( rd, rs, rt );	handled = true; break;
 
-		case SpecOp_DADD:	GenerateDADDU( rd, rs, rt );	handled = true; break;
-		case SpecOp_DADDU:	GenerateDADDU( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DADD):	GenerateDADDU( rd, rs, rt );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DADDU):	GenerateDADDU( rd, rs, rt );	handled = true; break;
 
-		case SpecOp_DSRA32:	GenerateDSRA32( rd, rt, sa );	handled = true; break;
-		case SpecOp_DSRA:	GenerateDSRA( rd, rt, sa );	handled = true; break;
-		case SpecOp_DSLL32:	GenerateDSLL32( rd, rt, sa );	handled = true; break;
-		case SpecOp_DSLL:	GenerateDSLL( rd, rt, sa );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DSRA32):	GenerateDSRA32( rd, rt, sa );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DSRA):	GenerateDSRA( rd, rt, sa );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DSLL32):	GenerateDSLL32( rd, rt, sa );	handled = true; break;
+		case static_cast<u32>(ESpecOp::SpecOp_DSLL):	GenerateDSLL( rd, rt, sa );	handled = true; break;
 		default:
 			break;
 		}
@@ -1492,12 +1492,12 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		switch( op_code.regimm_op )
 		{
 				// These can be handled by the same Generate function, as the 'likely' bit is handled elsewhere
-		case RegImmOp_BLTZ:
-		case RegImmOp_BLTZL:
+		case static_cast<u32>(ERegImmOp::RegImmOp_BLTZ):
+		case static_cast<u32>(ERegImmOp::RegImmOp_BLTZL):
 			GenerateBLTZ( rs, p_branch, p_branch_jump ); handled = true; break;
 
-		case RegImmOp_BGEZ:
-		case RegImmOp_BGEZL:
+		case static_cast<u32>(ERegImmOp::RegImmOp_BGEZ):
+		case static_cast<u32>(ERegImmOp::RegImmOp_BGEZL):
 			GenerateBGEZ( rs, p_branch, p_branch_jump ); handled = true; break;
 		}
 		break;

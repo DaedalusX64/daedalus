@@ -89,8 +89,8 @@ OpCode	GetInverseBranch( OpCode op_code )
 	case OP_SPECOP:
 		switch( op_code.spec_op )
 		{
-		case SpecOp_JR:			break;
-		case SpecOp_JALR:		break;
+		case ESpecOp::SpecOp_JR:			break;
+		case ESpecOp::SpecOp_JALR:		break;
 		default:
 			break;
 		}
@@ -192,8 +192,8 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 	case OP_SPECOP:
 		switch( op_code.spec_op )
 		{
-		case SpecOp_JR:
-		case SpecOp_JALR:
+		case ESpecOp::SpecOp_JR:
+		case ESpecOp::SpecOp_JALR:
 			// No jump target - it's indirect
 			break;
 		default:

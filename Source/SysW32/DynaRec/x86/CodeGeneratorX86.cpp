@@ -560,11 +560,11 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 		//	{
 		//		switch(op_code.spec_op)
 		//		{
-		//		//case SpecOp_JR:		handled = GenerateJR(rs); break;
+		//		//case ESpecOp::SpecOp_JR:		handled = GenerateJR(rs); break;
 
-		//		case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
-		//		case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
-		//		case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
+		//		case ESpecOp::SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
+		//		case ESpecOp::SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
+		//		case ESpecOp::SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
 		//		}
 		//	}
 		//	break;
