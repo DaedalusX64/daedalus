@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 //
 //*****************************************************************************
-enum EDelayType
+enum class EDelayType
 {
 	NO_DELAY = 0,
 	EXEC_DELAY,
@@ -119,7 +119,7 @@ ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 	register_32x32	FPUControl;			// 0x200 .. 0x280
 	u32				CurrentPC;			// 0x280 ..			The current program counter
 	u32				TargetPC;			// 0x284 ..			The PC to branch to
-	u32				Delay;				// 0x288 ..			Delay state (NO_DELAY, EXEC_DELAY, DO_DELAY)
+	u32				Delay;				// 0x288 ..			Delay state (NO_DELAY, EXEC_DELAY, EDelayType::DO_DELAY)
 	volatile u32	StuffToDo;			// 0x28c ..			CPU jobs (see above)
 
 	REG64			MultLo;				// 0x290 ..
@@ -193,7 +193,7 @@ inline void CPU_SetPC( u32 pc )		{ gCPUState.CurrentPC = pc; }
 inline void INCREMENT_PC()			{ gCPUState.CurrentPC += 4; }
 inline void DECREMENT_PC()			{ gCPUState.CurrentPC -= 4; }
 
-inline void CPU_TakeBranch( u32 new_pc ) { gCPUState.TargetPC = new_pc; gCPUState.Delay = DO_DELAY; }
+inline void CPU_TakeBranch( u32 new_pc ) { gCPUState.TargetPC = new_pc; gCPUState.Delay = static_cast<u32>(EDelayType::DO_DELAY); }
 
 
 #define COUNTER_INCREMENT_PER_OP			1

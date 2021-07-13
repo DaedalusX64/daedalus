@@ -102,24 +102,24 @@ template< bool TranslateOp > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 
 	switch (gCPUState.Delay)
 	{
-	case DO_DELAY:
+	case static_cast<u32>(EDelayType::DO_DELAY):
 		// We've got a delayed instruction to execute. Increment
 		// PC as normal, so that subsequent instruction is executed
 		INCREMENT_PC();
-		gCPUState.Delay = EXEC_DELAY;
+		gCPUState.Delay = static_cast<u32>(EDelayType::EXEC_DELAY);
 
 		break;
-	case EXEC_DELAY:
+	case static_cast<u32>(EDelayType::EXEC_DELAY):
 		{
 			//bool	backwards( gCPUState.TargetPC <= gCPUState.CurrentPC );
 
 			// We've just executed the delayed instr. Now carry out jump as stored in gCPUState.TargetPC;
 			CPU_SetPC(gCPUState.TargetPC);
-			gCPUState.Delay = NO_DELAY;
+			gCPUState.Delay = static_cast<u32>(EDelayType::NO_DELAY);
 
 		}
 		break;
-	case NO_DELAY:
+	case static_cast<u32>(EDelayType::NO_DELAY):
 		// Normal operation - just increment the PC
 		INCREMENT_PC();
 		break;

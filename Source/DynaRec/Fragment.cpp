@@ -206,15 +206,15 @@ namespace
 	{
 		switch (gCPUState.Delay)
 		{
-			case DO_DELAY:
+			case static_cast<u32>(EDelayType::DO_DELAY):
 				gCPUState.CurrentPC += 4;
-				gCPUState.Delay = EXEC_DELAY;
+				gCPUState.Delay = static_cast<u32>(EDelayType::EXEC_DELAY);
 				break;
-			case EXEC_DELAY:
+			case static_cast<u32>(EDelayType::EXEC_DELAY):
 				gCPUState.CurrentPC = gCPUState.TargetPC;
-				gCPUState.Delay = NO_DELAY;
+				gCPUState.Delay = static_cast<u32>(EDelayType::NO_DELAY);
 				break;
-			case NO_DELAY:
+			case static_cast<u32>(EDelayType::NO_DELAY):
 				gCPUState.CurrentPC += 4;
 				break;
 			default:

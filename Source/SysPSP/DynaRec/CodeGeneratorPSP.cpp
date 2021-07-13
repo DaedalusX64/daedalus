@@ -219,14 +219,14 @@ void HandleException_extern()
 {
 	switch (gCPUState.Delay)
 	{
-		case DO_DELAY:
-			gCPUState.Delay = EXEC_DELAY;	//fall through to PC +=4
-		case NO_DELAY:
+		case static_cast<u32>(EDelayType::DO_DELAY):
+			gCPUState.Delay = static_cast<u32>(EDelayType::EXEC_DELAY);	//fall through to PC +=4
+		case static_cast<u32>(EDelayType::NO_DELAY):
 			gCPUState.CurrentPC += 4;
 			break;
-		case EXEC_DELAY:
+		case static_cast<u32>(EDelayType::EXEC_DELAY):
 			gCPUState.CurrentPC = gCPUState.TargetPC;
-			gCPUState.Delay = NO_DELAY;
+			gCPUState.Delay = static_cast<u32>(EDelayType::NO_DELAY);
 			break;
 		default:
 			NODEFAULT;
@@ -1077,7 +1077,7 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 
 		SetVar( &gCPUState.CurrentPC, exit_address );
 		JAL( CCodeLabel( reinterpret_cast< const void * >( CPU_HANDLE_COUNT_INTERRUPT ) ), false );
-		SetVar( &gCPUState.Delay, NO_DELAY );	// ASSUMES store is done in just a single op.
+		SetVar( &gCPUState.Delay, static_cast<u32>(EDelayType::NO_DELAY) );	// ASSUMES store is done in just a single op.
 
 		J( CCodeLabel( reinterpret_cast< const void * >( _ReturnFromDynaRec ) ), true );
 
@@ -1412,7 +1412,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	{
 		if( branch_delay_slot )
 		{
-			SetVar( &gCPUState.Delay, NO_DELAY );
+			SetVar( &gCPUState.Delay, static_cast<u32>(EDelayType::NO_DELAY) );
 		}
 		return CJumpLocation();
 	}
@@ -1720,7 +1720,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			SetVar( &gCPUState.CurrentPC, address );
 			if( branch_delay_slot )
 			{
-				SetVar( &gCPUState.Delay, EXEC_DELAY );
+				SetVar( &gCPUState.Delay, static_cast<u32>(EDelayType::EXEC_DELAY) );
 				BranchDelaySet = true;
 			}
 
@@ -1751,11 +1751,11 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			{
 				if( p_branch->ConditionalBranchTaken )
 				{
-					*p_branch_jump = GenerateBranchIfNotEqual( &gCPUState.Delay, DO_DELAY, no_target );
+					*p_branch_jump = GenerateBranchIfNotEqual( &gCPUState.Delay, static_cast<u32>(EDelayType::DO_DELAY), no_target );
 				}
 				else
 				{
-					*p_branch_jump = GenerateBranchIfEqual( &gCPUState.Delay, DO_DELAY, no_target );
+					*p_branch_jump = GenerateBranchIfEqual( &gCPUState.Delay, static_cast<u32>(EDelayType::DO_DELAY), no_target );
 				}
 			}
 			else
@@ -1774,7 +1774,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 		if( BranchDelaySet )
 		{
-			SetVar( &gCPUState.Delay, NO_DELAY );
+			SetVar( &gCPUState.Delay, static_cast<u32>(EDelayType::NO_DELAY) );
 		}
 	}
 
@@ -2423,11 +2423,11 @@ inline void	CCodeGeneratorPSP::GenerateJR( EN64Reg rs, const SBranchDetails * p_
 
 	// Necessary? Could just directly compare reg_lo and constant p_branch->TargetAddress??
 	//SetVar( &gCPUState.TargetPC, reg_lo );
-	//SetVar( &gCPUState.Delay, DO_DELAY );
+	//SetVar( &gCPUState.Delay, EDelayType::DO_DELAY );
 	//*p_branch_jump = GenerateBranchIfNotEqual( &gCPUState.TargetPC, p_branch->TargetAddress, CCodeLabel() );
 
 	SetVar( &gCPUState.TargetPC, reg_lo );
-	//SetVar( &gCPUState.Delay, DO_DELAY );
+	//SetVar( &gCPUState.Delay, EDelayType::DO_DELAY );
 	*p_branch_jump = GenerateBranchIfNotEqual( reg_lo, p_branch->TargetAddress, CCodeLabel() );
 }
 
@@ -2443,7 +2443,7 @@ inline void	CCodeGeneratorPSP::GenerateJALR( EN64Reg rs, EN64Reg rd, u32 address
 
 	// Necessary? Could just directly compare reg_lo and constant p_branch->TargetAddress??
 	//SetVar( &gCPUState.TargetPC, reg_lo );
-	//SetVar( &gCPUState.Delay, DO_DELAY );
+	//SetVar( &gCPUState.Delay, EDelayType::DO_DELAY );
 	//*p_branch_jump = GenerateBranchIfNotEqual( &gCPUState.TargetPC, p_branch->TargetAddress, CCodeLabel() );
 	//LoadConstant( savereg_lo, address + 8 );
 	//UpdateRegister( rd, savereg_lo, URO_HI_SIGN_EXTEND, PspReg_V0 );

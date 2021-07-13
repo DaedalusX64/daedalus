@@ -179,7 +179,7 @@ _DirectExitCheckNoDelay:
 	sw		$v0, _C0_Count($fp)		# COUNT = COUNT + ops_executed
 
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
-	sw		 $0, _Delay($fp)		# Delay = NO_DELAY
+	sw		 $0, _Delay($fp)		# Delay = EDelayType::NO_DELAY
 
 	subu	$v1, $v1, $a0		# Events[0].mCount - ops_executed
 	blez	$v1, _DirectExitCheckCheckCount
@@ -206,7 +206,7 @@ _DirectExitCheckDelay:
 
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 	sw		$a2, _TargetPC($fp) 	# TargetPC
-	li		$v0, 1				# EXEC_DELAY
+	li		$v0, 1				# EDelayType::EXEC_DELAY
 	sw		$v0, _Delay($fp)		# Delay
 
 	subu	$v1, $v1, $a0		# Events[0].mCount - ops_executed
@@ -235,7 +235,7 @@ _DirectExitCheckCheckCount:
 #	Update counter. If StuffToDo flags is clear on return,
 #	a0 - instructions executed
 #	a1 - CIndirectExitMap pointer
-#	a2 - exit pc (exit delay is always NO_DELAY)
+#	a2 - exit pc (exit delay is always EDelayType::NO_DELAY)
 _IndirectExitCheck:
 	or		$s0, $a1, $0		# Keep track of map pointer
 	or		$s1, $a2, $0		# and the exit pc
@@ -243,7 +243,7 @@ _IndirectExitCheck:
 	# Can avoid these until _ReturnFromDynaRec?
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	jal		CPU_UpdateCounter	# a0 holds instructions executed
-	sw		$0,  _Delay($fp)		# Delay (NO_DELAY)
+	sw		$0,  _Delay($fp)		# Delay (EDelayType::NO_DELAY)
 
 	lw		$v0, _StuffToDo($fp)		# StuffToDo
 	bne		$v0, $0, _ReturnFromDynaRec
@@ -307,14 +307,14 @@ _IndirectExitCheck:
 	addu	$v1, $v1, $v0
 	lw		$v0, 4($v1)	#offset 4 to get the second pointer
 
-	li		$v1, 1				# EXEC_DELAY
+	li		$v1, 1				# EDelayType::EXEC_DELAY
 	jalr	$v0
 	sw		$v1, _Delay($fp)		# Delay
 
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
-	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
+	sw		$0, _Delay($fp)		# Delay <- EDelayType::NO_DELAY
 
 	lw		$ra, _Temp1($fp) 	# Temp storage
 
@@ -363,7 +363,7 @@ _WriteBitsDirectBD_u32:
 	sw		$ra, _Temp1($fp) 	# Temp storage
 
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	li		$v1, 1				# EXEC_DELAY
+	li		$v1, 1				# EDelayType::EXEC_DELAY
 
 	jal		Write32BitsForDynaRec
 	sw		$v1, _Delay($fp)		# Delay
@@ -373,7 +373,7 @@ _WriteBitsDirectBD_u32:
 
 	lw		$ra, _Temp1($fp) 	# Temp storage
 	jr		$ra
-	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
+	sw		$0, _Delay($fp)		# Delay <- EDelayType::NO_DELAY
 
 _WriteBitsDirect_u16:
 	sw		$ra, _Temp1($fp) 	# Temp storage
@@ -393,7 +393,7 @@ _WriteBitsDirectBD_u16:
 	sw		$ra, _Temp1($fp) 	# Temp storage
 
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	li		$v1, 1				# EXEC_DELAY
+	li		$v1, 1				# EDelayType::EXEC_DELAY
 
 	jal		Write16BitsForDynaRec
 	sw		$v1, _Delay($fp)		# Delay
@@ -403,7 +403,7 @@ _WriteBitsDirectBD_u16:
 
 	lw		$ra, _Temp1($fp) 	# Temp storage
 	jr		$ra
-	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
+	sw		$0, _Delay($fp)		# Delay <- EDelayType::NO_DELAY
 
 _WriteBitsDirect_u8:
 	sw		$ra, _Temp1($fp) 	# Temp storage
@@ -421,7 +421,7 @@ _WriteBitsDirect_u8:
 _WriteBitsDirectBD_u8:
 	sw		$ra, _Temp1($fp) 	# Temp storage
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	li		$v1, 1				# EXEC_DELAY
+	li		$v1, 1				# EDelayType::EXEC_DELAY
 
 	jal		Write8BitsForDynaRec
 	sw		$v1, _Delay($fp)		# Delay
@@ -431,7 +431,7 @@ _WriteBitsDirectBD_u8:
 
 	lw		$ra, _Temp1($fp) 	# Temp storage
 	jr		$ra
-	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
+	sw		$0, _Delay($fp)		# Delay <- EDelayType::NO_DELAY
 
 #######################################################################################
 /**

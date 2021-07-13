@@ -1062,7 +1062,7 @@ static u32 RET_NOT_PROCESSED(PatchSymbol* ps)
 	gCPUState.CurrentPC = PHYS_TO_K0(ps->Location);
 	//DBGConsole_Msg(0, "%s RET_NOT_PROCESSED PC=0x%08x RA=0x%08x", ps->Name, gCPUState.TargetPC, gGPR[REG_ra]._u32_0);
 
-	gCPUState.Delay = NO_DELAY;
+	gCPUState.Delay = static_cast<u32>(EDelayType::NO_DELAY);
 	gCPUState.TargetPC = gCPUState.CurrentPC;
 
 	// Simulate the first op then return to dynarec. so we still can leverage dynarec.
@@ -1102,7 +1102,7 @@ static u32 RET_JR_ERET()
 	DECREMENT_PC();
 
 	// Ensure we don't execute this in the delay slot
-	gCPUState.Delay = NO_DELAY;
+	gCPUState.Delay = static_cast<u32>(EDelayType::NO_DELAY);
 
 	return 0;
 }

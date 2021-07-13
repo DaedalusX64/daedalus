@@ -70,7 +70,7 @@ inline void R4300_JumpToInterruptVector(u32 exception_vector)
 	gCPUState.CPUControl[C0_EPC]._u32  = gCPUState.CurrentPC;
 
 
-	if(gCPUState.Delay == EXEC_DELAY)
+	if(gCPUState.Delay == static_cast<u32>(EDelayType::EXEC_DELAY))
 	{
 		gCPUState.CPUControl[C0_CAUSE]._u32 |= CAUSE_BD;
 		gCPUState.CPUControl[C0_EPC]._u32   -= 4;
@@ -81,7 +81,7 @@ inline void R4300_JumpToInterruptVector(u32 exception_vector)
 	}
 
 	CPU_SetPC( exception_vector );
-	gCPUState.Delay = NO_DELAY;
+	gCPUState.Delay = static_cast<u32>(EDelayType::NO_DELAY);
 }
 
 //*****************************************************************************
@@ -97,7 +97,7 @@ void R4300_Exception_Break()
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
-	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
+	gExceptionWasDelay = gCPUState.Delay == static_cast<u32>(EDelayType::EXEC_DELAY);
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
 }
 
@@ -114,7 +114,7 @@ void R4300_Exception_Syscall()
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
-	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
+	gExceptionWasDelay = gCPUState.Delay == static_cast<u32>(EDelayType::EXEC_DELAY);
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
 }
 
@@ -135,7 +135,7 @@ void R4300_Exception_CopUnusuable()
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
-	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
+	gExceptionWasDelay = gCPUState.Delay == static_cast<u32>(EDelayType::EXEC_DELAY);
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
 }
 
@@ -160,7 +160,7 @@ void R4300_Exception_TLB( u32 virtual_address, u32 exception_code, u32 exception
 
 	gExceptionVector = exception_vector;
 	gExceptionPC = gCPUState.CurrentPC;
-	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
+	gExceptionWasDelay = gCPUState.Delay == static_cast<u32>(EDelayType::EXEC_DELAY);
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
 }
 
@@ -179,7 +179,7 @@ void R4300_Handle_Exception()
 #endif
 
 	gCPUState.CurrentPC = gExceptionPC;									// Restore this...
-	gCPUState.Delay = gExceptionWasDelay ? EXEC_DELAY : NO_DELAY;	// And this...
+	gCPUState.Delay = gExceptionWasDelay ? static_cast<u32>(EDelayType::EXEC_DELAY) : static_cast<u32>(EDelayType::NO_DELAY);	// And this...
 	R4300_JumpToInterruptVector( gExceptionVector );
 
 	// Reset these, to ensure we set them correctly before next call to this function

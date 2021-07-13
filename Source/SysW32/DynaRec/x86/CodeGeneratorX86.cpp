@@ -597,11 +597,11 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 		{
 			if( p_branch->ConditionalBranchTaken )
 			{
-				*p_branch_jump = GenerateBranchIfNotEqual8( &gCPUState.Delay, DO_DELAY, no_target );
+				*p_branch_jump = GenerateBranchIfNotEqual8( &gCPUState.Delay, EDelayType::DO_DELAY, no_target );
 			}
 			else
 			{
-				*p_branch_jump = GenerateBranchIfEqual8( &gCPUState.Delay, DO_DELAY, no_target );
+				*p_branch_jump = GenerateBranchIfEqual8( &gCPUState.Delay, EDelayType::DO_DELAY, no_target );
 			}
 		}
 		else

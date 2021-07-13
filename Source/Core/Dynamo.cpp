@@ -154,12 +154,12 @@ template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 		DAEDALUS_ASSERT( gTraceRecorder.IsTraceActive(), "If TraceEnabled is set, trace should be active" );
 		#endif
 		u32		pc( gCPUState.CurrentPC ) ;
-		bool	branch_delay_slot( gCPUState.Delay == EXEC_DELAY );
+		bool	branch_delay_slot( gCPUState.Delay == static_cast<u32>(EDelayType::EXEC_DELAY) );
 
 		R4300_ExecuteInstruction(op_code);
 		gGPR[0]._u64 = 0;	//Ensure r0 is zero
 
-		bool	branch_taken( gCPUState.Delay == DO_DELAY );
+		bool	branch_taken( gCPUState.Delay == static_cast<u32>(EDelayType::DO_DELAY) );
 
 		CPU_UpdateTrace( pc, op_code, branch_delay_slot, branch_taken );
 	}
@@ -188,25 +188,25 @@ template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 
 	switch (gCPUState.Delay)
 	{
-	case DO_DELAY:
+	case static_cast<u32>(EDelayType::DO_DELAY):
 		// We've got a delayed instruction to execute. Increment
 		// PC as normal, so that subsequent instruction is executed
 		INCREMENT_PC();
-		gCPUState.Delay = EXEC_DELAY;
+		gCPUState.Delay = static_cast<u32>(EDelayType::EXEC_DELAY);
 
 		break;
-	case EXEC_DELAY:
+	case static_cast<u32>(EDelayType::EXEC_DELAY):
 		{
 			bool	backwards( gCPUState.TargetPC <= gCPUState.CurrentPC );
 
 			// We've just executed the delayed instr. Now carry out jump as stored in gCPUState.TargetPC;
 			CPU_SetPC(gCPUState.TargetPC);
-			gCPUState.Delay = NO_DELAY;
+			gCPUState.Delay = static_cast<u32>(EDelayType::NO_DELAY);
 
 			CPU_HandleDynaRecOnBranch( backwards, TraceEnabled );
 		}
 		break;
-	case NO_DELAY:
+	case static_cast<u32>(EDelayType::NO_DELAY):
 		// Normal operation - just increment the PC
 		INCREMENT_PC();
 		break;
@@ -429,10 +429,10 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 	DAED_LOG( DEBUG_DYNAREC_CACHE, "CPU_HandleDynaRecOnBranch" );
 	#endif
 
-	while( gCPUState.GetStuffToDo() == 0 && gCPUState.Delay == NO_DELAY )
+	while( gCPUState.GetStuffToDo() == 0 && gCPUState.Delay == static_cast<u32>(EDelayType::NO_DELAY) )
 	{
 		#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
-		DAEDALUS_ASSERT( gCPUState.Delay == NO_DELAY, "Why are we entering with a delay slot active?" );
+		DAEDALUS_ASSERT( gCPUState.Delay == static_cast<u32>(EDelayType::NO_DELAY), "Why are we entering with a delay slot active?" );
 		u32			entry_count( gCPUState.CPUControl[C0_COUNT]._u32 ); // Just used DYNAREC_PROFILE_ENTEREXIT
 #endif
 		u32			entry_address( gCPUState.CurrentPC );

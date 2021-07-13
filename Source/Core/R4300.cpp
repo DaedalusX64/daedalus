@@ -2096,7 +2096,7 @@ static void R4300_CALL_TYPE R4300_TLB_ERET( R4300_CALL_SIGNATURE )
 	DECREMENT_PC();
 
 	// Ensure we don't execute this in the delay slot
-	gCPUState.Delay = NO_DELAY;
+	gCPUState.Delay = static_cast<u32>(EDelayType::NO_DELAY);
 }
 
 

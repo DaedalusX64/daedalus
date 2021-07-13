@@ -374,7 +374,7 @@ bool CPU_RomOpen()
 
 	R4300_Init();
 
-	gCPUState.Delay = NO_DELAY;
+	gCPUState.Delay = static_cast<u32>(EDelayType::NO_DELAY);
 	gCPUState.ClearStuffToDo();
 	gVerticalInterrupts = 0;
 
@@ -396,7 +396,7 @@ static bool	CPU_IsStateSimple()
 {
 	bool rsp_halted = !RSP_IsRunning();
 
-	return rsp_halted && (gCPUState.Delay == NO_DELAY);
+	return rsp_halted && (gCPUState.Delay == static_cast<u32>(EDelayType::NO_DELAY));
 }
 
 void CPU_SelectCore()
@@ -789,7 +789,7 @@ void CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p
 
 	SYNCH_POINT( DAED_SYNC_REGS, CPU_ProduceRegisterHash(), "Registers don't match" );
 
-	*p_branch_taken = gCPUState.Delay == DO_DELAY;
+	*p_branch_taken = gCPUState.Delay == EDelayType::DO_DELAY;
 }
 #endif
 
