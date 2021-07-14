@@ -97,16 +97,16 @@ OpCode	GetInverseBranch( OpCode op_code )
 		break;
 
 	case OP_COPRO0:
-		if( op_code.cop0_op == Cop0Op_TLB )
+		if( op_code.cop0_op == ECop0Op::Cop0Op_TLB )
 		{
 			switch( op_code.cop0tlb_funct )
 			{
-			case OP_ERET:	break;
+			case TLBOpCodeValue::OP_ERET:	break;
 			}
 		}
 		break;
 	case OP_COPRO1:
-		if( op_code.cop1_op == Cop1Op_BCInstr )
+		if( op_code.cop1_op == ECop1Op::Cop1Op_BCInstr )
 		{
 			switch( op_code.cop1_bc )
 			{
@@ -202,18 +202,18 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 		break;
 
 	case OP_COPRO0:
-		if( op_code.cop0_op == Cop0Op_TLB )
+		if( op_code.cop0_op == ECop0Op::Cop0Op_TLB )
 		{
 			switch( op_code.cop0tlb_funct )
 			{
 			// No jump target - it's indirect
-			case OP_ERET:
+			case TLBOpCodeValue::OP_ERET:
 				break;
 			}
 		}
 		break;
 	case OP_COPRO1:
-		if( op_code.cop1_op == Cop1Op_BCInstr )
+		if( op_code.cop1_op == ECop1Op::Cop1Op_BCInstr )
 		{
 			switch( op_code.cop1_bc )
 			{

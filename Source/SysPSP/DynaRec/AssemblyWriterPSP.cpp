@@ -794,7 +794,7 @@ void	CAssemblyWriterPSP::Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg 
 	op_code.fd = fd;
 	op_code.fs = fs;
 	op_code.ft = ft;
-	op_code.cop1_op = cop1_op;
+	op_code.cop1_op = static_cast<u32>(cop1_op);
 	op_code.cop1_funct = cop1_funct;
 	AppendOp( op_code );
 }
@@ -809,7 +809,7 @@ void	CAssemblyWriterPSP::Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg 
 	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.fd = fd;
 	op_code.fs = fs;
-	op_code.cop1_op = cop1_op;
+	op_code.cop1_op = static_cast<u32>(cop1_op);
 	op_code.cop1_funct = cop1_funct;
 	AppendOp( op_code );
 }
@@ -824,7 +824,7 @@ void	CAssemblyWriterPSP::CFC1( EPspReg rt, EPspFloatReg fs )
 	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.rt = rt;
 	op_code.fs = fs;
-	op_code.cop1_op = Cop1Op_CFC1;
+	op_code.cop1_op = static_cast<u32>(ECop1Op::Cop1Op_CFC1);
 	AppendOp( op_code );
 }
 
@@ -838,7 +838,7 @@ void	CAssemblyWriterPSP::MFC1( EPspReg rt, EPspFloatReg fs )
 	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.rt = rt;
 	op_code.fs = fs;
-	op_code.cop1_op = Cop1Op_MFC1;
+	op_code.cop1_op = static_cast<u32>(ECop1Op::Cop1Op_MFC1);
 	AppendOp( op_code );
 }
 
@@ -852,16 +852,14 @@ void	CAssemblyWriterPSP::MTC1( EPspFloatReg fs, EPspReg rt )
 	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
 	op_code.rt = rt;
 	op_code.fs = fs;
-	op_code.cop1_op = Cop1Op_MTC1;
+	op_code.cop1_op = static_cast<u32>(ECop1Op::Cop1Op_MTC1);
 	AppendOp( op_code );
 }
 
 
-//
-
 void	CAssemblyWriterPSP::ADD_S( EPspFloatReg fd, EPspFloatReg fs, EPspFloatReg ft )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_ADD, ft );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_ADD, ft );
 }
 
 
@@ -869,7 +867,7 @@ void	CAssemblyWriterPSP::ADD_S( EPspFloatReg fd, EPspFloatReg fs, EPspFloatReg f
 
 void	CAssemblyWriterPSP::SUB_S( EPspFloatReg fd, EPspFloatReg fs, EPspFloatReg ft )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_SUB, ft );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_SUB, ft );
 }
 
 
@@ -877,7 +875,7 @@ void	CAssemblyWriterPSP::SUB_S( EPspFloatReg fd, EPspFloatReg fs, EPspFloatReg f
 
 void	CAssemblyWriterPSP::MUL_S( EPspFloatReg fd, EPspFloatReg fs, EPspFloatReg ft )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_MUL, ft );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_MUL, ft );
 }
 
 
@@ -885,7 +883,7 @@ void	CAssemblyWriterPSP::MUL_S( EPspFloatReg fd, EPspFloatReg fs, EPspFloatReg f
 
 void	CAssemblyWriterPSP::DIV_S( EPspFloatReg fd, EPspFloatReg fs, EPspFloatReg ft )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_DIV, ft );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_DIV, ft );
 }
 
 
@@ -893,7 +891,7 @@ void	CAssemblyWriterPSP::DIV_S( EPspFloatReg fd, EPspFloatReg fs, EPspFloatReg f
 
 void	CAssemblyWriterPSP::SQRT_S( EPspFloatReg fd, EPspFloatReg fs )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_SQRT );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_SQRT );
 }
 
 
@@ -901,7 +899,7 @@ void	CAssemblyWriterPSP::SQRT_S( EPspFloatReg fd, EPspFloatReg fs )
 
 void	CAssemblyWriterPSP::ABS_S( EPspFloatReg fd, EPspFloatReg fs )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_ABS );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_ABS );
 }
 
 
@@ -909,7 +907,7 @@ void	CAssemblyWriterPSP::ABS_S( EPspFloatReg fd, EPspFloatReg fs )
 
 void	CAssemblyWriterPSP::MOV_S( EPspFloatReg fd, EPspFloatReg fs )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_MOV );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_MOV );
 }
 
 
@@ -917,7 +915,7 @@ void	CAssemblyWriterPSP::MOV_S( EPspFloatReg fd, EPspFloatReg fs )
 
 void	CAssemblyWriterPSP::NEG_S( EPspFloatReg fd, EPspFloatReg fs )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_NEG );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_NEG );
 }
 
 
@@ -925,7 +923,7 @@ void	CAssemblyWriterPSP::NEG_S( EPspFloatReg fd, EPspFloatReg fs )
 
 void	CAssemblyWriterPSP::TRUNC_W_S( EPspFloatReg fd, EPspFloatReg fs )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_TRUNC_W );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_TRUNC_W );
 }
 
 
@@ -933,14 +931,14 @@ void	CAssemblyWriterPSP::TRUNC_W_S( EPspFloatReg fd, EPspFloatReg fs )
 
 void	CAssemblyWriterPSP::FLOOR_W_S( EPspFloatReg fd, EPspFloatReg fs )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_FLOOR_W );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_FLOOR_W );
 }
 
 //
 
 void	CAssemblyWriterPSP::CVT_W_S( EPspFloatReg fd, EPspFloatReg fs )
 {
-	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_CVT_W );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, fd, fs, Cop1OpFunc_CVT_W );
 }
 
 
@@ -948,7 +946,7 @@ void	CAssemblyWriterPSP::CVT_W_S( EPspFloatReg fd, EPspFloatReg fs )
 
 void	CAssemblyWriterPSP::CMP_S( EPspFloatReg fs, ECop1OpFunction	cmp_op, EPspFloatReg ft )
 {
-	Cop1Op( Cop1Op_SInstr, PspFloatReg_F00, fs, cmp_op, ft );
+	Cop1Op( ECop1Op::Cop1Op_SInstr, PspFloatReg_F00, fs, cmp_op, ft );
 }
 
 
@@ -956,7 +954,7 @@ void	CAssemblyWriterPSP::CMP_S( EPspFloatReg fs, ECop1OpFunction	cmp_op, EPspFlo
 
 void	CAssemblyWriterPSP::CVT_S_W( EPspFloatReg fd, EPspFloatReg fs )
 {
-	Cop1Op( Cop1Op_WInstr, fd, fs, Cop1OpFunc_CVT_S );
+	Cop1Op( ECop1Op::Cop1Op_WInstr, fd, fs, Cop1OpFunc_CVT_S );
 }
 
 
@@ -970,7 +968,7 @@ CJumpLocation	CAssemblyWriterPSP::BranchCop1( ECop1BCOp bc_op, CCodeLabel target
 	PspOpCode	op_code {};
 	op_code._u32 = 0;
 	op_code.op = static_cast<u32>(OpCodeValue::OP_COPRO1);
-	op_code.cop1_op = Cop1Op_BCInstr;
+	op_code.cop1_op = static_cast<u32>(ECop1Op::Cop1Op_BCInstr);
 	op_code.cop1_bc = bc_op;
 	op_code.offset = s16((offset - 4) >> 2);	// Adjust for incremented PC and ignore lower bits
 	AppendOp( op_code );

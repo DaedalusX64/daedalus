@@ -181,14 +181,14 @@ enum class ERegImmOp
 	RegImmOp_BGEZALL		= 19
 };
 
-enum ECop0Op
+enum class ECop0Op
 {
 	Cop0Op_MFC0		= 0,
 	Cop0Op_MTC0		= 4,
 	Cop0Op_TLB		= 16
 };
 
-enum TLBOpCodeValue {
+enum class TLBOpCodeValue {
 	OP_TLBR = 1,
 	OP_TLBWI = 2,
 	OP_TLBWR = 6,
@@ -196,7 +196,7 @@ enum TLBOpCodeValue {
 	OP_ERET = 24
 };
 
-enum ECop1Op
+enum class ECop1Op
 {
 	Cop1Op_MFC1	= 0,
 	Cop1Op_DMFC1	= 1,

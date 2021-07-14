@@ -1562,8 +1562,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case static_cast<u32>(OpCodeValue::OP_COPRO0):
 		switch( op_code.cop0_op )
 		{
-		case Cop0Op_MFC0:	GenerateMFC0( rt, op_code.fs ); handled = true; break;
-		//case Cop0Op_MTC0:	GenerateMTC0( rt, op_code.fs ); handled = true; break;	//1080 deg has issues with this
+		case static_cast<u32>(ECop0Op::Cop0Op_MFC0):	GenerateMFC0( rt, op_code.fs ); handled = true; break;
+		//case ECop0Op::Cop0Op_MTC0:	GenerateMTC0( rt, op_code.fs ); handled = true; break;	//1080 deg has issues with this
 		default:
 			break;
 		}
@@ -1572,14 +1572,14 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case static_cast<u32>(OpCodeValue::OP_COPRO1):
 		switch( op_code.cop1_op )
 		{
-		case Cop1Op_MFC1:	GenerateMFC1( rt, op_code.fs ); handled = true; break;
-		case Cop1Op_MTC1:	GenerateMTC1( op_code.fs, rt ); handled = true; break;
+		case static_cast<u32>(ECop1Op::Cop1Op_MFC1):	GenerateMFC1( rt, op_code.fs ); handled = true; break;
+		case static_cast<u32>(ECop1Op::Cop1Op_MTC1):	GenerateMTC1( op_code.fs, rt ); handled = true; break;
 
-		case Cop1Op_CFC1:	GenerateCFC1( rt, op_code.fs ); handled = true; break;
-		case Cop1Op_CTC1:	GenerateCTC1( op_code.fs, rt ); handled = true; break;
+		case static_cast<u32>(ECop1Op::Cop1Op_CFC1):	GenerateCFC1( rt, op_code.fs ); handled = true; break;
+		case static_cast<u32>(ECop1Op::Cop1Op_CTC1):	GenerateCTC1( op_code.fs, rt ); handled = true; break;
 
 
-		case Cop1Op_DInstr:
+		case static_cast<u32>(ECop1Op::Cop1Op_DInstr):
 			if( gDynarecDoublesOptimisation )
 			{
 				switch( op_code.cop1_funct )
@@ -1625,7 +1625,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			}
 			break;
 
-		case Cop1Op_SInstr:
+		case static_cast<u32>(ECop1Op::Cop1Op_SInstr):
 			switch( op_code.cop1_funct )
 			{
 			case Cop1OpFunc_ADD:	GenerateADD_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
@@ -1667,7 +1667,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			}
 			break;
 
-		case Cop1Op_WInstr:
+		case static_cast<u32>(ECop1Op::Cop1Op_WInstr):
 			switch( op_code.cop1_funct )
 			{
 			case Cop1OpFunc_CVT_S:	GenerateCVT_S_W( op_code.fd, op_code.fs ); handled = true; break;
@@ -1675,7 +1675,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			}
 			break;
 
-		case Cop1Op_BCInstr:
+		case static_cast<u32>(ECop1Op::Cop1Op_BCInstr):
 			switch( op_code.cop1_bc )
 			{
 				// These can be handled by the same Generate function, as the 'likely' bit is handled elsewhere
@@ -1705,7 +1705,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 #if 0
 //1->Show not handled OP codes (Require that DAEDALUS_SILENT flag is undefined)
-	  // Note: Cop1Op_DInstr are handled elsewhere!
+	  // Note: ECop1Op::Cop1Op_DInstr are handled elsewhere!
 		char msg[128];
 		SprintOpCodeInfo( msg, address, op_code );
 		printf( "Unhandled: 0x%08x %s\n", address, msg );

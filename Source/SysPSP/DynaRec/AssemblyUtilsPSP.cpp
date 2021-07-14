@@ -58,7 +58,7 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 																op_code.regimm_op == RegImmOp_BLTZ ||
 																op_code.regimm_op == RegImmOp_BGEZL ||
 																op_code.regimm_op == RegImmOp_BLTZL ) ) );
-		bool	is_cop1_branch( (op_code.cop1_op == Cop1Op_BCInstr) && ( op_code.cop1_bc == Cop1BCOp_BC1F  ||
+		bool	is_cop1_branch( (op_code.cop1_op == ECop1Op::Cop1Op_BCInstr) && ( op_code.cop1_bc == Cop1BCOp_BC1F  ||
 																		 op_code.cop1_bc == Cop1BCOp_BC1FL ||
 																		 op_code.cop1_bc == Cop1BCOp_BC1T  ||
 																		 op_code.cop1_bc == Cop1BCOp_BC1TL ) );

@@ -518,7 +518,7 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 
 	case static_cast<u32>(OpCodeValue::OP_COPRO0):
 		// Only ERET needs PC
-		return op_code.cop0tlb_funct == OP_ERET;
+		return op_code.cop0tlb_funct == static_cast<u32>(TLBOpCodeValue::OP_ERET);
 
 	case static_cast<u32>(OpCodeValue::OP_COPRO1):
 		// Potentially these can all throw, if cop1 is disabled
@@ -3258,7 +3258,7 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 	case static_cast<u32>(OpCodeValue::OP_COPRO0):
 		switch( op_code.cop0_op )
 		{
-		case Cop0Op_TLB:
+		case static_cast<u32>(ECop0Op::Cop0Op_TLB):
 			return R4300TLBInstruction[ op_code.cop0tlb_funct ];
 		default:
 			return R4300Cop0Instruction[ op_code.cop0_op ];
@@ -3269,11 +3269,11 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 		// copprocessor is enabled, and throw and exception accordingly.
 		switch( op_code.cop1_op )
 		{
-		case Cop1Op_BCInstr:
+		case static_cast<u32>(ECop1Op::Cop1Op_BCInstr):
 			return R4300Cop1BC1Instruction[ op_code.cop1_bc ];
-		case Cop1Op_SInstr:
+		case static_cast<u32>(ECop1Op::Cop1Op_SInstr):
 			return R4300Cop1SInstruction[ op_code.cop1_funct ];
-		case Cop1Op_DInstr:
+		case static_cast<u32>(ECop1Op::Cop1Op_DInstr):
 				return R4300Cop1DInstruction[ op_code.cop1_funct ];
 
 		}
@@ -3310,11 +3310,11 @@ void R4300_Init()
 #ifdef DAEDALUS_PSP
 	if(g_ROM.SET_ROUND_MODE)
 	{
-		R4300Cop1Instruction[Cop1Op_CTC1]	= R4300_Cop1_CTC1_2;
+		R4300Cop1Instruction[static_cast<u32>(ECop1Op::Cop1Op_CTC1)]	= R4300_Cop1_CTC1_2;
 	}
 	else
 	{
-		R4300Cop1Instruction[Cop1Op_CTC1]	= R4300_Cop1_CTC1;
+		R4300Cop1Instruction[static_cast<u32>(ECop1Op::Cop1Op_CTC1)]	= R4300_Cop1_CTC1;
 	}
 #endif
 }
