@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct OpCode;
 
-enum ER4300BranchType
+enum class ER4300BranchType
 {
 	BT_NOT_BRANCH = 0,
 
@@ -65,7 +65,7 @@ inline bool IsBranchTypeLikely( ER4300BranchType type )
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
 #endif
-	if( type < BT_BEQ )
+	if( type < ER4300BranchType::BT_BEQ )
 		return true;
 	else
 		return false;
@@ -78,7 +78,7 @@ inline bool IsConditionalBranch( ER4300BranchType type )
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
 #endif
 
-	if( type >= BT_J )
+	if( type >= ER4300BranchType::BT_J )
 		return false;
 	else
 		return true;
@@ -89,7 +89,7 @@ inline bool IsBranchTypeDirect( ER4300BranchType type )
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
 #endif
-	if( type >= BT_JR )
+	if( type >= ER4300BranchType::BT_JR )
 		return false;
 	else
 		return true;

@@ -32,20 +32,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /*
 static const ER4300BranchType gInverseBranchTypes[] =
 {
-	BT_NOT_BRANCH,
-	BT_BNE,		BT_BNEL,
-	BT_BEQ,		BT_BEQL,
-	BT_BGTZ,	BT_BGTZL,
-	BT_BLEZ,	BT_BLEZL,
-	BT_BGEZ,	BT_BGEZL,	BT_BGEZAL,	BT_BGEZALL,
-	BT_BLTZ,	BT_BLTZL,	BT_BLTZAL,	BT_BLTZALL,
-	BT_BC1T,	BT_BC1TL,
-	BT_BC1F,	BT_BC1FL,
-	BT_J,		// All the following are unconditional
-	BT_JAL,
-	BT_JR,
-	BT_JALR,
-	BT_ERET,
+	ER4300BranchType::BT_NOT_BRANCH,
+	ER4300BranchType::BT_BNE,		ER4300BranchType::BT_BNEL,
+	ER4300BranchType::ER4300BranchType::BT_BEQ,		ER4300BranchType::BT_BEQL,
+	ER4300BranchType::BT_BGTZ,	ER4300BranchType::BT_BGTZL,
+	ER4300BranchType::BT_BLEZ,	ER4300BranchType::BT_BLEZL,
+	ER4300BranchType::BT_BGEZ,	ER4300BranchType::BT_BGEZL,	ER4300BranchType::BT_BGEZAL,	ER4300BranchType::BT_BGEZALL,
+	ER4300BranchType::BT_BLTZ,	ER4300BranchType::BT_BLTZL,	ER4300BranchType::BT_BLTZAL,	ER4300BranchType::BT_BLTZALL,
+	ER4300BranchType::BT_BC1T,	ER4300BranchType::BT_BC1TL,
+	ER4300BranchType::BT_BC1F,	ER4300BranchType::BT_BC1FL,
+	ER4300BranchType::ER4300BranchType::BT_J,		// All the following are unconditional
+	ER4300BranchType::BT_JAL,
+	ER4300BranchType::ER4300BranchType::BT_JR,
+	ER4300BranchType::BT_JALR,
+	ER4300BranchType::BT_ERET,
 };
 
 */
@@ -110,10 +110,10 @@ OpCode	GetInverseBranch( OpCode op_code )
 		{
 			switch( op_code.cop1_bc )
 			{
-			case Cop1BCOp_BC1F:		op_code.cop1_bc = Cop1BCOp_BC1T;	break;
-			case Cop1BCOp_BC1T:		op_code.cop1_bc = Cop1BCOp_BC1F;	break;
-			case Cop1BCOp_BC1FL:	op_code.cop1_bc = Cop1BCOp_BC1TL;	break;
-			case Cop1BCOp_BC1TL:	op_code.cop1_bc = Cop1BCOp_BC1FL;	break;
+			case ECop1BCOp::Cop1BCOp_BC1F:		op_code.cop1_bc = ECop1BCOp::Cop1BCOp_BC1T;	break;
+			case ECop1BCOp::Cop1BCOp_BC1T:		op_code.cop1_bc = ECop1BCOp::Cop1BCOp_BC1F;	break;
+			case ECop1BCOp::Cop1BCOp_BC1FL:	op_code.cop1_bc = ECop1BCOp::Cop1BCOp_BC1TL;	break;
+			case ECop1BCOp::Cop1BCOp_BC1TL:	op_code.cop1_bc = ECop1BCOp::Cop1BCOp_BC1FL;	break;
 			}
 		}
 		break;
@@ -217,10 +217,10 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 		{
 			switch( op_code.cop1_bc )
 			{
-			case Cop1BCOp_BC1F:
-			case Cop1BCOp_BC1T:
-			case Cop1BCOp_BC1FL:
-			case Cop1BCOp_BC1TL:
+			case ECop1BCOp::Cop1BCOp_BC1F:
+			case ECop1BCOp::Cop1BCOp_BC1T:
+			case ECop1BCOp::Cop1BCOp_BC1FL:
+			case ECop1BCOp::Cop1BCOp_BC1TL:
 				op_code = UpdateBranchOffset( op_code, op_address, target_address );
 				break;
 			}
@@ -256,19 +256,19 @@ ER4300BranchType	GetInverseBranch( ER4300BranchType type )
 u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
+	DAEDALUS_ASSERT( type != ER4300BranchType::BT_NOT_BRANCH, "This is not a valid branch type" );
 #endif
 	// We pass the type in for efficiency - check that it's correct in debug though
 	// This already checked
 	//DAEDALUS_ASSERT( GetBranchType( op_code ) == type, "Specified type is inconsistant with op code" );
 
-	if( type < BT_J )
+	if( type < ER4300BranchType::BT_J )
 	{
 		return BranchAddress( op_code, address );
 	}
 
 	// All the following are unconditional
-	if( type < BT_JR )
+	if( type < ER4300BranchType::BT_JR )
 	{
 		return JumpTarget( op_code, address );
 	}

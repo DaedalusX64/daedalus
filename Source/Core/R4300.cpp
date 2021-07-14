@@ -3290,21 +3290,21 @@ void R4300_Init()
 #ifdef SIM_DOUBLES
 	if(g_ROM.GameHacks == BUCK_BUMBLE)
 	{
-		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_D_ADD_2;
+		R4300Cop1DInstruction[static_cast<u32>(ECop1OpFunction::Cop1OpFunc_ADD)]	= R4300_Cop1_D_ADD_2;
 	}
 	else
 	{
-		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_D_ADD;
+		R4300Cop1DInstruction[static_cast<u32>(ECop1OpFunction::Cop1OpFunc_ADD)]	= R4300_Cop1_D_ADD;
 	}
 
 	// Mario Party Draft mini game, Earth Worm Jim, Tom and Jerry, Power Puff Girls
     if( g_ROM.DISABLE_SIM_CVT_D_S )
 	{
-		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D_2;
+		R4300Cop1SInstruction[static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_D)] = R4300_Cop1_S_CVT_D_2;
 	}
 	else
 	{
-		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D;
+		R4300Cop1SInstruction[static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_D)] = R4300_Cop1_S_CVT_D;
 	}
 #endif
 #ifdef DAEDALUS_PSP

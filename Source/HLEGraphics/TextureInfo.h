@@ -32,7 +32,7 @@ enum ETLutFmt
 	kTT_IA16,		// G_TT_IA16
 };
 
-struct TextureInfo
+class TextureInfo
 {
 private:
 	u32			LoadAddress;		// Address to texture surface

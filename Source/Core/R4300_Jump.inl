@@ -284,10 +284,10 @@ void R4300_CALL_TYPE R4300_Cop1_LInstr( u32	op_code_bits  )
 
 	switch ( op_code.cop1_funct )
 	{
-		case Cop1OpFunc_CVT_S:
+		case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_S):
 			R4300_Cop1_L_CVT_S( R4300_CALL_ARGUMENTS );
 			return;
-		case Cop1OpFunc_CVT_D:
+		case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_D):
 			R4300_Cop1_L_CVT_D( R4300_CALL_ARGUMENTS );
 			return;
 	}
@@ -300,10 +300,10 @@ void R4300_CALL_TYPE R4300_Cop1_WInstr( u32	op_code_bits  )
 
 	switch ( op_code.cop1_funct )
 	{
-		case Cop1OpFunc_CVT_S:
+		case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_S):
 			R4300_Cop1_W_CVT_S( R4300_CALL_ARGUMENTS );
 			return;
-		case Cop1OpFunc_CVT_D:
+		case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_D):
 			R4300_Cop1_W_CVT_D( R4300_CALL_ARGUMENTS );
 			return;
 	}

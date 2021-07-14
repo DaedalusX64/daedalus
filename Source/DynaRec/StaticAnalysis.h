@@ -68,7 +68,7 @@ namespace StaticAnalysis
 			:	RegReads( 0 )
 			,	RegWrites( 0 )
 			,	RegBase( 0 )
-			,   BranchType( BT_NOT_BRANCH )
+			,   BranchType( ER4300BranchType::BT_NOT_BRANCH )
 			,   Access8000( false )
 		{
 		}

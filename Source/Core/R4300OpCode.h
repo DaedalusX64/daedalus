@@ -213,7 +213,7 @@ enum class ECop1Op
 
 };
 
-enum ECop1OpFunction
+enum class ECop1OpFunction
 {
 	Cop1OpFunc_ADD = 0,
 	Cop1OpFunc_SUB = 1,
@@ -224,19 +224,19 @@ enum ECop1OpFunction
 	Cop1OpFunc_MOV = 6,
 	Cop1OpFunc_NEG = 7,
 
-	Cop1OpFunc_ROUND_L = 8,
-	Cop1OpFunc_TRUNC_L = 9,
-	Cop1OpFunc_CEIL_L = 10,
-	Cop1OpFunc_FLOOR_L = 11,
-	Cop1OpFunc_ROUND_W = 12,
-	Cop1OpFunc_TRUNC_W = 13,
-	Cop1OpFunc_CEIL_W = 14,
+	Cop1OpFunc_ROUND_L = 8, // not implemented
+	Cop1OpFunc_TRUNC_L = 9, // not implemented
+	Cop1OpFunc_CEIL_L = 10, // not implemented
+	Cop1OpFunc_FLOOR_L = 11, // not implemented 
+	Cop1OpFunc_ROUND_W = 12, // not implemented
+	Cop1OpFunc_TRUNC_W = 13, 
+	Cop1OpFunc_CEIL_W = 14, // not implemented
 	Cop1OpFunc_FLOOR_W = 15,
 
 	Cop1OpFunc_CVT_S = 32,
 	Cop1OpFunc_CVT_D = 33,
 	Cop1OpFunc_CVT_W = 36,
-	Cop1OpFunc_CVT_L = 37,
+	Cop1OpFunc_CVT_L = 37, // not implemented
 
 	Cop1OpFunc_CMP_F = 48,
 	Cop1OpFunc_CMP_UN = 49,
@@ -257,7 +257,7 @@ enum ECop1OpFunction
 	Cop1OpFunc_CMP_NGT = 63,
 };
 
-enum ECop1BCOp
+enum class ECop1BCOp
 {
 	Cop1BCOp_BC1F = 0,
 	Cop1BCOp_BC1T = 1,

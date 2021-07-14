@@ -170,13 +170,13 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 	u32		branch_idx( INVALID_IDX );
 
 	ER4300BranchType	branch_type( usage.BranchType );
-	if( branch_type != BT_NOT_BRANCH )
+	if( branch_type != ER4300BranchType::BT_NOT_BRANCH )
 	{
 		SBranchDetails	details;
 
 		details.Likely = IsBranchTypeLikely( branch_type );
 
-		if( branch_type == BT_ERET )
+		if( branch_type == ER4300BranchType::BT_ERET )
 		{
 			stop_trace_on_exit = true;
 			details.Eret = true;
@@ -266,7 +266,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 	if( stop_trace_on_exit )
 	{
 		#ifdef DAEDALUS_ENABLE_ASSERTS
-		DAEDALUS_ASSERT( branch_type == BT_ERET || mActiveBranchIdx == INVALID_IDX, "Exiting trace while in the middle of handling branch!" );
+		DAEDALUS_ASSERT( branch_type == ER4300BranchType::BT_ERET || mActiveBranchIdx == INVALID_IDX, "Exiting trace while in the middle of handling branch!" );
 #endif
 		mTracing = false;
 		return UTS_CREATE_FRAGMENT;

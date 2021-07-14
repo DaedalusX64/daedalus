@@ -1584,37 +1584,37 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			{
 				switch( op_code.cop1_funct )
 				{
-				case Cop1OpFunc_ADD:	GenerateADD_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_SUB:	GenerateSUB_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_MUL:	GenerateMUL_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_DIV:	GenerateDIV_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_SQRT:	GenerateSQRT_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
-				case Cop1OpFunc_ABS:	GenerateABS_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
-				case Cop1OpFunc_MOV:	GenerateMOV_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
-				case Cop1OpFunc_NEG:	GenerateNEG_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_ADD):	GenerateADD_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_SUB):	GenerateSUB_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_MUL):	GenerateMUL_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_DIV):	GenerateDIV_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_SQRT):	GenerateSQRT_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_ABS):	GenerateABS_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_MOV):	GenerateMOV_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_NEG):	GenerateNEG_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
 
-				case Cop1OpFunc_TRUNC_W:	GenerateTRUNC_W_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_TRUNC_W):	GenerateTRUNC_W_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
 
-				case Cop1OpFunc_CVT_W:		GenerateCVT_W_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
-				case Cop1OpFunc_CVT_S:		GenerateCVT_S_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_W):		GenerateCVT_W_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_S):		GenerateCVT_S_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
 
-				case Cop1OpFunc_CMP_F:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_F, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_UN:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_UN, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_EQ:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_EQ, op_code.ft ); handled = true; break;	//Conker has issues with this
-				case Cop1OpFunc_CMP_UEQ:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_UEQ, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_OLT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_OLT, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_ULT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_ULT, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_OLE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_OLE, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_ULE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_ULE, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_F):		GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_F, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_UN):		GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_UN, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_EQ):		GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_EQ, op_code.ft ); handled = true; break;	//Conker has issues with this
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_UEQ):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_UEQ, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_OLT):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_OLT, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_ULT):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_ULT, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_OLE):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_OLE, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_ULE):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_ULE, op_code.ft ); handled = true; break;
 
-				case Cop1OpFunc_CMP_SF:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_SF, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_NGLE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGLE, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_SEQ:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_SEQ, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_NGL:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGL, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_LT:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_LT, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_NGE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGE, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_LE:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_LE, op_code.ft ); handled = true; break;
-				case Cop1OpFunc_CMP_NGT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGT, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_SF):		GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_SF, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_NGLE):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_NGLE, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_SEQ):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_SEQ, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_NGL):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_NGL, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_LT):		GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_LT, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_NGE):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_NGE, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_LE):		GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_LE, op_code.ft ); handled = true; break;
+				case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_NGT):	GenerateCMP_D_Sim( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_NGT, op_code.ft ); handled = true; break;
 				default:
 					break;	//call Generic4300
 				}
@@ -1628,50 +1628,50 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		case static_cast<u32>(ECop1Op::Cop1Op_SInstr):
 			switch( op_code.cop1_funct )
 			{
-			case Cop1OpFunc_ADD:	GenerateADD_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_SUB:	GenerateSUB_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_MUL:	GenerateMUL_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_DIV:	GenerateDIV_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_SQRT:	GenerateSQRT_S( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_ABS:	GenerateABS_S( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_MOV:	GenerateMOV_S( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_NEG:	GenerateNEG_S( op_code.fd, op_code.fs ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_ADD):	GenerateADD_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_SUB):	GenerateSUB_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_MUL):	GenerateMUL_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_DIV):	GenerateDIV_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_SQRT):	GenerateSQRT_S( op_code.fd, op_code.fs ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_ABS):	GenerateABS_S( op_code.fd, op_code.fs ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_MOV):	GenerateMOV_S( op_code.fd, op_code.fs ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_NEG):	GenerateNEG_S( op_code.fd, op_code.fs ); handled = true; break;
 
-			case Cop1OpFunc_TRUNC_W:	GenerateTRUNC_W_S( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_FLOOR_W:	GenerateFLOOR_W_S( op_code.fd, op_code.fs ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_TRUNC_W):	GenerateTRUNC_W_S( op_code.fd, op_code.fs ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_FLOOR_W):	GenerateFLOOR_W_S( op_code.fd, op_code.fs ); handled = true; break;
 
-			case Cop1OpFunc_CVT_W:		GenerateCVT_W_S( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_CVT_D:		if( gDynarecDoublesOptimisation & !g_ROM.DISABLE_SIM_CVT_D_S ) GenerateCVT_D_S_Sim( op_code.fd, op_code.fs );	//Sim has issues with EWJ/Tom&Jerry/PowerPuffGirls
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_W):		GenerateCVT_W_S( op_code.fd, op_code.fs ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_D):		if( gDynarecDoublesOptimisation & !g_ROM.DISABLE_SIM_CVT_D_S ) GenerateCVT_D_S_Sim( op_code.fd, op_code.fs );	//Sim has issues with EWJ/Tom&Jerry/PowerPuffGirls
 										else GenerateCVT_D_S( op_code.fd, op_code.fs );
 										handled = true;
 										break;
 
-			case Cop1OpFunc_CMP_F:		GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_F, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_UN:		GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_UN, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_EQ:		GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_EQ, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_UEQ:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_UEQ, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_OLT:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_OLT, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_ULT:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_ULT, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_OLE:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_OLE, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_ULE:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_ULE, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_F):		GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_F, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_UN):		GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_UN, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_EQ):		GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_EQ, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_UEQ):	GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_UEQ, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_OLT):	GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_OLT, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_ULT):	GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_ULT, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_OLE):	GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_OLE, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_ULE):	GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_ULE, op_code.ft ); handled = true; break;
 
-			case Cop1OpFunc_CMP_SF:		GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_SF, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_NGLE:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_NGLE, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_SEQ:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_SEQ, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_NGL:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_NGL, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_LT:		GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_LT, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_NGE:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_NGE, op_code.ft ); handled = true; break;
-			case Cop1OpFunc_CMP_LE:		GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_LE, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_SF):		GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_SF, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_NGLE):	GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_NGLE, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_SEQ):	GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_SEQ, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_NGL):	GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_NGL, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_LT):		GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_LT, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_NGE):	GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_NGE, op_code.ft ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_LE):		GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_LE, op_code.ft ); handled = true; break;
 			//This breaks D64, but I think is a bug somewhere else since interpreter trows fp nan exception in Cop1_S_NGT
-			case Cop1OpFunc_CMP_NGT:	if(g_ROM.GameHacks != DK64)	{GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_NGT, op_code.ft ); handled = true;} break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CMP_NGT):	if(g_ROM.GameHacks != DK64)	{GenerateCMP_S( op_code.fs, ECop1OpFunction::Cop1OpFunc_CMP_NGT, op_code.ft ); handled = true;} break;
 			}
 			break;
 
 		case static_cast<u32>(ECop1Op::Cop1Op_WInstr):
 			switch( op_code.cop1_funct )
 			{
-			case Cop1OpFunc_CVT_S:	GenerateCVT_S_W( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_CVT_D:	if( gDynarecDoublesOptimisation ) { GenerateCVT_D_W_Sim( op_code.fd, op_code.fs ); handled = true; } break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_S):	GenerateCVT_S_W( op_code.fd, op_code.fs ); handled = true; break;
+			case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_D):	if( gDynarecDoublesOptimisation ) { GenerateCVT_D_W_Sim( op_code.fd, op_code.fs ); handled = true; } break;
 			}
 			break;
 
@@ -1679,11 +1679,11 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			switch( op_code.cop1_bc )
 			{
 				// These can be handled by the same Generate function, as the 'likely' bit is handled elsewhere
-			case Cop1BCOp_BC1F:
-			case Cop1BCOp_BC1FL:
+		case static_cast<u32>(ECop1BCOp::Cop1BCOp_BC1F):
+		case static_cast<u32>(ECop1BCOp::Cop1BCOp_BC1FL):
 				GenerateBC1F( p_branch, p_branch_jump ); handled = true; break;
-			case Cop1BCOp_BC1T:
-			case Cop1BCOp_BC1TL:
+		case static_cast<u32>(ECop1BCOp::Cop1BCOp_BC1T):
+		case static_cast<u32>(ECop1BCOp::Cop1BCOp_BC1TL):
 				GenerateBC1T( p_branch, p_branch_jump ); handled = true; break;
 			}
 			break;

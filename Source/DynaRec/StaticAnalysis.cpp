@@ -82,36 +82,36 @@ void StaticAnalysis_Special_TNE( OpCode op_code, RegisterUsage & recorder ) {}
 void StaticAnalysis_J( OpCode op_code, RegisterUsage & recorder ) 				// Jump
 {
 	// No registers used
-	recorder.BranchOP( BT_J );
+	recorder.BranchOP( ER4300BranchType::BT_J );
 }
 
 void StaticAnalysis_JAL( OpCode op_code, RegisterUsage & recorder ) 				// Jump And Link
 {
-	recorder.BranchOP( BT_JAL );
+	recorder.BranchOP( ER4300BranchType::BT_JAL );
 	recorder.Record( RegDstUse( N64Reg_RA ) );
 }
 
 void StaticAnalysis_BEQ( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Equal
 {
-	recorder.BranchOP( BT_BEQ );
+	recorder.BranchOP( ER4300BranchType::BT_BEQ );
 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
 void StaticAnalysis_BNE( OpCode op_code, RegisterUsage & recorder )             // Branch on Not Equal
 {
-	recorder.BranchOP( BT_BNE );
+	recorder.BranchOP( ER4300BranchType::BT_BNE );
 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
 void StaticAnalysis_BLEZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than of Equal to Zero
 {
-	recorder.BranchOP( BT_BLEZ );
+	recorder.BranchOP( ER4300BranchType::BT_BLEZ );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_BGTZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than Zero
 {
-	recorder.BranchOP( BT_BGTZ );
+	recorder.BranchOP( ER4300BranchType::BT_BGTZ );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
@@ -167,25 +167,25 @@ void StaticAnalysis_LUI( OpCode op_code, RegisterUsage & recorder ) 				// Load 
 
 void StaticAnalysis_BEQL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Equal Likely
 {
-	recorder.BranchOP( BT_BEQL );
+	recorder.BranchOP( ER4300BranchType::BT_BEQL );
 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
 void StaticAnalysis_BNEL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Not Equal Likely
 {
-	recorder.BranchOP( BT_BNEL );
+	recorder.BranchOP( ER4300BranchType::BT_BNEL );
 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
 void StaticAnalysis_BLEZL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Less than or Equal to Zero Likely
 {
-	recorder.BranchOP( BT_BLEZL );
+	recorder.BranchOP( ER4300BranchType::BT_BLEZL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_BGTZL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Greater than Zero Likely
 {
-	recorder.BranchOP( BT_BGTZL );
+	recorder.BranchOP( ER4300BranchType::BT_BGTZL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
@@ -384,13 +384,13 @@ void StaticAnalysis_Special_SRAV( OpCode op_code, RegisterUsage & recorder ) 		/
 
 void StaticAnalysis_Special_JR( OpCode op_code, RegisterUsage & recorder ) 			// Jump Register
 {
-	recorder.BranchOP( BT_JR );
+	recorder.BranchOP( ER4300BranchType::BT_JR );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_Special_JALR( OpCode op_code, RegisterUsage & recorder ) 		// Jump and Link register
 {
-	recorder.BranchOP( BT_JALR );
+	recorder.BranchOP( ER4300BranchType::BT_JALR );
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ) );
 }
 
@@ -583,37 +583,37 @@ void StaticAnalysis_Special_DSRA32( OpCode op_code, RegisterUsage & recorder ) 	
 
 void StaticAnalysis_RegImm_BLTZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than Zero
 {
-	recorder.BranchOP( BT_BLTZ );
+	recorder.BranchOP( ER4300BranchType::BT_BLTZ );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BLTZL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than Zero Likely
 {
-	recorder.BranchOP( BT_BLTZL );
+	recorder.BranchOP( ER4300BranchType::BT_BLTZL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BLTZAL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Less than Zero And Link
 {
-	recorder.BranchOP( BT_BLTZAL );
+	recorder.BranchOP( ER4300BranchType::BT_BLTZAL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BGEZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than or Equal to Zero
 {
-	recorder.BranchOP( BT_BGEZ );
+	recorder.BranchOP( ER4300BranchType::BT_BGEZ );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BGEZL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than or Equal to Zero Likely
 {
-	recorder.BranchOP( BT_BGEZL );
+	recorder.BranchOP( ER4300BranchType::BT_BGEZL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BGEZAL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Greater than or Equal to Zero And Link
 {
-	recorder.BranchOP( BT_BGEZAL );
+	recorder.BranchOP( ER4300BranchType::BT_BGEZAL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
@@ -646,7 +646,7 @@ void StaticAnalysis_TLB_TLBP( OpCode op_code, RegisterUsage & recorder ) 				// 
 
 void StaticAnalysis_TLB_ERET( OpCode op_code, RegisterUsage & recorder )
 {
-	recorder.BranchOP( BT_ERET );
+	recorder.BranchOP( ER4300BranchType::BT_ERET );
 }
 
 void StaticAnalysis_Cop1_MTC1( OpCode op_code, RegisterUsage & recorder )
@@ -685,22 +685,22 @@ void StaticAnalysis_Cop1_CTC1( OpCode op_code, RegisterUsage & recorder ) 		// m
 
 void StaticAnalysis_BC1_BC1F( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU False
 {
-	recorder.BranchOP( BT_BC1F );
+	recorder.BranchOP( ER4300BranchType::BT_BC1F );
 }
 
 void StaticAnalysis_BC1_BC1T( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU True
 {
-	recorder.BranchOP( BT_BC1T );
+	recorder.BranchOP( ER4300BranchType::BT_BC1T );
 }
 
 void StaticAnalysis_BC1_BC1FL( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU False Likely
 {
-	recorder.BranchOP( BT_BC1FL );
+	recorder.BranchOP( ER4300BranchType::BT_BC1FL );
 }
 
 void StaticAnalysis_BC1_BC1TL( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU True Likely
 {
-	recorder.BranchOP( BT_BC1TL );
+	recorder.BranchOP( ER4300BranchType::BT_BC1TL );
 }
 
 void StaticAnalysis_Cop1_W_CVT_S( OpCode op_code, RegisterUsage & recorder )
@@ -719,10 +719,10 @@ void StaticAnalysis_Cop1_WInstr( OpCode op_code, RegisterUsage & recorder )
 {
 	switch ( op_code.cop1_funct )
 	{
-		case Cop1OpFunc_CVT_S:
+		case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_S):
 			StaticAnalysis_Cop1_W_CVT_S( op_code, recorder );
 			return;
-		case Cop1OpFunc_CVT_D:
+		case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_D):
 			StaticAnalysis_Cop1_W_CVT_D( op_code, recorder );
 			return;
 	}
@@ -744,10 +744,10 @@ void StaticAnalysis_Cop1_LInstr( OpCode op_code, RegisterUsage & recorder )
 {
 	switch ( op_code.cop1_funct )
 	{
-		case Cop1OpFunc_CVT_S:
+		case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_S):
 			StaticAnalysis_Cop1_L_CVT_S( op_code, recorder );
 			return;
-		case Cop1OpFunc_CVT_D:
+		case static_cast<u32>(ECop1OpFunction::Cop1OpFunc_CVT_D):
 			StaticAnalysis_Cop1_L_CVT_D( op_code, recorder );
 			return;
 	}
@@ -1158,7 +1158,7 @@ namespace StaticAnalysis
 
 void Analyse( OpCode op_code, RegisterUsage & reg_usage )
 {
-	reg_usage.BranchOP( BT_NOT_BRANCH );
+	reg_usage.BranchOP( ER4300BranchType::BT_NOT_BRANCH );
 	gStaticAnalysisInstruction[ op_code.op ]( op_code, reg_usage );
 }
 

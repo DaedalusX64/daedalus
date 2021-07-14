@@ -361,7 +361,7 @@ CFragment * CFragment::Simulate()
 		}
 	}
 #ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( (GetBranchType(last_executed_op) == BT_NOT_BRANCH) || branch_idx_taken != INVALID_IDX, "The last instruction was a branch, but no branch index on exit" );
+	DAEDALUS_ASSERT( (GetBranchType(last_executed_op) == ER4300BranchType::BT_NOT_BRANCH) || branch_idx_taken != INVALID_IDX, "The last instruction was a branch, but no branch index on exit" );
 #endif
 	//
 	//	Now we're leaving the fragment, handle the exit stubs
