@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //This is disabled, it doesn't work well, causes random deadlocks/Lock failures :(
 //Would be nice to get it working correctly, since running audio in the main thread is abit jerky
-//#define AUDIO_THREADED
+#define AUDIO_THREADED
 
 #define NUMCAPTUREEVENTS	3
 #define BufferSize			0x3000
