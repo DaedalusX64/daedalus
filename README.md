@@ -264,7 +264,3 @@ There are still some things that need to be moved, like the PSP PRX sources but 
 | **MotoLegacy** | Help on Icon and improvements |
 
 Thank you for everyone who has supported us along the way. The realise would not have been possible without your help!.
-
-### Thanks
-
-[Thanks](pic/Thanks.txt)
