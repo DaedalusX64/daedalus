@@ -39,24 +39,6 @@ inline const T & Min( const T & a, const T & b )
 	return b;
 }
 
-template< typename T >
-inline void Swap( T & a, T & b )
-{
-	T t = a;
-	a = b;
-	b = t;
-}
-
-inline float Interpolate( float a, float b, float r )
-{
-	return a + r * (b - a);
-}
-
-template< typename T >
-inline T Square( T x )
-{
-	return x * x;
-}
 
 template< typename T >
 inline T Clamp( T x, T lo, T hi )

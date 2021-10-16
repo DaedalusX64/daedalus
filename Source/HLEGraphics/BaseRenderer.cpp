@@ -404,7 +404,8 @@ bool BaseRenderer::TestVerts(u32 v0, u32 vn) const
 	}
 
 	if (vn < v0)
-		Swap< u32 >( vn, v0 );
+	std::swap(vn, v0);
+	//	Swap< u32 >( vn, v0 );
 
 	u32 flags =  mVtxProjected[v0].ClipFlags;
 	for (u32 i = (v0+1); i <= vn; i++)

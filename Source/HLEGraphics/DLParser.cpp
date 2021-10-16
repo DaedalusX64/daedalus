@@ -1007,10 +1007,15 @@ void Clear_N64DepthBuffer( MicroCodeCommand command )
 	u32 y0 = command.fillrect.y0;
 
 	// Using s32 to force min/max to be done in a single op code for the PSP
-	x0 = Min<s32>(Max<s32>(x0, scissors.left), scissors.right);
-	x1 = Min<s32>(Max<s32>(x1, scissors.left), scissors.right);
-	y1 = Min<s32>(Max<s32>(y1, scissors.top), scissors.bottom);
-	y0 = Min<s32>(Max<s32>(y0, scissors.top), scissors.bottom);
+	x0 = std::min(std::max(x0, scissors.left), scissors.right);
+	x1 = std::min(std::max(x0, scissors.left), scissors.right);
+	y0 = std::min(std::max(y0, scissors.top), scissors.bottom);
+	y1 = std::min(std::max(y1, scissors.top), scissors.bottom);
+	
+	//x0 = Min<s32>(Max<s32>(x0, scissors.left), scissors.right);
+	// x1 = Min<s32>(Max<s32>(x1, scissors.left), scissors.right);
+	// y1 = Min<s32>(Max<s32>(y1, scissors.top), scissors.bottom);
+	// y0 = Min<s32>(Max<s32>(y0, scissors.top), scissors.bottom);
 	x0 >>= 1;
 	x1 >>= 1;
 	u32 zi_width_in_dwords = g_CI.Width >> 1;

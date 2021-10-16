@@ -244,7 +244,8 @@ extern void initExceptionHandler();
 	if ( kuKernelGetModel() > 0 )
 	{
 		// Can't use extra memory if ME isn't available
-		PSP_IS_SLIM = bMeStarted;
+		PSP_IS_SLIM = true;
+		//PSP_IS_SLIM = bMeStarted;
 
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)

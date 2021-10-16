@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_UCODES_UCODE_S2DEX_H_
 #define HLEGRAPHICS_UCODES_UCODE_S2DEX_H_
 
+#include <utility>
+
 //*****************************************************************************
 // Needed by S2DEX
 //*****************************************************************************
@@ -326,10 +328,12 @@ static void Draw_ObjSprite( const uObjSprite *sprite )
 
 		// Used by Worms
 		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPS)
-			Swap< f32 >( x0, x1 );
+			std::swap(x0,x1);
+			//Swap< f32 >( x0, x1 );
 
 		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPT)
-			Swap< f32 >( y0, y1 );
+		std::swap(y0,y1);
+			//Swap< f32 >( y0, y1 );
 
 		gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 		break;
@@ -352,10 +356,12 @@ static void Draw_ObjSprite( const uObjSprite *sprite )
 
 		// Used by Worms
 		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPS)
-			Swap< f32 >( x0, x1 );
+			std::swap(x0,x1);
+			//Swap< f32 >( x0, x1 );
 
 		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPT)
-			Swap< f32 >( y0, y1 );
+		std::swap(y0,y1);
+		//	Swap< f32 >( y0, y1 );
 
 		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		break;

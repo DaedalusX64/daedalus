@@ -10,7 +10,7 @@
 # PSP_RELEASE - Builds PSP Release
 
 cmake_minimum_required(VERSION 3.7)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 project (DaedalusX64)
 
 				#Default Files for build
@@ -51,7 +51,6 @@ project (DaedalusX64)
 
 
 				set (PSP_BUILD ${PSP_DEBUG_FILES} ${PSP_DVEMGR_FILES} ${PSP_DYNAREC_FILES} ${PSP_GRAPHICS_FILES} ${PSP_HLEAUDIO_FILES} ${PSP_HLEGRAPHICS_FILES} ${PSP_INPUTMANAGER_FILES} ${PSP_KERNELBUTTON_FILES} ${PSP_MEDIAENGINEFILES} ${PSP_UI_FILES} ${PSP_UTILITY_FILES})
-				Set(PSPSDK_LIBS -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lpsplibc -lpsputility -lpspuser -lpspkernel -lpspaudiolib)
 
 
 				#Handle .S files - Probably a better way to do this
@@ -115,16 +114,13 @@ else()
 endif(DEBUG)
 
 if (PSP)
-	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
+
 	add_definitions(-DDAEDALUS_PSP)
-	#add_library(pspkubridge STATIC IMPORTED)
-	#set_property(TARGET pspkubridge PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/SysPSP/Include/lib/libpspkubridge.a)
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
 	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
 #	set_target_properties(daedalus.elf PROPERTIES LINK_FLAGS "-specs=${PSPSDK}/lib/prxspecs -Wl,-q,-T${PSPSDK}/lib/linkfile.prx ${PSPSDK}/lib/prxexports.o -L${PSPSDK}/lib")
-	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lpng -lz -lc -lg -lm -lpspfpu -lintrafont -lpspkubridge ${PSPSDK_LIBS})
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lpng -lz -lc -lg -lm -lpspfpu -lintrafont -lpspkubridge)
 endif (PSP)
 
 

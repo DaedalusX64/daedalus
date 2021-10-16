@@ -339,7 +339,8 @@ static inline u16 GetTextureDimension( u16 tile_dimension, u8 mask, bool clamp )
 		// smaller of the mask dimension and the tile dimension.
 		if (clamp)
 		{
-			return Min< u16 >( mask_dimension, tile_dimension );
+			return std::min(mask_dimension, tile_dimension);
+			// return Min< u16 >( mask_dimension, tile_dimension );
 		}
 
 		return mask_dimension;
