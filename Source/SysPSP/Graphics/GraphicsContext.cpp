@@ -579,9 +579,8 @@ void IGraphicsContext::DumpScreenShot()
 //*****************************************************************************
 void IGraphicsContext::StoreSaveScreenData()
 {
-	s32 bufferwidth;
-	s32 pixelformat;
-	s32 unknown = 0;
+	int bufferwidth;
+	int pixelformat;
 
 	void * buffer;
 	char pngbuffer[128*1024];
@@ -612,7 +611,7 @@ void IGraphicsContext::StoreSaveScreenData()
 	s32	x( (frame_width - display_width)/2 );
 	s32	y( (frame_height - display_height)/2 );
 
-	sceDisplayGetFrameBuf( &buffer, &bufferwidth, &pixelformat, unknown );
+	sceDisplayGetFrameBuf( &buffer, &bufferwidth, &pixelformat, 0 );
 
 	ETextureFormat		texture_format;
 	u32	bpp;
