@@ -30,7 +30,7 @@ static const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 	0x16,		// TP_TIME_CRITICAL
 };
 
-const s32	kInvalidThreadHandle = -1;
+const ThreadHandle kInvalidThreadHandle = -1;
 
 struct SDaedThreadDetails
 {
@@ -59,7 +59,7 @@ static int StartThreadFunc( SceSize args, void *argp )
 	return result;
 }
 
-s32		CreateThread( const char * name, DaedThread function, void * argument )
+ThreadHandle CreateThread( const char * name, DaedThread function, void * argument )
 {
 	s32	thid( ::sceKernelCreateThread( name, StartThreadFunc, gThreadPriorities[TP_NORMAL], 0x10000, 0, nullptr ) );
 
