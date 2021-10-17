@@ -101,101 +101,20 @@ extern int PSP_TV_CABLE;
 extern int PSP_TV_LACED;
 
 
-bool g32bitColorMode = false;
+bool g32bitColorMode = false; // We might be able to ditch this soon. Phat exclusive.
 bool PSP_IS_SLIM = false;
 
-PSP_MODULE_INFO( DaedalusX64 1.1.8, 0, 1, 1 );
+PSP_MODULE_INFO( DaedalusX64 1.1.9a, 0, 1, 1 );
 PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 PSP_HEAP_SIZE_KB(-256);
 
 
-static void DaedalusFWCheck()
-{
-// ##define PSP_FIRMWARE Borrowed from Davee
-#define PSP_FIRMWARE(f) ((((f >> 8) & 0xF) << 24) | (((f >> 4) & 0xF) << 16) | ((f & 0xF) << 8) | 0x10)
-
-	u32 ver = sceKernelDevkitVersion();
-
-	if( (ver < PSP_FIRMWARE(0x401)) )
-	{
-		pspDebugScreenInit();
-		pspDebugScreenSetTextColor(0xffffff);
-		pspDebugScreenSetBackColor(0x000000);
-		pspDebugScreenSetXY(0, 0);
-		pspDebugScreenClear();
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Unsupported Firmware Detected : 0x%08X\n", ver );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Daedalus requires at least Firmware 4.01 M33\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
-		sceKernelDelayThread(1000000);
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf("\nPress O to Exit or [] to Ignore");
-		for (;;)
-		{
-			SceCtrlData pad;
-			sceCtrlPeekBufferPositive(&pad, 1);
-			if (pad.Buttons & PSP_CTRL_CIRCLE)
-				break;
-			if (pad.Buttons & PSP_CTRL_SQUARE)
-				return;
-		}
-		sceKernelExitGame();
-	}
-
-}
-
-static void DaedalusVitaCheck()
-{
-	int vitaprx = sceIoOpen("flash0:/kd/registry.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
-	if(vitaprx >= 0){
-	{
-		pspDebugScreenInit();
-		pspDebugScreenSetTextColor(0xffffff);
-		pspDebugScreenSetBackColor(0x000000);
-		pspDebugScreenSetXY(0, 0);
-		pspDebugScreenClear();
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "The Playstation Vita has a native version of Daedalus.\n");
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "Vita support has been deprecated from the PSP build and is no longer supported\n");
-		pspDebugScreenPrintf( "Please visit https://github.com/rinnegatamante/daedalusx64-vita for Vita builds\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
-		sceKernelDelayThread(1000000);
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf("\nPress O to Exit or [] to Ignore");
-		for (;;)
-		{
-			SceCtrlData pad;
-			sceCtrlPeekBufferPositive(&pad, 1);
-			if (pad.Buttons & PSP_CTRL_CIRCLE)
-				break;
-			if (pad.Buttons & PSP_CTRL_SQUARE)
-				return;
-		}
-		sceKernelExitGame();
-	}
-
-  }
-}
-
 
 extern bool InitialiseJobManager();
-//*************************************************************************************
-//
-//*************************************************************************************
+
 static bool	Initialize()
 {
+	
 	strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
 
 	scePowerSetClockFrequency(333, 333, 166);
@@ -203,16 +122,11 @@ static bool	Initialize()
 
 	// If (o) is pressed during boot the Emulator will use 32bit
 	// else use default 16bit color mode
-	SceCtrlData pad;
-	sceCtrlPeekBufferPositive(&pad, 1);
-	if( pad.Buttons & PSP_CTRL_CIRCLE ) g32bitColorMode = true;
-	else g32bitColorMode = false;
+	// SceCtrlData pad;
+	// sceCtrlPeekBufferPositive(&pad, 1);
+	// if( pad.Buttons & PSP_CTRL_CIRCLE ) g32bitColorMode = true;
+	// else g32bitColorMode = false;
 
-	// Check for firmware lower than 4.01
-	DaedalusFWCheck();
-
-	// Check for PSVita in PSP Mode
-	DaedalusVitaCheck();
 
 	// Initiate MediaEngine
 	//Note: Media Engine is not available for Vita
@@ -221,9 +135,7 @@ static bool	Initialize()
 // Disable for profiling
 //	srand(time(0));
 
-	//Set the debug output to default
-	if( g32bitColorMode ) pspDebugScreenInit();
-	else pspDebugScreenInitEx( NULL , GU_PSM_5650, 1); //Sets debug output to 16bit mode
+
 
 // This Breaks gdb, better disable it in debug build
 //
@@ -245,7 +157,7 @@ extern void initExceptionHandler();
 	{
 		// Can't use extra memory if ME isn't available
 		PSP_IS_SLIM = true;
-		//PSP_IS_SLIM = bMeStarted;
+		g32bitColorMode = true;
 
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
@@ -255,6 +167,10 @@ extern void initExceptionHandler();
 		else if( PSP_TV_CABLE == 0 )
 			CModule::Unload( HAVE_DVE );	// Stop and unload dvemgr.prx since if no video cable is connected
 	}
+
+	//Set the debug output to default
+	if( g32bitColorMode ) pspDebugScreenInit();
+	else pspDebugScreenInitEx( NULL , GU_PSM_5650, 1); //Sets debug output to 16bit mode
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
 
@@ -269,11 +185,8 @@ extern void initExceptionHandler();
 	return true;
 }
 
-
 #ifdef DAEDALUS_PROFILE_EXECUTION
-//*************************************************************************************
-//
-//*************************************************************************************
+
 static void	DumpDynarecStats( float elapsed_time )
 {
 	// Temp dynarec stats
@@ -326,9 +239,7 @@ static void	DumpDynarecStats( float elapsed_time )
 #include "HLEGraphics/DLParser.h"
 #include "HLEGraphics/DisplayListDebugger.h"
 #endif
-//*************************************************************************************
-//
-//*************************************************************************************
+
 #ifdef DAEDALUS_PROFILE_EXECUTION
 static CTimer		gTimer;
 #endif
