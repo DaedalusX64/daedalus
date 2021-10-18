@@ -146,9 +146,10 @@ void SET_ROUND_MODE( ERoundingMode mode )
 
 // If the hardware doesn't support doubles in hardware - use 32 bits floats and accept the loss in precision
 #ifdef SIM_DOUBLES
-typedef f32 d64;
+using d64 = f32;
+
 #else
-typedef f64 d64;
+using d64 = f64;
 #endif
 
 
