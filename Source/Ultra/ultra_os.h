@@ -30,9 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 
+using OSPri = s32;
+using OSId = s32;
 
-typedef s32	OSPri;
-typedef s32	OSId;
 typedef
 	union
 	{
@@ -70,17 +70,16 @@ typedef struct OSThread_s
 	__OSThreadContext	context;		// register/interrupt mask
 } OSThread;
 
-typedef u32 OSEvent;
-typedef u32 OSIntMask;
-typedef u32 OSPageMask;
-typedef u32 OSHWIntr;
+using OSEvent = u32;
+using OSIntMask = u32;
+using OSPageMask = u32;
+using OSHWIntr = u32;
 
 
 //
 // Structure for message
 //
-typedef void *	OSMesg;
-
+using OSMesg = void *;
 //
 // Structure for message queue
 //
@@ -158,7 +157,7 @@ typedef struct {
 //
 // Structure for time value
 //
-typedef u64	OSTime;
+using OSTime = u64;
 
 //
 // Structure for interval timer

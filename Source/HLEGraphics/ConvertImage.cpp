@@ -89,7 +89,7 @@ template<> struct SSwizzleInfo< 4 >
 template < typename OutT >
 struct SConvertGeneric
 {
-typedef void (*ConvertRowFunction)( OutT * dst, const u8 * src, u32 src_offset, u32 width );
+	using ConvertRowFunction = void (*) ( OutT * dst, const u8 * src, u32 src_offset, u32 width );
 
 
 static void ConvertGeneric( const TextureDestInfo & dsti,
@@ -132,8 +132,8 @@ static void ConvertGeneric( const TextureDestInfo & dsti,
 }
 
 };
+using ConvertPalettisedRowFunction = void (*)( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const NativePf8888 * palette );
 
-typedef void (*ConvertPalettisedRowFunction)( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const NativePf8888 * palette );
 
 static void ConvertPalettisedTo8888( const TextureDestInfo & dsti, const TextureInfo & ti,
 									 const NativePf8888 * palette,
@@ -634,8 +634,8 @@ static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 }
 
 } // anonymous namespace
+using ConvertFunction = void (*)( const TextureDestInfo & dsti, const TextureInfo & ti);
 
-typedef void ( *ConvertFunction )( const TextureDestInfo & dsti, const TextureInfo & ti);
 static const ConvertFunction gConvertFunctions[ 32 ] =
 {
 	// 4bpp          8bpp              16bpp				32bpp

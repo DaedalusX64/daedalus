@@ -70,7 +70,8 @@ EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression,
 //
 //	Use this api to override the default assert handler, e.g. for logging asserts during a batch process
 //
-typedef EAssertResult (*DaedalusAssertHook)( const char * expression, const char * file, unsigned int line, const char * formatted_msg, ... );
+using DaedalusAssertHook = EAssertResult (*)( const char * expression, const char * file, unsigned int line, const char * formatted_msg, ... );
+// typedef EAssertResult (*DaedalusAssertHook)( const char * expression, const char * file, unsigned int line, const char * formatted_msg, ... );
 
 extern DaedalusAssertHook gAssertHook;
 

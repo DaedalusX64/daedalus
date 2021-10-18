@@ -55,15 +55,15 @@ struct SFragmentPatchDetails
 	u32				Address;
 	CJumpLocation	Jump;
 };
-typedef std::vector<SFragmentPatchDetails>	FragmentPatchList;
+using FragmentPatchList = std::vector<SFragmentPatchDetails>;
 
 //*************************************************************************************
 //
 //*************************************************************************************
 class CFragment
 {
-	typedef std::vector<STraceEntry>		TraceBuffer;
-	typedef std::vector<SBranchDetails>		BranchBuffer;
+	using TraceBuffer = std::vector<STraceEntry>;
+	using BranchBuffer = std::vector<SBranchDetails>;
 public:
 		CFragment( CCodeBufferManager * p_manager, u32 entry_address, u32 exit_address,
 			const TraceBuffer & trace, SRegisterUsageInfo &	register_usage, const BranchBuffer & branch_details, bool need_indirect_exit_map );

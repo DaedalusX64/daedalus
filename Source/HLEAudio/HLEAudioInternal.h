@@ -394,7 +394,7 @@ struct AudioHLECommand
 };
 //DAEDALUS_STATIC_ASSERT( sizeof( AudioHLECommand ) == 8 );
 
-typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
+using AudioHLEInstruction = void (*) (AudioHLECommand command);
 
 // ABI_BUFFER
 void CLEARBUFF(AudioHLECommand command ); void CLEARBUFF2(AudioHLECommand command); void CLEARBUFF3(AudioHLECommand command);

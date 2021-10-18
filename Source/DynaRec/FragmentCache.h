@@ -106,16 +106,15 @@ private:
 		u32			Address;
 		CFragment *	Fragment;
 	};
+	using FragmentVec = std::vector<SFragmentEntry>;
 
-	typedef std::vector< SFragmentEntry >	FragmentVec;
 	FragmentVec				mFragments;			// Sorted on Address
 
 	u32						mMemoryUsage;
 	u32						mInputLength;
 	u32						mOutputLength;
-
-	typedef std::vector< CJumpLocation >	JumpList;
-	typedef std::map< u32, JumpList >		JumpMap;
+	using JumpList = std::vector< CJumpLocation >;
+	using JumpMap = std::map< u32, JumpList >;
 	JumpMap					mJumpMap;
 
 	mutable u32				mCachedFragmentAddress;

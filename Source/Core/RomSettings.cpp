@@ -134,8 +134,7 @@ class IRomSettingsDB : public CRomSettingsDB
 		void			OutputSectionDetails( const RomID & id, const RomSettings & settings, FILE * fh );
 
 	private:
-		typedef std::map<RomID, RomSettings>		SettingsMap;
-
+	using SettingsMap = std::map<RomID, RomSettings>;
 		SettingsMap				mSettings;
 
 		bool					mDirty;				// (STRMNNRMN - Changed since read from disk?)

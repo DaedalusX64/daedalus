@@ -86,7 +86,6 @@ struct CPUEvent
 #ifdef DAEDALUS_ENABLE_ASSERTS
 DAEDALUS_STATIC_ASSERT( sizeof( CPUEvent ) == 8 );
 #endif
-
 typedef REG64 register_32x64[32];
 typedef REG64 register_16x64[16];
 typedef REG32 register_32x32[32];
@@ -177,8 +176,8 @@ bool	CPU_IsRunning();
 void	CPU_AddEvent( s32 count, ECPUEventType event_type );
 void	CPU_SkipToNextEvent();
 bool	CPU_CheckStuffToDo();
+using VblCallbackFn = void(*) (void * arg);
 
-typedef void (*VblCallbackFn)(void * arg);
 void CPU_RegisterVblCallback(VblCallbackFn fn, void * arg);
 void CPU_UnregisterVblCallback(VblCallbackFn fn, void * arg);
 

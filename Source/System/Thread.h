@@ -24,10 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
+using DaedThread = u32 ( DAEDALUS_THREAD_CALL_TYPE * )(void * arg);
 
-typedef u32 ( DAEDALUS_THREAD_CALL_TYPE * DaedThread )( void * arg );
 
-typedef intptr_t ThreadHandle;
+using ThreadHandle = intptr_t;
+
 extern const ThreadHandle	kInvalidThreadHandle;
 
 enum EThreadPriority

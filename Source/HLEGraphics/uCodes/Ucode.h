@@ -21,8 +21,8 @@
 
 #include "stdafx.h"
 #include "HLEGraphics/uCodes/UcodeDefs.h"
+using MicroCodeInstruction = void (*)(MicroCodeCommand);
 
-typedef void(*MicroCodeInstruction)(MicroCodeCommand);
 #define UcodeFunc(name)	void name(MicroCodeCommand)
 
 extern const MicroCodeInstruction gNormalInstruction[5][256];

@@ -32,7 +32,7 @@ static u64 GetNow()
 class CProfileItem
 {
 	public:
-		typedef std::vector< CProfileItem * > ItemVector;
+	using ItemVector = std::vector< CProfileItem *>;
 
 		CProfileItem( const char * p_str )
 			:	mName( p_str )
@@ -130,13 +130,14 @@ class CProfilerImpl
 		CProfileCallstack *		GetActiveStats();
 
 	private:
-		typedef std::vector< CProfileItem * >			ProfileItemList;
-		typedef std::stack< CProfileItem * >			ProfileItemStack;
+	using ProfileItemList = std::vector< CProfileItem *>;
+	using ProfileItemStack = std::stack <CProfileItem *>;
 
 		std::vector< CProfileItem * >	mActiveItems;
 		std::vector< CProfileCallstack * >	mActiveCallstacks;
 
-		typedef std::map< u32, CProfileCallstack * >	CallstackStatsMap;
+	using CallstackStatsMap = std::map< u32, CProfileCallstack *>
+
 		CallstackStatsMap		mCallstackStatsMap;
 
 		f32						mFrequencyInv;

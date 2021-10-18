@@ -163,8 +163,8 @@ static u32 mCurrentSelection = 0;
 
 class IRomSelectorComponent : public CRomSelectorComponent
 {
-		typedef std::vector<SRomInfo*>	RomInfoList;
-		typedef std::map< ECategory, u32 >	AlphaMap;
+		using RomInfoList = std::vector<SRomInfo*>;
+		using AlphaMap = std::map< ECategory, u32 >;
 	public:
 
 		IRomSelectorComponent( CUIContext * p_context, CFunctor1< const char * > * on_rom_selected );

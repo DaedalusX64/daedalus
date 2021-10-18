@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DUMPOSFUNCTIONS
 #ifdef DAED_OS_MESSAGE_QUEUES
-typedef std::vector < u32 > QueueVector;
+using QueueVector = std::vector < u32 >
 extern QueueVector g_MessageQueues;
 #endif
 #endif

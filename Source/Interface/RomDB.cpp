@@ -156,10 +156,9 @@ class IRomDB : public CRomDB
 				return a.ID < b;
 			}
 		};
-
-		typedef std::vector< RomFilesKeyValue >	FilenameVec;
-		typedef std::vector< RomDetails >		DetailsVec;
-
+	using FilenameVec = std::vector< RomFilesKeyValue >;
+	using DetailsVec = std::vector< RomDetails >;
+	
 		IO::Filename					mRomDBFileName;
 		FilenameVec						mRomFiles;
 		DetailsVec						mRomDetails;

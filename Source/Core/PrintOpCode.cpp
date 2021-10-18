@@ -447,8 +447,7 @@ static void SprintRSPOp_Vop_VRSQL( char * str, u32 address, OpCode op );
 static void SprintRSPOp_Vop_VRSQH( char * str, u32 address, OpCode op );
 
 
-
-typedef void (*SprintOpInstruction)( char * str, u32 address, OpCode op );
+using SprintOpInstruction = void (*) ( char * str, u32 address, OpCode op );
 
 // Opcode Jump Table
 SprintOpInstruction SprintOp_Instructions[64] =

@@ -64,7 +64,7 @@ static const u32					gMaxFragmentCacheSize = (8192 + 1024); //Maximum amount of 
 static const u32					gMaxHotTraceMapSize = (2048 + TRACE_SIZE);
 static const u32					gHotTraceThreshold = 10;	//How many times interpreter has to loop a trace before it becomes hot and sent to dynarec
 
-//typedef CMemoryPoolAllocator< std::pair< const u32, u32 > > MyAllocator;
+
 //std::map< u32, u32, std::less<u32>, MyAllocator >				gHotTraceCountMap;
 //std::map< u32, u32, std::less<u32>, boost::pool_allocator<std::pair< const u32, u32 > > >				gHotTraceCountMap;
 std::map< u32, u32 >				gHotTraceCountMap {};

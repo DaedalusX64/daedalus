@@ -57,9 +57,8 @@ enum MEMBANKTYPE
 static const u32 MEMORY_4_MEG( 4*1024*1024 );
 static const u32 MEMORY_8_MEG( 8*1024*1024 );
 #define MAX_RAM_ADDRESS MEMORY_8_MEG
-
-typedef void * (*mReadFunction )( u32 address );
-typedef void (*mWriteFunction )( u32 address, u32 value );
+using mReadFunction = void * (*)(u32 address);
+using mWriteFunction = void(*)(u32 address, u32 value); 
 
 struct MemFuncWrite
 {
@@ -87,11 +86,11 @@ bool			Memory_Reset();
 void			Memory_Cleanup();
 
 
-typedef void * (*MemFastFunction )( u32 address );
-typedef void (*MemWriteValueFunction )( u32 address, u32 value );
+using MemFastFunction = void * (*)(u32 address);
+using MemWriteValueFunction = void (*)(u32 address, u32 value);
 
 #ifndef DAEDALUS_SILENT
-typedef bool (*InternalMemFastFunction)( u32 address, void ** p_translated );
+using InternalMemFastFunction = bool (*)(u32 address, void ** p_translated);
 #endif
 
 extern MemFuncRead  				g_MemoryLookupTableRead[0x4000];

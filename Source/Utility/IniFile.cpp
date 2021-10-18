@@ -123,7 +123,7 @@ class IIniFileSection : public CIniFileSection
 
 	private:
 
-		typedef std::vector< const IIniFileProperty * >	PropertyVec;
+using PropertyVec = std::vector< const IIniFileProperty*>;
 
 		struct SCompareProperties
 		{

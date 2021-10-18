@@ -41,8 +41,7 @@ struct SRegisterSpan
 	u32				SpanStart;
 	u32				SpanEnd;
 };
-typedef std::vector<SRegisterSpan>		RegisterSpanList;
-
+using RegisterSpanList = std::vector<SRegisterSpan>;
 
 
 //

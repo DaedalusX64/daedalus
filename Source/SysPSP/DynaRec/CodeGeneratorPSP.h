@@ -266,11 +266,10 @@ private:
 
 
 				void				GenerateGenericR4300( OpCode op_code, CPU_Instruction p_instruction );
+				using ReadMemoryFunction = u32 (*)(u32 address, u32 current_pc );
+				using WriteMemoryFunction = void (*)( u32 address, u32 value, u32 current_pc );
 
-				typedef u32 (*ReadMemoryFunction)( u32 address, u32 current_pc );
-				typedef void (*WriteMemoryFunction)( u32 address, u32 value, u32 current_pc );
-
-
+	
 				bool				GenerateDirectLoad( EPspReg psp_dst, EN64Reg n64_base, s16 offset, OpCodeValue load_op, u32 swizzle );
 				void				GenerateSlowLoad( u32 current_pc, EPspReg psp_dst, EPspReg reg_address, ReadMemoryFunction p_read_memory );
 				void				GenerateLoad( u32 current_pc, EPspReg psp_dst, EN64Reg n64_base, s16 offset, OpCodeValue load_op, u32 swizzle, ReadMemoryFunction p_read_memory );

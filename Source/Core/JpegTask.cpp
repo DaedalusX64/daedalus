@@ -40,8 +40,7 @@
 #include "Ultra/ultra_sptask.h"
 
 #define SUBBLOCK_SIZE 64
-
-typedef void (*tile_line_emitter_t)(const s16 *y, const s16 *u, u32 address);
+using tile_line_emitter_t = void (*)(const s16 *y, const s16 *u, u32 address);
 
 /* pixel conversion & foratting */
 static u32 GetUYVY(s16 y1, s16 y2, s16 u, s16 v);

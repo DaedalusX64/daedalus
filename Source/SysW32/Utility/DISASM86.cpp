@@ -284,13 +284,11 @@ char *floatops[] = { /* assumed " %EF" at end of each.  mod != 3 only */
 #define COL_DUMP (10-8)
 #define COL_INST (30-8)
 #define COL_PARM (37-8)
-
-typedef unsigned long word32;
-typedef unsigned short word16;
-typedef unsigned char word8;
-typedef signed long int32;
-typedef signed short int16;
-typedef signed char int8;
+using word32 = unsigned long;
+using word16 = unsigned short;
+using int32 = signed long;
+using int16 = signed short;
+using int8 = signed char;
 
 int seg_size=32;
 

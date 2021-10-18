@@ -26,9 +26,12 @@ RendererGL *   gRendererGL = NULL;
 static bool gAccurateUVPipe = true;
 
 /* OpenGL 3.0 */
-typedef void (GLAPIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
-typedef void (GLAPIENTRY * PFN_glBindVertexArray)(GLuint array);
-typedef void (GLAPIENTRY * PFN_glDeleteVertexArrays)(GLsizei n, GLuint *arrays);
+using PFN_glGenVertexArrays = void (GLAPIENTRY *)(GLsizei n, GLuint *arrays);
+using PFN_glBindVertexArray = void (GLAPIENTRY *)(GLuint array);
+using PFN_glDeleteVertexArrays = void (GLAPIENTRY *)(GLsizei n, GLuint *arrays);
+// typedef void (GLAPIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
+// typedef void (GLAPIENTRY * PFN_glBindVertexArray)(GLuint array);
+// typedef void (GLAPIENTRY * PFN_glDeleteVertexArrays)(GLsizei n, GLuint *arrays);
 
 static PFN_glGenVertexArrays            pglGenVertexArrays = NULL;
 static PFN_glBindVertexArray            pglBindVertexArray = NULL;

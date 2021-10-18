@@ -26,8 +26,7 @@ public:
 		ConstStringRef Key;
 		ConstStringRef Value;
 	};
-
-	typedef std::vector<Param> QueryParams;
+	using QueryParams = std::vector<Param>;
 
 	const char * 	GetQueryString() const;
 	State			GetState() const				{ return mState; }
@@ -65,7 +64,8 @@ bool ServeResource(WebDebugConnection * connection, const char * resource_path);
 void Generate404(WebDebugConnection * connection, const char * request);
 void Generate500(WebDebugConnection * connection, const char * message);
 
-typedef void (*WebDebugHandler)(void * arg, WebDebugConnection * connection);
+using WebDebugHandler = void (*)(void * arg, WebDebugConnection * connection);
+
 void WebDebug_Register(const char * request, WebDebugHandler handler, void * arg);
 
 bool WebDebug_Init();

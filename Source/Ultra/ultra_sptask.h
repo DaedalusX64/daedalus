@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 // Pointers are 32 bits.
-	typedef	u32 osptr;
+using osptr = u32;
 
 typedef struct {
 	u32	type;

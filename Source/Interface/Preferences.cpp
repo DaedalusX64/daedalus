@@ -79,7 +79,7 @@ class IPreferences : public CPreferences
 		void					OutputSectionDetails( const RomID & id, const SRomPreferences & preferences, FILE * fh );
 
 	private:
-		typedef std::map<RomID, SRomPreferences>	PreferencesMap;
+	using PreferencesMap = std::map<RomID, SRomPreferences>;
 
 		PreferencesMap			mPreferences;
 

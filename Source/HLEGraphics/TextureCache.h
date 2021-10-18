@@ -78,7 +78,7 @@ private:
 
 	// FIXME(strmnnrmn): we should have a struct of TextureInfo+CachedTexture instead -
 	// doing binary search on this array needs a memory indirect for every probe.
-	typedef std::vector< CachedTexture * >	TextureVec;
+	using TextureVec = std::vector < CachedTexture * >;
 	TextureVec			mTextures;
 	CachedTexture *		mpCacheHashTable[HASH_TABLE_SIZE];
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

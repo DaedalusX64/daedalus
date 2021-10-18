@@ -101,7 +101,8 @@ ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
 static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
 void (* g_pCPUCore)();
 
-typedef void (*VblCallbackFn)(void * arg);
+using VblCallbackFn = void (*)(void * arg);
+
 struct VblCallback
 {
 	VblCallbackFn		Fn;

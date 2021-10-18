@@ -53,8 +53,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*************************************************************************************
 namespace
 {
-
-	typedef std::vector<STraceEntry> TraceBuffer;
+	using TraceBuffer = std::vector<STraceEntry>;
 
 	const u32	INVALID_IDX( u32(~0) );
 

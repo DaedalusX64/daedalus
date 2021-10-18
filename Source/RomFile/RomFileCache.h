@@ -28,8 +28,7 @@ class ROMFile;
 struct SChunkInfo;
 
 class ROMFileCache
-{
-		typedef u16			CacheIdx;
+{	using CacheIdx = u16;
 
 	public:
 		ROMFileCache();

@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define DUMPOSFUNCTIONS
 
 // Returns return type to determine what kind of post-processing should occur
-typedef u32 (*PatchFunction)();
+using PatchFunction = u32 (*) ();
 
 #define VAR_ADDRESS(name)  (g_##name##_v.Location)
 #define VAR_FOUND(name)  (g_##name##_v.Found)

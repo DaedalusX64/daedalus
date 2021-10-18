@@ -516,8 +516,8 @@ static void ConvertYUV16(const TileDestInfo & dsti, const TextureInfo & ti)
 		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
+using ConvertFunction = (*)(const TileDestInfo & dsti, const TextureInfo & ti);
 
-typedef void ( *ConvertFunction )(const TileDestInfo & dsti, const TextureInfo & ti);
 static const ConvertFunction gConvertFunctions[ 32 ] =
 {
 	// 4bpp				8bpp			16bpp				32bpp
