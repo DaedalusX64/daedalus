@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Paths.h"
 #include "System/IO.h"
 #include "Core/PrintOpCode.h"
-
+#include <filesystem>
 static IO::Filename gDumpDir = "";
 
 // Initialise the directory where files are dumped
@@ -80,30 +80,8 @@ void Dump_GetDumpDirectory(char * rootdir, const char * subdir)
 // found, g_DaedalusConfig.mRomsDir is checked.
 void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char * extension)
 {
-	// If the Save path has not yet been set up, prompt user
-	if (strlen(g_DaedalusConfig.mSaveDir) == 0)
-	{
-		// FIXME: missing prompt here!
 
-		// User may have cancelled
-		if (strlen(g_DaedalusConfig.mSaveDir) == 0)
-		{
-			// Default to rom path
-			IO::Path::Assign(g_DaedalusConfig.mSaveDir, rom_filename);
-			IO::Path::RemoveFileSpec(g_DaedalusConfig.mSaveDir);
-#ifndef DAEDALUS_PSP
-			// FIXME(strmnnrmn): for OSX I generate savegames in a subdir Save, to make it easier to clean up.
-			IO::Path::Append(g_DaedalusConfig.mSaveDir, "Save");
-#endif
-
-#ifdef DAEDALUS_DEBUG_CONSOLE
-			if(CDebugConsole::IsAvailable())
-			{
-				DBGConsole_Msg(0, "SaveDir is still empty - defaulting to [C%s]", g_DaedalusConfig.mSaveDir);
-			}
-#endif
-		}
-	}
+std::filesystem::create_directory("SaveGames");
 	
 	IO::Filename path_name;
 	IO::Path::Assign(path_name, g_DaedalusConfig.mSaveDir);
