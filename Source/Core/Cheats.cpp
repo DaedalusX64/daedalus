@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/IO.h"
 #include "Utility/StringUtil.h"
 #include "Utility/VolatileMem.h"
+#include <filesystem>
 
 //
 // Cheatcode routines and format based from 1964
@@ -289,14 +290,15 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	// Always clear when parsing a new ROM
 	CheatCodes_Clear();
 
-	IO::Filename	path;
-	IO::Path::Combine(path, gDaedalusExePath, file);
+	 std::filesystem::path p("cheat_file");
+	 std::string s = p.u8string();
+	 const char *cheat_file = s.c_str();
 
-	stream = fopen(path, "rt");
+	stream = fopen(cheat_file, "rt");
 	if(stream == nullptr)
 	{
 		// File does not exist, try to create a new empty one
-		stream = fopen(path, "wt");
+		stream = fopen(cheat_file, "wt");
 
 		if(stream == nullptr)
 		{

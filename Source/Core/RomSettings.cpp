@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Paths.h"
 #include "Utility/IniFile.h"
 #include "System/IO.h"
+#include <filesystem>
 
 namespace
 {
@@ -153,8 +154,10 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 	#endif
 	mpInstance = new IRomSettingsDB();
 
-	IO::Filename	ini_filename;
-	IO::Path::Combine( ini_filename, gDaedalusExePath, "roms.ini" );
+	 std::filesystem::path p("roms.ini");
+	 std::string s = p.u8string();
+	 const char *ini_filename = s.c_str();
+
 	mpInstance->OpenSettingsFile( ini_filename );
 
 	return true;

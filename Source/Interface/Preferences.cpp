@@ -100,12 +100,13 @@ template<> bool	CSingleton< CPreferences >::Create()
 CPreferences::~CPreferences()
 {
 }
-
+#include <filesystem>
 IPreferences::IPreferences()
 :	mDirty( false )
 {
-	IO::Filename ini_filename;
-	IO::Path::Combine( ini_filename, gDaedalusExePath, "preferences.ini" );
+	 std::filesystem::path p("preferences.ini");
+	 std::string s = p.u8string();
+	 const char *ini_filename = s.c_str();
 	OpenPreferencesFile( ini_filename );
 }
 

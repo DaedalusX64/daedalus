@@ -33,6 +33,7 @@
 #include "System/IO.h"
 #include "RomFile/RomFile.h"
 #include "Utility/Stream.h"
+#include <filesystem>
 
 static const u64 ROMDB_MAGIC_NO	= 0x42444D5244454144LL; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
 static const u32 ROMDB_CURRENT_VERSION = 4;
@@ -170,11 +171,11 @@ template<> bool	CSingleton< CRomDB >::Create()
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
 	mpInstance = new IRomDB();
 
-	IO::Filename romdb_filename;
-	IO::Path::Combine( romdb_filename, gDaedalusExePath, "rom.db" );
-	
+	 std::filesystem::path p("rom.db");
+	 std::string s = p.u8string();
+	 const char *romdb_filename = s.c_str();
+
 	/*ret = */mpInstance->OpenDB( romdb_filename );
-	// Ignore failure - this file might not exist on first run.
 
 	return true;
 }
