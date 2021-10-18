@@ -33,4 +33,6 @@ class CMainMenuScreen
 		virtual void				Run() = 0;
 };
 
+void DisplayRomsAndChoose(bool show_splash);
+
 #endif // SYSPSP_UI_MAINMENUSCREEN_H_

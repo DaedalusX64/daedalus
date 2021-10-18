@@ -42,6 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/UI/SavestateSelectorComponent.h"
 #include "SysPSP/UI/UIContext.h"
 #include "SysPSP/UI/UIScreen.h"
+#include "SysPSP/UI/SplashScreen.h"
 #include "System/SystemInit.h"
 #include "Interface/Preferences.h"
 
@@ -373,3 +374,33 @@ void	IMainMenuScreen::OnStartEmulation()
 	mIsFinished = true;
 
 }
+
+void DisplayRomsAndChoose(bool show_splash)
+{
+	// switch back to the LCD display
+	CGraphicsContext::Get()->SwitchToLcdDisplay();
+
+	CDrawText::Initialise();
+
+	CUIContext *	p_context( CUIContext::Create() );
+
+	if(p_context != NULL)
+	{
+
+		if( show_splash )
+		{
+			CSplashScreen *		p_splash( CSplashScreen::Create( p_context ) );
+			p_splash->Run();
+			delete p_splash;
+		}
+
+		CMainMenuScreen *	p_main_menu( CMainMenuScreen::Create( p_context ) );
+		p_main_menu->Run();
+		delete p_main_menu;
+	}
+
+	delete p_context;
+
+	CDrawText::Destroy();
+}
+

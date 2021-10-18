@@ -44,6 +44,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "Graphics/GraphicsContext.h"
+#include "HLEGraphics/DLParser.h"
+#include "HLEGraphics/DisplayListDebugger.h"
 #include "HLEGraphics/TextureCache.h"
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
@@ -65,16 +67,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Translate.h"
 #include "Utility/Timer.h"
 
-/* Define to enable Exit Callback */
-// Do not enable this, callbacks don't get along with our exit dialog :p
-// Only needed for gprof
-//
-#ifdef DAEDALUS_PSP_GPROF
-#define DAEDALUS_CALLBACKS
-#else
-#undef DAEDALUS_CALLBACKS
-#endif
-
+#include <filesystem>
 
 extern "C"
 {
@@ -94,12 +87,13 @@ extern "C"
 /* Kernel Exception Handler functions */
 
 extern void VolatileMemInit();
+extern bool InitialiseJobManager();
+
 
 /* Video Manager functions */
 extern int HAVE_DVE;
 extern int PSP_TV_CABLE;
 extern int PSP_TV_LACED;
-
 
 bool g32bitColorMode = false; // We might be able to ditch this soon. Phat exclusive.
 bool PSP_IS_SLIM = false;
@@ -109,32 +103,15 @@ PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 PSP_HEAP_SIZE_KB(-256);
 
 
-
-extern bool InitialiseJobManager();
-
 static bool	Initialize()
 {
-	
-	strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
+	std::filesystem::current_path(); // Crashes when pressing home for some odd reason
+	// strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
 
 	scePowerSetClockFrequency(333, 333, 166);
 	InitHomeButton();
 
-	// If (o) is pressed during boot the Emulator will use 32bit
-	// else use default 16bit color mode
-	// SceCtrlData pad;
-	// sceCtrlPeekBufferPositive(&pad, 1);
-	// if( pad.Buttons & PSP_CTRL_CIRCLE ) g32bitColorMode = true;
-	// else g32bitColorMode = false;
-
-
-	// Initiate MediaEngine
-	//Note: Media Engine is not available for Vita
 	bool bMeStarted = InitialiseJobManager();
-
-// Disable for profiling
-//	srand(time(0));
-
 
 
 // This Breaks gdb, better disable it in debug build
@@ -147,10 +124,6 @@ extern void initExceptionHandler();
 	_DisableFPUExceptions();
 	VolatileMemInit();
 
-#ifdef DAEDALUS_CALLBACKS
-	//Set up callback for our thread
-	SetupCallbacks();
-#endif
 
 	// Detect PSP greater than PSP 1000
 	if ( kuKernelGetModel() > 0 )
@@ -177,68 +150,15 @@ extern void initExceptionHandler();
     sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
-	// Init the savegame directory -- We probably should create this on the fly if not as it causes issues.
+
 	strcpy( g_DaedalusConfig.mSaveDir, DAEDALUS_PSP_PATH( "SaveGames/" ) );
+	
 	if (!System_Init())
 		return false;
 
 	return true;
 }
 
-#ifdef DAEDALUS_PROFILE_EXECUTION
-
-static void	DumpDynarecStats( float elapsed_time )
-{
-	// Temp dynarec stats
-	extern u64 gTotalInstructionsEmulated;
-	extern u64 gTotalInstructionsExecuted;
-	extern u32 gTotalRegistersCached;
-	extern u32 gTotalRegistersUncached;
-	extern u32 gFragmentLookupSuccess;
-	extern u32 gFragmentLookupFailure;
-
-	u32		dynarec_ratio( 0 );
-
-	if(gTotalInstructionsExecuted + gTotalInstructionsEmulated > 0)
-	{
-		float fRatio = float(gTotalInstructionsExecuted * 100.0f / float(gTotalInstructionsEmulated+gTotalInstructionsExecuted));
-
-		dynarec_ratio = u32( fRatio );
-
-		//gTotalInstructionsExecuted = 0;
-		//gTotalInstructionsEmulated = 0;
-	}
-
-	u32		cached_regs_ratio( 0 );
-	if(gTotalRegistersCached + gTotalRegistersUncached > 0)
-	{
-		float fRatio = float(gTotalRegistersCached * 100.0f / float(gTotalRegistersCached+gTotalRegistersUncached));
-
-		cached_regs_ratio = u32( fRatio );
-	}
-
-	const char * const TERMINAL_SAVE_CURSOR			= "\033[s";
-	const char * const TERMINAL_RESTORE_CURSOR		= "\033[u";
-//	const char * const TERMINAL_TOP_LEFT			= "\033[2A\033[2K";
-	const char * const TERMINAL_TOP_LEFT			= "\033[H\033[2K";
-
-	printf( TERMINAL_SAVE_CURSOR );
-	printf( TERMINAL_TOP_LEFT );
-
-	printf( "Frame: %dms, DynaRec %d%%, Regs cached %d%%, Lookup success %d/%d", u32(elapsed_time * 1000.0f), dynarec_ratio, cached_regs_ratio, gFragmentLookupSuccess, gFragmentLookupFailure );
-
-	printf( TERMINAL_RESTORE_CURSOR );
-	fflush( stdout );
-
-	gFragmentLookupSuccess = 0;
-	gFragmentLookupFailure = 0;
-}
-#endif
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-#include "HLEGraphics/DLParser.h"
-#include "HLEGraphics/DisplayListDebugger.h"
-#endif
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 static CTimer		gTimer;
@@ -254,22 +174,18 @@ void HandleEndOfFrame()
 
 
 
-	//
-	//	Figure out how long the last frame took
-	//
+// How long did the last frame take?
 #ifdef DAEDALUS_PROFILE_EXECUTION
 	DumpDynarecStats( elapsed_time );
 #endif
-	//
-	//	Enter the debug menu as soon as select is newly pressed
-	//
+
+	//Enter debug menu as soon as select is pressed
 	static u32 oldButtons = 0;
 	SceCtrlData pad;
 			bool		activate_pause_menu = false;
 	sceCtrlPeekBufferPositive(&pad, 1);
 
-	// If kernelbuttons.prx couldn't be loaded, allow select button to be used instead
-	//
+	// If KernelButtons.prx not found. Use select for pause instead
 	if(oldButtons != pad.Buttons)
 	{
 		if( gCheatsEnabled && (pad.Buttons & PSP_CTRL_SELECT) )
@@ -293,9 +209,6 @@ void HandleEndOfFrame()
 
 		if(p_context != NULL)
 		{
-			// Already set in ClearBackground() @ UIContext.h
-			//p_context->SetBackgroundColour( c32( 94, 188, 94 ) );		// Nice green :)
-
 			CPauseScreen *	pause( CPauseScreen::Create( p_context ) );
 			pause->Run();
 			delete pause;
@@ -304,49 +217,16 @@ void HandleEndOfFrame()
 
 		CDrawText::Destroy();
 
-		//
 		// Commit the preferences database before starting to run
-		//
 		CPreferences::Get()->Commit();
 	}
-	//
+
 	//	Reset the elapsed time to avoid glitches when we restart
-	//
-#ifdef DAEDALUS_PROFILE_EXECUTION
+	#ifdef DAEDALUS_PROFILE_EXECUTION
 	gTimer.Reset();
-#endif
+	#endif
 
 }
-
-static void DisplayRomsAndChoose(bool show_splash)
-{
-	// switch back to the LCD display
-	CGraphicsContext::Get()->SwitchToLcdDisplay();
-
-	CDrawText::Initialise();
-
-	CUIContext *	p_context( CUIContext::Create() );
-
-	if(p_context != NULL)
-	{
-
-		if( show_splash )
-		{
-			CSplashScreen *		p_splash( CSplashScreen::Create( p_context ) );
-			p_splash->Run();
-			delete p_splash;
-		}
-
-		CMainMenuScreen *	p_main_menu( CMainMenuScreen::Create( p_context ) );
-		p_main_menu->Run();
-		delete p_main_menu;
-	}
-
-	delete p_context;
-
-	CDrawText::Destroy();
-}
-
 
 
 int main(int argc, char* argv[])
