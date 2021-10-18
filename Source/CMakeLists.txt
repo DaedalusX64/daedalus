@@ -99,6 +99,20 @@ project (DaedalusX64)
 ## Check for debug / Profile flags, if neither are selected, do a release build instead
 # This will be more refined eventually as having macro processing tucked away sucks.
 
+
+include (TestBigEndian)
+TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
+if(IS_BIG_ENDIAN)
+message(STATUS "Big Endian Detected")
+set(ENDIAN DAEDALUS_ENDIAN_BIG)
+else()
+ message(STATUS "Little Endian Detected")
+ set(ENDIAN DAEDALUS_ENDIAN_LITTLE)
+endif()
+
+
+
+
 if(DEBUG)
 	message("Debug Build")
 	include_directories(${PROJECT_SOURCE_DIR}/Base/Dev)
@@ -115,7 +129,7 @@ else()
 endif(DEBUG)
 
 if (PSP)
-
+ 	add_compile_definitions(DAEDALUS_ENDIAN_MODE=${ENDIAN}=1)
 	add_definitions(-DDAEDALUS_PSP)
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
 	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
