@@ -114,10 +114,9 @@ union REG32
 
 DAEDALUS_STATIC_ASSERT( sizeof( REG32 ) == sizeof( u32 ) );
 
-#if defined(DAEDALUS_PSP)
+#if defined(DAEDALUS_PSP) || defined(DAEDALUS_PS3) || defined(DAEDALUS_POSIX)
 #define _strcmpi strcasecmp
-#elif defined(DAEDALUS_PS3) || defined(DAEDALUS_POSIX)
-#define _strcmpi strcasecmp
+
 #endif
 
 #endif // UTILITY_DAEDALUSTYPES_H_
