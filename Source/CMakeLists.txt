@@ -99,45 +99,82 @@ project (DaedalusX64)
 ## Check for debug / Profile flags, if neither are selected, do a release build instead
 # This will be more refined eventually as having macro processing tucked away sucks.
 
-
+#  Confirm Endianness
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
 message(STATUS "Big Endian Detected")
 set(ENDIAN DAEDALUS_ENDIAN_BIG)
+add_definitions(DAEDALUS_ENDIAN_MODE=DAEDALUS_ENDIAN_BIG)
 else()
  message(STATUS "Little Endian Detected")
- set(ENDIAN DAEDALUS_ENDIAN_LITTLE)
+ add_definitions(DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE)
 endif()
 
+## Detect platform 
 
-
+#Options
+#DAEDALUS_DEBUG_PIF					// Enable to enable various debugging options for PIF (Peripheral interface)
+#DAEDALUS_DEBUG_CONSOLE				// Enable debug console
+#DAEDALUS_DEBUG_DYNAREC				// Enable to enable various debugging options for the dynarec
+#DAEDALUS_ENABLE_SYNCHRONISATION		// Enable for sync testing
+#DAEDALUS_LOG						// Enable various logging
+#DAEDALUS_ENABLE_ASSERTS				// Enable asserts
+#DAEDALUS_DEBUG_DISPLAYLIST			// Enable the display list debugger
+#DAEDALUS_ENABLE_PROFILING			// Enable the built-in profiler
+#DAEDALUS_PROFILE_EXECUTION			// Enable to keep track of various execution stats
+#DAEDALUS_BATCH_TEST_ENABLED			// Enable the batch test
+#DAEDALUS_DEBUG_MEMORY
+#ALLOW_TRACES_WHICH_EXCEPT
+#DAEDALUS_SILENT						// Undef to enable debug messages
+#DAEDALUS_IS_LEGACY					// Old code, unused etc.. Kept for reference, undef to save space on the elf. Will remove soon.
+#DAEDALUS_DIALOGS					// Enable this to show dialogs in the gui
 
 if(DEBUG)
 	message("Debug Build")
 	include_directories(${PROJECT_SOURCE_DIR}/Base/Dev)
-	if (MAC OR LINUX OR PSP)
+	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev")
+	add_compile_definitions(DAEDALUS_DEBUG_CONSOLE)
+	add_compile_definitions(DAEDALUS_DEBUG_DISPLAYLIST)
+	add_compile_definitions(DAEDALUS_ENALBE_ASSERTS)
+	add_compile_definitions(DAEDALUS_LOG)
 	add_definitions("-g -G0 -D_DEBUG -MD ")
-	endif (MAC OR LINUX OR PSP)
 elseif(PROFILE)
 	message("Profile Build")
+	add_compile_definitions(DAEDALUS_CONFIG_VERSION="PSP GPROF")
+	add_compile_definitions(DAEDALUS_SILENT)
+	add_compile_definitions(DAEDALUS_PSP_GPROF)
 	include_directories(${PROJECT_SOURCE_DIR}/Base/Profile)
 else()
 	message("Release Build")
+
+	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release")
+	add_compile_definitions(DAEDALUS_SILENT)
+	add_compile_definitions(DAEDALUS_DIALOGS)
+	add_compile_definitions(O2)
+	add_compile_definitions(DNDEBUG)
 	include_directories(${PROJECT_SOURCE_DIR}/Base/Release)
-	add_definitions("-O2 -DNDEBUG")
+
 endif(DEBUG)
 
-if (PSP)
- 	add_compile_definitions(DAEDALUS_ENDIAN_MODE=${ENDIAN}=1)
-	add_definitions(-DDAEDALUS_PSP)
-	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
-	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
-	add_executable(daedalus.elf ${PSP_MAIN_FILES})
-#	set_target_properties(daedalus.elf PROPERTIES LINK_FLAGS "-specs=${PSPSDK}/lib/prxspecs -Wl,-q,-T${PSPSDK}/lib/linkfile.prx ${PSPSDK}/lib/prxexports.o -L${PSPSDK}/lib")
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lpng -lz -lc -lg -lm -lpspfpu -lintrafont -lpspkubridge -lpthread)
-endif (PSP)
 
+if (PSP)
+set (PLAT PSP)
+	add_compile_definitions(DAEDALUS_PSP)
+	add_compile_definitions(DAEDALUS_ENABLE_DYNAREC)
+	add_compile_definitions(DAEDALUS_ENABLE_OS_HOOKS)
+	add_compile_definitions(DAEDALUS_PSP_USE_VPFU) ## This probably can be enabled by default 
+	add_compile_definitions(DAEDALUS_PSP_USE_ME)
+	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
+ set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk -lpspaudiolib -lpspaudio -lpsprtc -lintrafont -lpspkubridge -lpspfpu)
+ endif (PSP)
+
+
+##Universal build options - Generic
+#add_compile_definitions(${PLAT}) 
+add_library(daedalus.lib STATIC ${BUILD} ${${PLAT}_BUILD})
+add_executable(daedalus ${${PLAT}_MAIN_FILES})
+target_link_libraries(daedalus daedalus.lib -lstdc++ -lpng -lz -lc -lg -lm -lpthread ${PLAT_LIBS} )
 
 if (LINUX)
 	add_definitions(-DDAEDALUS_LINUX)

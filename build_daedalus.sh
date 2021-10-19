@@ -4,7 +4,7 @@
 # Enable use of nproc for processor detection so builds according to number of processors in machine (Darwin will need sysctl -n hw.logicalcpu)
 
 PLATFORM=$1"build"
-
+echo $PLATFORM
 function pre_prep(){
 
     if [ -d $PWD/$PLATFORM ]; then
@@ -42,7 +42,7 @@ function finalPrep() {
 function build() {
 
 ## Build PSP extensions - Really need to make these cmake files 
-if [[ $PLATFORM = "PSP"* ]]; then
+if [[ $PLATFORM = "PSPbuild" ]]; then
   make -C "$PWD/../Source/SysPSP/PRX/DveMgr"
   make -C "$PWD/../Source/SysPSP/PRX/ExceptionHandler"
   make -C "$PWD/../Source/SysPSP/PRX/KernelButtons"
@@ -51,13 +51,13 @@ fi
 
 make -j8 # Should make this use whatever is avaliable but that's fine for now
 
-if [[ $PLATFORM = "PSP"* ]] &&  [[ -f "$PWD/daedalus.elf" ]]; then
-  psp-fixup-imports daedalus.elf
+if [[ $PLATFORM = "PSPbuild" ]] &&  [[ -f "$PWD/daedalus" ]]; then
+  psp-fixup-imports daedalus
   mksfoex -d MEMSIZE=1 DaedalusX64 PARAM.SFO
-  psp-strip daedalus.elf
+  psp-strip daedalus
  # psp-prxgen daedalus.elf daedalus.prx
   cp ../Source/SysPSP/Resources/eboot_icons/* "$PWD"
-  pack-pbp EBOOT.PBP PARAM.SFO icon0.png NULL NULL pic1.png NULL daedalus.elf NULL
+  pack-pbp EBOOT.PBP PARAM.SFO icon0.png NULL NULL pic1.png NULL daedalus NULL
 fi
 
 finalPrep

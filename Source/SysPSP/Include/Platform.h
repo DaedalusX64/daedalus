@@ -34,17 +34,9 @@ enum PspModel
 //
 //	Make sure this platform is defined correctly
 //
-#ifndef DAEDALUS_PSP
-#define DAEDALUS_PSP
-#endif
-
-#define DAEDALUS_ENABLE_DYNAREC
-#define DAEDALUS_PSP_USE_ME
-#define DAEDALUS_ENABLE_OS_HOOKS
-//#define DAEDALUS_ACCURATE_TMEM
 
 
-
+// #define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
 // We have a VFPU :)
 #define DAEDALUS_PSP_USE_VFPU
 
