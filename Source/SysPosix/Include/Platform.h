@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_ENABLE_OS_HOOKS
 #define DAEDALUS_ACCURATE_TMEM
 
-#define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
+// #define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
 
 #ifdef __GNUC__
 #define DAEDALUS_EXPECT_LIKELY(c) __builtin_expect((c),1)

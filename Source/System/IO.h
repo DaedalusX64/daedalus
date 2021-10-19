@@ -90,7 +90,7 @@ namespace IO
 	using FindHandleT = intptr_t;
 
 #elif defined( DAEDALUS_POSIX)
-	using FindHandleT = void *
+	using FindHandleT = void *;
 
 #else
 #error Need to define FindHandleT for this platform

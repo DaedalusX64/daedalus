@@ -9,7 +9,7 @@
 #Options
 # PSP_RELEASE - Builds PSP Release
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 17)
 project (DaedalusX64)
 
@@ -88,7 +88,7 @@ project (DaedalusX64)
 				set (POSIX_DYNAREC SysPosix/DynaRec/CodeBufferManagerPosix.cpp)
 				set (POSIX_HLEGRAPHICS SysPosix/HLEGraphics/DisplayListDebugger.cpp)
 				set (POSIX_MAIN_FILES SysPosix/main.cpp)
-				set (POSIX_UTILITY SysPosix/Utility/CondPosix.cpp SysPosix/Utility/IOPosix.cpp SysPosix/Utility/TimingPosix.cpp)
+				set (POSIX_UTILITY SysPosix/Utility/CondPosix.cpp SysPosix/Utility/IOPosix.cpp SysPosix/Utility/ThreadPosix.cpp SysPosix/Utility/TimingPosix.cpp)
 				set (POSIX_BUILD ${POSIX_DEBUG} ${POSIX_DYNAREC} ${POSIX_HLEGRAPHICS} ${POSIX_UTILITY})
 
 				# These will remain separate for now..
@@ -105,10 +105,10 @@ TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
 message(STATUS "Big Endian Detected")
 set(ENDIAN DAEDALUS_ENDIAN_BIG)
-add_definitions(DAEDALUS_ENDIAN_MODE=DAEDALUS_ENDIAN_BIG)
+add_compile_definitions(DAEDALUS_ENDIAN_MODE=DAEDALUS_ENDIAN_BIG)
 else()
  message(STATUS "Little Endian Detected")
- add_definitions(DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE)
+ add_compile_definitions(DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE)
 endif()
 
 ## Detect platform 
@@ -172,9 +172,9 @@ set (PLAT PSP)
 
 ##Universal build options - Generic
 #add_compile_definitions(${PLAT}) 
-add_library(daedalus.lib STATIC ${BUILD} ${${PLAT}_BUILD})
-add_executable(daedalus ${${PLAT}_MAIN_FILES})
-target_link_libraries(daedalus daedalus.lib -lstdc++ -lpng -lz -lc -lg -lm -lpthread ${PLAT_LIBS} )
+#add_library(daedalus.lib STATIC ${BUILD} ${${PLAT}_BUILD})
+#add_executable(daedalus ${${PLAT}_MAIN_FILES})
+#target_link_libraries(daedalus daedalus.lib -lstdc++ -lpng -lz -lc -lg -lm -lpthread ${PLAT_LIBS} )
 
 if (LINUX)
 	add_definitions(-DDAEDALUS_LINUX)
