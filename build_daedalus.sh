@@ -3,6 +3,9 @@
 ## TODO:
 # Enable use of nproc for processor detection so builds according to number of processors in machine (Darwin will need sysctl -n hw.logicalcpu)
 
+## Determine the maximum number of processes that Make can work with.
+PROC_NR=$(getconf _NPROCESSORS_ONLN)
+
 PLATFORM=$1"build"
 echo $PLATFORM
 function pre_prep(){
@@ -44,13 +47,14 @@ function build() {
 
 ## Build PSP extensions - Really need to make these cmake files 
 if [[ $PLATFORM = "PSPbuild" ]]; then
-  make -C "$PWD/../Source/SysPSP/PRX/DveMgr"
-  make -C "$PWD/../Source/SysPSP/PRX/ExceptionHandler"
-  make -C "$PWD/../Source/SysPSP/PRX/KernelButtons"
-  make -C "$PWD/../Source/SysPSP/PRX/MediaEngine"
+  make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/DveMgr" || { exit 1; }
+  make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/ExceptionHandler" || { exit 1; }
+  make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/KernelButtons" || { exit 1; }
+  make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/MediaEngine" || { exit 1; }
 fi
 
-make -j8 # Should make this use whatever is avaliable but that's fine for now
+## Compile and install.
+make --quiet -j $PROC_NR            || { exit 1; }
 finalPrep
 }
 
