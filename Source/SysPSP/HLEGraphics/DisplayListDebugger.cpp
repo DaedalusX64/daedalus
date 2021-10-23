@@ -702,14 +702,14 @@ void CTextureExplorerDebugMenuOption::Display() const
 	if( min_to_show < 0 )
 	{
 		s32	num_spare( 0 - min_to_show );
-		max_to_show = Clamp< s32 >( max_to_show + num_spare, 0, mSnapshot.size() - 1 );
+		max_to_show = std::clamp< s32 >( max_to_show + num_spare, 0, mSnapshot.size() - 1 );
 		min_to_show = 0;
 	}
 
 	if( max_to_show >= s32( mSnapshot.size() ) )
 	{
 		s32 num_spare( max_to_show - (mSnapshot.size() - 1) );
-		min_to_show = Clamp< s32 >( min_to_show - num_spare, 0, mSnapshot.size() - 1 );
+		min_to_show = std:clamp< s32 >( min_to_show - num_spare, 0, mSnapshot.size() - 1 );
 		max_to_show = mSnapshot.size() - 1;
 	}
 
@@ -864,7 +864,7 @@ void CDisplayListLengthDebugMenuOption::Update( const SPspPadState & pad_state, 
 	{
 		s32 new_limit = *mInstructionCountLimit + adjustment;
 
-		*mInstructionCountLimit = u32( Clamp< s32 >( new_limit, 0, mTotalInstructionCount ) );
+		*mInstructionCountLimit = u32( std::clamp< s32 >( new_limit, 0, mTotalInstructionCount ) );
 		mFractionalAdjustment -= float( adjustment );
 
 		InvalidateDisplay();

@@ -8,6 +8,7 @@
 #include <pspctrl.h>
 #include <psptypes.h>
 #include <pspkernel.h>
+#include <algorithm>
 
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
@@ -1031,7 +1032,7 @@ v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
 
 	float	scale( ( length - min_deadzone ) / ( max_deadzone - min_deadzone )  );
 
-	scale = Clamp( scale, 0.0f, 1.0f );
+	scale = std::clamp( scale, 0.0f, 1.0f );
 
 	return ProjectToUnitSquare( in * (scale / length) );
 }

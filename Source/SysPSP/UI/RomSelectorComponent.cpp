@@ -725,7 +725,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
-		mCurrentScrollOffset = Clamp( new_scroll_offset, min_offset, s32(0) );
+		mCurrentScrollOffset = std::clamp( new_scroll_offset, min_offset, s32(0) );
 	}
 	else
 	{

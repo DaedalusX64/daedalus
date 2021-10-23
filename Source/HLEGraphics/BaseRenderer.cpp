@@ -621,7 +621,7 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 			float fog_coeff = (eyespace_z * mTnL.FogMult) + mTnL.FogOffset;
 
 			// Set the alpha
-			f32 value = Clamp< f32 >( fog_coeff, 0.0f, 1.0f );
+			f32 value = std::clamp< f32 >( fog_coeff, 0.0f, 1.0f );
 
 			if( Abs( value - mVtxProjected[i].Colour.w ) > 0.01f )
 			{
@@ -1164,7 +1164,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 				f32 eye_z = projected.z / projected.w;
 				f32 fog_alpha = eye_z * mTnL.FogMult + mTnL.FogOffs;
 				//f32 fog_alpha = eye_z * 20.0f - 19.0f;	//Fog test line
-				mVtxProjected[i].Colour.w = Clamp< f32 >( fog_alpha, 0.0f, 1.0f );
+				mVtxProjected[i].Colour.w = std::clamp< f32 >( fog_alpha, 0.0f, 1.0f );
 			}
 			else
 			{

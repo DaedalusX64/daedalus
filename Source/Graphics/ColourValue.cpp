@@ -53,14 +53,15 @@ inline u32 Vector2ColourClampedVFPU(const v4 * col_in)
 }
 
 #endif // DAEDALUS_PSP
+#include <algorithm>
 
 // Around 463,000 ticks/million
 inline u32 Vector2ColourClampedCPU( const v4 * col_in )
 {
-	u8 r = u8( Clamp<s32>( s32(col_in->x * 255.0f), 0, 255 ) );
-	u8 g = u8( Clamp<s32>( s32(col_in->y * 255.0f), 0, 255 ) );
-	u8 b = u8( Clamp<s32>( s32(col_in->z * 255.0f), 0, 255 ) );
-	u8 a = u8( Clamp<s32>( s32(col_in->w * 255.0f), 0, 255 ) );
+	u8 r = u8( std::clamp<s32>( s32(col_in->x * 255.0f), 0, 255 ) );
+	u8 g = u8( std::clamp<s32>( s32(col_in->y * 255.0f), 0, 255 ) );
+	u8 b = u8( std::clamp<s32>( s32(col_in->z * 255.0f), 0, 255 ) );
+	u8 a = u8( std::clamp<s32>( s32(col_in->w * 255.0f), 0, 255 ) );
 
 	return c32::Make( r, g, b, a );
 }
@@ -77,12 +78,12 @@ inline u32 Vector2ColourClamped( const v4 & colour )
 
 inline u8 AddComponent( u8 a, u8 b )
 {
-	return u8( Clamp< s32 >( s32( a ) + s32( b ), 0, 255 ) );
+	return u8( std::clamp< s32 >( s32( a ) + s32( b ), 0, 255 ) );
 }
 
 inline u8 SubComponent( u8 a, u8 b )
 {
-	return u8( Clamp< s32 >( s32( a ) - s32( b ), 0, 255 ) );
+	return u8( std::clamp< s32 >( s32( a ) - s32( b ), 0, 255 ) );
 }
 
 inline u8 ModulateComponent( u8 a, u8 b )

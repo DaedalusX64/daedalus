@@ -67,7 +67,7 @@ next_vertex_\function:
 	#	is still loaded, and merge it in after the rgb components are calculated by the lighting calc below
 	#	float eyespace_z = projected.z / projected.w;
 	#	fog_coeff = (eyespace_z * m_fFogMult) + m_fFogOffset;
-	#	mVtxProjected[i].Colour.w = Clamp< f32 >( fog_coeff, 0.0f, 1.0f );
+	#	mVtxProjected[i].Colour.w = std::clamp< f32 >( fog_coeff, 0.0f, 1.0f );
 	vmov.s		S200, S232					// get w component
 	vmov.s		S201, S222					// v = z
 	vrcp.s		S200, S200					// 1.0 / projected.w
