@@ -1079,7 +1079,7 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 				cur_u -= off;
 				u_end -= off;
 				
-				 sceGuTexImage(0, Min<u32>(512,texture->GetCorrectedWidth()), Min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), udata);
+				 sceGuTexImage(0, std::min<u32>(512,texture->GetCorrectedWidth()), std::min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), udata);
 			}
 			TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
 

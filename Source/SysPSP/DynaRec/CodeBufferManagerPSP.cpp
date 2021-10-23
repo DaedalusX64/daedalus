@@ -83,7 +83,7 @@ struct SCodeBuffer
 	void	Consume( const u8 * p_base, u32 used_size )
 	{
 		//	DAEDALUS_ASSERT( AlignPow2( (u32)p_base, 64 ) == (u32)p_base, "Base ptr is not aligned" );
-		const u8 * p_lower( std::alig( p_base, 64 ) );
+		const u8 * p_lower( RoundPointerDown( p_base, 64 ) );
 		const u8 * p_upper( RoundPointerUp( p_base + used_size, 64 ) );
 		const u32  size( p_upper - p_lower);
 

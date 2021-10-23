@@ -166,7 +166,7 @@ set (PLAT PSP)
 	add_compile_definitions(DAEDALUS_PSP_USE_VPFU) ## This probably can be enabled by default 
 	add_compile_definitions(DAEDALUS_PSP_USE_ME)
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
- set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk -lpspaudiolib -lpspaudio -lpsprtc -lintrafont -lpspkubridge -lpspfpu)
+ set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lpsprtc -lintrafont -lpspkubridge -lpspfpu)
  
  
 ##Universal build options - Generic
