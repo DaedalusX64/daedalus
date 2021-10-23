@@ -66,7 +66,7 @@ finalPrep
 #Add Defines for CMake to not mess up the main loop
 if [[ $1 = "PSP" ]]; then
 
-    CMAKEDEFINES+="-DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/cmake/PSP.cmake"
+    CMAKEDEFINES+="-DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake"
 fi
  
 CMAKEDEFINES+=" -D$1=1"
