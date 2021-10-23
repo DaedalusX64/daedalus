@@ -75,7 +75,7 @@ bool	COutStream::WriteData( const void * data, u32 length )
 		while( bytes_remaining > 0 )
 		{
 			u32		buffer_bytes_remaining( BUFFER_SIZE - mBufferCount );
-			u32		bytes_to_process( Min( bytes_remaining, buffer_bytes_remaining ) );
+			u32		bytes_to_process( std::min( bytes_remaining, buffer_bytes_remaining ) );
 
 			//
 			// Append as many bytes as possible
@@ -171,7 +171,7 @@ bool	CInStream::ReadData( void * data, u32 length )
 
 		while( bytes_remaining > 0 )
 		{
-			u32		bytes_to_process( Min( bytes_remaining, u32(mBytesAvailable) ) );
+			u32		bytes_to_process( std::min( bytes_remaining, u32(mBytesAvailable) ) );
 
 			if( bytes_to_process > 0 )
 			{

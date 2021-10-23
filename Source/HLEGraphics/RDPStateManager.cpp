@@ -173,7 +173,7 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 		u32 odd_row = 0;
 		for (u32 i = 0; i < qwords; /* updated in loop */)
 		{
-			u32 qwords_to_copy = Min(qwords-i, qwords_per_line);
+			u32 qwords_to_copy = std::min(qwords-i, qwords_per_line);
 
 			if (odd_row)
 			{

@@ -213,7 +213,7 @@ EProcessResult RSP_HLE_Jpeg(OSTask * task)
 {
 	// most ucode_boot procedure copy 0xf80 bytes of ucode whatever the ucode_size is.
 	// For practical purpose we use a ucode_size = min(0xf80, task->ucode_size)
-	u32 sum = sum_bytes(g_pu8RamBase + (u32)task->t.ucode , Min<u32>(task->t.ucode_size, 0xf80) >> 1);
+	u32 sum = sum_bytes(g_pu8RamBase + (u32)task->t.ucode , std::min<u32>(task->t.ucode_size, 0xf80) >> 1);
 
 	//DBGConsole_Msg(0, "JPEG Task: Sum=0x%08x", sum);
 	switch(sum)

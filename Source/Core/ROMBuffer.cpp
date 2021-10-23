@@ -99,7 +99,7 @@ namespace
 					CDebugConsole::Get()->MsgOverwrite(0, "Converted [M%d / %d] KB", offset /1024, total_length / 1024 );
 				}
 #endif
-				u32			length_to_process( Min( length_remaining, TEMP_BUFFER_SIZE ) );
+				u32			length_to_process( std::min( length_remaining, TEMP_BUFFER_SIZE ) );
 
 				if( !p_rom_file->ReadChunk( offset, p_temp_buffer, length_to_process ) )
 				{
@@ -224,7 +224,7 @@ bool RomBuffer::Open()
 
 		while( offset < sRomSize )
 		{
-			u32 length_to_process( Min( length_remaining, TEMP_BUFFER_SIZE ) );
+			u32 length_to_process( std::min( length_remaining, TEMP_BUFFER_SIZE ) );
 
 			if( !p_rom_file->ReadChunk( offset, p_bytes + offset, length_to_process ) )
 			{
@@ -361,7 +361,7 @@ namespace
 			// Calculate how many bytes we can transfer this pass
 			u32		offset_into_chunk( src_offset - chunk_offset );
 			u32		bytes_remaining_in_chunk( chunk_size - offset_into_chunk );
-			u32		bytes_this_pass( Min( length, bytes_remaining_in_chunk ) );
+			u32		bytes_this_pass( std::min( length, bytes_remaining_in_chunk ) );
 
 			DAEDALUS_ASSERT( s32( bytes_this_pass ) > 0, "How come we're trying to copy <= 0 bytes across?" );
 		
@@ -471,7 +471,7 @@ bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 			// Calculate how many bytes we can transfer this pass
 			u32		offset_into_chunk( src_offset - chunk_offset );
 			u32		bytes_remaining_in_chunk( chunk_size - offset_into_chunk );
-			u32		bytes_this_pass( Min( length, bytes_remaining_in_chunk ) );
+			u32		bytes_this_pass( std::min( length, bytes_remaining_in_chunk ) );
 
 			DAEDALUS_ASSERT( s32( bytes_this_pass ) > 0, "How come we're trying to copy <= 0 bytes across?" );
 

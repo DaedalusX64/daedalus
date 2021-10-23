@@ -23,21 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/Math.h"
 
-template< typename T >
-inline const T & Max( const T & a, const T & b )
-{
-	if(a > b)
-		return a;
-	return b;
-}
-
-template< typename T >
-inline const T & Min( const T & a, const T & b )
-{
-	if(a < b)
-		return a;
-	return b;
-}
 
 
 template< typename T >

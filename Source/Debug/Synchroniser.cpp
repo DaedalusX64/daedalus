@@ -215,7 +215,7 @@ CSynchroniser::ESynchResult	ISynchConsumer::SynchPoint( const void * data, u32 l
 
 		while( bytes_remaining > 0 )
 		{
-			u32		bytes_to_process( Min( bytes_remaining, BUFFER_SIZE ) );
+			u32		bytes_to_process( std::min( bytes_remaining, BUFFER_SIZE ) );
 
 			if( !mStream.ReadData( buffer, bytes_to_process ) )
 			{
