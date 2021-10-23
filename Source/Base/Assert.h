@@ -25,32 +25,7 @@
 
 #include "Base/Macros.h"
 
-// Ideas for the ignored assert taken from Game Programming Gems I
-
-#if defined(__clang__) 
-
 #define DAEDALUS_STATIC_ASSERT( x ) static_assert((x), "Static Assert")
-
-#else
-//
-// This static assert is bastardised from Boost:
-// http://www.boost.org/boost/static_assert.hpp
-//  (C) Copyright John Maddock 2000.
-//  Use, modification and distribution are subject to the
-//  Boost Software License, Version 1.0. (See accompanying file
-//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//  See http://www.boost.org/libs/static_assert for documentation.
-//
-template <bool> struct STATIC_ASSERTION_FAILURE;
-template <> struct STATIC_ASSERTION_FAILURE<true>{};
-template<int x> struct static_assert_test{};
-
-// NB! This should be enabled across all builds regardless of whether DAEDALUS_ENABLE_ASSERTS is set!
-// It's a compile-time assert and has no runtime cost!
-#define DAEDALUS_STATIC_ASSERT( x )								\
-   typedef static_assert_test<sizeof(STATIC_ASSERTION_FAILURE< (bool)( x ) >)>	static_assert_typedef_##__COUNTER__
-
-#endif
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 
