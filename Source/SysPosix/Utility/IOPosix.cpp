@@ -54,6 +54,12 @@ namespace IO
 				return false;
 			}
 		}
+		#ifdef DAEDALUS_PSP
+				int	Stat( const char *p_file, SceIoStat *stat )
+		{
+			return sceIoGetstat ( p_file, stat );
+		}
+		#endif
 	}
 	namespace Directory
 	{

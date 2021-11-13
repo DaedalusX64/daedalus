@@ -83,14 +83,10 @@ namespace IO
 		Filename	Name;
 	};
 
-#if defined( DAEDALUS_PSP )
-	using FindHandleT = SceUID;
-
+#if defined( DAEDALUS_PSP || DAEDALUS_POSIX)
+	using FindHandleT = void *;
 #elif defined( DAEDALUS_W32 )
 	using FindHandleT = intptr_t;
-
-#elif defined( DAEDALUS_POSIX)
-	using FindHandleT = void *;
 
 #else
 #error Need to define FindHandleT for this platform
