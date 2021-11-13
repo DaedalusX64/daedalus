@@ -105,8 +105,8 @@ PSP_HEAP_SIZE_KB(-256);
 
 static bool	Initialize()
 {
-	std::filesystem::current_path(); // Crashes when pressing home for some odd reason
-	// strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
+	std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
+	//  strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
 
 	scePowerSetClockFrequency(333, 333, 166);
 	InitHomeButton();
@@ -151,8 +151,6 @@ extern void initExceptionHandler();
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
 
-	strcpy( g_DaedalusConfig.mSaveDir, DAEDALUS_PSP_PATH( "SaveGames/" ) );
-	
 	if (!System_Init())
 		return false;
 

@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/PathsPosix.h"
 #include "Config/ConfigOptions.h"
 
+
 #include <SDL2/SDL.h>
 #ifdef DAEDALUS_LINUX
 #include <linux/limits.h>
@@ -40,14 +41,7 @@ int main(int argc, char **argv)
 
 	if (argc > 0)
 	{
-		char* exe_path = realpath(argv[0], nullptr);
-		strcpy(gDaedalusExePath, exe_path);
-		free(exe_path);
-		
-		IO::Path::RemoveFileSpec(gDaedalusExePath);
-
-		// Init save path
-		strcpy( g_DaedalusConfig.mSaveDir, DAEDALUS_POSIX_PATH( "SaveGames/" ) );
+		std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
 	}
 	else
 	{
