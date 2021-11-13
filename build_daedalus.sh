@@ -34,6 +34,7 @@ function finalPrep() {
         mv "$PWD/EBOOT.PBP" ../DaedalusX64/
         cp -r ../Data/* ../DaedalusX64/
     else
+        cp -r "$PWD/daedalus" ../DaedalusX64
         cp -r ../Data/* ../DaedalusX64/
         cp ../Source/SysGL/HLEGraphics/n64.psh ../DaedalusX64
     fi
