@@ -204,8 +204,8 @@ namespace
 		{
 			if(gShowDialog.Render( mpContext,"Reset HLE cache?", false) )
 			{
-				IO::Path::DeleteRecursive(DAEDALUS_PSP_PATH("SaveGames/Cache"),".hle");
-				ThreadSleepMs(1000);	//safety wait for s
+				// IO::Path::DeleteRecursive(DAEDALUS_PSP_PATH("SaveGames/Cache"),".hle");
+				// ThreadSleepMs(1000);	//safety wait for s
 
 				if(gShowDialog.Render( mpContext,"Reset settings?", false) )
 				{

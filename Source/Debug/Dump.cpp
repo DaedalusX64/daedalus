@@ -81,23 +81,20 @@ void Dump_GetDumpDirectory(char * rootdir, const char * subdir)
 void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char * extension)
 {
 
-std::filesystem::create_directory("SaveGames");
-	
-	IO::Filename path_name;
-	IO::Path::Assign(path_name, g_DaedalusConfig.mSaveDir);
+	std::filesystem::create_directories("SaveGames/Cache"); // Create the Save Directory - Probably should be done in main eventually.
+	std::filesystem::path path_name = "SaveGames";
 
 	// Save hle cache in a separate folder
-	if (_strcmpi(".hle", extension) == 0)
-		IO::Path::Append(path_name, "Cache");
+	 if (_strcmpi(".hle", extension) == 0)
 
-	IO::Directory::EnsureExists(path_name);
+		path_name /= "Cache";
 
 	// Form the filename from the file spec (i.e. strip path and replace the extension)
 	IO::Filename file_name;
 	IO::Path::Assign(file_name, IO::Path::FindFileName(rom_filename));
 	IO::Path::SetExtension(file_name, extension);
 
-	IO::Path::Combine(rootdir, path_name, file_name);
+	IO::Path::Combine(rootdir, path_name.string().c_str(), file_name);
 }
 
 #ifndef DAEDALUS_SILENT

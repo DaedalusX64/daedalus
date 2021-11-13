@@ -83,7 +83,7 @@ namespace IO
 		Filename	Name;
 	};
 
-#if defined( DAEDALUS_PSP || DAEDALUS_POSIX)
+#if defined( DAEDALUS_PSP) || (DAEDALUS_POSIX)
 	using FindHandleT = void *;
 #elif defined( DAEDALUS_W32 )
 	using FindHandleT = intptr_t;
