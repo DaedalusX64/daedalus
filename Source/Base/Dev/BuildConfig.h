@@ -29,20 +29,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ///////////////////////////////////////////////////////////////////////////////
 #define DAEDALUS_CONFIG_VERSION		"Dev"
 
-#define	DAEDALUS_DEBUG_CONSOLE				// Enable debug console
-#define	DAEDALUS_DEBUG_DISPLAYLIST			// Enable the display list debugger
-//#define DEBUG_AUDIO
-//#define	DAEDALUS_DEBUG_DYNAREC				// Enable to enable various debugging options for the dynarec
-//#define	DAEDALUS_DEBUG_MEMORY
-//#define	DAEDALUS_DEBUG_PIF					// Enable to enable various debugging options for PIF (Peripheral interface)
-//#define	DAEDALUS_ENABLE_SYNCHRONISATION		// Enable for sync testing
-#define	DAEDALUS_ENABLE_ASSERTS				// Enable asserts
-//#define	DAEDALUS_ENABLE_PROFILING			// Enable the built-in profiler
-//#define	DAEDALUS_PROFILE_EXECUTION			// Enable to keep track of various execution stats
-#define	DAEDALUS_BATCH_TEST_ENABLED			// Enable the batch test
-//#define	ALLOW_TRACES_WHICH_EXCEPT
-#define	DAEDALUS_LOG							// Enable various logging
-//#define	DAEDALUS_DIALOGS					// Enable this to ask confimation dialogs in the GUI
-//#define	DAEDALUS_SILENT						// Define to quiet Debug Messages
-
-#endif // CONFIG_DEV_BUILDCONFIG_H_
+#endif
