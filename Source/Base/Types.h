@@ -22,8 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Assert.h"
 
-
-#if !defined(DAEDALUS_W32) || _MSC_VER >= 1600
 #include <stdint.h>
 using u8 =  uint8_t;
 using u16 = uint16_t;
@@ -38,22 +36,7 @@ using s64 = int64_t;
 using f32 = float;
 using f64 = double;
 
-#else
 
-using u8 = unsigned char;
-using u16 = unsigned short;
-using u32 = unsigned long;
-using u64 = unsigned long long;
-
-using s8  = signed char;
-using s16 = short;
-using s32 = long;
-using s64 = long long;
-
-using f32 = float;
-using f64 = double;
-
-#endif
 
 DAEDALUS_STATIC_ASSERT( sizeof( u8 ) == 1 );
 DAEDALUS_STATIC_ASSERT( sizeof( s8 ) == 1 );
