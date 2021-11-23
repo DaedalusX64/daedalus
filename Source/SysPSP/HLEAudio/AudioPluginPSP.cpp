@@ -48,25 +48,46 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/FramerateLimiter.h"
 #include "System/Thread.h"
 
-#define RSP_AUDIO_INTR_CYCLES     1
-extern u32 gSoundSync;
+EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
+
+#define DEBUG_AUDIO  0
+
+#if DEBUG_AUDIO
+#define DPF_AUDIO(...)	do { printf(__VA_ARGS__); } while(0)
+#else
+#define DPF_AUDIO(...)	do { (void)sizeof(__VA_ARGS__); } while(0)
+#endif
+
 
 static const u32	kOutputFrequency = 44100;
-static const u32	MAX_OUTPUT_FREQUENCY = kOutputFrequency * 4;
 
+// OSX Uses a Circular Buffer of 1024 * 1024
+// A Large kAudioBufferSize will create a large delay on sound - Corn
+static const u32	kAudioBufferSize = 1024 * 2; 
+
+static const u32 	kNumChannels = 2;
+
+// How much input we try to keep buffered in the synchronisation code.
+// Setting this too low and we run the risk of skipping.
+// Setting this too high and we run the risk of being very laggy.
+static const u32 kMaxBufferLengthMs = 30;
+
+// AudioQueue buffer object count and length.
+// Increasing either of these numbers increases the amount of buffered
+// audio which can help reduce crackling (empty buffers) at the cost of lag.
+static const u32 kNumBuffers = 3;
+static const u32 kAudioQueueBufferLength = 1 * 1024;
 
 static bool audio_open = false;
 
-
-// Large kAudioBufferSize creates huge delay on sound //Corn
-static const u32	kAudioBufferSize = 1024 * 2; // OSX uses a circular buffer length, 1024 * 1024
+#define RSP_AUDIO_INTR_CYCLES 1 
 
 
 class AudioPluginPSP : public CAudioPlugin
 {
 public:
 
- AudioPluginPSP();
+ 	AudioPluginPSP();
 	virtual ~AudioPluginPSP();
 	virtual bool			StartEmulation();
 	virtual void			StopEmulation();
@@ -83,6 +104,10 @@ public:
 	virtual void StopAudio();
 	virtual void StartAudio();
 
+	// static void AudioSyncFunction(void * arg);
+	// static void AudioCallback(void * arg);
+	// static void AudioThreadd(void * arg);
+
 public:
   CAudioBuffer *		mAudioBufferUncached;
 
@@ -94,6 +119,43 @@ private:
 	s32 mAudioThread;
 	s32 mSemaphore;
 //	u32 mBufferLenMs;
+};
+
+class SHLEStartJob : public SJob
+{
+public:
+	SHLEStartJob()
+	{
+		InitJob = nullptr;
+		DoJob = &DoHLEStartStatic;
+		FiniJob = &DoHLEFinishedStatic;
+	}
+
+	static int DoHLEStartStatic( SJob * arg )
+	{
+		SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
+		job->DoHLEStart();
+		return 0;
+	}
+
+	static int DoHLEFinishedStatic( SJob * arg )
+	{
+		SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
+		job->DoHLEFinish();
+		return 0;
+	}
+
+	int DoHLEStart()
+	{
+		Audio_Ucode();
+		return 0;
+	}
+
+	int DoHLEFinish()
+	{
+		CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
+		return 0;
+	}
 };
 
 class SAddSamplesJob : public SJob
@@ -138,21 +200,6 @@ public:
 	}
 };
 
-static AudioPluginPSP * ac;
-
-void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
-{
-	sceKernelWaitSema( mSemaphore, 1, nullptr );
-
-	mAudioBufferUncached->Drain( buffer, num_samples );
-
-	sceKernelSignalSema( mSemaphore, 1 );
-}
-
-
-EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
-
-
 AudioPluginPSP::AudioPluginPSP()
 :mKeepRunning (false)
 //: mAudioBuffer( kAudioBufferSize )
@@ -170,6 +217,7 @@ AudioPluginPSP::AudioPluginPSP()
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 }
 
+
 AudioPluginPSP::~AudioPluginPSP( )
 {
 	mAudioBuffer->~CAudioBuffer();
@@ -178,11 +226,11 @@ AudioPluginPSP::~AudioPluginPSP( )
   pspAudioEnd();
 }
 
-bool		AudioPluginPSP::StartEmulation()
+
+bool	AudioPluginPSP::StartEmulation()
 {
 	return true;
 }
-
 
 void	AudioPluginPSP::StopEmulation()
 {
@@ -193,8 +241,8 @@ void	AudioPluginPSP::StopEmulation()
     sceKernelDelayThread(100000);
     pspAudioEnd();
 
-
 }
+
 
 void	AudioPluginPSP::DacrateChanged( int system_type )
 {
@@ -205,6 +253,7 @@ void	AudioPluginPSP::DacrateChanged( int system_type )
 	DBGConsole_Msg(0, "Audio frequency: %d", frequency);
 	mFrequency = frequency;
 }
+
 
 
 void	AudioPluginPSP::LenChanged()
@@ -223,42 +272,6 @@ void	AudioPluginPSP::LenChanged()
 }
 
 
-class SHLEStartJob : public SJob
-{
-public:
-	SHLEStartJob()
-	{
-		InitJob = nullptr;
-		DoJob = &DoHLEStartStatic;
-		FiniJob = &DoHLEFinishedStatic;
-	}
-
-	static int DoHLEStartStatic( SJob * arg )
-	{
-		SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		job->DoHLEStart();
-		return 0;
-	}
-
-	static int DoHLEFinishedStatic( SJob * arg )
-	{
-		SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		job->DoHLEFinish();
-		return 0;
-	}
-
-	int DoHLEStart()
-	{
-		Audio_Ucode();
-		return 0;
-	}
-
-	int DoHLEFinish()
-	{
-		CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
-		return 0;
-	}
-};
 
 
 EProcessResult	AudioPluginPSP::ProcessAList()
@@ -288,32 +301,6 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 	return result;
 }
 
-
-void audioCallback( void * buf, unsigned int length, void * userdata )
-{
-	AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
-
-	ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
-}
-
-
-void AudioPluginPSP::StartAudio()
-{
-	if (mKeepRunning)
-		return;
-
-	mKeepRunning = true;
-
-	ac = this;
-
-
-pspAudioInit();
-pspAudioSetChannelCallback( 0, audioCallback, this );
-
-	// Everything OK
-	audio_open = true;
-}
-
 void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 {
 	if (length == 0)
@@ -324,14 +311,6 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
 	u32 num_samples = length / sizeof( Sample );
 
-	//Adapt Audio to sync% //Corn
-	/*u32 output_freq = kOutputFrequency;
-	if (gAudioRateMatch)
-	{
-		if (gSoundSync > 88200)			output_freq = 88200;	//limit upper rate
-		else if (gSoundSync < 44100)	output_freq = 44100;	//limit lower rate
-		else							output_freq = gSoundSync;
-	}*/
 	switch( gAudioPluginEnabled )
 	{
 	case APM_DISABLED:
@@ -361,6 +340,47 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 	#endif
 	*/
 }
+
+void audioCallback( void * buf, unsigned int length, void * userdata )
+{
+	AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
+
+	ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
+}
+
+
+void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
+{
+	sceKernelWaitSema( mSemaphore, 1, nullptr );
+
+	mAudioBufferUncached->Drain( buffer, num_samples );
+
+	sceKernelSignalSema( mSemaphore, 1 );
+}
+
+
+// void AudioPluginPSP::AudioSyncFunction(void * arg) {}
+
+
+void AudioPluginPSP::StartAudio()
+{
+	static AudioPluginPSP * ac;
+	if (mKeepRunning)
+		return;
+
+	mKeepRunning = true;
+
+	ac = this;
+
+
+pspAudioInit();
+pspAudioSetChannelCallback( 0, audioCallback, this );
+
+	// Everything OK
+	audio_open = true;
+}
+
+
 
 void AudioPluginPSP::StopAudio()
 {
