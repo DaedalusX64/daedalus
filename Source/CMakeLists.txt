@@ -166,7 +166,7 @@ set (PLAT PSP)
 	add_compile_definitions(DAEDALUS_PSP_USE_VPFU) ## This probably can be enabled by default 
 	add_compile_definitions(DAEDALUS_PSP_USE_ME)
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
- set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lpsprtc -lintrafont -lpspkubridge -lpspfpu)
+ set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu)
  
  
 ##Universal build options - Generic
@@ -175,6 +175,14 @@ add_library(daedalus.lib STATIC ${BUILD} ${${PLAT}_BUILD})
 add_executable(daedalus ${${PLAT}_MAIN_FILES})
 target_link_libraries(daedalus daedalus.lib -lstdc++ -lpng -lz -lc -lg -lm -lpthread ${PLAT_LIBS} )
  
+create_pbp_file(
+    TARGET daedalus
+    ICON_PATH ${PROJECT_SOURCE_DIR}/SysPSP/Resources/eboot_icons/icon0.png
+    BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/SysPSP/Resources/eboot_icons/pic1.png
+    PREVIEW_PATH NULL
+    TITLE DaedalusX64
+    BUILD_PRX
+)
  endif (PSP)
 
 

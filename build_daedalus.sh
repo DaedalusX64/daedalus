@@ -51,16 +51,6 @@ if [[ $PLATFORM = "PSPbuild" ]]; then
 fi
 
 make -j8 # Should make this use whatever is avaliable but that's fine for now
-
-if [[ $PLATFORM = "PSPbuild" ]] &&  [[ -f "$PWD/daedalus" ]]; then
-  psp-fixup-imports daedalus
-  mksfoex -d MEMSIZE=1 DaedalusX64 PARAM.SFO
-  psp-strip daedalus
- # psp-prxgen daedalus.elf daedalus.prx
-  cp ../Source/SysPSP/Resources/eboot_icons/* "$PWD"
-  pack-pbp EBOOT.PBP PARAM.SFO icon0.png NULL NULL pic1.png NULL daedalus NULL
-fi
-
 finalPrep
 }
 
