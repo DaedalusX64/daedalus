@@ -78,7 +78,7 @@ public:
 		u32 i;
 		for( i = 0; i < mItems.size() && i < rhs.mItems.size(); ++i )
 		{
-			s32		compare = _strcmpi( mItems[ i ]->GetName(), rhs.mItems[ i ]->GetName() );
+			s32		compare = strcasecmp( mItems[ i ]->GetName(), rhs.mItems[ i ]->GetName() );
 			if( compare != 0 )
 			{
 				return compare;

@@ -777,7 +777,7 @@ void	IInputManager::LoadControllerConfigs( const char * p_dir )
 			const char * last_period( strrchr( filename, '.' ) );
 			if(last_period != NULL)
 			{
-				if( _strcmpi(last_period, ".ini") == 0 )
+				if( strcasecmp(last_period, ".ini") == 0 )
 				{
 					std::string		full_path;
 
@@ -976,7 +976,7 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 {
 	for( u32 i = 0; i < mControllerConfigs.size(); ++i )
 	{
-		if( _strcmpi( mControllerConfigs[ i ]->GetName(), name ) == 0 )
+		if( strcasecmp( mControllerConfigs[ i ]->GetName(), name ) == 0 )
 		{
 			return i;
 		}

@@ -49,17 +49,17 @@ class IIniFileProperty : public CIniFileProperty
 		{
 			const char * str( mValue.c_str() );
 
-			if( _strcmpi( str, "yes" ) == 0 ||
-				_strcmpi( str, "true" ) == 0 ||
-				_strcmpi( str, "1" ) == 0 ||
-				_strcmpi( str, "on" ) == 0 )
+			if( strcasecmp( str, "yes" ) == 0 ||
+				strcasecmp( str, "true" ) == 0 ||
+				strcasecmp( str, "1" ) == 0 ||
+				strcasecmp( str, "on" ) == 0 )
 			{
 				return true;
 			}
-			if( _strcmpi( str, "no" ) == 0 ||
-				_strcmpi( str, "false" ) == 0 ||
-				_strcmpi( str, "0" ) == 0 ||
-				_strcmpi( str, "off" ) == 0 )
+			if( strcasecmp( str, "no" ) == 0 ||
+				strcasecmp( str, "false" ) == 0 ||
+				strcasecmp( str, "0" ) == 0 ||
+				strcasecmp( str, "off" ) == 0 )
 			{
 				return false;
 			}

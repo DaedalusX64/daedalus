@@ -219,7 +219,7 @@ namespace IO
 					}
 					else
 					{
-						if (_strcmpi(FindExtension( file ), p_extension) == 0)
+						if (strcasecmp(FindExtension( file ), p_extension) == 0)
 						{
 							//DBGConsole_Msg(0, "Deleting [C%s]",file);
 							sceIoRemove( file );
