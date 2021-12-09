@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSW32_INCLUDE_PLATFORM_H_
 #define SYSW32_INCLUDE_PLATFORM_H_
 
+#include "BuildOptions.h"
+
 //
 //	Make sure this platform is defined correctly
 //

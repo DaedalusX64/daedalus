@@ -1,20 +1,8 @@
- #CMake File for DaedalusX64
-
-#Build instructions
-# Create a directory in the DaedalusX64 root directory and cd into it 'eg: mkdir tmp ~/DaedalusX64'
-# ensure you have cmake installed
-# For PSP:
-# cmake -DCMAKE_TOOLCHAIN_FILE=../Tools/psptoolchain.cmake ../Source/ -DPSP_OPTION
-
-#Options
-# PSP_RELEASE - Builds PSP Release
-
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 17)
 project (DaedalusX64)
 
 				#Default Files for build
-				set (BASE_FILES StdAfx.cpp)
 				set (CONFIG_FILES Config/ConfigOptions.cpp)
 				set (CORE_FILES Core/HvqmTask.cpp Core/RDRam.cpp Core/Cheats.cpp Core/CPU.cpp Core/DMA.cpp Core/Dynamo.cpp Core/FlashMem.cpp  Core/FramerateLimiter.cpp Core/Interpret.cpp Core/Interrupt.cpp Core/JpegTask.cpp Core/Memory.cpp Core/PIF.cpp Core/PrintOpCode.cpp Core/R4300.cpp Core/Registers.cpp Core/ROM.cpp Core/ROMBuffer.cpp Core/ROMImage.cpp Core/RomSettings.cpp Core/RSP_HLE.cpp Core/Save.cpp Core/TLB.cpp)
 				set (DEBUG_FILES Debug/DebugConsoleImpl.cpp Debug/DebugLog.cpp Debug/Dump.cpp Debug/Synchroniser.cpp)
@@ -31,7 +19,7 @@ project (DaedalusX64)
 				set (UTILITY_FILES Utility/CRC.cpp Utility/FastMemcpy.cpp Utility/Hash.cpp Utility/IniFile.cpp Utility/MemoryHeap.cpp  Utility/Profiler.cpp  Utility/Stream.cpp Utility/StringUtil.cpp Utility/Timer.cpp  Utility/Translate.cpp )
 				set (UNKNOWN_FILES Utility/FastMemcpy_test.cpp Utility/MemoryPool.cpp)
 				set (DEBUG_ONLY Core/Registers.cpp)
-				set (BUILD ${BASE_FILES} ${CONFIG_FILES} ${CORE_FILES} ${DEBUG_FILES} ${DYNAREC_FILES} ${GRAPHICS_FILES} ${HLEAUDIO_FILES} ${HLEGRAPHICS_FILES} ${INTERFACE_FILES} ${MATH_FILES} ${OSHLE_FILES} ${PLUGIN_FILES} ${ROMFILE_FILES} ${SYSTEM_FILES} ${TEST_FILES} ${UTILITY_FILES})
+				set (BUILD ${CONFIG_FILES} ${CORE_FILES} ${DEBUG_FILES} ${DYNAREC_FILES} ${GRAPHICS_FILES} ${HLEAUDIO_FILES} ${HLEGRAPHICS_FILES} ${INTERFACE_FILES} ${MATH_FILES} ${OSHLE_FILES} ${PLUGIN_FILES} ${ROMFILE_FILES} ${SYSTEM_FILES} ${TEST_FILES} ${UTILITY_FILES})
 
 
 				#PSP Build
@@ -99,6 +87,9 @@ project (DaedalusX64)
 ## Check for debug / Profile flags, if neither are selected, do a release build instead
 # This will be more refined eventually as having macro processing tucked away sucks.
 
+set(DAEDALUS_ENDIAN_LITTLE 1)
+set(DAEDALUS_ENDIAN_BIG 2)
+
 #  Confirm Endianness
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
@@ -129,6 +120,21 @@ endif()
 #DAEDALUS_SILENT						// Undef to enable debug messages
 #DAEDALUS_IS_LEGACY					// Old code, unused etc.. Kept for reference, undef to save space on the elf. Will remove soon.
 #DAEDALUS_DIALOGS					// Enable this to show dialogs in the gui
+
+
+## These build options are required so we define as nothing until needed
+if(NOT WIN32)
+add_compile_definitions(R4300_CALL_TYPE=${})
+add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
+add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
+add_compile_definitions(DAEDALUS_ZLIB_CALL_TYPE=${})
+endif()
+
+## Thesse are only defined in the PSP Build
+if(NOT PSP)
+add_compile_definitions(DAEDALUS_ATTRIBUTE_PURE=${}) #Does not modify global memory
+add_compile_definitions(DAEDALUS_ATTRIBUTE_CONST=${}) #Does not read/modify global memory
+endif()
 
 if(DEBUG)
 	message("Debug Build")
@@ -187,7 +193,6 @@ create_pbp_file(
 
 
 
-
 if (LINUX)
 	add_definitions(-DDAEDALUS_LINUX)
 	## Assume Linux uses X11 for now
@@ -195,7 +200,7 @@ if (LINUX)
 	set (AUDIO_DRIVER ${LINUX_AUDIO})
 endif (LINUX)
 
-if (MAC)
+if (APPLE)
 	set (OS_LIBS "-framework OpenGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")
 	set (AUDIO_DRIVER ${MAC_AUDIO})
 	include_directories(${PROJECT_SOURCE_DIR/HLEGraphics}) # Why are we including this?
@@ -203,13 +208,13 @@ if (MAC)
 	FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
 	include_directories(/usr/local/include -framework OpenGL) # Is this required? 
 	link_directories(/usr/local/lib) ## Is this required?
-endif (MAC)
+endif (APPLE)
 
-if (MAC OR LINUX)
+if (UNIX)
 	add_definitions(-DDAEDALUS_POSIX -DDAEDALUS_GL)
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPosix/Include ${PROJECT_SOURCE_DIR})
 	
-	#Build SysGL
+	#Build SysGL - Will need to move this out of here eventually.
 	add_library(sysGL STATIC ${SYSGL_BUILD})
 	target_link_libraries(sysGL GLEW SDL2 dl ${OS_LIBS})
 
@@ -221,7 +226,7 @@ if (MAC OR LINUX)
 	add_executable(daedalus ${POSIX_MAIN_FILES})
 	target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
 
-endif (MAC OR LINUX)
+endif (UNIX)
 
 if(WIN32)
 add_definitions(-DDAEDALUS_WIN32 -DDAEDALUS_GL)
