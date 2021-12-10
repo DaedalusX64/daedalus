@@ -2,11 +2,30 @@ project (DaedalusX64 LANGUAGES C CXX ASM )
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 17)
 
+
+	#Build Type
+	if(DEBUG)
+		set(CMAKE_BUILD_TYPE Debug)
+		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev")
+		option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
+		option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
+		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
+		option(DAEDALUS_LOG "Enable various logging" ON)
+		add_definitions("-g -D_DEBUG -MD ")
+	else()
+		set(CMAKE_BUILD_TYPE Release)
+		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release")
+	#	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
+		add_compile_definitions(O2)
+		add_compile_definitions(DNDEBUG)
+	endif()
+
 	# General options
 
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON)
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF)
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
 
 	# Additional Debug Options
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
@@ -16,51 +35,22 @@ set(CMAKE_CXX_STANDARD 17)
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
 	option(DAEDALUS_PROFILE_EXECUTION "Keep track of various execution stats" OFF)
 
+	## Enable specific options per platform based on Release build ## XXX need to handle GPROF
 
-
-	## Enable specific options per platform based on Release build
-
-	if(PSP)
+	if(PSP) 
+	option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
 	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 	option(DAEDALUS_PSP "PSP specific Options" ON)
 	option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
 	option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
-	endif()
-
-	if(UNIX)
+	elseif(UNIX)
 	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
 	option(DAEDALUS_POSIX "Posix specific options" ON)
 	option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 	endif()
 
-
 	include(${PROJECT_SOURCE_DIR}/Options.cmake)
-
-	## XXXX Needs refactoring, turn all options off by default except for release options then build off that.
-	## The include_directories is no longer required
-	if(DEBUG)
-		message("Debug Build")
-
-		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev")
-
-		option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
-		option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
-		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
-		option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
-		option(DAEDALUS_LOG "Enable various logging" ON)
-		add_definitions("-g -D_DEBUG -MD ")
-	elseif(PROFILE)
-		message("Profile Build")
-		add_compile_definitions(DAEDALUS_CONFIG_VERSION="PSP GPROF")
-		add_compile_definitions(DAEDALUS_PSP_GPROF)
-	else()
-		message("Release Build")
-		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release")
-		option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
-		add_compile_definitions(O2)
-		add_compile_definitions(DNDEBUG)
-	endif()
-
+	
 	#Endianness Check
 	set(DAEDALUS_ENDIAN_LITTLE 1)
 	set(DAEDALUS_ENDIAN_BIG 2)

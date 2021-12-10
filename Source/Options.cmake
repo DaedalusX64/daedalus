@@ -50,11 +50,11 @@ endif()
 
 if(DAEDALUS_PROFILE_EXECUTION)
     add_compile_definitions(DAEDALUS_PROFILE_EXECUTION)
-endif()
+endif(DAEDALUS_PROFILE_EXECUTION)
 
 if(DAEDALUS_SILENT)
     add_compile_definitions(DAEDALUS_SILENT)
-endif()
+endif(DAEDALUS_SILENT)
 
 if(DAEDALUS_PSP)
     add_compile_definitions(DAEDALUS_PSP)
@@ -67,6 +67,11 @@ endif(DAEDALUS_PSP_USE_ME)
 if(DAEDALUS_PSP_USE_VFPU)
     add_compile_definitions(DAEDALUS_PSP_USE_VFPU)
 endif()
+
+if(DAEDALUS_DIALOGS)
+    add_compile_definitions(DAEDALUS_DIALOGS)
+endif(DAEDALUS_DIALOGS)
+
 
 if(DAEDALUS_POSIX)
     add_compile_definitions(DAEDALUS_POSIX)
