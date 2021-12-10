@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON)
-	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" ON)
+	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF)
 
 	# Additional Debug Options
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
