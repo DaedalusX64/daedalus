@@ -2,50 +2,63 @@ project (DaedalusX64 LANGUAGES C CXX ASM )
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 17)
 
+	# General options
 
-## Compile Flags
-	#DAEDALUS_DEBUG_PIF					// Enable to enable various debugging options for PIF (Peripheral interface)
-	#DAEDALUS_DEBUG_CONSOLE				// Enable debug console
-	#DAEDALUS_DEBUG_DYNAREC				// Enable to enable various debugging options for the dynarec
-	#DAEDALUS_ENABLE_SYNCHRONISATION		// Enable for sync testing
-	#DAEDALUS_LOG						// Enable various logging
-	#DAEDALUS_ENABLE_ASSERTS				// Enable asserts
-	#DAEDALUS_DEBUG_DISPLAYLIST			// Enable the display list debugger
-	#DAEDALUS_ENABLE_PROFILING			// Enable the built-in profiler
-	#DAEDALUS_PROFILE_EXECUTION			// Enable to keep track of various execution stats
-	#DAEDALUS_BATCH_TEST_ENABLED			// Enable the batch test
-	#DAEDALUS_DEBUG_MEMORY
-	#ALLOW_TRACES_WHICH_EXCEPT
-	#DAEDALUS_SILENT						// Undef to enable debug messages
-	#DAEDALUS_IS_LEGACY					// Old code, unused etc.. Kept for reference, undef to save space on the elf. Will remove soon.
-	#DAEDALUS_DIALOGS					// Enable this to show dialogs in the gui
-	
+	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
+	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON)
+	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" ON)
+
+	# Additional Debug Options
+	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
+	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" OFF)
+	option(DAEDALUS_DEBUG_DYNAREC "Enable Various Debugging options for the Dynarec" OFF)
+	option(DAEDALUS_ENABLE_SYNCHRONISATION "Enable for sync testing" OFF)
+	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
+	option(DAEDALUS_PROFILE_EXECUTION "Keep track of various execution stats" OFF)
+
+
+
+	## Enable specific options per platform based on Release build
+
+	if(PSP)
+	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
+	option(DAEDALUS_PSP "PSP specific Options" ON)
+	option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
+	option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
+	endif()
+
+	if(UNIX)
+	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
+	option(DAEDALUS_POSIX "Posix specific options" ON)
+	option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
+	endif()
+
+
+	include(${PROJECT_SOURCE_DIR}/Options.cmake)
+
 	## XXXX Needs refactoring, turn all options off by default except for release options then build off that.
 	## The include_directories is no longer required
 	if(DEBUG)
 		message("Debug Build")
-		include_directories(${PROJECT_SOURCE_DIR}/Base/Dev)
+
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev")
-		add_compile_definitions(DAEDALUS_DEBUG_CONSOLE)
-		add_compile_definitions(DAEDALUS_DEBUG_DISPLAYLIST)
-		add_compile_definitions(DAEDALUS_ENABLE_ASSERTS)
-		add_compile_definitions(DAEDALUS_LOG)
+
+		option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
+		option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
+		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
+		option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
+		option(DAEDALUS_LOG "Enable various logging" ON)
 		add_definitions("-g -D_DEBUG -MD ")
 	elseif(PROFILE)
 		message("Profile Build")
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="PSP GPROF")
-		add_compile_definitions(DAEDALUS_SILENT)
 		add_compile_definitions(DAEDALUS_PSP_GPROF)
-		include_directories(${PROJECT_SOURCE_DIR}/Base/Profile) 
 	else()
 		message("Release Build")
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release")
-		add_compile_definitions(DAEDALUS_SILENT)
-		add_compile_definitions(DAEDALUS_DIALOGS)
+		option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
 		add_compile_definitions(O2)
 		add_compile_definitions(DNDEBUG)
-		include_directories(${PROJECT_SOURCE_DIR}/Base/Release)
-
 	endif()
 
 	#Endianness Check
@@ -144,11 +157,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 	if (PSP)
 		set (PLAT PSP)
-		add_compile_definitions(DAEDALUS_PSP)
-		add_compile_definitions(DAEDALUS_ENABLE_DYNAREC)
-		add_compile_definitions(DAEDALUS_ENABLE_OS_HOOKS)
-		add_compile_definitions(DAEDALUS_PSP_USE_VPFU) ## This probably can be enabled by default 
-		add_compile_definitions(DAEDALUS_PSP_USE_ME)
+
+
+		# add_compile_definitions(DAEDALUS_DIALOGS)
+
 		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
 		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu)
  

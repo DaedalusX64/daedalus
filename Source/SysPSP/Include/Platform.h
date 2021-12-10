@@ -17,8 +17,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#pragma once
-
 #ifndef SYSPSP_INCLUDE_PLATFORM_H_
 #define SYSPSP_INCLUDE_PLATFORM_H_
 
@@ -31,14 +29,8 @@ enum PspModel
     PSP_MODEL_GO = 4,
     PSP_MODEL_STREET = 10
 };
-//
-//	Make sure this platform is defined correctly
-//
 
 
-// #define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
-// We have a VFPU :)
-#define DAEDALUS_PSP_USE_VFPU
 
 #define DAEDALUS_EXPECT_LIKELY(c) __builtin_expect((c),1)
 #define DAEDALUS_EXPECT_UNLIKELY(c) __builtin_expect((c),0)
