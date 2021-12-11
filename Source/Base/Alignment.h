@@ -45,14 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 	#endif
 
-#elif defined( DAEDALUS_PSP ) || defined( DAEDALUS_PS3 )
-
-#define ALIGNED_TYPE(type, type_name, alignval) type __attribute__((aligned(alignval))) type_name
-#define ALIGNED_GLOBAL(type, var, alignval) __attribute__((aligned(alignval))) type var
-#define ALIGNED_MEMBER(type, var, alignval) __attribute__((aligned(alignval))) type var
-#define ALIGNED_EXTERN(type, var, alignval) extern __attribute__((aligned(alignval))) type var
-
-#elif defined( DAEDALUS_POSIX)
+#elif defined( DAEDALUS_PSP ) || defined( DAEDALUS_PS3 ) || defined( DAEDALUS_POSIX )
 
 #define ALIGNED_TYPE(type, type_name, alignval) type __attribute__((aligned(alignval))) type_name
 #define ALIGNED_GLOBAL(type, var, alignval) __attribute__((aligned(alignval))) type var

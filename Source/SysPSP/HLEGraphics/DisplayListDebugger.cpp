@@ -709,7 +709,7 @@ void CTextureExplorerDebugMenuOption::Display() const
 	if( max_to_show >= s32( mSnapshot.size() ) )
 	{
 		s32 num_spare( max_to_show - (mSnapshot.size() - 1) );
-		min_to_show = std:clamp< s32 >( min_to_show - num_spare, 0, mSnapshot.size() - 1 );
+		min_to_show = std::clamp< s32 >( min_to_show - num_spare, 0, mSnapshot.size() - 1 );
 		max_to_show = mSnapshot.size() - 1;
 	}
 

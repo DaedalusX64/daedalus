@@ -48,7 +48,7 @@ EExpansionPakUsage	ExpansionPakUsageFromString( const char * str )
 	{
 		EExpansionPakUsage	pak_usage = EExpansionPakUsage( i );
 
-		if( _strcmpi( str, ROM_GetExpansionPakUsageName( pak_usage ) ) == 0 )
+		if( strcasecmp( str, ROM_GetExpansionPakUsageName( pak_usage ) ) == 0 )
 		{
 			return pak_usage;
 		}
@@ -63,7 +63,7 @@ ESaveType	SaveTypeFromString( const char * str )
 	{
 		ESaveType	save_type = ESaveType( i );
 
-		if( _strcmpi( str, ROM_GetSaveTypeName( save_type ) ) == 0 )
+		if( strcasecmp( str, ROM_GetSaveTypeName( save_type ) ) == 0 )
 		{
 			return save_type;
 		}

@@ -85,7 +85,7 @@ void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char
 	std::filesystem::path path_name = "SaveGames";
 
 	// Save hle cache in a separate folder
-	 if (_strcmpi(".hle", extension) == 0)
+	 if (strcasecmp(".hle", extension) == 0)
 
 		path_name /= "Cache";
 

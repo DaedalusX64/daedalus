@@ -144,7 +144,7 @@ void	Translate_Load( const char * p_dir )
 			char * last_period( strrchr( filename, '.' ) );
 			if(last_period != NULL)
 			{
-				if( _strcmpi(last_period, ".lng") == 0 )
+				if( strcasecmp(last_period, ".lng") == 0 )
 				{
 					IO::Path::RemoveExtension( filename );
 					gLanguage.push_back( filename );
@@ -186,7 +186,7 @@ u32	Translate_IndexFromName( const char * name )
 {
 	for( u32 i = 0; i < gLanguage.size(); ++i )
 	{
-		if( _strcmpi(  gLanguage[ i ].c_str(), name ) == 0 )
+		if( strcasecmp(  gLanguage[ i ].c_str(), name ) == 0 )
 		{
 			return i;
 		}

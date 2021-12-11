@@ -93,7 +93,7 @@ class CConstString
 			}
 			else
 			{
-				return _strcmpi( mpString, string ) == 0;
+				return strcasecmp( mpString, string ) == 0;
 			}
 		}
 
@@ -184,7 +184,7 @@ template< u32 MAX_LENGTH > class CFixedString
 			}
 			else
 			{
-				return _strcmpi( mpString, string ) == 0;
+				return strcasecmp( mpString, string ) == 0;
 			}
 		}
 
@@ -346,7 +346,7 @@ class CString
 			}
 			else
 			{
-				return _strcmpi( mpString, string ) == 0;
+				return strcasecmp( mpString, string ) == 0;
 			}
 		}
 

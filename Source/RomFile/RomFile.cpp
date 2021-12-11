@@ -37,21 +37,21 @@ bool IsRomfilename( const char * rom_filename )
 	if(last_period == NULL)
 		return false;
 
-	return (_strcmpi(last_period, ".v64") == 0 ||
-		    _strcmpi(last_period, ".z64") == 0 ||
-		    _strcmpi(last_period, ".n64") == 0 ||
-		    _strcmpi(last_period, ".rom") == 0 ||
-			_strcmpi(last_period, ".bin") == 0 ||
-		    _strcmpi(last_period, ".jap") == 0 ||
-		    _strcmpi(last_period, ".pal") == 0 ||
-		    _strcmpi(last_period, ".usa") == 0 ||
-		    _strcmpi(last_period, ".zip") == 0);
+	return (strcasecmp(last_period, ".v64") == 0 ||
+		    strcasecmp(last_period, ".z64") == 0 ||
+		    strcasecmp(last_period, ".n64") == 0 ||
+		    strcasecmp(last_period, ".rom") == 0 ||
+			strcasecmp(last_period, ".bin") == 0 ||
+		    strcasecmp(last_period, ".jap") == 0 ||
+		    strcasecmp(last_period, ".pal") == 0 ||
+		    strcasecmp(last_period, ".usa") == 0 ||
+		    strcasecmp(last_period, ".zip") == 0);
 }
 
 ROMFile * ROMFile::Create( const char * filename )
 {
 	const char * ext = IO::Path::FindExtension( filename );
-	if (ext && _strcmpi(ext, ".zip") == 0)
+	if (ext && strcasecmp(ext, ".zip") == 0)
 	{
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 		return new ROMFileCompressed( filename );

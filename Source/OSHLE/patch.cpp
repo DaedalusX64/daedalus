@@ -229,7 +229,7 @@ u32 Patch_GetSymbolAddress(const char * name)
 		if (!g_PatchSymbols[p]->Found)
 			continue;
 
-		if (_strcmpi(g_PatchSymbols[p]->Name, name) == 0)
+		if (strcasecmp(g_PatchSymbols[p]->Name, name) == 0)
 			return PHYS_TO_K0(g_PatchSymbols[p]->Location);
 
 	}
