@@ -34,6 +34,10 @@ set(CMAKE_CXX_STANDARD 17)
 	option(DAEDALUS_ENABLE_SYNCHRONISATION "Enable for sync testing" OFF)
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
 	option(DAEDALUS_PROFILE_EXECUTION "Keep track of various execution stats" OFF)
+	
+
+	# Additional PSP Options
+	option(DAEDALUS_PSP_GPROF "PSP Profiling, needs Silent enabled" OFF)
 
 	## Enable specific options per platform based on Release build ## XXX need to handle GPROF
 
@@ -60,7 +64,7 @@ set(CMAKE_CXX_STANDARD 17)
 	if(IS_BIG_ENDIAN)
 	message(STATUS "Big Endian Detected")
 	set(ENDIAN DAEDALUS_ENDIAN_BIG)
-	add_compile_definitions(DAEDALUS_ENDIAN_MODE=DAEDALUS_ENDIAN_BIG)
+	add_compile_definitions(DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_BIG)
 	else()
 	message(STATUS "Little Endian Detected")
 	add_compile_definitions(DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE)
