@@ -54,8 +54,8 @@ template<> bool CSingleton< CVideoMemoryManager >::Create()
 //
 //*****************************************************************************
 IVideoMemoryManager::IVideoMemoryManager()
-:	mVideoMemoryHeap( CMemoryHeap::Create( MAKE_UNCACHED_PTR( sceGeEdramGetAddr() ), sceGeEdramGetSize() ) )
-,	mRamMemoryHeap( CMemoryHeap::Create( MAKE_UNCACHED_PTR( (void*)(((u32)malloc_volatile(ERAM + 0xF) + 0xF) & ~0xF) ), ERAM ) )
+:	mVideoMemoryHeap( CMemoryHeap::Create( make_uncached_ptr( sceGeEdramGetAddr() ), sceGeEdramGetSize() ) )
+,	mRamMemoryHeap( CMemoryHeap::Create( make_uncached_ptr( (void*)(((u32)malloc_volatile(ERAM + 0xF) + 0xF) & ~0xF) ), ERAM ) )
 //,	mRamMemoryHeap( CMemoryHeap::Create( 1 * 1024 * 1024 ) )
 {
 	printf( "vram base: %p\n", sceGeEdramGetAddr() );

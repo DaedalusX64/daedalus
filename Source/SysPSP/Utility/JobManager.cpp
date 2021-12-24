@@ -50,7 +50,7 @@ bool InitialiseJobManager()
 	if( CModule::Load("mediaengine.prx") < 0 )	return false;
 
 	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
-	mei = (volatile struct me_struct *)(MAKE_UNCACHED_PTR(mei));
+	mei = (volatile struct me_struct *)(make_uncached_ptr(mei));
 	sceKernelDcacheWritebackInvalidateAll();
 
 	if (InitME(mei) == 0)

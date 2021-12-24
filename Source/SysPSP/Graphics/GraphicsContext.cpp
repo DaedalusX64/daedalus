@@ -313,8 +313,8 @@ void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 
 	if( PSP_TV_LACED )
 	{
-		u32 src = (u32)MAKE_UNCACHED_PTR((void*)LACED_DRAW);
-		u32 dst = (u32)MAKE_UNCACHED_PTR((void*)LACED_DISP);
+		u32 src = (u32)make_uncached_ptr((void*)LACED_DRAW);
+		u32 dst = (u32)make_uncached_ptr((void*)LACED_DISP);
 
 		sceGuStart(GU_DIRECT,ilist);
 		sceGuCopyImage(SCR_MODE, 0, 0, 720, 240, 768*2, reinterpret_cast< void * >(src + 768*4), 0, 0, 768, reinterpret_cast< void * >(dst));
@@ -812,7 +812,7 @@ bool IGraphicsContext::Initialise()
 	sceDisplayWaitVblankStart();
 	sceGuDisplay(GU_TRUE);
 
-	sceDisplaySetFrameBuf(MAKE_UNCACHED_PTR(disp_buffer), BUF_WIDTH, SCR_MODE, PSP_DISPLAY_SETBUF_NEXTFRAME);
+	sceDisplaySetFrameBuf(make_uncached_ptr(disp_buffer), BUF_WIDTH, SCR_MODE, PSP_DISPLAY_SETBUF_NEXTFRAME);
 
 	mpBuffers[ 0 ] = draw_buffer_rel;
 	mpBuffers[ 1 ] = disp_buffer_rel;
@@ -885,7 +885,7 @@ void IGraphicsContext::SwitchToChosenDisplay()
 	sceGuDisplay(GU_TRUE);
 
 	void * frame_buffer = reinterpret_cast< void * >((reinterpret_cast< u32 >(save_disp_rel) + reinterpret_cast< u32 >( sceGeEdramGetAddr() )));
-	frame_buffer = MAKE_UNCACHED_PTR(frame_buffer);
+	frame_buffer = make_uncached_ptr(frame_buffer);
 	sceDisplaySetFrameBuf(frame_buffer, BUF_WIDTH, SCR_MODE, PSP_DISPLAY_SETBUF_NEXTFRAME);
 
 	mpBuffers[ 0 ] = save_draw_rel;
@@ -935,7 +935,7 @@ void IGraphicsContext::SwitchToLcdDisplay()
 	sceGuDisplay(GU_TRUE);
 
 	void * frame_buffer = reinterpret_cast< void * >((reinterpret_cast< u32 >(save_disp_rel) + reinterpret_cast< u32 >( sceGeEdramGetAddr() )));
-	frame_buffer = MAKE_UNCACHED_PTR(frame_buffer);
+	frame_buffer = make_uncached_ptr(frame_buffer);
 	sceDisplaySetFrameBuf(frame_buffer, BUF_WIDTH, SCR_MODE, PSP_DISPLAY_SETBUF_NEXTFRAME);
 
 	sceGuStart(GU_CALL,list[listNum]);

@@ -21,9 +21,5 @@
 #define DAEDALUS_EXPECT_UNLIKELY(c) (c)
 #endif
 
-//PSP Uncached pointer. 
-#ifndef MAKE_UNCACHED_PTR
-#define MAKE_UNCACHED_PTR(x)	(x)
-#endif
 
 #endif // BUILDOPTIONS_H_

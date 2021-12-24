@@ -169,18 +169,12 @@ bool Memory_Init()
 
 			// Necessary?
 			memset(g_pMemoryBuffers[m], 0, region_size);
-			/*if (region_size < 0x100) // dirty, check if this is a I/O range
-			{
-				g_pMemoryBuffers[m] = MAKE_UNCACHED_PTR(g_pMemoryBuffers[m]);
-			}*/
 		}
 	}
 	//printf("%d bytes used of memory\n",count);
 #endif
 
 	g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0x80000000;
-	//g_pu8RamBase_A000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0xa0000000;
-	//g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
 
 	g_RomWritten = false;
 

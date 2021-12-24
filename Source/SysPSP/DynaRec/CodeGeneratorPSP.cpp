@@ -164,7 +164,7 @@ void Dynarec_ClearedCPUStuffToDo()
 {
 	// Replace first two ops of _ReturnFromDynaRecIfStuffToDo with 'jr ra, nop'
 	u8 *			p_void_function( reinterpret_cast< u8 * >( _ReturnFromDynaRecIfStuffToDo ) );
-	PspOpCode *		p_function_address = reinterpret_cast< PspOpCode * >( MAKE_UNCACHED_PTR( p_void_function ) );
+	PspOpCode *		p_function_address = reinterpret_cast< PspOpCode * >( make_uncached_ptr( p_void_function ) );
 
 	if(!gHaveSavedPatchedOps)
 	{
@@ -199,7 +199,7 @@ void Dynarec_SetCPUStuffToDo()
 	// Restore first two ops of _ReturnFromDynaRecIfStuffToDo
 
 	u8 *			p_void_function( reinterpret_cast< u8 * >( _ReturnFromDynaRecIfStuffToDo ) );
-	PspOpCode *		p_function_address = reinterpret_cast< PspOpCode * >( MAKE_UNCACHED_PTR( p_void_function ) );
+	PspOpCode *		p_function_address = reinterpret_cast< PspOpCode * >( make_uncached_ptr( p_void_function ) );
 
 	p_function_address[0] = gOriginalOps[0];
 	p_function_address[1] = gOriginalOps[1];

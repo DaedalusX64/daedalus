@@ -61,7 +61,7 @@ public:
 	u8 *			GetWritableU8P() const
 	{
 		//Todo: PSP
-		return reinterpret_cast< u8 * >( MAKE_UNCACHED_PTR(mpLocation) );
+		return reinterpret_cast< u8 * >( make_uncached_ptr(mpLocation) );
 		//Todo: Check this
 		//return reinterpret_cast< u8 * >( mpLocation );
 	}
