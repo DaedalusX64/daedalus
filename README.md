@@ -10,7 +10,7 @@ and `PSP` with many experimental optimizations.
 
 ---
 
-**⸢ [Releases] ⸥  ⸢ [Wiki] ⸥**
+**⸢ [Releases] ⸥ ⸢ [Wiki] ⸥**
 
 ---
 
