@@ -10,7 +10,7 @@ and `PSP` with many experimental optimizations.
 
 ---
 
-**⸢ [Releases] ⸥ ⸢ [Wiki] ⸥** [![Discord Badge]][Discord Link]
+**⸢ [Releases] ⸥  ⸢ [Wiki] ⸥**  [![Discord Badge]][Discord Link]
 
 ---
 
