@@ -4,7 +4,7 @@
 An actively developed **N64 Emulator** for `Linux` <br>
 and `PSP` with many experimental optimizations.
 
-*Ports for `Windows` / `Mac` / `PS Vita` are* ***planned*** *.*
+*Ports for `Windows` / `Mac` / `PS Vita` are* ***planned*** *.*
 
 <br>
 
