@@ -95,30 +95,30 @@ to even full speed in many titles.
 
 <br>
 
-`kreationz` `salvy6735` `Corn` `Chilly Willy` <br>
+`kreationz` [`salvy6735`] [`Corn`] `Chilly Willy` <br>
 
   **Original DaedalusX64 Code**
-  
+
   <br>
 
-`Wally`
+[`Wally`]
 
   *Optimizations* <br>
   *Improvements* <br>
   *Ports*
 
-`z2442`
+[`z2442`]
 
   *Compilation Improvements* <br>
   *Optimizations* <br>
   *Updating*
 
-`mrneo240`
+[`mrneo240`]
 
   *Compilation Help* <br>
   *Optimizations*
 
-`TheMrIron2`
+[`TheMrIron2`]
 
   *Wiki Maintenance* <br>
   *Optimizations*
@@ -131,3 +131,12 @@ to even full speed in many titles.
 
 [Discord Badge]: Data/Resources/Discord.png
 [Discord Link]: https://discord.gg/FrVTpBV
+
+<!----------------------------------------------------------------------------->
+
+[`Wally`]: https://github.com/wally4000
+[`z2442`]: https://github.com/z2442
+[`salvy6735`]: https://github.com/salvy
+[`TheMrIron2`]: https://github.com/TheMrIron2
+[`Corn`]: https://github.com/CornN64
+[`mrneo240`]: https://github.com/mrneo240
