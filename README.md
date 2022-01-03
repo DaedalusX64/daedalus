@@ -10,7 +10,7 @@ and `PSP` with many experimental optimizations.
 
 ---
 
-**⸢ [Releases] ⸥ ⸢ [Wiki] ⸥**
+**⸢ [Releases] ⸥ ⸢ [Compatible Games] ⸥ ⸢ [Wiki] ⸥**
 
 ---
 
@@ -128,6 +128,7 @@ to even full speed in many titles.
 
 [Wiki]: https://github.com/DaedalusX64/daedalus/wiki
 [Releases]: https://github.com/DaedalusX64/daedalus/releases
+[Compatible Games]: https://daedalusx64.github.io/compatibility/index.html
 
 [Discord Badge]: https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white&style=flat
 [Discord Link]: https://discord.gg/FrVTpBV
