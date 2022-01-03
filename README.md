@@ -1,50 +1,119 @@
+
 # DaedalusX64
- 
-DaedalusX64 is a Nintendo 64 emulator for Linux and PSP, with plans to port to Windows, Mac, PS Vita among other platforms. The PSP port is noteworthy for being the fastest N64 emulator ever on the platform, achieving close to or even full speed in many titles.
- 
-## Features:
- 
-- Fast emulation
-- High compatibility
-- Support for PSP TV Mode with 480p output!
-- Active support and updates
-- Lots of experimental optimizations
- 
-And more!
- 
-## Usage
- 
-To install Daedalus to your PSP, download the latest release from the Releases page: https://github.com/DaedalusX64/daedalus/releases
- 
-Next, plug your PSP into your computer and navigate to /PSP/GAME/. Create a folder called "daedalus" there, and place the EBOOT.PBP file inside. Place your ROM files in daedalus/Roms/ and they will automatically appear in Daedalus.
- 
-Note: If the release is a ZIP file with a folder containing an EBOOT.PBP file when extracted, simply drag and drop the extracted folder into /PSP/GAME/.
 
-## Building for Windows 
+An actively developed **N64 Emulator** for `Linux` <br>
+and `PSP` with many experimental optimizations.
 
-1) Clone and open the repo in Visual studio 2019
+*Ports for `Windows` / `Mac` / `PS Vita` are* ***planned*** *.*
 
-2) Build All
+Our **PSP** port is noteworthy for being the **fastest** <br>
+N64 emulator on the platform, achieving close to, <br>
+to even full speed in many titles.
 
-## Building for Linux and MAC
 
-1) Clone this repo 
+---
 
-2) Open a terminal and run build_daedalus.sh with the argument for the os you would like to build for 
-Example: ./build_daedalus.sh LINUX
- 
-## More Info
- 
-For information about compatibility, optimal settings and more about the emulator, visit the actively maintained GitHub wiki page: https://github.com/DaedalusX64/daedalus/wiki Feel free to submit reports for how well your favourite games run if they have not already been listed!
- 
-Join our Discord server to talk to other Daedalus users and the developers!
- 
-Invite link: https://discord.gg/FrVTpBV
- 
+**⸢ [Releases] ⸥ ⸢ [Wiki] ⸥** [![Discord Badge]][Discord Link]
+
+---
+
+## Features
+
+- **Fast Emulation**
+- **High Compatibility**
+- **PSP TV 480p Support**
+
+---
+
+## Installation
+
+1. Download the latest **[Release][Releases]**.
+
+2. Plug your **PSP** into your computer.
+
+3. Navigate to `/PSP/GAME/`.
+
+4. Create a folder with the name `daedalus`.
+
+5. Place the `EBOOT.PBP` into this folder.
+
+6. Copy your **ROMs** into `daedalus/Roms`.
+
+    *They will automatically appear in* ***Daedalus*** *.*
+
+<br>
+
+##### Note
+
+*If the downloaded release is a* ***ZIP*** *file with a folder* <br>
+*containing a `EBOOT.PBP` file, after extraction, simply* <br>
+*drag & drop that extracted folder into `/PSP/GAME/`.*
+
+---
+
+## Building
+
+<br>
+
+##### Windows
+
+1. **Clone** the repository.
+
+2. Open the project in `Visual Studio 2019`.
+
+3. Use the `Build All` option.
+
+<br>
+
+##### Linux & MAC
+
+1. **Clone** the repository.
+
+2. **Run** `build_daedalus.sh` in a terminal.
+
+    *Select your OS by passing it as a parameter.*
+
+    ```sh
+    ./build_daedalus.sh LINUX
+    ```
+
+---
+
 ## Credits
- 
-- kreationz, salvy6735, Corn, Chilly Willy: Original DaedalusX64 code
-- Wally: Optimizations, improvements and ports
-- z2442: Compilation improvements and updating, optimizations
-- mrneo240: Optimizations, compilation help
-- TheMrIron2: Optimizations, wiki maintenance
+
+<br>
+
+`kreationz` `salvy6735` `Corn` `Chilly Willy` <br>
+
+  **Original DaedalusX64 Code**
+
+`Wally`
+
+  *Optimizations* <br>
+  *Improvements* <br>
+  *Ports*
+
+`z2442`
+
+  *Compilation Improvements* <br>
+  *Optimizations* <br>
+  *Updating*
+
+`mrneo240`
+
+  *Compilation Help* <br>
+  *Optimizations*
+
+`TheMrIron2`
+
+  *Wiki Maintenance* <br>
+  *Optimizations*
+
+
+<!----------------------------------------------------------------------------->
+
+[Wiki]: https://github.com/DaedalusX64/daedalus/wiki
+[Releases]: https://github.com/DaedalusX64/daedalus/releases
+
+[Discord Badge]: Data/Resources/Discord.png
+[Discord Link]: https://discord.gg/FrVTpBV
