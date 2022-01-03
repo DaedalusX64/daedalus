@@ -6,10 +6,7 @@ and `PSP` with many experimental optimizations.
 
 *Ports for `Windows` / `Mac` / `PS Vita` are* ***planned*** *.*
 
-Our **PSP** port is noteworthy for being the **fastest** <br>
-N64 emulator on the platform, achieving close to, <br>
-to even full speed in many titles.
-
+<br>
 
 ---
 
@@ -17,11 +14,22 @@ to even full speed in many titles.
 
 ---
 
+<br>
+
 ## Features
 
 - **Fast Emulation**
 - **High Compatibility**
 - **PSP TV 480p Support**
+
+<br>
+
+
+Our **PSP** port is noteworthy for being the **fastest** <br>
+N64 emulator on the platform, achieving close to, <br>
+to even full speed in many titles.
+
+<br>
 
 ---
 
@@ -49,13 +57,15 @@ to even full speed in many titles.
 *containing a `EBOOT.PBP` file, after extraction, simply* <br>
 *drag & drop that extracted folder into `/PSP/GAME/`.*
 
+<br>
+
 ---
 
 ## Building
 
 <br>
 
-##### Windows
+#### Windows
 
 1. **Clone** the repository.
 
@@ -65,7 +75,7 @@ to even full speed in many titles.
 
 <br>
 
-##### Linux & MAC
+#### Linux & MAC
 
 1. **Clone** the repository.
 
@@ -77,6 +87,8 @@ to even full speed in many titles.
     ./build_daedalus.sh LINUX
     ```
 
+<br>
+
 ---
 
 ## Credits
@@ -86,6 +98,8 @@ to even full speed in many titles.
 `kreationz` `salvy6735` `Corn` `Chilly Willy` <br>
 
   **Original DaedalusX64 Code**
+  
+  <br>
 
 `Wally`
 
