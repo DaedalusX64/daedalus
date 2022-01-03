@@ -1,5 +1,5 @@
 
-# DaedalusX64
+# DaedalusX64  [![Discord Badge]][Discord Link]
 
 An actively developed **N64 Emulator** for `Linux` <br>
 and `PSP` with many experimental optimizations.
@@ -10,7 +10,7 @@ and `PSP` with many experimental optimizations.
 
 ---
 
-**⸢ [Releases] ⸥  ⸢ [Wiki] ⸥**  [![Discord Badge]][Discord Link]
+**⸢ [Releases] ⸥  ⸢ [Wiki] ⸥**
 
 ---
 
@@ -129,7 +129,7 @@ to even full speed in many titles.
 [Wiki]: https://github.com/DaedalusX64/daedalus/wiki
 [Releases]: https://github.com/DaedalusX64/daedalus/releases
 
-[Discord Badge]: Data/Resources/Discord.png
+[Discord Badge]: https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white&style=flat
 [Discord Link]: https://discord.gg/FrVTpBV
 
 <!----------------------------------------------------------------------------->
