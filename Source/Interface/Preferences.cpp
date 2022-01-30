@@ -105,8 +105,7 @@ IPreferences::IPreferences()
 :	mDirty( false )
 {
 	 std::filesystem::path p("preferences.ini");
-	 std::string s = p.u8string();
-	 const char *ini_filename = s.c_str();
+	 const char *ini_filename = p.c_str();
 	OpenPreferencesFile( ini_filename );
 }
 

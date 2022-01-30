@@ -42,7 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Translate.h"
 
 
-
 class ISavestateSelectorComponent : public CSavestateSelectorComponent
 {
 	public:
@@ -81,6 +80,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		s8						mPVExists[ NUM_SAVESTATE_SLOTS ];	//0=skip, 1=file exists, -1=show no preview
 		CRefPtr<CNativeTexture>	mPreviewTexture;
 		u32						mLastPreviewLoad;
+
 };
 
 
@@ -104,13 +104,14 @@ namespace
 		IO::Filename	filename_png;
 		IO::Filename	filename_ss;
 		IO::Filename    sub_path;
+		std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
 		sprintf( filename_png, "saveslot%u.ss.png", slot_idx );
 		sprintf( filename_ss, "saveslot%u.ss", slot_idx );
 		sprintf( sub_path, "SaveStates/%s", slot_path);
 		if(!IO::Directory::IsDirectory( "ms0:/n64/SaveStates/" ))
 		{
-			IO::Path::Combine( path, gDaedalusExePath, sub_path );
-			IO::Path::Combine( png_path, gDaedalusExePath, sub_path );
+			IO::Path::Combine( path, gDaedalusExePath.c_str(), sub_path );
+			IO::Path::Combine( png_path, gDaedalusExePath.c_str(), sub_path );
 			IO::Directory::EnsureExists( path );		// Ensure this dir exists
 		}
 		else
@@ -360,10 +361,11 @@ void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
     sprintf( filename_ss, "saveslot%u.ss", id_ss );
     sprintf( filename_png, "saveslot%u.png", id_ss );
     sprintf( sub_path, "SaveStates/%s", current_slot_path);
+			std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
 	if(!IO::Directory::IsDirectory( "ms0:/n64/SaveStates/" ))
 	{
-		IO::Path::Combine( path, gDaedalusExePath, sub_path );
-		IO::Path::Combine( png_path, gDaedalusExePath, sub_path );
+		IO::Path::Combine( path, gDaedalusExePath.c_str(), sub_path );
+		IO::Path::Combine( png_path, gDaedalusExePath.c_str(), sub_path );
 	}
 	else
 	{

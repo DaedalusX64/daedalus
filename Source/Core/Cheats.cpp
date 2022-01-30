@@ -291,8 +291,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	CheatCodes_Clear();
 
 	 std::filesystem::path p("cheat_file");
-	 std::string s = p.u8string();
-	 const char *cheat_file = s.c_str();
+	 const char *cheat_file = p.c_str();
 
 	stream = fopen(cheat_file, "rt");
 	if(stream == nullptr)

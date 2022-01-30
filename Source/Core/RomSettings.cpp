@@ -155,8 +155,7 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 	mpInstance = new IRomSettingsDB();
 
 	 std::filesystem::path p("roms.ini");
-	 std::string s = p.u8string();
-	 const char *ini_filename = s.c_str();
+	 const char *ini_filename = p.c_str();
 
 	mpInstance->OpenSettingsFile( ini_filename );
 
