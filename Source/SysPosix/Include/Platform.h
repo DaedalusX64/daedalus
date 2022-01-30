@@ -32,5 +32,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_HALT			__builtin_trap()
 //#define DAEDALUS_HALT			__builtin_debugger()
 
+template <typename T>
+T make_uncached_ptr(T ptr) {
+    return 0;
+}
 
 #endif // SYSPOSIX_INCLUDE_PLATFORM_H_
