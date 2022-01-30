@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <stdio.h>
+#include <filesystem>
 
 #include "Core/CPU.h"
 #include "Core/ROM.h"
@@ -83,7 +84,8 @@ static void PollKeyboard(void * arg)
 				sprintf( path_sub, "SaveStates/%s", IO::Path::FindFileName(g_ROM.settings.GameName.c_str()));
 
 				IO::Filename path_ss;
-				IO::Path::Combine( path_ss, gDaedalusExePath, path_sub );
+				
+				IO::Path::Combine( path_ss, gDaedalusExePath.c_str(), path_sub );
 				IO::Directory::EnsureExists( path_ss );		// Ensure this dir exists
 
 				IO::Filename filename;

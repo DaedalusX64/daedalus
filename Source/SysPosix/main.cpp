@@ -39,16 +39,6 @@ int main(int argc, char **argv)
 {
 	int result = 0;
 
-	if (argc > 0)
-	{
-		std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-	}
-	else
-	{
-		fprintf(stderr, "Couldn't determine executable path\n");
-		return 1;
-	}
-
 	//ReadConfiguration();
 
 	if (!System_Init())

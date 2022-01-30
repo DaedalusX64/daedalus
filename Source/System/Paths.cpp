@@ -1,4 +1,4 @@
 #include "stdafx.h"
 #include "System/Paths.h"
 
-IO::Filename gDaedalusExePath;
+// std::filesystem::path gDaedalusExePath = std::filesystem::current_path(); 

@@ -99,7 +99,7 @@ bool initgl()
 	// FIXME(strmnnrmn): need a nicer 'load file' utility function.
 	{
 		IO::Filename shader_path;
-		IO::Path::Combine(shader_path, gDaedalusExePath, "n64.psh");
+		IO::Path::Combine(shader_path, gDaedalusExePath.c_str(), "n64.psh");
 
 		FILE * fh = fopen(shader_path, "r");
 		if (!fh)

@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/types.h>
 #include <dirent.h>
 #include <stdio.h>
+#include <filesystem>
+
 
 namespace IO
 {
@@ -107,6 +109,11 @@ namespace IO
 	{
 		char *	Combine( char * p_dest, const char * p_dir, const char * p_file )
 		{
+			// p_dest = Savestates/
+			// p_dir = root
+			// strcpy(root/SaveStates)
+			// append file to destination root/savestates/file
+
 			strcpy( p_dest, p_dir );
 			Append( p_dest, p_file );
 			return p_dest;

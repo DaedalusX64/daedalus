@@ -40,17 +40,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <filesystem>
 static IO::Filename gDumpDir = "";
 
+
 // Initialise the directory where files are dumped
 // Appends subdir to the global dump base. Stores in rootdir
 void Dump_GetDumpDirectory(char * rootdir, const char * subdir)
 {
+	std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
 	if (gDumpDir[0] == '\0')
 	{
 		// Initialise
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || !defined(DAEDALUS_SILENT)
-		IO::Path::Combine(gDumpDir, gDaedalusExePath, "Dumps");
+		IO::Path::Combine(gDumpDir, gDaedalusExePath.c_str(), "Dumps");
 #else
-		IO::Path::Combine(gDumpDir, gDaedalusExePath, "ms0:/PICTURE/");
+		IO::Path::Combine(gDumpDir, gDaedalusExePath.c_str(), "ms0:/PICTURE/");
 #endif
 	}
 
