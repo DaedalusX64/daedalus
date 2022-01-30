@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/UI/PauseOptionsComponent.h"
 #include "SysPSP/UI/PauseScreen.h"
 #include "SysPSP/Utility/Buttons.h"
-#include "Utility/Functor.h"
+#include "SysPSP/Utility/Functor.h"
 #include "Utility/Translate.h"
 #include "PSPMenu.h"
 

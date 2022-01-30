@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SYSPSP_UI_SELECTEDROMCOMPONENT_H_
 
 #include "SysPSP/UI/UIComponent.h"
-#include "Utility/Functor.h"
+#include "SysPSP/Utility/Functor.h"
 
 class RomID;
 
