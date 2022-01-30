@@ -19,7 +19,6 @@
 
 #include "Debug/DBGConsole.h"
 #include "Base/MathUtil.h"
-#include "System/Paths.h"
 #include "System/IO.h"
 #include "Base/Macros.h"
 #include "Utility/StringUtil.h"

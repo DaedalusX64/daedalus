@@ -9,7 +9,6 @@
 #include "Core/ROM.h"
 
 #include "SysGL/GL.h"
-#include "System/Paths.h"
 #include "System/IO.h"
 #include "System/Thread.h"
 
@@ -84,7 +83,7 @@ static void PollKeyboard(void * arg)
 				sprintf( path_sub, "SaveStates/%s", IO::Path::FindFileName(g_ROM.settings.GameName.c_str()));
 
 				IO::Filename path_ss;
-				
+				std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
 				IO::Path::Combine( path_ss, gDaedalusExePath.c_str(), path_sub );
 				IO::Directory::EnsureExists( path_ss );		// Ensure this dir exists
 

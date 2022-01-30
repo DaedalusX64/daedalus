@@ -15,7 +15,6 @@
 #include "SysGL/GL.h"
 #include "SysGL/HLEGraphics/RendererGL.h"
 
-#include "System/Paths.h"
 #include "System/IO.h"
 #include "Base/Macros.h"
 #include "Utility/Profiler.h"
@@ -98,6 +97,7 @@ bool initgl()
 
 	// FIXME(strmnnrmn): need a nicer 'load file' utility function.
 	{
+		std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
 		IO::Filename shader_path;
 		IO::Path::Combine(shader_path, gDaedalusExePath.c_str(), "n64.psh");
 

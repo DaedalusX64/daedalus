@@ -29,7 +29,6 @@
 #include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
 #include "Base/MathUtil.h"
-#include "System/Paths.h"
 #include "System/IO.h"
 #include "RomFile/RomFile.h"
 #include "Utility/Stream.h"
