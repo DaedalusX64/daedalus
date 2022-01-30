@@ -1,7 +1,7 @@
 project (DaedalusX64 LANGUAGES C CXX ASM )
 cmake_minimum_required(VERSION 3.16)
-set(CMAKE_CXX_STANDARD 17)
-
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
 
 	#Build Type
 	if(DEBUG)
@@ -16,8 +16,9 @@ set(CMAKE_CXX_STANDARD 17)
 		set(CMAKE_BUILD_TYPE Release)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release")
 	#	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
-		add_compile_definitions(O2)
+		add_compile_definitions(O3)
 		add_compile_definitions(DNDEBUG)
+		add_compile_definitions(fltfo)
 	endif()
 
 	# General options
@@ -163,6 +164,7 @@ set(CMAKE_CXX_STANDARD 17)
  	add_compile_definitions(${PLAT}) 
 	add_library(daedalus.lib STATIC ${BUILD} ${${PLAT}_BUILD})
 	add_executable(daedalus ${${PLAT}_MAIN_FILES})
+
 	target_link_libraries(daedalus daedalus.lib -lstdc++ -lpng -lz -lc -lg -lm -lpthread ${PLAT_LIBS} )
  
 	create_pbp_file(
