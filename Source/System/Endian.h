@@ -38,10 +38,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 	#define U16H_TWIDDLE 0x1
 
 	#if defined( __GNUC__ ) && !defined(__clang__)
+		#ifdef DAEDALUS_PSP
+			#define BSWAP32(x) __builtin_allegrex_wsbw(x)
+			#define BSWAP16(x) __builtin_allegrex_wsbh(x)
+			#define WSWAP32(x) __builtin_allegrex_rotr(x, 16)
 
-		#define BSWAP32(x) __builtin_bswap32(x)
-		#define BSWAP16(x) __builtin_bswap16(x)
-
+		#else
+			#define BSWAP32(x) __builtin_bswap32(x)
+			#define BSWAP16(x) __builtin_bswap16(x)
+		#endif
 	#elif defined( _MSC_VER )
 
 		#define BSWAP32(x) _byteswap_ulong(x)
