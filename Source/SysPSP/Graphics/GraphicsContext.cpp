@@ -36,7 +36,7 @@
 #include "System/IO.h"
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
-#include "Utility/VolatileMem.h"
+#include "SysPSP/Utility/VolatileMem.h"
 
 namespace
 {

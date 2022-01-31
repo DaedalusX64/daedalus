@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <pspge.h>
 
-#include "Utility/VolatileMem.h"
+#include "SysPSP/Utility/VolatileMem.h"
 #include "Utility/MemoryHeap.h"
 #include "Base/MathUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"

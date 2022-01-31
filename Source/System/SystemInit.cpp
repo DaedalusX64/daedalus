@@ -49,7 +49,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Profiler.h"
 #include "Interface/Preferences.h"
 #ifdef DAEDALUS_PSP
-#include "Utility/Translate.h"
+#include "SysPSP/Utility/Translate.h"
 #endif
 #include "Input/InputManager.h"		// CInputManager::Create/Destroy
 

@@ -45,7 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/UI/PauseScreen.h"
 #include "SysPSP/Utility/Buttons.h"
 #include "SysPSP/Utility/Functor.h"
-#include "Utility/Translate.h"
+#include "SysPSP/Utility/Translate.h"
 #include "PSPMenu.h"
 
 extern void battery_info();

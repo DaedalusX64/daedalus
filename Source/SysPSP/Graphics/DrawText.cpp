@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/PathsPSP.h"
 #include "Base/Macros.h"
 #include "Interface/Preferences.h"
-#include "Utility/Translate.h"
+#include "SysPSP/Utility/Translate.h"
 
 intraFont *gFonts[] =
 	{
