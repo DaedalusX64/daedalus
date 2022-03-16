@@ -11,14 +11,13 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
 		option(DAEDALUS_LOG "Enable various logging" ON)
-		add_definitions("-g -D_DEBUG -MD ")
+		add_definitions("-MD")
 	else()
-		set(CMAKE_BUILD_TYPE Release)
+	message(${CMAKE_CXX_FLAGS_RELEASE}) ## Need to investigate this further as it breaks macOS build.. See what the PSP has on it for example
+		# set(CMAKE_BUILD_TYPE Release)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release")
-	#	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
-		add_compile_definitions(O3)
-		add_compile_definitions(DNDEBUG)
 		add_compile_definitions(fltfo)
+		add_compile_definitions(NDEBUG)
 	endif()
 
 	# General options
@@ -26,7 +25,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON)
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF)
-	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
 
 	# Additional Debug Options
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
@@ -191,8 +190,8 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		include_directories(${PROJECT_SOURCE_DIR/HLEGraphics}) # Why are we including this?
 		FIND_PATH(OPENGL_INCLUDE_DIR gl.h) #Is this required?
 		FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
-		include_directories(/usr/local/include -framework OpenGL) # Is this required? 
-		link_directories(/usr/local/lib) ## Is this required?
+		include_directories(/opt/homebrew/include -framework OpenGL) # Is this required? 
+		link_directories(/opt/homebrew/lib) ## Is this required?
 	endif (APPLE)
 
 	if (UNIX)
