@@ -16,6 +16,7 @@
 #include <stdarg.h>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include "Debug/DBGConsole.h"
 #include "Base/MathUtil.h"
@@ -471,7 +472,8 @@ bool WebDebug_Init()
 	}
 
 	IO::Filename data_path;
-	IO::Path::Combine(data_path, gDaedalusExePath, "Web");
+	std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
+	IO::Path::Combine(data_path, gDaedalusExePath.c_str(), "Web");
 	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path);
 	AddStaticContent(data_path, "");
 
