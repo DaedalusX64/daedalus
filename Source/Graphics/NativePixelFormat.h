@@ -29,10 +29,8 @@ struct NativePf5650
 	static u16 Make( u8 r, u8 g, u8 b, u8 a )
 	{
 		// Alpha is discarded
-
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_USE( a );
-		#endif
+
 		return ((r >> (8-BitsR)) << ShiftR) |
 			   ((g >> (8-BitsG)) << ShiftG) |
 			   ((b >> (8-BitsB)) << ShiftB);
