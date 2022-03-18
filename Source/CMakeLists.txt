@@ -14,16 +14,27 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		add_definitions("-MD")
 	else()
 	message(${CMAKE_CXX_FLAGS_RELEASE}) ## Need to investigate this further as it breaks macOS build.. See what the PSP has on it for example
-		# set(CMAKE_BUILD_TYPE Release)
-		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release")
+		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") 
 		add_compile_definitions(fltfo)
 		add_compile_definitions(NDEBUG)
 	endif()
 
+	##Determine Dynarec compatibility and link in appropriate Dynarec
+	##Todo Move all relevant Dyanrecs to the Dynarec/arch folder and enable here when correct platform is detected
+	if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" )
+		option(DAEDALUS_ENABLE_DYNAREC  "Enable Dynarec" OFF)
+		message("No Dynarec on arm64 yet")
+	#x86 
+	#arm
+	#psp?? 
+	else()
+		message("Platform unknown, Dynarec disabled")
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
+		endif()
 	# General options
 
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
-	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON)
+	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF)
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
 
@@ -105,6 +116,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 
 	#PSP Build
+
 	set (PSP_DEBUG_FILES SysPSP/Debug/DaedalusAssertPSP.cpp SysPSP/Debug/DBGConsolePSP.cpp SysPSP/DynaRec/DynaRecDebug.cpp )
 	set (PSP_DVEMGR_FILES SysPSP/PRX/DveMgr/pspDveManager.S)
 	set (PSP_DYNAREC_FILES SysPSP/DynaRec/AssemblyWriterPSP.cpp SysPSP/DynaRec/AssemblyUtilsPSP.cpp SysPSP/DynaRec/CodeBufferManagerPSP.cpp SysPSP/DynaRec/CodeGeneratorPSP.cpp SysPSP/DynaRec/DynaRecStubs.S SysPSP/DynaRec/N64RegisterCachePSP.cpp)
@@ -112,7 +124,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	set (PSP_HLEAUDIO_FILES SysPSP/HLEAudio/AudioPluginPSP.cpp)
 	set (PSP_HLEGRAPHICS_FILES SysPSP/HLEGraphics/Blender.cpp SysPSP/HLEGraphics/BlendModes.cpp SysPSP/HLEGraphics/ColourAdjuster.cpp SysPSP/HLEGraphics/ConvertVertices.S SysPSP/HLEGraphics/DisplayListDebugger.cpp SysPSP/HLEGraphics/GraphicsPluginPSP.cpp SysPSP/HLEGraphics/RendererPSP.cpp SysPSP/HLEGraphics/Combiner/BlendConstant.cpp SysPSP/HLEGraphics/Combiner/CombinerExpression.cpp SysPSP/HLEGraphics/Combiner/CombinerTree.cpp SysPSP/HLEGraphics/Combiner/RenderSettings.cpp SysPSP/HLEGraphics/TnLVFPU.S SysPSP/HLEGraphics/VectorClipping.S)
 	set (PSP_INPUTMANAGER_FILES SysPSP/Input/InputManagerPSP.cpp)
-	set (PSP_KERNELBUTTON_FILES SysPSP/PRX/KernelButtons/imposectrl.S)
+	set (PSP_KERNELBUTTON_FILES SysPSP/PRX/KernelButtons/imposectrl.S) ##Not sure if this is required
     set (PSP_MEDIAENGINEFILES SysPSP/PRX/MediaEngine/me.c SysPSP/PRX/MediaEngine/MediaEngine.S )
 	set (PSP_UI_FILES SysPSP/UI/AboutComponent.cpp SysPSP/UI/AdjustDeadzoneScreen.cpp SysPSP/UI/AdvancedOptionsScreen.cpp SysPSP/UI/CheatOptionsScreen.cpp SysPSP/UI/ColourPulser.cpp SysPSP/UI/Dialogs.cpp SysPSP/UI/GlobalSettingsComponent.cpp SysPSP/UI/MainMenuScreen.cpp SysPSP/UI/PauseOptionsComponent.cpp SysPSP/UI/PauseScreen.cpp SysPSP/UI/RomPreferencesScreen.cpp SysPSP/UI/RomSelectorComponent.cpp SysPSP/UI/SavestateSelectorComponent.cpp SysPSP/UI/SelectedRomComponent.cpp SysPSP/UI/SplashScreen.cpp SysPSP/UI/UICommand.cpp SysPSP/UI/UIComponent.cpp SysPSP/UI/UIContext.cpp SysPSP/UI/UIElement.cpp SysPSP/UI/UIScreen.cpp SysPSP/UI/UISetting.cpp)
 	set (PSP_UTILITY_FILES SysPSP/Utility/AtomicPrimitives.S SysPSP/Utility/BatteryPSP.cpp SysPSP/Utility/Buttons.cpp SysPSP/Utility/DebugMemory.cpp SysPSP/Utility/DisableFPUExceptions.S SysPSP/Utility/exception.cpp SysPSP/Utility/FastMemcpyPSP.cpp SysPSP/Utility/JobManager.cpp SysPSP/Utility/ModulePSP.cpp SysPSP/Utility/TimingPSP.cpp SysPSP/Utility/Translate.cpp SysPSP/Utility/VolatileMemPSP.cpp)
@@ -151,8 +163,6 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 	if (PSP)
 		set (PLAT PSP)
-
-
 		# add_compile_definitions(DAEDALUS_DIALOGS)
 
 		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
@@ -187,11 +197,15 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	if (APPLE)
 		set (OS_LIBS "-framework OpenGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")
 		set (AUDIO_DRIVER ${MAC_AUDIO})
-		include_directories(${PROJECT_SOURCE_DIR/HLEGraphics}) # Why are we including this?
-		FIND_PATH(OPENGL_INCLUDE_DIR gl.h) #Is this required?
-		FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
-		include_directories(/opt/homebrew/include -framework OpenGL) # Is this required? 
-		link_directories(/opt/homebrew/lib) ## Is this required?
+
+		## Homebrew uses a separate path on Apple Silicon
+		if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" ) 
+		include_directories(/opt/homebrew/include) 
+		link_directories(/opt/homebrew/lib)
+		else()
+		include_directories(/usr/include/include)
+		link_directories(/usr/include/lib)
+		endif()
 	endif (APPLE)
 
 	if (UNIX)
