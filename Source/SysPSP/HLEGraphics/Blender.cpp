@@ -209,8 +209,10 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 		}
 		else
 		{
+		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DebugBlender( blendmode );
 			DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
+			#endif
 
 			sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		}

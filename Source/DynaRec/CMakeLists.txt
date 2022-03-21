@@ -1,4 +1,4 @@
-add_library(Dynarec_Base STATIC 
+add_library(DynaRec STATIC 
                                 BranchType.cpp 
                                 DynaRecProfile.cpp
                                 Fragment.cpp

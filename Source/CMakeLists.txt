@@ -128,6 +128,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 
 	if (PSP)
 		set (PLAT PSP)
+		add_definitions(-DDAEDALUS_PSP)
 		# add_compile_definitions(DAEDALUS_DIALOGS)
 
 		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
@@ -135,10 +136,15 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 
 	##Universal build options - Generic
  	add_compile_definitions(${PLAT}) 
-	add_library(daedalus.lib STATIC ${BUILD} ${${PLAT}_BUILD})
-	add_executable(daedalus ${${PLAT}_MAIN_FILES})
+	# add_library(daedalus.lib STATIC ${BUILD} ${${PLAT}_BUILD})
+	add_executable(daedalus SysPSP/main.cpp)
 
-	target_link_libraries(daedalus daedalus.lib Debug_PSP DynaRec_PSP Graphics_PSP HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP -lstdc++ -lpng -lz -lc -lg -lm -lpthread ${PLAT_LIBS} )
+	## No idea why this fails on the PSP Build
+	target_link_libraries(daedalus LINK_PUBLIC
+												Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility
+												Debug_PSP DynaRec_PSP Graphics_PSP Graphics
+												 HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP 
+												stdc++ png z c g m pthread ${PLAT_LIBS} )
  
 	create_pbp_file(
     	TARGET daedalus

@@ -1,3 +1,3 @@
-add_library(Audio_PSP STATIC 
+add_library(HLEAudio_PSP STATIC 
                             AudioPluginPSP.cpp
              )

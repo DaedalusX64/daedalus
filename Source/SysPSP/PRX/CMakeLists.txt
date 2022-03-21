@@ -1,8 +1,8 @@
 add_library(Plugins_PSP STATIC 
                                 DveMgr/pspDveManager.S 
-                                KernelButtons/impsectrl.S 
+                                KernelButtons/imposectrl.S 
                                 MediaEngine/me.c 
-                                MediaEgine/MediaEngine.S
+                                MediaEngine/MediaEngine.S
             )   
 
 	

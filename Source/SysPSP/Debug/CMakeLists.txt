@@ -1,4 +1,4 @@
-add_library(PSP_Debug STATIC 
+add_library(Debug_PSP STATIC 
                             DaedalusAssertPSP.cpp 
                             DBGConsolePSP.cpp 
             )

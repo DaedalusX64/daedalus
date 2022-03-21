@@ -1,4 +1,4 @@
-add_library(DynaRec_PSP PUBLIC
+add_library(DynaRec_PSP STATIC
                             AssemblyWriterPSP.cpp 
                             AssemblyUtilsPSP.cpp 
                             CodeBufferManagerPSP.cpp 
