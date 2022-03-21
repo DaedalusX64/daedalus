@@ -141,9 +141,8 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 
 	## No idea why this fails on the PSP Build
 	target_link_libraries(daedalus LINK_PUBLIC
+												Debug_PSP DynaRec_PSP Graphics_PSP HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP
 												Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility
-												Debug_PSP DynaRec_PSP Graphics_PSP Graphics
-												 HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP 
 												stdc++ png z c g m pthread ${PLAT_LIBS} )
  
 	create_pbp_file(
