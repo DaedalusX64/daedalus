@@ -1,0 +1,1 @@
+add_library(System STATIC CompressedStream.cpp DataSink.cpp SystemInit.cpp)

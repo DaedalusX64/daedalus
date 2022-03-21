@@ -1,0 +1,1 @@
+add_library(Config STATIC ConfigOptions.cpp)

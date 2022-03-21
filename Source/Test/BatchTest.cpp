@@ -278,7 +278,7 @@ void BatchTestMain( int argc, char* argv[] )
 				gRomLogFH = NULL;
 				if( result_exists )
 				{
-					IO::File::Delete( rom_logpath );
+					std::delete( rom_logpath );
 				}
 				if( !IO::File::Move( tmpfilepath, rom_logpath ) )
 				{
