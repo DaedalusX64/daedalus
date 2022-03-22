@@ -4,12 +4,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
 
 message("DaedalusX64 Build")
-message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
+message(${CMAKE_SYSTEM_PROCESSOR} " Detected") 
 
 	#Build Type
 	if(DEBUG)
 		set(CMAKE_BUILD_TYPE Debug)
-		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev")
+		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 		option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
 		option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
@@ -17,7 +17,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 		add_definitions("-MD")
 	else()
 	message(${CMAKE_CXX_FLAGS_RELEASE}) ## Need to investigate this further as it breaks macOS build.. See what the PSP has on it for example
-		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") 
+		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 		add_compile_definitions(fltfo)
 		add_compile_definitions(NDEBUG)
 	endif()
@@ -105,38 +105,11 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	set (GPROF_SRCS SysPSP/Debug/prof.c SysPSP/Debug/mcount.S )
 	set (PSP_MAIN_FILES SysPSP/main.cpp)
 
-	#Windows -- Not sure if it works yet
-	set (WIN_AUDIO SysW32/HLEAudio/AudioPluginW32.cpp)
-	set (WIN_DEBUG SysW32/Debug/DaedalusAssertW32.cpp)
-	set (WIN_DYNAREC SysW32/DynaRec/x86/AssemblyUtilsX86.cpp SysW32/DynaRec/x86/AssemblyWriterX86.cpp SysW32/DynaRec/x86/CodeBufferManagerX86.cpp SysW32/DynaRec/x86/CodeGeneratorX86.cpp)
-	set (WIN_INTERFACE SysW32/Interface/FileNameHandler.cpp)
-	set (WIN_MAIN_FILES SysW32/main.cpp)
-	set (WIN_UTILITY SysW32/Utility/IOW32.cpp SysW32/Utility/ThreadW32.cpp SysW32/Utility/TimingW32.cpp SysW32/Utility/CondW32.cpp SysW32/Utility/DISASM86.cpp)
-	set (WIN_BUILD ${WIN_DYNAREC} ${WIN_AUDIO} ${WIN_DEBUG} ${WIN_INTERFACE} ${WIN_UTILITY})
-
-	#Posix
-	# set (POSIX_DYNAREC SysPosix/DynaRec/CodeBufferManagerPosix.cpp)
-	# set (POSIX_HLEGRAPHICS SysPosix/HLEGraphics/DisplayListDebugger.cpp)
-	#  set (POSIX_MAIN_FILES S)
-	# set (POSIX_UTILITY SysPosix/Utility/CondPosix.cpp SysPosix/Utility/IOPosix.cpp SysPosix/Utility/ThreadPosix.cpp SysPosix/Utility/TimingPosix.cpp)
-	# set (POSIX_BUILD ${POSIX_DEBUG} ${POSIX_DYNAREC} ${POSIX_HLEGRAPHICS} ${POSIX_UTILITY})
-
-	# These will remain separate for now..
-	# set (LINUX_AUDIO SysPosix/HLEAudio/AudioPluginLinux.cpp)
-	# set (MAC_AUDIO SysPosix/HLEAudio/AudioPluginOSX.cpp)
-
-
 	if (PSP)
-		set (PLAT PSP)
 		add_definitions(-DDAEDALUS_PSP)
-		# add_compile_definitions(DAEDALUS_DIALOGS)
-
 		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
 		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu)
 
-	##Universal build options - Generic
- 	add_compile_definitions(${PLAT}) 
-	# add_library(daedalus.lib STATIC ${BUILD} ${${PLAT}_BUILD})
 	add_executable(daedalus SysPSP/main.cpp)
 
 	## No idea why this fails on the PSP Build
@@ -155,12 +128,12 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 				)
  	endif (PSP)
 
-	if (LINUX)
-		add_definitions(-DDAEDALUS_LINUX)
+	if (UNIX AND NOT APPLE)
+		add_definitions(-DDAEDALUS_LINUX) ## Still required?
 		## Assume Linux uses X11 for now
 		set (OS_LIBS X11 GL)
 		set (AUDIO_DRIVER ${LINUX_AUDIO})
-	endif (LINUX)
+	endif (UNIX AND NOT APPLE)
 
 	if (APPLE)
 		set (OS_LIBS "-framework OpenGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")
@@ -194,13 +167,9 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	if(WIN32)
 		add_definitions(-DDAEDALUS_WIN32 -DDAEDALUS_GL)
 		#add_compile_options("/Od")
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/glew-2.1.0/include)
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/SDL2-2.0.12/include)
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/LibPNG/include)
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/Zlib/include)
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/third_party/Libs/Minizip)
+		##Windows todo
+		# Pull in modules for glew / SDL2 / ZLib / LibPNG / Minizip
 		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysW32/Include ${PROJECT_SOURCE_DIR})
-		link_directories(${PROJECT_SOURCE_DIR}/third_party/Libs/Lib)
 
 		add_library(sysGL STATIC ${SYSGL_BUILD})
 		target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 Xinput ${OS_LIBS})
@@ -235,6 +204,8 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	if(UNIX)
 	add_subdirectory(SysPosix)
 	add_subdirectory(SysGL)
+	elseif(WIN) ## Probably keep this generic as we'll build this on Linux too?
+	add_subdirectory(SysW32)
 	else(PSP)
 	add_subdirectory(SysPSP)
 	endif()
