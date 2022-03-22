@@ -18,7 +18,8 @@
 
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 #include "Base/Assert.h"
 
 #ifdef DAEDALUS_ENABLE_ASSERTS

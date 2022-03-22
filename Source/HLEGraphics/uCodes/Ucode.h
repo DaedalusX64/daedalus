@@ -19,7 +19,8 @@
 #ifndef HLEGRAPHICS_UCODES_UCODE_H_
 #define HLEGRAPHICS_UCODES_UCODE_H_
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 #include "HLEGraphics/uCodes/UcodeDefs.h"
 using MicroCodeInstruction = void (*)(MicroCodeCommand);
 

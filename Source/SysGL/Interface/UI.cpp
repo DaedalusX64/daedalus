@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 #include "SysGL/Interface/UI.h"
 
 #include <SDL2/SDL.h>

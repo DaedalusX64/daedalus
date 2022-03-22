@@ -18,7 +18,8 @@
 
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 #include "HLEGraphics/RDP.h"
 
 // This needs a huge clean up or be removed as is now, it only holds debug code..

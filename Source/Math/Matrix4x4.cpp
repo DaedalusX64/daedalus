@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 #include "Math/Matrix4x4.h"
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"

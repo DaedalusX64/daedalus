@@ -18,7 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 // Code to format opcodes and display them nicely
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 #include "Core/PrintOpCode.h"
 
 //

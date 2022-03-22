@@ -24,7 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	Drop me a line if you get chance :)
 //
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 #include "AudioOutput.h"
 
 #include <stdio.h>

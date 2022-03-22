@@ -7,7 +7,8 @@ homepage: http://wordpress.fx-world.org
 
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 #include "Utility/FastMemcpy.h"
 #include "Base/Types.h"
 

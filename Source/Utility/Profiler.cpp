@@ -9,7 +9,8 @@
 #include <map>
 #include <algorithm>
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 
 #ifdef DAEDALUS_ENABLE_PROFILING

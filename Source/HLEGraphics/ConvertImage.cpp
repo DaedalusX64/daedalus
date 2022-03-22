@@ -17,7 +17,8 @@ Copyright (C) 2001 StrmnNrmn
 
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 #include "DLDebug.h"
 #include "Core/Memory.h"

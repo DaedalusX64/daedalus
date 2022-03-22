@@ -1,5 +1,6 @@
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 #include <stdio.h>
 

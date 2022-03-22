@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 #include "HLEGraphics/DaedalusVtx.h"
 #include "SysPSP/HLEGraphics/Combiner/BlendConstant.h"

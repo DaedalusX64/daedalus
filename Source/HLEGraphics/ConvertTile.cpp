@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 #include "Core/ROM.h"

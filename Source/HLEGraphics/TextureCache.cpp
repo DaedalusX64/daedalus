@@ -21,7 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Uses a HashTable (hashing on TImg) to allow quick access
 //  to previously used textures
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/TextureCache.h"

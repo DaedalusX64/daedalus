@@ -7,7 +7,8 @@ E-mail:   raphael@fx-world.org
 homepage: http://wordpress.fx-world.org
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 
 #include "Base/Types.h"

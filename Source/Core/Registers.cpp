@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 //
 //	Exclude this from public release builds to save a little on the elf size

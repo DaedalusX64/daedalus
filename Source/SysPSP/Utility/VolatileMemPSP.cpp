@@ -7,7 +7,8 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 
 */
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 #include <malloc.h>
 #include <stdio.h>

@@ -29,7 +29,8 @@
 //	and modified by Rinnegatamante to work with Daedalus X64.
 //
 
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 #include <stdlib.h>
 #include <string.h>

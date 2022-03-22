@@ -107,7 +107,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 
 	if (PSP)
 		add_definitions(-DDAEDALUS_PSP)
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
+		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include)
 		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu)
 
 	add_executable(daedalus SysPSP/main.cpp)
@@ -151,7 +151,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 
 	if (UNIX)
 		add_definitions(-DDAEDALUS_POSIX -DDAEDALUS_GL)
-		 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPosix/Include ${PROJECT_SOURCE_DIR})
+		 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPosix/Include)
 
 		add_executable(daedalus SysPosix/main.cpp)
 
@@ -169,7 +169,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 		#add_compile_options("/Od")
 		##Windows todo
 		# Pull in modules for glew / SDL2 / ZLib / LibPNG / Minizip
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysW32/Include ${PROJECT_SOURCE_DIR})
+		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysW32/Include)
 
 		add_library(sysGL STATIC ${SYSGL_BUILD})
 		target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 Xinput ${OS_LIBS})

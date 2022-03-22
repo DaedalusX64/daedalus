@@ -23,7 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	and modified by StrmnNrmn to work with Daedalus PSP. Thanks Azimer!
 //	Drop me a line if you get chance :)
 //
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 
 #include <string.h>
 

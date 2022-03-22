@@ -1,4 +1,5 @@
-#include "stdafx.h"
+#include "BuildOptions.h"
+#include "Base/Types.h"
 #include "Utility/StringUtil.h"
 
 char * Tidy(char * s)
