@@ -1,4 +1,4 @@
-add_library(Graphics_PSP STATIC 
+add_library(Graphics_PSP OBJECT 
                                 DrawText.cpp 
                                 GraphicsContext.cpp 
                                 NativeTexturePSP.cpp 

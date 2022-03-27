@@ -1,3 +1,3 @@
-add_library(Interface_GL STATIC 
+add_library(Interface_GL OBJECT 
                                 UI.cpp
             )

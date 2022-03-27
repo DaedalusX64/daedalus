@@ -1,4 +1,4 @@
-add_library(Core STATIC 
+add_library(Core OBJECT 
                         HvqmTask.cpp 
                         RDRam.cpp 
                         Cheats.cpp 

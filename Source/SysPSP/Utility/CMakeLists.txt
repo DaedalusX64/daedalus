@@ -1,4 +1,4 @@
-add_library(Utility_PSP STATIC 
+add_library(Utility_PSP OBJECT 
                                 AtomicPrimitives.S 
                                 BatteryPSP.cpp 
                                 Buttons.cpp 

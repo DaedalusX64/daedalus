@@ -1,4 +1,4 @@
-add_library(Interface STATIC
+add_library(Interface OBJECT
                             Preferences.cpp
                             RomDB.cpp
                             SaveState.cpp                

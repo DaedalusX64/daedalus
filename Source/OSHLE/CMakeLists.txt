@@ -1,4 +1,4 @@
-add_library(OSHLE STATIC 
+add_library(OSHLE OBJECT 
                         OS.cpp
                         patch.cpp
                         )

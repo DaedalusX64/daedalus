@@ -1,3 +1,3 @@
-add_library(Posix_DynaRec STATIC 
+add_library(Posix_DynaRec OBJECT 
                                 CodeBufferManagerPosix.cpp
             )

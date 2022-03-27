@@ -1,4 +1,4 @@
-add_library(HLEGraphics STATIC 
+add_library(HLEGraphics OBJECT 
                             BaseRenderer.cpp 
                             CachedTexture.cpp 
                             ConvertImage.cpp 

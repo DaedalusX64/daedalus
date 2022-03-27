@@ -1,4 +1,4 @@
-add_library(Posix_Utility STATIC 
+add_library(Posix_Utility OBJECT 
                                 CondPosix.cpp 
                                 IOPosix.cpp 
                                 ThreadPosix.cpp 

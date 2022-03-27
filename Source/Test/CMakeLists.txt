@@ -1,1 +1,1 @@
-add_library(BatchTest STATIC BatchTest.cpp)
+add_library(BatchTest OBJECT BatchTest.cpp)

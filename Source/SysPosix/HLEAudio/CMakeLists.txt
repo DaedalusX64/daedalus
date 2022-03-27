@@ -1,5 +1,5 @@
 if(UNIX AND NOT APPLE)
-add_library(Posix_Audio STATIC AudioPluginLinux.cpp)
+add_library(Posix_Audio OBJECT AudioPluginLinux.cpp)
 else()
-add_library(Posix_Audio STATIC AudioPluginOSX.cpp)
+add_library(Posix_Audio OBJECT AudioPluginOSX.cpp)
 endif()

@@ -1,4 +1,4 @@
-add_library(win_utility STATIC
+add_library(win_utility OBJECT
                                 CondW32.cpp
                                 DISASM86.cpp
                                 IOW32.cpp

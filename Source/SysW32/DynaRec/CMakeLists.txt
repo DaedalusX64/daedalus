@@ -1,4 +1,4 @@
-add_library(X86_Dynarec STATIC 
+add_library(X86_Dynarec OBJECT 
                                 AssemblyUtilsX86.cpp
                                 AssemblyWriterX86.cpp
                                 CodeBufferManagerX86.cpp

@@ -1,4 +1,4 @@
-add_library(Utility STATIC
+add_library(Utility OBJECT
                             CRC.cpp 
                             FastMemcpy.cpp 
                             Hash.cpp 

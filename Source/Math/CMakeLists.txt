@@ -1,1 +1,1 @@
-add_library(Math STATIC Matrix4x4.cpp)
+add_library(Math OBJECT Matrix4x4.cpp)

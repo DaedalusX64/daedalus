@@ -1,4 +1,4 @@
-add_library(UI_PSP STATIC 
+add_library(UI_PSP OBJECT 
                             AboutComponent.cpp 
                             AdjustDeadzoneScreen.cpp 
                             AdvancedOptionsScreen.cpp 

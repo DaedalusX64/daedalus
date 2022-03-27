@@ -1,1 +1,1 @@
-add_library(Graphics_GL STATIC GraphicsContextGL.cpp NativeTextureGL.cpp)
+add_library(Graphics_GL OBJECT GraphicsContextGL.cpp NativeTextureGL.cpp)

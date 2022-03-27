@@ -1,3 +1,3 @@
-add_library(win_interface STATIC 
+add_library(win_interface OBJECT 
                                 FileNameHandler.cpp
             )

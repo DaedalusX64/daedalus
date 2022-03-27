@@ -1,4 +1,4 @@
-add_library(HLEGraphics_PSP STATIC 
+add_library(HLEGraphics_PSP OBJECT 
                                     Blender.cpp 
                                     BlendModes.cpp 
                                     ColourAdjuster.cpp 

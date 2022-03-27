@@ -50,7 +50,7 @@ case "$1" in
     ;;
     **) ## Not Cross Compiling (macOS, Windows (Not yet), Linux)
     cmake ../Source $CMAKEDEFINES
+    build
     ;;
 esac
 
- build
