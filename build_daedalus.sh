@@ -7,6 +7,7 @@ PROC_NR=$(getconf _NPROCESSORS_ONLN)
 function pre_prep() {
 # Start Fresh, remove any existing builds
 rm -r $PWD/build $PWD/DaedalusX64/EBOOT.PBP $PWD/DaedalusX64/daedalus >/dev/null 2>&1
+mkdir -p $PWD/DaedalusX64
 }
 
 function finalPrep() {
