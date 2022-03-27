@@ -10,8 +10,8 @@ rm -r $PWD/build $PWD/DaedalusX64/EBOOT.PBP $PWD/DaedalusX64/daedalus >/dev/null
 }
 
 function finalPrep() {
-    if [[ $1 = "PSP" ]]; then
-        mv "$PWD/EBOOT.PBP" ../DaedalusX64/
+    if [[ -f "$PWD/EBOOT.PBP" ]]; then
+        mv "$PWD/EBOOT.PBP" ../DaedalusX64
     else
         cp -r "$PWD/daedalus" ../DaedalusX64
         cp ../Source/SysGL/HLEGraphics/n64.psh ../DaedalusX64 
