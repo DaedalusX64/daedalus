@@ -30,7 +30,8 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "mips" )
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
-		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
+		## X86 Dynarec Code needs to be moved from W32 emulator
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
@@ -42,7 +43,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF) ## Probably should be a default option. 
-	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
 
 	# Additional Debug Options
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
@@ -51,7 +52,6 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	option(DAEDALUS_ENABLE_SYNCHRONISATION "Enable for sync testing" OFF)
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
 	option(DAEDALUS_PROFILE_EXECUTION "Keep track of various execution stats" OFF)
-	
 
 	# Additional PSP Options
 	option(DAEDALUS_PSP_GPROF "PSP Profiling, needs Silent enabled" OFF)
