@@ -469,7 +469,16 @@ inline bool IsNaN_Double(double x)
 #define cosf(x)			vfpu_cosf((x))
 #define sincosf(x,s,c)	vfpu_sincos(x, s, c)
 
-#else
+#elif defined(DAEDALUS_POSIX) // XXX Compare with PSP fpu math
+#include <cmath>
+#define isnanf(x)		std::isnan((float x))
+#define sqrtf(x)		std::sqrtf((x))
+#define roundf(x)		std::roundf((x))		// FIXME(strmnnrmn): results in an int! Alternate version below results in a float!
+#define fabsf(x)		std::fabsf((x))
+#define sinf(x)			std::sinf((x))
+#define cosf(x)			std::cosf((x))
+// #define sincosf(x,s,c)	std::sincosf(x, s, c)
+
 
 #ifdef DAEDALUS_W32
 inline f64 trunc(f64 x)				{ return (x>0) ? floor(x) : ceil(x); }
