@@ -2,6 +2,7 @@
 #include "Base/Types.h"
 
 #include <string.h>
+#include <array>
 
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
@@ -47,94 +48,94 @@ void FILTER2(AudioHLECommand command)
 		lutt5[x] = lutt6[x] = (short)a;
 	}
 	short *inp1, *inp2;
-	s32 out1[8];
+	std::array<s32, 8> out1;
 	s16 outbuff[0x3c0], *outp;
 	u32 inPtr = (u32)(command.cmd0&0xffff);
 	inp1 = (short *)(save);
 	outp = outbuff;
 	inp2 = (short *)(gAudioHLEState.Buffer+inPtr);
 	for (int x = 0; x < cnt; x+=0x10) {
-		out1[1] =  inp1[0]*lutt6[6];
-		out1[1] += inp1[3]*lutt6[7];
-		out1[1] += inp1[2]*lutt6[4];
-		out1[1] += inp1[5]*lutt6[5];
-		out1[1] += inp1[4]*lutt6[2];
-		out1[1] += inp1[7]*lutt6[3];
-		out1[1] += inp1[6]*lutt6[0];
-		out1[1] += inp2[1]*lutt6[1]; // 1
+		out1[1] =  inp1[0] * lutt6[6];
+		out1[1] += inp1[3] * lutt6[7];
+		out1[1] += inp1[2] * lutt6[4];
+		out1[1] += inp1[5] * lutt6[5];
+		out1[1] += inp1[4] * lutt6[2];
+		out1[1] += inp1[7] * lutt6[3];
+		out1[1] += inp1[6] * lutt6[0];
+		out1[1] += inp2[1] * lutt6[1]; // 1
 
-		out1[0] =  inp1[3]*lutt6[6];
-		out1[0] += inp1[2]*lutt6[7];
-		out1[0] += inp1[5]*lutt6[4];
-		out1[0] += inp1[4]*lutt6[5];
-		out1[0] += inp1[7]*lutt6[2];
-		out1[0] += inp1[6]*lutt6[3];
-		out1[0] += inp2[1]*lutt6[0];
-		out1[0] += inp2[0]*lutt6[1];
+		out1[0] =  inp1[3] * lutt6[6];
+		out1[0] += inp1[2] * lutt6[7];
+		out1[0] += inp1[5] * lutt6[4];
+		out1[0] += inp1[4] * lutt6[5];
+		out1[0] += inp1[7] * lutt6[2];
+		out1[0] += inp1[6] * lutt6[3];
+		out1[0] += inp2[1] * lutt6[0];
+		out1[0] += inp2[0] * lutt6[1];
 
-		out1[3] =  inp1[2]*lutt6[6];
-		out1[3] += inp1[5]*lutt6[7];
-		out1[3] += inp1[4]*lutt6[4];
-		out1[3] += inp1[7]*lutt6[5];
-		out1[3] += inp1[6]*lutt6[2];
-		out1[3] += inp2[1]*lutt6[3];
-		out1[3] += inp2[0]*lutt6[0];
-		out1[3] += inp2[3]*lutt6[1];
+		out1[3] =  inp1[2] * lutt6[6];
+		out1[3] += inp1[5] * lutt6[7];
+		out1[3] += inp1[4] * lutt6[4];
+		out1[3] += inp1[7] * lutt6[5];
+		out1[3] += inp1[6] * lutt6[2];
+		out1[3] += inp2[1] * lutt6[3];
+		out1[3] += inp2[0] * lutt6[0];
+		out1[3] += inp2[3] * lutt6[1];
 
-		out1[2] =  inp1[5]*lutt6[6];
-		out1[2] += inp1[4]*lutt6[7];
-		out1[2] += inp1[7]*lutt6[4];
-		out1[2] += inp1[6]*lutt6[5];
-		out1[2] += inp2[1]*lutt6[2];
-		out1[2] += inp2[0]*lutt6[3];
-		out1[2] += inp2[3]*lutt6[0];
-		out1[2] += inp2[2]*lutt6[1];
+		out1[2] =  inp1[5] * lutt6[6];
+		out1[2] += inp1[4] * lutt6[7];
+		out1[2] += inp1[7] * lutt6[4];
+		out1[2] += inp1[6] * lutt6[5];
+		out1[2] += inp2[1] * lutt6[2];
+		out1[2] += inp2[0] * lutt6[3];
+		out1[2] += inp2[3] * lutt6[0];
+		out1[2] += inp2[2] * lutt6[1];
 
-		out1[5] =  inp1[4]*lutt6[6];
-		out1[5] += inp1[7]*lutt6[7];
-		out1[5] += inp1[6]*lutt6[4];
-		out1[5] += inp2[1]*lutt6[5];
-		out1[5] += inp2[0]*lutt6[2];
-		out1[5] += inp2[3]*lutt6[3];
-		out1[5] += inp2[2]*lutt6[0];
-		out1[5] += inp2[5]*lutt6[1];
+		out1[5] =  inp1[4] * lutt6[6];
+		out1[5] += inp1[7] * lutt6[7];
+		out1[5] += inp1[6] * lutt6[4];
+		out1[5] += inp2[1] * lutt6[5];
+		out1[5] += inp2[0] * lutt6[2];
+		out1[5] += inp2[3] * lutt6[3];
+		out1[5] += inp2[2] * lutt6[0];
+		out1[5] += inp2[5] * lutt6[1];
 
-		out1[4] =  inp1[7]*lutt6[6];
-		out1[4] += inp1[6]*lutt6[7];
-		out1[4] += inp2[1]*lutt6[4];
-		out1[4] += inp2[0]*lutt6[5];
-		out1[4] += inp2[3]*lutt6[2];
-		out1[4] += inp2[2]*lutt6[3];
-		out1[4] += inp2[5]*lutt6[0];
-		out1[4] += inp2[4]*lutt6[1];
+		out1[4] =  inp1[7] * lutt6[6];
+		out1[4] += inp2[1] * lutt6[4];
+		out1[4] += inp1[6] * lutt6[7];
+		out1[4] += inp2[0] * lutt6[5];
+		out1[4] += inp2[3] * lutt6[2];
+		out1[4] += inp2[2] * lutt6[3];
+		out1[4] += inp2[5] * lutt6[0];
+		out1[4] += inp2[4] * lutt6[1];
 
-		out1[7] =  inp1[6]*lutt6[6];
-		out1[7] += inp2[1]*lutt6[7];
-		out1[7] += inp2[0]*lutt6[4];
-		out1[7] += inp2[3]*lutt6[5];
-		out1[7] += inp2[2]*lutt6[2];
-		out1[7] += inp2[5]*lutt6[3];
-		out1[7] += inp2[4]*lutt6[0];
-		out1[7] += inp2[7]*lutt6[1];
+		out1[7] =  inp1[6] * lutt6[6];
+		out1[7] += inp2[1] * lutt6[7];
+		out1[7] += inp2[0] * lutt6[4];
+		out1[7] += inp2[3] * lutt6[5];
+		out1[7] += inp2[2] * lutt6[2];
+		out1[7] += inp2[5] * lutt6[3];
+		out1[7] += inp2[4] * lutt6[0];
+		out1[7] += inp2[7] * lutt6[1];
 
-		out1[6] =  inp2[1]*lutt6[6];
-		out1[6] += inp2[0]*lutt6[7];
-		out1[6] += inp2[3]*lutt6[4];
-		out1[6] += inp2[2]*lutt6[5];
-		out1[6] += inp2[5]*lutt6[2];
-		out1[6] += inp2[4]*lutt6[3];
-		out1[6] += inp2[7]*lutt6[0];
-		out1[6] += inp2[6]*lutt6[1];
+		out1[6] =  inp2[1] * lutt6[6];
+		out1[6] += inp2[0] * lutt6[7];
+		out1[6] += inp2[3] * lutt6[4];
+		out1[6] += inp2[2] * lutt6[5];
+		out1[6] += inp2[5] * lutt6[2];
+		out1[6] += inp2[4] * lutt6[3];
+		out1[6] += inp2[7] * lutt6[0];
+		out1[6] += inp2[6] * lutt6[1];
 
 		// XXXX correct?
-		outp[1] = /*CLAMP*/s16((out1[1]+0x4000) >> 0xF);
-		outp[0] = /*CLAMP*/s16((out1[0]+0x4000) >> 0xF);
-		outp[3] = /*CLAMP*/s16((out1[3]+0x4000) >> 0xF);
-		outp[2] = /*CLAMP*/s16((out1[2]+0x4000) >> 0xF);
-		outp[5] = /*CLAMP*/s16((out1[5]+0x4000) >> 0xF);
-		outp[4] = /*CLAMP*/s16((out1[4]+0x4000) >> 0xF);
-		outp[7] = /*CLAMP*/s16((out1[7]+0x4000) >> 0xF);
-		outp[6] = /*CLAMP*/s16((out1[6]+0x4000) >> 0xF);
+		outp[1] = /*CLAMP*/static_cast<s16>((out1[1]+0x4000) >> 0xF);
+		outp[0] = /*CLAMP*/static_cast<s16>((out1[0]+0x4000) >> 0xF);
+		outp[3] = /*CLAMP*/static_cast<s16>((out1[3]+0x4000) >> 0xF);
+		outp[2] = /*CLAMP*/static_cast<s16>((out1[2]+0x4000) >> 0xF);
+		outp[5] = /*CLAMP*/static_cast<s16>((out1[5]+0x4000) >> 0xF);
+		outp[4] = /*CLAMP*/static_cast<s16>((out1[4]+0x4000) >> 0xF);
+		outp[7] = /*CLAMP*/static_cast<s16>((out1[7]+0x4000) >> 0xF);
+		outp[6] = /*CLAMP*/static_cast<s16>(((out1[6]+0x4000) >> 0xF));
 		inp1 = inp2;
 		inp2 += 8;
 		outp += 8;
