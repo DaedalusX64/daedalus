@@ -96,17 +96,14 @@ bool initgl()
 {
 	DAEDALUS_ASSERT(gN64FramentLibrary == NULL, "Already initialised");
 
-	// FIXME(strmnnrmn): need a nicer 'load file' utility function.
 	{
-		std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-		IO::Filename shader_path;
-		IO::Path::Combine(shader_path, gDaedalusExePath.c_str(), "n64.psh");
-
-		FILE * fh = fopen(shader_path, "r");
+		std::filesystem::path shader_path = "n64.psh";
+		
+		FILE * fh = fopen(shader_path.string().c_str(), "r");
 		if (!fh)
 		{
-			DAEDALUS_ERROR("Couldn't load shader source %s", shader_path);
-			fprintf(stderr, "ERROR: couldn't load shader source %s\n", shader_path);
+			DAEDALUS_ERROR("Couldn't load shader source %s", shader_path.string().c_str());
+			fprintf(stderr, "ERROR: couldn't load shader source %s\n", shader_path.string().c_str());
 			return false;
 		}
 
