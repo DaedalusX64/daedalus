@@ -2,7 +2,6 @@
 #include "Base/Types.h"
 
 #include <string.h>
-#include <array>
 
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
@@ -15,8 +14,7 @@ extern bool isMKABI;
 extern bool isZeldaABI;
 
 static u32 gEnv_t3 = 0, gEnv_s5 = 0, gEnv_s6 = 0;
-static std::array<u16, 8> env {};
-// static u16 env[8];
+static u16 env[8];
 
 inline u16 Sample_Mask( u32 x )
 {
@@ -58,8 +56,8 @@ void ENVSETUP3(AudioHLECommand command)
 void ENVMIXER(AudioHLECommand command)
 {
 	//static int envmixcnt = 0;
-	u8	flags = command.Abi1EnvMixer.Flags;
-	u32 address = command.Abi1EnvMixer.Address;// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+	u8	flags( command.Abi1EnvMixer.Flags );
+	u32 address( command.Abi1EnvMixer.Address );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
 	gAudioHLEState.EnvMixer( flags, address );
 }
@@ -82,8 +80,7 @@ void ENVMIXER2(AudioHLECommand command)
   	s16 *buffs1 = (s16 *)(gAudioHLEState.Buffer + ((command.cmd1 << 0x04)&0x0ff0));
 
 
-
-	std::array<s16, 8> v2 {};
+  	s16 v2[8];
   	v2[0] = 0 - (s16)((command.cmd0 & 0x2) >> 1);
   	v2[1] = 0 - (s16)((command.cmd0 & 0x1));
   	v2[2] = 0 - (s16)((command.cmd0 & 0x8) >> 1);
@@ -91,8 +88,7 @@ void ENVMIXER2(AudioHLECommand command)
 
   	s32 count = (command.cmd0 >> 8) & 0xff;
 
-  	u32 adder {};
-
+  	u32 adder;
   	if (!isMKABI)
   	{
   		gEnv_s5 *= 2; gEnv_s6 *= 2; gEnv_t3 *= 2;
@@ -108,7 +104,7 @@ void ENVMIXER2(AudioHLECommand command)
 
   	while (count > 0)
   	{
-  		int temp {};
+  		int temp;
   		for (int x=0; x < 0x8; x++)
   		{
   			vec9  = (s16)(((s32)buffs3[x^1] * (u32)env[0]) >> 0x10) ^ v2[0];
@@ -175,7 +171,7 @@ void ENVMIXER2(AudioHLECommand command)
 
 void ENVMIXER3(AudioHLECommand command)
 {
- 	u8 flags = static_cast<u8>((command.cmd0 >> 16) & 0xff);
+  u8 flags = (u8)((command.cmd0 >> 16) & 0xff);
   	u32 addy = (command.cmd1 & 0xFFFFFF);
 
    	s16 *inp=(s16 *)(gAudioHLEState.Buffer+0x4F0);
@@ -331,10 +327,10 @@ void ENVMIXER3(AudioHLECommand command)
 void SETVOL(AudioHLECommand command)
 {
   // Might be better to unpack these depending on the flags...
-  	u8 flags = static_cast<u8>((command.cmd0 >> 16) & 0xff);
-  	s16 vol = static_cast<s16>(command.cmd0 & 0xffff);
+  	u8 flags = (u8)((command.cmd0 >> 16) & 0xff);
+  	s16 vol = (s16)(command.cmd0 & 0xffff);
   //	u16 voltgt =(u16)((command.cmd1 >> 16)&0xffff);
-  	u16 volrate = static_cast<u16>((command.cmd1 & 0xffff));
+  	u16 volrate = (u16)((command.cmd1 & 0xffff));
 
   	if (flags & A_AUX)
   	{
@@ -373,7 +369,7 @@ void SETVOL(AudioHLECommand command)
 
 void SETVOL3(AudioHLECommand command)
 {
-  u8 Flags = static_cast<u8>(command.cmd0 >> 0x10);
+  u8 Flags = (u8)(command.cmd0 >> 0x10);
 	if (Flags & 0x4)
 	{ // 288
 		if (Flags & 0x2)
