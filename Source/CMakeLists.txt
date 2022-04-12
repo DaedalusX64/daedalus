@@ -145,7 +145,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 		link_directories(/opt/homebrew/lib)
 		else()
 		include_directories(/usr/local/include)
-		link_directories(/usr/local/include/lib)
+		link_directories(/usr/local/lib)
 		endif()
 	endif (APPLE)
 
