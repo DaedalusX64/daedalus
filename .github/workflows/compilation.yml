@@ -150,7 +150,7 @@ jobs:
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     - name: Install dependencies
       run: |
-        brew install git bash cmake libpng libz minizip sdl2 glew
+        brew install git bash cmake libpng zip minizip sdl2 glew
     
     - name: Compile project
       run: |
