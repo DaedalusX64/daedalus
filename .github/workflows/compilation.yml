@@ -96,15 +96,15 @@ jobs:
 
     - name: Prepare artifacts
       run: |
-        tar -zcvf daedalusX64.tar.gz \
+        tar -zcvf daedalusX64-linux.tar.gz \
           DaedalusX64/daedalus \
           DaedalusX64/n64.psh \
           DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
           DaedalusX64/copying.txt \
-          DaedalusX64/Resources \
-          DaedalusX64/Languages \
-          DaedalusX64/ControllerConfigs \
+#          DaedalusX64/Resources \ # Not used in Posix Buiilds
+#          DaedalusX64/Languages \ # Not used in Posix Builds
+#           DaedalusX64/ControllerConfigs \ # Not used in Posix Builds
 
 
     - name: Upload artifacts
