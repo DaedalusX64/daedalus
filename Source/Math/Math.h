@@ -478,7 +478,7 @@ inline bool IsNaN_Double(double x)
 // #define sinf(x)			std::sinf((x))
 // #define cosf(x)			std::cosf((x))
 // #define sincosf(x,s,c)	std::sincosf(x, s, c)
-
+#else 
 
 #ifdef DAEDALUS_W32
 inline f64 trunc(f64 x)				{ return (x>0) ? floor(x) : ceil(x); }
