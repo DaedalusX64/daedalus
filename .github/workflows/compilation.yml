@@ -84,7 +84,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev
+        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev
     
     - name: Compile project
       run: |
