@@ -20,15 +20,15 @@ function finalPrep() {
          cp -r ../Data/* ../DaedalusX64/
 }
 
-function build() {
+function psp_plugins() {
 
-## Build PSP extensions - Really need to make these cmake files 
-if [[ $1 = "PSP" ]]; then
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/DveMgr" || { exit 1; }
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/ExceptionHandler" || { exit 1; }
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/KernelButtons" || { exit 1; }
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/MediaEngine" || { exit 1; }
-fi
+}
+
+function build() {
 
 ## Compile and install.
 make --quiet -j $PROC_NR  || { exit 1; }
@@ -46,6 +46,7 @@ fi
 
 case "$1" in
     PSP)
+    psp_plugins
     cmake -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake $CMAKEDEFINES ../Source
     build
     ;;
