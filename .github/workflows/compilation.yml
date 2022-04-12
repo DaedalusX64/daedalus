@@ -76,7 +76,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
         name: CI
-        
+
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -84,7 +84,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apt install build-base git bash cmake libpng libz minizip
+        apk add build-base git bash cmake libpng libz minizip
     
     - name: Compile project
       run: |
