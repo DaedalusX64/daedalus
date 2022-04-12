@@ -84,7 +84,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apk add build-base git bash cmake libpng libz minizip
+        sudo apt install build-base git bash cmake libpng libz minizip
     
     - name: Compile project
       run: |
