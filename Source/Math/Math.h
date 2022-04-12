@@ -469,14 +469,14 @@ inline bool IsNaN_Double(double x)
 #define cosf(x)			vfpu_cosf((x))
 #define sincosf(x,s,c)	vfpu_sincos(x, s, c)
 
-#elif defined(DAEDALUS_POSIX) // XXX Compare with PSP fpu math
-#include <cmath>
-#define isnanf(x)		std::isnan((float x))
-#define sqrtf(x)		std::sqrtf((x))
-#define roundf(x)		std::roundf((x))		// FIXME(strmnnrmn): results in an int! Alternate version below results in a float!
-#define fabsf(x)		std::fabsf((x))
-#define sinf(x)			std::sinf((x))
-#define cosf(x)			std::cosf((x))
+// #elif defined(DAEDALUS_POSIX) // XXX Compare with PSP fpu math // Does not work with Linux.
+// #include <cmath>
+// #define isnanf(x)		std::isnan((float x))
+// #define sqrtf(x)		std::sqrtf((x))
+// #define roundf(x)		std::roundf((x))		// FIXME(strmnnrmn): results in an int! Alternate version below results in a float!
+// #define fabsf(x)		std::fabsf((x))
+// #define sinf(x)			std::sinf((x))
+// #define cosf(x)			std::cosf((x))
 // #define sincosf(x,s,c)	std::sincosf(x, s, c)
 
 
