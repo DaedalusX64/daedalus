@@ -76,7 +76,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
         name: CI
-jobs:
+        
   build-linux:
     runs-on: ubuntu-latest
     steps:
