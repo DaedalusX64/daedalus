@@ -9,17 +9,16 @@ on:
 jobs:
   build-psp:
     runs-on: ubuntu-latest
-    container: pspdev/pspdev:latest
     steps:
     - uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
-        apk add build-base git bash cmake
+        apk add build-base git bash cmake libpng libz minizip
     
     - name: Compile project
       run: |
-        ./build_daedalus.sh PSP
+        ./build_daedalus.sh
 
     - name: Get short SHA
       id: slug
@@ -28,11 +27,8 @@ jobs:
     - name: Prepare artifacts
       run: |
         tar -zcvf daedalusX64.tar.gz \
-          DaedalusX64/dvemgr.prx \
-          DaedalusX64/exception.prx \
-          DaedalusX64/imposectrl.prx \
-          DaedalusX64/mediaengine.prx \
-          DaedalusX64/EBOOT.PBP \
+          DaedalusX64/daedalus \
+          DaedalusX64/n64.psh \
           DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
           DaedalusX64/copying.txt \
@@ -46,7 +42,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: DaedalusX64-${{ steps.slug.outputs.sha8 }}
-        path: daedalusX64.tar.gz
+        path: daedalusX64-linux.tar.gz
 
     - name: Extract tag name
       if: startsWith(github.ref, 'refs/tags/')
@@ -57,7 +53,7 @@ jobs:
       if: github.ref == 'refs/heads/master'
       uses: softprops/action-gh-release@v1
       with:
-        files: daedalusX64.tar.gz
+        files: daedalusX64-linux.tar.gz
         prerelease: true
         name: "Development build"
         tag_name: "latest"
@@ -68,7 +64,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: daedalusX64.tar.gz
+        files: daedalusX64-linux.tar.gz
         tag_name: ${{ steps.tag.outputs.VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
