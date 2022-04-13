@@ -35,8 +35,7 @@ PSP Version requires libintrafont
 
 1) Clone this repo 
 
-2) Open a terminal and run build_daedalus.sh with the argument for the os you would like to build for 
-Example: ./build_daedalus.sh LINUX
+2) ./build_daedalus.sh
  
 ## More Info
  
@@ -47,7 +46,9 @@ Join our Discord server to talk to other Daedalus users and the developers!
 Invite link: https://discord.gg/FrVTpBV
  
 ## Credits
- 
+
+- Xerpi / Rinnegatamante / TheFlow for Vita Build and Optimisations  
+- MasterFeizz for 3DS Support / ARM DynaRec
 - kreationz, salvy6735, Corn, Chilly Willy: Original DaedalusX64 code
 - Wally: Optimizations, improvements and ports
 - z2442: Compilation improvements and updating, optimizations
