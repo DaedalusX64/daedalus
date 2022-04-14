@@ -1,0 +1,1 @@
+add_library(Graphics_CTR OBJECT GraphicsContextCTR.cpp NativeTextureCTR.cpp)

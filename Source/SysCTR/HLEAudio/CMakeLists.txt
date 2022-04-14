@@ -1,0 +1,1 @@
+add_library(Audio_CTR OBJECT AudioOutput.cpp AudioPluginCTR.cpp)

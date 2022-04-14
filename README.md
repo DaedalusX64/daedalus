@@ -1,6 +1,6 @@
 # DaedalusX64
  
-DaedalusX64 is a Nintendo 64 emulator for Linux and PSP, with plans to port to Windows, Mac, PS Vita among other platforms. The PSP port is noteworthy for being the fastest N64 emulator ever on the platform, achieving close to or even full speed in many titles.
+DaedalusX64 is a Nintendo 64 emulator for PSP, 3DS, Vita, Linux, macOS and Windows
  
 ## Features:
  
@@ -37,6 +37,9 @@ PSP Version requires libintrafont
 
 2) ./build_daedalus.sh
  
+ ## CI
+ DaedalusX64 now has CI, you can get the latest nightlies from the Actions Tab.
+ Warning: these builds are sporatic at times.
 ## More Info
  
 For information about compatibility, optimal settings and more about the emulator, visit the actively maintained GitHub wiki page: https://github.com/DaedalusX64/daedalus/wiki Feel free to submit reports for how well your favourite games run if they have not already been listed!
@@ -46,11 +49,13 @@ Join our Discord server to talk to other Daedalus users and the developers!
 Invite link: https://discord.gg/FrVTpBV
  
 ## Credits
-
-- Xerpi / Rinnegatamante / TheFlow for Vita Build and Optimisations  
+- StrmnNrmn - For making DaedalusX64 possible
+- Kreationz, salvy, Corn, Chilly Willy, Azimer, missed folks for past contributions
 - MasterFeizz for 3DS Support / ARM DynaRec
-- kreationz, salvy6735, Corn, Chilly Willy: Original DaedalusX64 code
-- Wally: Optimizations, improvements and ports
-- z2442: Compilation improvements and updating, optimizations
-- mrneo240: Optimizations, compilation help
-- TheMrIron2: Optimizations, wiki maintenance
+- Xerpi / Rinnegatamante / TheOfficialFloW for PS Vita and ARM Contributions
+- z2442 & Wally: Compilation improvements and updating, optimizations
+- TheMrIron2 & mrneo240 Optimizations, wiki maintenance
+- re4thewin for continuous testing over the duration of DaedalusX64
+- motolegacy for GitHub Website 
+- fjtrujy for help with getting CI going.
+- Our Valued Communities for helping making Daedalus what it is :)

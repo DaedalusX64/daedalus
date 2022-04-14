@@ -208,6 +208,8 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	add_subdirectory(SysGL)
 	elseif(WIN) ## Probably keep this generic as we'll build this on Linux too?
 	add_subdirectory(SysW32)
+	elseif(CTR)
+	add_subdirectory(SysCTR)
 	else(PSP)
 	add_subdirectory(SysPSP)
 	endif()

@@ -1,0 +1,2 @@
+add_library(CTR_HLEGraphics OBJECT BlendModes.cpp ColourAdjuster.cpp GraphicsPluginCTR.cpp RendererCTR.cpp)
+add_subdirectory(Combiner)
