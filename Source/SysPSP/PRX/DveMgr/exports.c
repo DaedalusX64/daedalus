@@ -32,7 +32,7 @@ static const unsigned int __pspDveManager_driver_exports[4] __attribute__((secti
 };
 
 const struct _PspLibraryEntry __library_exports[3] __attribute__((section(".lib.ent"), used)) = {
-	{ NULL, 0x0000, 0x8000, 4, 1, 2, &__syslib_exports },
-	{ "pspDveManager", 0x0000, 0x4001, 4, 0, 2, &__pspDveManager_exports },
-	{ "pspDveManager_driver", 0x0000, 0x0001, 4, 0, 2, &__pspDveManager_driver_exports },
+	{ NULL, 0x0000, 0x8000, 4, 1, 2, (unsigned int *) &__syslib_exports },
+	{ "pspDveManager", 0x0000, 0x4001, 4, 0, 2, (unsigned int *) &__pspDveManager_exports },
+	{ "pspDveManager_driver", 0x0000, 0x0001, 4, 0, 2, (unsigned int *) &__pspDveManager_driver_exports },
 };

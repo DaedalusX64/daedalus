@@ -1,12 +1,11 @@
 TARGET = dvemgr
-OBJS = main.o exports.o sceGe_driver.o
+OBJS = main.o exports.o
 
-CFLAGS = -Os -G0 -Wall -fshort-wchar -fno-pic -mno-check-zero-division -DF_sceGe_driver_0013
+CFLAGS = -Os -G0 -Wall -fshort-wchar -fno-pic -mno-check-zero-division
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
-INCDIR = ../../../Projects/PSP/SDK/include
-LIBDIR = ../../../Projects/PSP/SDK/lib
+PSP_FW_VERSION=500
 BUILD_PRX = 1
 PRX_EXPORTS = exports.exp
 
@@ -14,9 +13,9 @@ USE_KERNEL_LIBC = 1
 USE_KERNEL_LIBS = 1
 
 LDFLAGS = -nostartfiles
-LIBS = -lpspdve_driver -lpsphprm_driver -lpspge_driver -lpspimpose_driver
+LIBS = -lpspdve_driver -lpsphprm_driver -lpspimpose_driver
 
-PSP_FW_VERSION=500
+
 
 PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak

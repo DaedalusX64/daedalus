@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspsdk.h>
 #include <pspdisplay.h>
 #include <pspgu.h>
+#include <pspge.h>
 #include <pspkernel.h>
 #include <kubridge.h>
 #include <pspsysmem.h>
@@ -131,7 +132,7 @@ extern void initExceptionHandler();
 		// Can't use extra memory if ME isn't available
 		PSP_IS_SLIM = true;
 		g32bitColorMode = true;
-
+		sceGeEdramSetSize(4*1024*1024);
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
@@ -140,6 +141,7 @@ extern void initExceptionHandler();
 		else if( PSP_TV_CABLE == 0 )
 			CModule::Unload( HAVE_DVE );	// Stop and unload dvemgr.prx since if no video cable is connected
 	}
+
 
 	//Set the debug output to default
 	if( g32bitColorMode ) pspDebugScreenInit();

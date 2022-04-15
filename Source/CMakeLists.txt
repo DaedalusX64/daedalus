@@ -111,7 +111,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	if (PSP)
 		add_definitions(-DDAEDALUS_PSP)
 		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
-		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu)
+		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu -lpspge)
 
 	add_executable(daedalus SysPSP/main.cpp)
 
