@@ -37,11 +37,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __has_feature(x) 0
 
 
-#define DAEDALUS_ENABLE_DYNAREC
 #undef DAEDALUS_BREAKPOINTS_ENABLED
-#define DAEDALUS_ENABLE_OS_HOOKS
 #define DAEDALUS_COMPRESSED_ROM_SUPPORT
-#define DAEDALUS_ACCURATE_TMEM
+
 
 
 // Calling convention for the R4300 instruction handlers.
@@ -60,6 +58,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Breakpoint
 #define DAEDALUS_HALT					__asm { int 3 }
+
+template <typename T>
+T make_uncached_ptr(T ptr) {
+    return 0;
+}
 
 
 #endif // SYSW32_INCLUDE_PLATFORM_H_

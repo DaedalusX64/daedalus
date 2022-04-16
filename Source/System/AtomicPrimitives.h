@@ -58,12 +58,12 @@ inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
 
 inline u32 AtomicIncrement( volatile u32 * ptr )
 {
-	return _InterlockedIncrement( reinterpret_cast< volatile LONG * >( ptr ) );
+	return _InterlockedIncrement( reinterpret_cast< volatile long * >( ptr ) );
 }
 
 inline u32 AtomicDecrement( volatile u32 * ptr )
 {
-	return _InterlockedDecrement( reinterpret_cast< volatile LONG * >( ptr ) );
+	return _InterlockedDecrement( reinterpret_cast< volatile long * >( ptr ) );
 }
 
 inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
@@ -75,7 +75,7 @@ inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
 		orig_value = *ptr;
 		new_value = (orig_value & and_bits) | or_bits;
 	}
-	while ( _InterlockedCompareExchange( reinterpret_cast< volatile LONG * >( ptr ), new_value, orig_value ) != orig_value );
+	while ( _InterlockedCompareExchange( reinterpret_cast< volatile long * >( ptr ), new_value, orig_value ) != orig_value );
 
 	return new_value;
 }

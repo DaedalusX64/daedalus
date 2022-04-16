@@ -24,6 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
+#ifdef WIN32
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 class CConstString
 {
 	public:

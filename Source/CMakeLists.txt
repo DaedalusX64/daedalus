@@ -71,6 +71,9 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
 	option(DAEDALUS_POSIX "Posix specific options" ON)
 	option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
+	elseif(WIN32)
+	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
+	option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 	endif()
 
 	include(${PROJECT_SOURCE_DIR}/Options.cmake)
@@ -163,26 +166,37 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 												   Graphics_GL HLEGraphics_GL Input_GL Interface_GL 
 												   Posix_Debug Posix_DynaRec Posix_Audio Posix_HLEGraphics Posix_Utility  
 												   png z minizip pthread GLEW SDL2 dl ${OS_LIBS}
-		)
+							 )
 	endif (UNIX)
 
+
 	if(WIN32)
+		set(CMAKE_TOOLCHAIN_FILE ${VCPKG_TOOLCHAIN})
+		message(CMAKE_TOOLCHAIN_FILE)
+		find_package(ZLIB)
+		find_package(SDL2 CONFIG REQUIRED)
+		find_package(GLEW REQUIRED)
+		
 		add_definitions(-DDAEDALUS_WIN32 -DDAEDALUS_GL)
+
 		#add_compile_options("/Od")
 		##Windows todo
 		# Pull in modules for glew / SDL2 / ZLib / LibPNG / Minizip
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysW32/Include)
+		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysW32/Include .)
 
-		add_library(sysGL OBJECT ${SYSGL_BUILD})
-		target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 Xinput ${OS_LIBS})
+#		add_library(sysGL OBJECT ${SYSGL_BUILD})
+#		target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 Xinput ${OS_LIBS})
 
-		add_library(daedalus.lib OBJECT ${BUILD} ${WIN_BUILD} ${AUDIO_DRIVER} )
-		target_link_libraries(daedalus.lib dsound dxguid sysGL libpng zlib zlibwapi)
+#		add_library(daedalus.lib OBJECT ${BUILD} ${WIN_BUILD} ${AUDIO_DRIVER} )
+#		target_link_libraries(daedalus.lib dsound dxguid sysGL libpng zlib zlibwapi)
 
 		#Build and Link Executable
-		add_executable(daedalus ${WIN_MAIN_FILES})
-		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib Shlwapi.lib)
-
+		add_executable(daedalus SysW32/main.cpp)
+		target_link_libraries(daedalus LINK_PUBLIC
+												   Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility 
+												   Graphics_GL HLEGraphics_GL Input_GL Interface_GL 
+												   Win_Debug Win_Audio Win_Utility X86_Dynarec
+												   png z minizip pthread GLEW SDL2 dl ${OS_LIBS} )
 
 	endif (WIN32)
 
@@ -206,7 +220,8 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	if(UNIX)
 	add_subdirectory(SysPosix)
 	add_subdirectory(SysGL)
-	elseif(WIN) ## Probably keep this generic as we'll build this on Linux too?
+	elseif(WIN32) ## Probably keep this generic as we'll build this on Linux too?
+	add_subdirectory(SysGL)
 	add_subdirectory(SysW32)
 	elseif(CTR)
 	add_subdirectory(SysCTR)

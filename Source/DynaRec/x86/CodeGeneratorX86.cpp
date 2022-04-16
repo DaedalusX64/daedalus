@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/Trace.h"
 #include "Ultra/ultra_R4300.h"
 
-#include "SysW32/DynaRec/x86/CodeGeneratorX86.h"
+#include "DyanRec/x86/CodeGeneratorX86.h"
 
 using namespace AssemblyUtils;
 
