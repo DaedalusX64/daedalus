@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "BuildOptions.h"
 #include "Base/Types.h"
 
+
 #include "Core/Memory.h"
 #include "Core/CPU.h"
 #include "Core/Save.h"
@@ -28,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RomSettings.h"
 
 #include "Interface/RomDB.h"
+#include "System/SystemInit.h"
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Graphics/VideoMemoryManager.h"
 #endif
@@ -247,10 +249,11 @@ bool System_Init()
 	return true;
 }
 
-bool System_Open(const char * filename)
+bool System_Open(const std::filesystem::path filename)
 {
-	strcpy(g_ROM.mFileName, filename);
-	for(u32 i = 0; i < ARRAYSIZE(gRomInitTable); i++)
+	// filename /= g_ROM.mFileName;
+	 strcpy(g_ROM.mFileName, filename.c_str());
+	for (u32 i = 0; i < ARRAYSIZE(gRomInitTable); i++)
 	{
 		const RomEntityEntry & entry = gRomInitTable[i];
 

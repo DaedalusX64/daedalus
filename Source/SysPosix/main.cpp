@@ -30,6 +30,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include <SDL2/SDL.h>
+#include <vector>
+#include <filesystem>
+#include <iostream>
+
 #ifdef DAEDALUS_LINUX
 #include <linux/limits.h>
 #endif
@@ -106,7 +110,39 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		printf("Usage: daedalus 'Path to Rom'\n");
+			std::filesystem::path filename;
+				    std::filesystem::path RomDir = "Roms";
+					std::vector<std::filesystem::path> RomList;
+					for (auto const &dir_entry : std::filesystem::directory_iterator{RomDir})
+					{
+						RomList.push_back(dir_entry);
+					}
+
+					int count = 0;
+					for (auto n : RomList)
+					{
+						std::cout << count << "." << n << std::endl;
+						count++;
+					}
+				int game = 0;
+
+				std::cout << "Select a Game: " << std::endl;
+				std::cin >> game;
+				if(game > RomList.size())
+				{
+					std::cout << "Invalid Entry" << std::endl;
+				}
+				else
+				{
+				std::cout << "You have Selected: " << RomList.at(game);
+				
+				filename = RomList.at(game);
+				std::cout << "Filename is: " << filename << std::endl;
+				System_Open(filename);
+				CRomDB::Get()->Commit();
+				CPU_Run();
+			System_Close();
+				}
 	}
 	System_Finalize();
 	return result;
@@ -115,8 +151,7 @@ int main(int argc, char **argv)
 //FIXME: All this stuff needs tidying
 
 void Dynarec_ClearedCPUStuffToDo()
-{
-}
+{}
 
 void Dynarec_SetCPUStuffToDo()
 {
