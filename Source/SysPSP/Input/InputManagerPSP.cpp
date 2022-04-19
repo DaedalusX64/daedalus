@@ -281,9 +281,9 @@ class IInputManager : public CInputManager
 
 	private:
 		void								SwapJoyStick(OSContPad *pPad, SceCtrlData *pad);
-		void								LoadControllerConfigs( const char * p_dir );
+		void								LoadControllerConfigs( const std::filesystem::path p_dir );
 		CControllerConfig *					BuildDefaultConfig();
-		CControllerConfig *					BuildControllerConfig( const char * filename );
+		CControllerConfig *					BuildControllerConfig( const std::filesystem::path filename );
 
 	private:
 		CControllerConfig *					mpControllerConfig;
@@ -766,16 +766,16 @@ CButtonMapping *	CButtonMappingExpressionEvaluator::Parse( const char * expressi
 //*****************************************************************************
 //
 //*****************************************************************************
-void	IInputManager::LoadControllerConfigs( const char * p_dir )
+void	IInputManager::LoadControllerConfigs( const std::filesystem::path p_dir )
 {
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
-	if(IO::FindFileOpen( p_dir, &find_handle, find_data ))
+	if(IO::FindFileOpen( p_dir.c_str(), &find_handle, find_data ))
 	{
 		do
 		{
-			const char * filename( find_data.Name );
-			const char * last_period( strrchr( filename, '.' ) );
+			const std::filesystem::path filename( find_data.Name );
+			const char * last_period( strrchr( filename.c_str(), '.' ) );
 			if(last_period != NULL)
 			{
 				if( strcasecmp(last_period, ".ini") == 0 )
@@ -839,7 +839,7 @@ CControllerConfig *	IInputManager::BuildDefaultConfig()
 //*****************************************************************************
 //
 //*****************************************************************************
-CControllerConfig *	IInputManager::BuildControllerConfig( const char * filename )
+CControllerConfig *	IInputManager::BuildControllerConfig( const std::filesystem::path filename )
 {
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == NULL )

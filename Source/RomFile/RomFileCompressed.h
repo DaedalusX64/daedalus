@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 class ROMFileCompressed : public ROMFile
 {
 public:
-	ROMFileCompressed( const char * filename );
+	ROMFileCompressed( const std::filesystem::path filename );
 
 	virtual ~ROMFileCompressed();
 

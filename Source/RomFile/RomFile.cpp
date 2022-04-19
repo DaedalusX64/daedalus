@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <algorithm>
 #include <string.h>
+#include <filesystem>
 
 bool IsRomfilename( const char * rom_filename )
 {
@@ -49,27 +50,28 @@ bool IsRomfilename( const char * rom_filename )
 		    strcasecmp(last_period, ".zip") == 0);
 }
 
-ROMFile * ROMFile::Create( const char * filename )
+ROMFile * ROMFile::Create( const std::filesystem::path filename )
 {
-	const char * ext = IO::Path::FindExtension( filename );
+	const char * ext = IO::Path::FindExtension( filename.c_str() );
 	if (ext && strcasecmp(ext, ".zip") == 0)
 	{
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-		return new ROMFileCompressed( filename );
+		return new ROMFileCompressed( filename.c_str() );
 #else
 		return NULL;
 #endif
 	}
 	else
 	{
-		return new ROMFileUncompressed( filename );
+		return new ROMFileUncompressed( filename.c_str() );
 	}
 }
 
-ROMFile::ROMFile( const char * filename )
+ROMFile::ROMFile( const std::filesystem::path filename )
 :	mHeaderMagic( 0 )
+,	mFilename ( filename )
 {
-	IO::Path::Assign( mFilename, filename );
+
 }
 
 ROMFile::~ROMFile()
@@ -80,7 +82,7 @@ bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages
 {
 	if( !LoadRawData( bytes_to_read, p_bytes, messages ) )
 	{
-		messages << "Unable to get rom info from '" << mFilename << "'";
+		messages << "Unable to get rom info from '" << mFilename.c_str() << "'";
 		return false;
 	}
 

@@ -31,9 +31,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define toGzipFile(fh) ((gzFile)fh)
 
-COutStream::COutStream( const char * filename )
+COutStream::COutStream( const std::filesystem::path filename )
 :	mBufferCount( 0 )
-,	mFile( gzopen( filename, "wb" ) )
+,	mFile( gzopen( filename.c_str(), "wb" ) )
 {
 }
 
@@ -118,10 +118,10 @@ void	COutStream::Reset()
 }
 
 
-CInStream::CInStream( const char * filename )
+CInStream::CInStream( const std::filesystem::path filename )
 :	mBufferOffset( 0 )
 ,	mBytesAvailable( 0 )
-,	mFile( gzopen( filename, "rb" ) )
+,	mFile( gzopen( filename.c_str(), "rb" ) )
 {
 }
 

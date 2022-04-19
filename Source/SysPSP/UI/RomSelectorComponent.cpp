@@ -91,7 +91,7 @@ namespace
 //*************************************************************************************
 struct SRomInfo
 {
-	CFixedString<100>		mFilename;
+	std::filesystem::path	mFilename;
 
 	RomID			mRomID;
 	u32				mRomSize;
@@ -99,7 +99,7 @@ struct SRomInfo
 
 	RomSettings		mSettings;
 
-	SRomInfo( const char * filename )
+	SRomInfo( const std::filesystem::path filename )
 		:	mFilename( filename )
 	{
 		if ( ROM_GetRomDetailsByFilename( filename, &mRomID, &mRomSize, &mCicType ) )
@@ -117,7 +117,7 @@ struct SRomInfo
 				std::string game_name;
 				if ( !ROM_GetRomName( filename, game_name ) )
 				{
-					game_name = IO::Path::FindFileName( filename );
+					game_name = IO::Path::FindFileName( filename.c_str() );
 				}
 				game_name = game_name.substr(0, 63);
 				mSettings.GameName = game_name.c_str();

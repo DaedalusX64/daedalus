@@ -452,9 +452,9 @@ public:
 		delete Sink;
 	}
 
-	bool Open(const char * filename)
+	bool Open(const std:filesystem::path filename)
 	{
-		return Sink->Open(filename, "w");
+		return Sink->Open(filename.c_str(), "w");
 	}
 
 	virtual size_t Write(const void * p, size_t len)

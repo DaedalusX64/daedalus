@@ -69,7 +69,7 @@ class IPreferences : public CPreferences
 		IPreferences();
 		virtual ~IPreferences();
 
-		bool					OpenPreferencesFile( const char * filename );
+		bool					OpenPreferencesFile( const std::filesystem::path filename );
 		void					Commit();
 
 		bool					GetRomPreferences( const RomID & id, SRomPreferences * preferences ) const;
@@ -124,7 +124,7 @@ static RomID RomIDFromString( const char * str )
 	return RomID( crc1, crc2, (u8)country );
 }
 
-bool IPreferences::OpenPreferencesFile( const char * filename )
+bool IPreferences::OpenPreferencesFile( const std::filesystem::path  filename )
 {
 	mFilename = filename;
 

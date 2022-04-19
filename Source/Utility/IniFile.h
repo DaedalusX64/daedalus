@@ -24,6 +24,7 @@
 #define UTILITY_INIFILE_H_
 
 #include "Base/Types.h"
+#include "System/IO.h"
 
 //*****************************************************************************
 //
@@ -62,7 +63,7 @@ class CIniFile
 	public:
 		virtual								~CIniFile();
 
-		static CIniFile *					Create( const char * filename );
+		static CIniFile *					Create( const std::filesystem::path filename );
 
 		virtual const CIniFileSection *		GetDefaultSection() const = 0;
 

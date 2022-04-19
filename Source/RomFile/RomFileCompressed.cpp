@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 //
 //*****************************************************************************
-ROMFileCompressed::ROMFileCompressed( const char * filename )
+ROMFileCompressed::ROMFileCompressed( const std::filesystem::path filename )
 :	ROMFile( filename )
 ,	mZipFile( NULL )
 ,	mFoundRom( false )

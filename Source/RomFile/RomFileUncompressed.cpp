@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 //
 //*****************************************************************************
-ROMFileUncompressed::ROMFileUncompressed( const char * filename )
+ROMFileUncompressed::ROMFileUncompressed( const std::filesystem::path filename )
 :	ROMFile( filename )
 ,	mFH( NULL )
 ,	mRomSize( 0 )
@@ -52,7 +52,7 @@ bool ROMFileUncompressed::Open( COutputStream & messages )
 	DAEDALUS_ASSERT( mFH == NULL, "Opening the file twice?" );
 	#endif
 	// Open the file and read in the data
-	mFH = fopen( mFilename, "rb" );
+	mFH = fopen( mFilename.c_str(), "rb" );
 	if(mFH == NULL)
 	{
 		return false;

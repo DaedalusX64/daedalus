@@ -20,13 +20,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_ZLIBWRAPPER_H_
 #define UTILITY_ZLIBWRAPPER_H_
 
+#include "System/IO.h"
+
 //
 //	A buffered output stream
 //
 class COutStream
 {
 	public:
-		COutStream( const char * filename );
+		COutStream( const std::filesystem::path filename );
 		~COutStream();
 
 		bool					IsOpen() const;
@@ -44,7 +46,7 @@ class COutStream
 class CInStream
 {
 	public:
-		CInStream( const char * filename );
+		CInStream( const std::filesystem::path filename );
 		~CInStream();
 
 		bool					IsOpen() const;

@@ -208,7 +208,7 @@ class IIniFile : public CIniFile
 		//
 		// CIniFile implementation
 		//
-		virtual bool					Open( const char * filename );
+		virtual bool					Open( const std::filesystem::path filename );
 
 		virtual const CIniFileSection *	GetDefaultSection() const;
 
@@ -293,7 +293,7 @@ static bool	trim( char * p_string, const char * p_trim_chars )
 //*****************************************************************************
 //
 //*****************************************************************************
-CIniFile *	CIniFile::Create( const char * filename )
+CIniFile *	CIniFile::Create( const std::filesystem::path filename )
 {
 	IIniFile * p_file( new IIniFile );
 	if( p_file != NULL )
@@ -312,13 +312,13 @@ CIniFile *	CIniFile::Create( const char * filename )
 //*****************************************************************************
 //
 //*****************************************************************************
-bool IIniFile::Open( const char * filename )
+bool IIniFile::Open( const std::filesystem::path filename )
 {
 	const u32	BUFFER_LEN = 1024;
 	char		readinfo[BUFFER_LEN+1];
 	const char	trim_chars[]="{}[]"; //remove first and last character
 
-	FILE * fh( fopen( filename, "r" ) );
+	FILE * fh( fopen( filename.c_str(), "r" ) );
 	if (fh == NULL)
 	{
 		return false;

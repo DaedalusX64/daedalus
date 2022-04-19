@@ -33,7 +33,7 @@ class CPreferences : public CSingleton<CPreferences>
    public:
 	virtual ~CPreferences();
 
-	virtual bool OpenPreferencesFile(const char* filename) = 0;
+	virtual bool OpenPreferencesFile(const std::filesystem::path filename) = 0;
 	virtual void Commit() = 0;
 
 	virtual bool GetRomPreferences(const RomID& id, SRomPreferences* preferences) const = 0;

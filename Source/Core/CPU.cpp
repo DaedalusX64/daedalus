@@ -420,7 +420,7 @@ void CPU_SelectCore()
 	}
 }
 
-bool CPU_RequestSaveState( const char * filename )
+bool CPU_RequestSaveState( const std::filesystem::path filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
@@ -439,7 +439,7 @@ bool CPU_RequestSaveState( const char * filename )
 	return true;
 }
 
-bool CPU_RequestLoadState( const char * filename )
+bool CPU_RequestLoadState( const std::filesystem::path filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");

@@ -181,8 +181,8 @@ void RomBuffer::Destroy()
 bool RomBuffer::Open()
 {
 	CNullOutputStream messages;
-	const char * filename   = g_ROM.mFileName;
-	ROMFile *    p_rom_file = ROMFile::Create( filename );
+	const std::filesystem::path filename   = g_ROM.mFileName;
+	ROMFile *    p_rom_file = ROMFile::Create( filename.c_str() );
 	if(p_rom_file == nullptr)
 	{
 		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename);

@@ -31,9 +31,9 @@ bool IsRomfilename( const char * rom_filename );
 class ROMFile
 {
 public:
-	static ROMFile * Create( const char * filename );
+	static ROMFile * Create( const std::filesystem::path filename );
 
-	ROMFile( const char * filename );
+	ROMFile( const std::filesystem::path filename );
 	virtual ~ROMFile();
 
 			bool		LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages );
@@ -60,7 +60,7 @@ private:
 	virtual bool		LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages ) = 0;
 
 protected:
-	IO::Filename		mFilename;
+	std::filesystem::path mFilename;
 	u32					mHeaderMagic;
 };
 

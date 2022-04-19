@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 class ROMFileUncompressed : public ROMFile
 {
 public:
-	ROMFileUncompressed( const char * filename );
+	ROMFileUncompressed( const std::filesystem::path filename );
 	virtual ~ROMFileUncompressed();
 
 	virtual bool		Open( COutputStream & messages );
