@@ -27,14 +27,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
 #include "System/IO.h"
+#include <iostream>
 
 static void InitMempackContent();
 
-static IO::Filename		gSaveFileName;
+// static IO::Filename		gSaveFileName;
+std::filesystem::path gSaveFileName;
 static bool				gSaveDirty;
 static u32				gSaveSize;
 static IO::Filename		gMempackFileName;
 static bool				gMempackDirty;
+
+void Save_File(const std::filesystem::path rom_filename, const char * extension, std::filesystem::path dest)
+{
+	std::filesystem::path filename;
+	 filename = rom_filename.filename();
+	filename.replace_extension(extension);	
+	gSaveFileName = dest /= filename;
+}
 
 bool Save_Reset()
 {
@@ -67,9 +77,9 @@ bool Save_Reset()
 	gSaveDirty = false;
 	if (gSaveSize > 0)
 	{
-		Dump_GetSaveDirectory(gSaveFileName, g_ROM.mFileName, ext);
+		Save_File(g_ROM.mFileName, ext, "SaveGames/");
 
-		FILE * fp = fopen(gSaveFileName, "rb");
+		FILE * fp = std::fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{
 			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName);
@@ -95,19 +105,21 @@ bool Save_Reset()
 	}
 
 	// init mempack, we always assume the presence of the mempack for simplicity 
-	{
-		Dump_GetSaveDirectory(gMempackFileName, g_ROM.mFileName, ".mpk");
-		FILE * fp = fopen(gMempackFileName, "rb");
+	// Probably should only write Mempak on write.
+	{	
+		Save_File(g_ROM.mFileName, ".mpk", "SaveGames/");
+		// Dump_GetSaveDirectory(gMempackFileName, g_ROM.mFileName, ".mpk");
+		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{
-			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gMempackFileName);
+			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gSaveFileName);
 			fread(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
 			fclose(fp);
 			gMempackDirty = false;
 		}
 		else
 		{
-			DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", gMempackFileName);
+			DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", gSaveFileName);
 			InitMempackContent();
 			gMempackDirty = true;
 		}
@@ -140,7 +152,7 @@ void Save_Flush()
 	{
 		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName);
 
-		FILE * fp = fopen(gSaveFileName, "wb");
+		FILE * fp = std::fopen(gSaveFileName.c_str(), "wb");
 		if (fp != nullptr)
 		{
 			u8 buffer[2048];

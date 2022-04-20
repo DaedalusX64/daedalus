@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
+void Save_File(std::filesystem::path rom_filename, const char * extension, std::filesystem::path dest);
+
 bool Save_Reset();
 void Save_Fini();
 
