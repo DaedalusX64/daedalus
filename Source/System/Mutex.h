@@ -22,9 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_MUTEX_H_
 #define UTILITY_MUTEX_H_
 
-#ifdef DAEDALUS_PSP
-#include <pspthreadman.h>
-#endif
 #if defined(DAEDALUS_POSIX) || defined(DAEDALUS_PSP)
 #include <pthread.h>
 #endif
@@ -63,46 +60,6 @@ public:
 public:
 	CRITICAL_SECTION cs;
  };
-// #elif defined(DAEDALUS_PSP)
-
-// class Mutex
-// {
-// public:
-
-// 	Mutex()
-// 		:	mSemaphore( sceKernelCreateSema( "Mutex", 0, 1, 1, NULL ) )
-// 	{
-// 		#ifdef DAEDALUS_ENABLE_ASSERTS
-// 		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
-// 				#endif
-// 	}
-
-// 	explicit Mutex( const char * name )
-// 		:	mSemaphore( sceKernelCreateSema( name, 0, 1, 1, NULL ) )
-// 	{
-// 				#ifdef DAEDALUS_ENABLE_ASSERTS
-// 		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
-// 		#endif
-// 	}
-
-// 	~Mutex()
-// 	{
-// 		sceKernelDeleteSema( mSemaphore );
-// 	}
-
-// 	void Lock()
-// 	{
-// 		sceKernelWaitSema( mSemaphore, 1, NULL );
-// 	}
-
-// 	void Unlock()
-// 	{
-// 		sceKernelSignalSema( mSemaphore, 1 );
-// 	}
-
-// private:
-// 	s32	mSemaphore;
-// };
 
 #elif defined(DAEDALUS_POSIX) || defined(DAEDALUS_PSP)
 
