@@ -106,7 +106,7 @@ bool ROMFile::SetHeaderMagic( u32 magic )
 	case 0x12408037:
 		break;
 	default:
-		DAEDALUS_ERROR( "Unhandled swapping mode: %08x - ROM format is not supported for %s", mHeaderMagic, mFilename );
+		DAEDALUS_ERROR( "Unhandled swapping mode: %08x - ROM format is not supported for %s", mHeaderMagic, mFilename.c_str() );
 		return false;
 	}
 	return true;

@@ -361,7 +361,7 @@ void IRomDB::AddRomEntry( const std::filesystem::path filename, const RomID & id
 
 void IRomDB::AddRomDirectory(const std::filesystem::path directory)
 {
-	DBGConsole_Msg(0, "Adding roms directory [C%s]", directory);
+	DBGConsole_Msg(0, "Adding roms directory [C%s]", directory.c_str());
 
 	std::string			full_path;
 

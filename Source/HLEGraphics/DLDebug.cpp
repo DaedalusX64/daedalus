@@ -452,7 +452,7 @@ public:
 		delete Sink;
 	}
 
-	bool Open(const std:filesystem::path filename)
+	bool Open(const std::filesystem::path filename)
 	{
 		return Sink->Open(filename.c_str(), "w");
 	}
