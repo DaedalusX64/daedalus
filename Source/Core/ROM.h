@@ -126,7 +126,7 @@ enum EGameHacks
 //*****************************************************************************
 struct RomInfo
 {
-	IO::Filename	mFileName;
+	std::filesystem::path	mFileName;
 	RomID			mRomID;					// The RomID (unique to this rom)
 
 	ROMHeader		rh;						// Copy of the ROM header, correctly byteswapped

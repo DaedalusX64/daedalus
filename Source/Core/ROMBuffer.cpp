@@ -185,14 +185,14 @@ bool RomBuffer::Open()
 	ROMFile *    p_rom_file = ROMFile::Create( filename.c_str() );
 	if(p_rom_file == nullptr)
 	{
-		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename);
+		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename.c_str());
 		return false;
 	}
 
 	if( !p_rom_file->Open( messages ) )
 	{
 
-		DBGConsole_Msg(0, "Failed to open [C%s]\n", filename);
+		DBGConsole_Msg(0, "Failed to open [C%s]\n", filename.c_str());
 		delete p_rom_file;
 		return false;
 	}
@@ -209,7 +209,7 @@ bool RomBuffer::Open()
 		if( !p_rom_file->LoadData( sRomSize, p_bytes, messages ) )
 		{
 			#ifdef DAEDALUS_DEBUG_CONSOLE
-			DBGConsole_Msg(0, "Failed to load [C%s]\n", filename);
+			DBGConsole_Msg(0, "Failed to load [C%s]\n", filename.c_str());
 			#endif
 			CROMFileMemory::Get()->Free( p_bytes );
 			delete p_rom_file;
@@ -305,7 +305,7 @@ bool RomBuffer::Open()
 		sRomFixed = false;
 	}
 
-	DBGConsole_Msg(0, "Opened [C%s]\n", filename);
+	DBGConsole_Msg(0, "Opened [C%s]\n", filename.c_str());
 	sRomLoaded = true;
 	return true;
 }
