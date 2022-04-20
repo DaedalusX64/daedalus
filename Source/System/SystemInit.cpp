@@ -62,23 +62,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/GraphicsPlugin.h"
 #include "HLEAudio/AudioPlugin.h"
 
+#include <array>
+
 CGraphicsPlugin * gGraphicsPlugin   = NULL;
-CAudioPlugin	* gAudioPlugin		= NULL;
+std::unique_ptr<CAudioPlugin> gAudioPlugin;
 
 static bool InitAudioPlugin()
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
-	DAEDALUS_ASSERT( gAudioPlugin == NULL, "Why is there already an audio plugin?" );
-	#endif
-	CAudioPlugin * audio_plugin = CreateAudioPlugin();
+	std::unique_ptr<CAudioPlugin> audio_plugin = CreateAudioPlugin();
 	if( audio_plugin != NULL )
 	{
-		if( !audio_plugin->StartEmulation() )
-		{
-			delete audio_plugin;
-			audio_plugin = NULL;
-		}
-		gAudioPlugin = audio_plugin;
+		gAudioPlugin = std::move(audio_plugin);
 	}
 	return true;
 }
@@ -91,12 +85,7 @@ static bool InitGraphicsPlugin()
 	CGraphicsPlugin * graphics_plugin = CreateGraphicsPlugin();
 	if( graphics_plugin != NULL )
 	{
-		if( !graphics_plugin->StartEmulation() )
-		{
-			delete graphics_plugin;
-			graphics_plugin = NULL;
-		}
-		gGraphicsPlugin = graphics_plugin;
+		 gGraphicsPlugin = std::move(graphics_plugin);
 	}
 	return true;
 }
@@ -108,20 +97,6 @@ static void DisposeGraphicsPlugin()
 		gGraphicsPlugin->RomClosed();
 		delete gGraphicsPlugin;
 		gGraphicsPlugin = NULL;
-	}
-}
-
-static void DisposeAudioPlugin()
-{
-	// Make a copy of the plugin, and set the global pointer to NULL;
-	// This stops other threads from trying to access the plugin
-	// while we're in the process of shutting it down.
-	CAudioPlugin * audio_plugin = gAudioPlugin;
-	gAudioPlugin = NULL;
-	if (audio_plugin != NULL)
-	{
-		audio_plugin->StopEmulation();
-		delete audio_plugin;
 	}
 }
 
@@ -156,8 +131,8 @@ static void Profiler_Fini()
 }
 #endif
 
-static const SysEntityEntry gSysInitTable[] =
-{
+static const std::array<SysEntityEntry, 17> gSysInitTable =
+{{
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	{"DebugConsole",		CDebugConsole::Create,		CDebugConsole::Destroy},
 #endif
@@ -172,14 +147,11 @@ static const SysEntityEntry gSysInitTable[] =
 	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
 #ifdef DAEDALUS_PSP
 	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
-#endif
-	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
-#ifdef DAEDALUS_PSP
 	{"Language",			Translate_Init,				NULL},
 #endif
+	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
 	{"Preference",			CPreferences::Create,		CPreferences::Destroy},
 	{"Memory",				Memory_Init,				Memory_Fini},
-
 	{"Controller",			CController::Create,		CController::Destroy},
 	{"RomBuffer",			RomBuffer::Create,			RomBuffer::Destroy},
 
@@ -190,11 +162,10 @@ static const SysEntityEntry gSysInitTable[] =
 	{"DLDebuggerWebDebug",	DLDebugger_RegisterWebDebug, 	NULL},
 #endif
 #endif
-
 #ifdef DAEDALUS_GL
 	{"UI",					UI_Init,				 	UI_Finalise},
 #endif
-};
+}};
 
 struct RomEntityEntry
 {
@@ -202,15 +173,14 @@ struct RomEntityEntry
 	bool (*open)();
 	void (*close)();
 };
-
-static const RomEntityEntry gRomInitTable[] =
-{
+static const std::array<RomEntityEntry, 12> gRomInitTable =
+{{
 	{"RomBuffer",			RomBuffer::Open, 		RomBuffer::Close},
 	{"Settings",			ROM_LoadFile,			ROM_UnloadFile},
 	{"InputManager",		CInputManager::Init,	CInputManager::Fini},
 	{"Memory",				Memory_Reset,			Memory_Cleanup},
-	{"Audio",				InitAudioPlugin,		DisposeAudioPlugin},
-	{"Graphics",			InitGraphicsPlugin,		DisposeGraphicsPlugin},
+	{"Audio",				InitAudioPlugin},
+	{"Graphics",			InitGraphicsPlugin, 	DisposeGraphicsPlugin},
 	{"FramerateLimiter",	FramerateLimiter_Reset,	NULL},
 	//{"RSP", RSP_Reset, NULL},
 	{"CPU",					CPU_RomOpen},
@@ -220,11 +190,11 @@ static const RomEntityEntry gRomInitTable[] =
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION
 	{"CSynchroniser",		CSynchroniser::InitialiseSynchroniser, CSynchroniser::Destroy},
 #endif
-};
-
+}
+}; 
 bool System_Init()
 {
-	for(u32 i = 0; i < ARRAYSIZE(gSysInitTable); i++)
+	for(u32 i = 0; i < gSysInitTable.size(); i++)
 	{
 		const SysEntityEntry & entry = gSysInitTable[i];
 
@@ -251,9 +221,9 @@ bool System_Init()
 
 bool System_Open(const std::filesystem::path filename)
 {
-	// filename /= g_ROM.mFileName;
-	 strcpy(g_ROM.mFileName, filename.c_str());
-	for (u32 i = 0; i < ARRAYSIZE(gRomInitTable); i++)
+	g_ROM.mFileName = filename;
+	
+	for (u32 i = 0; i < gRomInitTable.size(); i++)
 	{
 		const RomEntityEntry & entry = gRomInitTable[i];
 
@@ -261,7 +231,7 @@ bool System_Open(const std::filesystem::path filename)
 			continue;
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "==>Open %s", entry.name);
-		#endif
+	#endif
 		if (!entry.open())
 		{
 				#ifdef DAEDALUS_DEBUG_CONSOLE
@@ -276,7 +246,7 @@ bool System_Open(const std::filesystem::path filename)
 
 void System_Close()
 {
-	for(s32 i = ARRAYSIZE(gRomInitTable) - 1 ; i >= 0; i--)
+	for(s32 i = gRomInitTable.size() - 1 ; i >= 0; i--)
 	{
 		const RomEntityEntry & entry = gRomInitTable[i];
 
@@ -291,7 +261,7 @@ void System_Close()
 
 void System_Finalize()
 {
-	for(s32 i = ARRAYSIZE(gSysInitTable) - 1; i >= 0; i--)
+	for(s32 i = gSysInitTable.size() - 1; i >= 0; i--)
 	{
 		const SysEntityEntry & entry = gSysInitTable[i];
 

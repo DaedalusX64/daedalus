@@ -5,7 +5,7 @@
 
 EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
 
-CAudioPlugin * CreateAudioPlugin()
+std::unique_ptr<CAudioPlugin> CreateAudioPlugin()
 {
 	return NULL;
 }

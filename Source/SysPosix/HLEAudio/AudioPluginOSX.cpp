@@ -331,7 +331,11 @@ void AudioPluginOSX::StopAudio()
 	FramerateLimiter_SetAuxillarySyncFunction(NULL, NULL);
 }
 
-CAudioPlugin * CreateAudioPlugin()
+std::unique_ptr<CAudioPlugin> CreateAudioPlugin()
 {
-	return new AudioPluginOSX();
+	return std::make_unique<AudioPluginOSX>();
 }
+// CAudioPlugin * CreateAudioPlugin()
+// {
+// 	return new AudioPluginOSX();
+// }

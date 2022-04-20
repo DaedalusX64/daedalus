@@ -393,7 +393,7 @@ void AudioPluginPSP::StopAudio()
 	audio_open = false;
 }
 
-CAudioPlugin *		CreateAudioPlugin()
+std::unique_ptr<CAudioPlugin> CreateAudioPlugin()
 {
-	return new AudioPluginPSP();
+	return std::make_unique<AudioPluginPSP>();
 }
