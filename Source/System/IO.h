@@ -37,9 +37,6 @@ namespace IO
 		bool		Move( const char * p_existing, const char * p_new );
 		bool		Delete( const char * p_file );
 		bool		Exists( const char * p_path );
-#ifdef DAEDALUS_PSP
-		int			Stat( const char *p_file, SceIoStat *stat );
-#endif
 
 	}
 	namespace Directory

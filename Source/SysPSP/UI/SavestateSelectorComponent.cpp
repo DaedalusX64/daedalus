@@ -225,13 +225,14 @@ void ISavestateSelectorComponent::LoadSlots(){
 
 		IO::Filename filename_ss;
 		MakeSaveSlotPath( filename_ss, mPVFilename[ i ], i, current_slot_path);
-		mPVExists[ i ] = IO::File::Exists( mPVFilename[ i ] ) ? 1 : -1;
+		mPVExists[ i ] = std::filesystem::exists( mPVFilename[ i ] ) ? 1 : -1;
 		RomID	rom_id( SaveState_GetRomID( filename_ss ) );
 		RomSettings	settings;
 		CUIElement *element;
 		if( !rom_id.Empty() && CRomSettingsDB::Get()->GetSettings( rom_id, &settings ) )
 		{
-			IO::File::Stat(filename_ss, &file_stat);
+			// IO::File::Stat(filename_ss, &file_stat);
+			sceIoGetstat ( filename_ss, &file_stat );
 			sprintf(date_string, "%02d/%02d/%d %02d:%02d:%02d", file_stat.sce_st_ctime.month,  file_stat.sce_st_ctime.day, file_stat.sce_st_ctime.year, file_stat.sce_st_ctime.hour, file_stat.sce_st_ctime.minute, file_stat.sce_st_ctime.second); // settings.GameName.c_str();
 			str << date_string;
 			mSlotEmpty[ i ] = false;
@@ -375,14 +376,14 @@ void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
 	IO::Path::Append( path, filename_ss );
 	IO::Path::Append( png_path, filename_png );
 
-	if (IO::File::Exists(path))
+	if (std::filesystem::exists(path))
     {
       remove(path);
       deleteButtonTriggered=false;
       LoadSlots();
     }
 
-	if (IO::File::Exists(png_path))
+	if (std::filesystem::exists(png_path))
     {
       remove(png_path);
       deleteButtonTriggered=false;
