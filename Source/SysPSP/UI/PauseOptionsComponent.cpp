@@ -261,7 +261,7 @@ void	IPauseOptionsComponent::LoadState()
 
 void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
 {
-	IO::File::Delete( filename ); // Ensure that we're re-creating the file
+	std::filesystem::remove( filename ); // Ensure that we're re-creating the file
 	CPU_RequestSaveState( filename );
 
 	gTakeScreenshot = true;

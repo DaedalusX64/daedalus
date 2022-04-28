@@ -550,7 +550,7 @@ void IGraphicsContext::DumpScreenShot()
 		sprintf(test_name, gScreenDumpDumpPathFormat, count++);
 		IO::Path::Combine( unique_filename, filepath, test_name );
 
-	} while( IO::File::Exists( unique_filename ) );
+	} while( std::filesystem::exists( unique_filename ) );
 
 	u32		display_width = 0;
 	u32		display_height= 0;

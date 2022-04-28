@@ -81,15 +81,15 @@ static void PollKeyboard(void * arg)
 				sprintf( filename_ss, "saveslot%u.ss", idx );
 
 				IO::Filename path_sub;
-				sprintf( path_sub, "SaveStates/%s", IO::Path::FindFileName(g_ROM.settings.GameName.c_str()));
+				sprintf( path_sub, "%s", IO::Path::FindFileName(g_ROM.settings.GameName.c_str()));
 
-				IO::Filename path_ss;
-				std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-				IO::Path::Combine( path_ss, gDaedalusExePath.c_str(), path_sub );
-				IO::Directory::EnsureExists( path_ss );		// Ensure this dir exists
+				std::filesystem::path path_ss = "SaveStates/";
+				path_ss /= path_sub;
+
+				std::filesystem::create_directory(path_ss);
 
 				IO::Filename filename;
-				IO::Path::Combine(filename, path_ss, filename_ss);
+				IO::Path::Combine(filename, path_ss.c_str(), filename_ss);
 
 				bool ctrl_down = event.key.keysym.mod & ( KMOD_LCTRL | KMOD_RCTRL );
 				if (ctrl_down)
@@ -98,7 +98,7 @@ static void PollKeyboard(void * arg)
 				}
 				else
 				{
-					if (IO::File::Exists(filename))
+					if (std::filesystem::exists(filename))
 					{
 						CPU_RequestLoadState(filename);
 					}

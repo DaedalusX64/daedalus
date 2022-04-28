@@ -412,7 +412,7 @@ static void AddStaticContent(const char * dir, const char * root)
 			{
 				AddStaticContent(full_path, resource_path.c_str());
 			}
-			else if (IO::File::Exists(full_path))
+			else if (std::filesystem::exists(full_path))
 			{
 				StaticResource resource;
 				resource.Resource = resource_path;

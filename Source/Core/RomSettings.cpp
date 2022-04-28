@@ -406,9 +406,10 @@ void IRomSettingsDB::Commit()
 	fclose( fh_src );
 
 	// Create the new file
-	IO::File::Move( mFilename, filename_del );
-	IO::File::Move( filename_tmp, mFilename );
-	IO::File::Delete( filename_del );
+	std::filesystem::rename(mFilename, filename_del);
+	std::filesystem::rename(filename_tmp, filename_del);
+	std::filesystem::remove(filename_del);
+
 
 	mDirty = false;
 }
