@@ -38,13 +38,6 @@ static u32				gSaveSize;
 static IO::Filename		gMempackFileName;
 static bool				gMempackDirty;
 
-void Save_File(const std::filesystem::path rom_filename, const char * extension, std::filesystem::path dest)
-{
-	std::filesystem::path filename;
-	 filename = rom_filename.filename();
-	filename.replace_extension(extension);	
-	gSaveFileName = dest /= filename;
-}
 
 bool Save_Reset()
 {
@@ -77,7 +70,7 @@ bool Save_Reset()
 	gSaveDirty = false;
 	if (gSaveSize > 0)
 	{
-		Save_File(g_ROM.mFileName, ext, "SaveGames/");
+		gSaveFileName = Save_As(g_ROM.mFileName, ext, "SaveGames/");
 
 		FILE * fp = std::fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
@@ -105,10 +98,8 @@ bool Save_Reset()
 	}
 
 	// init mempack, we always assume the presence of the mempack for simplicity 
-	// Probably should only write Mempak on write.
 	{	
-		Save_File(g_ROM.mFileName, ".mpk", "SaveGames/");
-		// Dump_GetSaveDirectory(gMempackFileName, g_ROM.mFileName, ".mpk");
+		gSaveFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
 		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{
