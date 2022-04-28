@@ -21,13 +21,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DEBUG_DUMP_H_
 
 #include <stdio.h>
+#include <filesystem> 
 
 #include "Base/Types.h"
 
-struct OpCode;
 
+struct OpCode;
+std::filesystem::path Save_As(const std::filesystem::path filename, const char * extension, std::filesystem::path dest);
+std::filesystem::path Dump_Directory(std::filesystem::path name, std::filesystem::path dir);
 void Dump_GetDumpDirectory(char * rootdir, const char * subdir);
-void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char * extension);
 
 #ifndef DAEDALUS_SILENT
 

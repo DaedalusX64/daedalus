@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include <ctype.h>
-
-
+#include <filesystem>
+#include <iostream>
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -42,7 +42,8 @@ static IO::Filename gDumpDir = "";
 
 
 // Initialise the directory where files are dumped
-// Appends subdir to the global dump base. Stores in rootdir
+// Appends subdir to the global dump base. Stores in rootdir)
+// Not really required with std::filesystem
 void Dump_GetDumpDirectory(char * rootdir, const char * subdir)
 {
 	std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
@@ -76,27 +77,19 @@ void Dump_GetDumpDirectory(char * rootdir, const char * subdir)
 
 }
 
-
-// E.g. Dump_GetSaveDirectory([out], "c:\roms\test.rom", ".sra")
-// would first try to find the save in g_DaedalusConfig.mSaveDir. If this is not
-// found, g_DaedalusConfig.mRomsDir is checked.
-void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char * extension)
+// Fetch the filename, extension, and destination.
+// Call this by assigning to a std::filesystem::path variable.
+std::filesystem::path Save_As(const std::filesystem::path filename, const char * extension, std::filesystem::path dest)
 {
+	std::filesystem::create_directories("SaveGames/Cache"); // Create the Save Directories if not already done
+	std::filesystem::path tmp;
+	std::filesystem::path gSaveFileName;
+	tmp = filename.filename();
+	tmp.replace_extension(extension);	
+	gSaveFileName = dest /= tmp;
+		std::cout << "Saving to: " << gSaveFileName << std::endl;
+	return gSaveFileName;
 
-	std::filesystem::create_directories("SaveGames/Cache"); // Create the Save Directory - Probably should be done in main eventually.
-	std::filesystem::path path_name = "SaveGames";
-
-	// Save hle cache in a separate folder
-	 if (strcasecmp(".hle", extension) == 0)
-
-		path_name /= "Cache";
-
-	// Form the filename from the file spec (i.e. strip path and replace the extension)
-	IO::Filename file_name;
-	IO::Path::Assign(file_name, IO::Path::FindFileName(rom_filename));
-	IO::Path::SetExtension(file_name, extension);
-
-	IO::Path::Combine(rootdir, path_name.string().c_str(), file_name);
 }
 
 #ifndef DAEDALUS_SILENT
@@ -135,7 +128,7 @@ void Dump_DisassembleMIPSRange(FILE * fh, u32 address_offset, const OpCode * b, 
 
 void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 {
-	IO::Filename file_path;
+	std::filesystem::path file_path;
 
 	// Cute hack - if the end of the range is less than the start,
 	// assume it is a length to disassemble
@@ -144,8 +137,9 @@ void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
 	{
-		Dump_GetDumpDirectory(file_path, "");
-		IO::Path::Append(file_path, "dis.txt");
+		// Dump_GetDumpDirectory(file_path, "");
+		// IO::Path::Append(file_path, "dis.txt");
+		file_path /= "dis.txt";
 	}
 	else
 	{
@@ -234,16 +228,18 @@ void Dump_RSPDisassemble(const char * p_file_name)
 		return;
 	}
 
-	IO::Filename file_path;
+	std::filesystem::path file_path;
 
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
 	{
-		Dump_GetDumpDirectory(file_path, "");
-		IO::Path::Append(file_path, "rdis.txt");
+		file_path /= "rdis.txt";
+		// Dump_GetDumpDirectory(file_path, "");
+		// IO::Path::Append(file_path, "rdis.txt");
 	}
 	else
 	{
-		IO::Path::Assign(file_path, p_file_name);
+		file_path = p_file_name;
+		// IO::Path::Assign(file_path, p_file_name);
 	}
 
 	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
@@ -272,19 +268,22 @@ void Dump_RSPDisassemble(const char * p_file_name)
 //*****************************************************************************
 void Dump_Strings( const char * p_file_name )
 {
-	IO::Filename file_path;
+	std::filesystem::path file_path;
+	// IO::Filename file_path;
 	FILE * fp;
 
 	static const u32 MIN_LENGTH = 5;
 
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
 	{
-		Dump_GetDumpDirectory(file_path, "");
-		IO::Path::Append(file_path, "strings.txt");
+		file_path /= "strings.txt";
+		// Dump_GetDumpDirectory(file_path, "");
+		// IO::Path::Append(file_path, "strings.txt");
 	}
 	else
 	{
-		IO::Path::Assign(file_path, p_file_name);
+		file_path = p_file_name;
+		// IO::Path::Assign(file_path, p_file_name);
 	}
 
 	DBGConsole_Msg(0, "Dumping strings in rom ([C%s])", file_path);
