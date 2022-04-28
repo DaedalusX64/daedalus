@@ -24,17 +24,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	Drop me a line if you get chance :)
 //
 
-#include "BuildOptions.h"
 #include "Base/Types.h"
+#include "BuildOptions.h"
 
+#include "Base/MathUtil.h"
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
-#include "Base/MathUtil.h"
 
-AudioHLEInstruction ABI1[0x20] =
-{
-    SPNOOP , ADPCM , CLEARBUFF,	ENVMIXER  , LOADBUFF, RESAMPLE  , SAVEBUFF, UNKNOWN,
-	SETBUFF, SETVOL, DMEMMOVE , LOADADPCM , MIXER   , INTERLEAVE, UNKNOWN , SETLOOP,
-    SPNOOP , SPNOOP, SPNOOP   , SPNOOP    , SPNOOP  , SPNOOP    , SPNOOP  , SPNOOP,
-    SPNOOP , SPNOOP, SPNOOP   , SPNOOP    , SPNOOP  , SPNOOP    , SPNOOP  , SPNOOP
-};
+// AudioHLEInstruction ABI1[0x20] =
+std::array<AudioHLEInstruction, 0x20> ABI1 = {
+    SPNOOP,  ADPCM,   CLEARBUFF, ENVMIXER, LOADBUFF,  RESAMPLE, SAVEBUFF,
+    UNKNOWN, SETBUFF, SETVOL,    DMEMMOVE, LOADADPCM, MIXER,    INTERLEAVE,
+    UNKNOWN, SETLOOP, SPNOOP,    SPNOOP,   SPNOOP,    SPNOOP,   SPNOOP,
+    SPNOOP,  SPNOOP,  SPNOOP,    SPNOOP,   SPNOOP,    SPNOOP,   SPNOOP,
+    SPNOOP,  SPNOOP,  SPNOOP,    SPNOOP};

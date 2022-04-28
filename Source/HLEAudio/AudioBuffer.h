@@ -24,10 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
-struct Sample
-{
-	s16		L;
-	s16		R;
+struct Sample {
+  s16 L;
+  s16 R;
 };
 
 // A utility class for buffering up samples, upsampling to the desired
@@ -35,24 +34,23 @@ struct Sample
 //
 // N.B. This class currently does no synchronisation - it's assumed that
 // the calling code will handle this
-class CAudioBuffer
-{
+class CAudioBuffer {
 public:
-	CAudioBuffer( u32 buffer_size );
-	~CAudioBuffer();
+  CAudioBuffer(u32 buffer_size);
+  ~CAudioBuffer();
 
-	void			AddSamples( const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq );
-	u32				Drain( Sample * samples, u32 num_samples );
+  void AddSamples(const Sample *samples, u32 num_samples, u32 frequency,
+                  u32 output_freq);
+  u32 Drain(Sample *samples, u32 num_samples);
 
-	u32				GetNumBufferedSamples() const;
+  u32 GetNumBufferedSamples() const;
 
 private:
-	Sample *		mBufferBegin;
-	Sample *		mBufferEnd;
+  Sample *mBufferBegin;
+  Sample *mBufferEnd;
 
-	const Sample * volatile	mReadPtr;
-	Sample * volatile		mWritePtr;
+  const Sample *volatile mReadPtr;
+  Sample *volatile mWritePtr;
 };
-
 
 #endif // HLEAUDIO_AUDIOBUFFER_H_
