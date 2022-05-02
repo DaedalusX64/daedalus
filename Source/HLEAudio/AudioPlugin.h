@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/RSP_HLE.h"
 #include <memory>
+
 class CAudioPlugin {
 public:
   virtual ~CAudioPlugin() {}
@@ -50,7 +51,7 @@ public:
 //	This needs to be defined for all targets.
 //	The implementation can return NULL if audio is not supported
 //
-extern std::unique_ptr<CAudioPlugin> gAudioPlugin;
-std::unique_ptr<CAudioPlugin> CreateAudioPlugin();
+extern std::shared_ptr<CAudioPlugin> gAudioPlugin;
+std::shared_ptr<CAudioPlugin> CreateAudioPlugin();
 
 #endif // PLUGINS_AUDIOPLUGIN_H_

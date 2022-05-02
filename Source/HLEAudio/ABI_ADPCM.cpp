@@ -15,16 +15,14 @@ extern bool isZeldaABI;
 void ADPCM(AudioHLECommand command) {
   u8 flags = command.Abi1ADPCM.Flags;
   // u16	gain( command.Abi1ADPCM.Gain );		// Not used?
-  u32 address =
-      command.Abi1ADPCM
-          .Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 address = command.Abi1ADPCM.Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.ADPCMDecode(flags, address);
 }
 
 inline int Scale16(s16 in, int vscale) { return ((int)in * vscale) >> 16; }
 
-void Decode4_Scale(int (&inp1)[8], u32 icode_a, u32 icode_b, int vscale) {
+void Decode4_Scale(std::array<int, 8> &inp1, u32 icode_a, u32 icode_b, int vscale) {
   inp1[0] = Scale16((s16)((icode_a & 0xC0) << 8), vscale);
   inp1[1] = Scale16((s16)((icode_a & 0x30) << 10), vscale);
   inp1[2] = Scale16((s16)((icode_a & 0x0C) << 12), vscale);
@@ -35,7 +33,8 @@ void Decode4_Scale(int (&inp1)[8], u32 icode_a, u32 icode_b, int vscale) {
   inp1[7] = Scale16((s16)((icode_b & 0x03) << 14), vscale);
 }
 
-void Decode4(int (&inp1)[8], u32 icode_a, u32 icode_b) {
+// void Decode4(int (&inp1)[8], u32 icode_a, u32 icode_b) {
+void Decode4(std::array<int, 8> &inp1, u32 icode_a, u32 icode_b) {
   inp1[0] = (s16)((icode_a & 0xC0) << 8);
   inp1[1] = (s16)((icode_a & 0x30) << 10);
   inp1[2] = (s16)((icode_a & 0x0C) << 12);
@@ -46,7 +45,8 @@ void Decode4(int (&inp1)[8], u32 icode_a, u32 icode_b) {
   inp1[7] = (s16)((icode_b & 0x03) << 14);
 }
 
-void Decode8_Scale(int (&inp1)[8], u32 icode_a, u32 icode_b, u32 icode_c,
+// void Decode8_Scale(int (&inp1)[8], u32 icode_a, u32 icode_b, u32 icode_c,
+ void Decode8_Scale(std::array<int, 8> &inp1, u32 icode_a, u32 icode_b, u32 icode_c,
                    u32 icode_d, int vscale) {
   inp1[0] = Scale16((s16)((icode_a & 0xF0) << 8), vscale);
   inp1[1] = Scale16((s16)((icode_a & 0x0F) << 12), vscale);
@@ -58,7 +58,7 @@ void Decode8_Scale(int (&inp1)[8], u32 icode_a, u32 icode_b, u32 icode_c,
   inp1[7] = Scale16((s16)((icode_d & 0x0F) << 12), vscale);
 }
 
-void Decode8(int (&inp1)[8], u32 icode_a, u32 icode_b, u32 icode_c,
+void Decode8(std::array<int, 8> &inp1, u32 icode_a, u32 icode_b, u32 icode_c,
              u32 icode_d) {
   inp1[0] = (s16)((icode_a & 0xF0) << 8);
   inp1[1] = (s16)((icode_a & 0x0F) << 12);
@@ -70,7 +70,7 @@ void Decode8(int (&inp1)[8], u32 icode_a, u32 icode_b, u32 icode_c,
   inp1[7] = (s16)((icode_d & 0x0F) << 12);
 }
 
-void ADPCM2_Decode4(int (&inp1)[8], int (&inp2)[8], u32 inPtr, u8 code) {
+void ADPCM2_Decode4(std::array<int, 8> &inp1, std::array<int, 8> &inp2, u32 inPtr, u8 code) {
   u32 icode_a =
       gAudioHLEState.Buffer[(gAudioHLEState.InBuffer + inPtr + 0) ^ 3];
   u32 icode_b =
@@ -90,7 +90,7 @@ void ADPCM2_Decode4(int (&inp1)[8], int (&inp2)[8], u32 inPtr, u8 code) {
   }
 }
 
-void ADPCM2_Decode8(int (&inp1)[8], int (&inp2)[8], u32 inPtr, u8 code) {
+void ADPCM2_Decode8(std::array<int, 8> &inp1, std::array<int, 8> &inp2, u32 inPtr, u8 code) {
   u32 icode_a =
       gAudioHLEState.Buffer[(gAudioHLEState.InBuffer + inPtr + 0) ^ 3];
   u32 icode_b =
@@ -118,12 +118,18 @@ void ADPCM2_Decode8(int (&inp1)[8], int (&inp2)[8], u32 inPtr, u8 code) {
   }
 }
 
-void ADPCM2_Loop(s32 (&a)[8], int (&i1)[8], const s16 *b1, const s16 *b2,
-                 s16 *out) {
+// void ADPCM2_Loop(s32 (&a)[8], int (&i1)[8], const s16 *b1, const s16 *b2,
+//                  s16 *out) {
+//   int l1(a[6]);
+//   int l2(a[7]);
+// void ADPCM2_Loop(s32 (&a)[8], int (&i1)[8], const s16 *b1, const s16 *b2,  s16 *out) {
+void ADPCM2_Loop(std::array<s32, 8> (&a), std::array<int, 8> &i1, const s16 *b1, const s16 *b2, s16 *out) {
+
   int l1(a[6]);
   int l2(a[7]);
 
-  const int scl(2048);
+
+  const int scl = 2048;
 
   a[0] = ((int)b1[0] * l1) + ((int)b2[0] * l2) + ((int)i1[0] * scl);
   a[1] = ((int)b1[1] * l1) + ((int)b2[1] * l2) + ((int)b2[0] * i1[0]) +
@@ -174,7 +180,8 @@ void ADPCM2(AudioHLECommand command) {
 
   u16 inPtr = 0;
 
-  s32 a[8] = {
+//   s32 a[8] = {
+  std::array<s32,8> a = {
       0, 0, 0,       0,
       0, 0, out[15], out[14]}; // XXXX Endian issues - should be 14/15^TWIDDLE?
 
@@ -191,8 +198,10 @@ void ADPCM2(AudioHLECommand command) {
     s16 *book2 = book1 + 8;
 
     // Decode inputs
-    int inp1[8];
-    int inp2[8];
+	std::array<int, 8> inp1;
+	std::array<int, 8> inp2;
+    // int inp1[8];
+    // int inp2[8];
 
     if (decode4) {
       ADPCM2_Decode4(inp1, inp2, inPtr, code);
@@ -229,7 +238,8 @@ void ADPCM3(AudioHLECommand command) {
   s32 vscale;
   u16 index;
   u16 j;
-  s32 a[8];
+  std::array<s32, 8> a;
+//   s32 a[8];
   s16 *book1, *book2;
 
   memset(out, 0, 32);
@@ -238,10 +248,14 @@ void ADPCM3(AudioHLECommand command) {
     memmove(out, &rdram[(Flags & 0x2) ? gAudioHLEState.LoopVal : Address], 32);
   }
 
+// s32 l1 =std::array<s32, 15> out;
+// s32 l2 = 	std::array<s32, 14> out;
   s32 l1 = out[15];
   s32 l2 = out[14];
-  s32 inp1[8];
-  s32 inp2[8];
+	std::array<s32, 8> inp1;
+	std::array<s32, 8> inp2;
+//   s32 inp1[8];
+//   s32 inp2[8];
   out += 16;
   while (count > 0) {
     // the first interation through, these values are
@@ -251,10 +265,10 @@ void ADPCM3(AudioHLECommand command) {
 
     code = gAudioHLEState.Buffer[(0x4f0 + inPtr) ^ 3];
     index = code & 0xf;
-    index << = 4; // index into the adpcm code table
+    index <<= 4; // index into the adpcm code table
     book1 = (s16 *)&gAudioHLEState.ADPCMTable[index];
     book2 = book1 + 8;
-    code >> = 4; // upper nibble is scale
+    code >>= 4; // upper nibble is scale
     vscale = (0x8000 >> ((12 - code) -
                          1)); // very strange. 0x8000 would be .5 in 16:16
                               // format so this appears to be a fractional scale
@@ -448,29 +462,23 @@ void ADPCM3(AudioHLECommand command) {
 }
 
 void LOADADPCM(AudioHLECommand command) {
-  u32 address(
-      command.Abi1LoadADPCM
-          .Address); // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-  u16 count(command.Abi1LoadADPCM.Count);
+  u32 address = command.Abi1LoadADPCM .Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u16 count = command.Abi1LoadADPCM.Count;
 
   gAudioHLEState.LoadADPCM(address, count);
 }
 
 void LOADADPCM2(AudioHLECommand command) {
   // Loads an ADPCM table - Works 100% Now 03-13-01
-  u32 address(
-      command.Abi2LoadADPCM
-          .Address); // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-  u16 count(command.Abi2LoadADPCM.Count);
+  u32 address = command.Abi2LoadADPCM.Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u16 count = command.Abi2LoadADPCM.Count;
 
   gAudioHLEState.LoadADPCM(address, count);
 }
 
 void LOADADPCM3(AudioHLECommand command) {
-  u32 address(
-      command.Abi3LoadADPCM
-          .Address); // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-  u16 count(command.Abi3LoadADPCM.Count);
+  u32 address = command.Abi3LoadADPCM.Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u16 count = command.Abi3LoadADPCM.Count;
 
   gAudioHLEState.LoadADPCM(address, count);
 }

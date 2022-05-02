@@ -18,11 +18,9 @@ void RESAMPLE(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "RESAMPLE");
 #endif
-  u8 flags(command.Abi1Resample.Flags);
-  u32 pitch(command.Abi1Resample.Pitch);
-  u32 address(
-      command.Abi1Resample
-          .Address); // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u8 flags = command.Abi1Resample.Flags;
+  u32 pitch = command.Abi1Resample.Pitch;
+  u32 address = command.Abi1Resample.Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.Resample(flags, pitch, address);
 }
@@ -31,11 +29,9 @@ void RESAMPLE2(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "RESAMPLE2");
 #endif
-  u8 flags(command.Abi2Resample.Flags);
-  u32 pitch(command.Abi2Resample.Pitch);
-  u32 address(
-      command.Abi2Resample
-          .Address); // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u8 flags = command.Abi2Resample.Flags;
+  u32 pitch = command.Abi2Resample.Pitch;
+  u32 address = command.Abi2Resample.Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.Resample(flags, pitch, address);
 }

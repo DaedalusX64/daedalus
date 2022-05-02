@@ -447,7 +447,8 @@ inline void AudioHLEState::ExtractSamples(s32 *output, u32 inPtr) const {
 #if 1 // 1->fast, 0->original Azimer //Corn
 inline void DecodeSamples(s16 *out, s32 &l1, s32 &l2, const s32 *input,
                           const s16 *book1, const s16 *book2) {
-  s32 a[8];
+  // s32 a[8];
+  std::array<s32, 8> a;
 
   a[0] = (s32)book1[0] * l1;
   a[0] += (s32)book2[0] * l2;
@@ -597,8 +598,8 @@ inline void DecodeSamples(s16 *out, s32 &l1, s32 &l2, const s32 *input,
 #endif
 
 void AudioHLEState::ADPCMDecode(u8 flags, u32 address) {
-  bool init((flags & 0x1) != 0);
-  bool loop((flags & 0x2) != 0);
+  bool init = (flags & 0x1) != 0;
+  bool loop = (flags & 0x2) != 0;
 
   u16 inPtr = 0;
   s16 *out = (s16 *)(Buffer + OutBuffer);
@@ -617,6 +618,8 @@ void AudioHLEState::ADPCMDecode(u8 flags, u32 address) {
   s32 inp1[8];
   s32 inp2[8];
 
+  // std::array<s32, 8> inp1;
+  //   std::array<s32, 8> inp2;
   s32 count = (s16)Count; // XXXX why convert this to signed?
   while (count > 0) {
     // the first iteration through, these values are
@@ -768,8 +771,8 @@ void AudioHLEState::Mixer(u16 dmemout, u16 dmemin, s32 gain, u16 count) {
 #if 1 // 1->fast, 0->safe/slow //Corn
 
   // Make sure we are on even address (YOSHI)
-  s16 *in((s16 *)(Buffer + dmemin));
-  s16 *out((s16 *)(Buffer + dmemout));
+  s16 *in = (s16 *)(Buffer + dmemin);
+  s16 *out = (s16 *)(Buffer + dmemout);
 
   for (u32 x = count >> 1; x != 0; x--) {
     *out = Saturate<s16>(FixedPointMul15(*in++, gain) + s32(*out));

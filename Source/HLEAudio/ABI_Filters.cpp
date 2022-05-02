@@ -2,6 +2,7 @@
 #include "BuildOptions.h"
 
 #include <string.h>
+#include <algorithm>
 
 #include "Base/MathUtil.h"
 #include "Core/Memory.h"
@@ -141,6 +142,8 @@ void FILTER2(AudioHLECommand command) {
   }
   //			memmove (rdram+(command.cmd1&0xFFFFFF), dmem+0xFB0,
   // 0x20);
+  // std::copy(outbuff, gAudioHLEState.Buffer + (command.cmd0 & 0xffff) );
+  // std::copy(inp2 - 8, save, 0x10);
   memmove(save, inp2 - 8, 0x10);
   memmove(gAudioHLEState.Buffer + (command.cmd0 & 0xffff), outbuff, cnt);
 }

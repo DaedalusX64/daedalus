@@ -82,10 +82,10 @@ void CAudioBuffer::AddSamples(const Sample *samples, u32 num_samples,
   //reduce s by 1.0 (to keep it in the range 0.0 .. 1.0) 	Principle is the same
   //but rewritten to integer mode (faster & less ASM) //Corn
 
-  const s32 r((frequency << 12) / output_freq);
-  s32 s(0);
-  u32 in_idx(0);
-  u32 output_samples(((num_samples * output_freq) / frequency) - 1);
+  const s32 r = (frequency << 12) / output_freq;
+  s32 s = 0;
+  u32 in_idx = 0;
+  u32 output_samples = ((num_samples * output_freq) / frequency) - 1;
 
   for (u32 i = output_samples; i != 0; i--) {
 #ifdef DAEDALUS_ENABLE_ASSERTS
@@ -157,8 +157,7 @@ u32 CAudioBuffer::Drain(Sample *samples, u32 num_samples) {
 // sceKernelDcacheWritebackInvalidateAll();
 #endif
 
-  const Sample *read_ptr(
-      mReadPtr); // No need to invalidate, as this is uncached/volatile
+  const Sample *read_ptr(mReadPtr); // No need to invalidate, as this is uncached/volatile
   const Sample *write_ptr(mWritePtr); //
 
   Sample *out_ptr(samples);

@@ -40,6 +40,7 @@ static void SPU(AudioHLECommand command) {}
 //
 //     ABI ? : Unknown or unsupported UCode
 //
+// std::array<AudioHLEInstruction, 0x20> ABIUnknown = {
 AudioHLEInstruction ABIUnknown[0x20] = { // Unknown ABI
     SPU, SPU, SPU, SPU, SPU, SPU, SPU, SPU, SPU, SPU, SPU,
     SPU, SPU, SPU, SPU, SPU, SPU, SPU, SPU, SPU, SPU, SPU,
@@ -51,18 +52,21 @@ AudioHLEInstruction ABIUnknown[0x20] = { // Unknown ABI
 //ABI
 //
 extern AudioHLEInstruction ABI1[0x20];
+// extern std::array<AudioHLEInstruction, 0x20> ABI1;
 //---------------------------------------------------------------------------------------------
 //
 //     ABI 2 : WaveRace JAP, MarioKart 64, Mario64 JAP RumbleEdition,
 //				 Yoshi Story, Pokemon Games, Zelda64, Zelda MoM
 //(miyamoto) 				 Most NCL or NOA games (Most commands)
 extern AudioHLEInstruction ABI2[0x20];
+// extern std::array<AudioHLEInstruction, 0x20> ABI2;
 //---------------------------------------------------------------------------------------------
 //
-//     ABI 3 : DK64, Perfect Dark, Banjo Kazooi, Banjo Tooie
+//     ABI 3 : DK64, Perfect Dark, Banjo Kazooie, Banjo Tooie
 //				 All RARE games except Golden Eye 007
 //
 extern AudioHLEInstruction ABI3[0x20];
+// extern std::array<AudioHLEInstruction, 0x20> ABI3;
 //---------------------------------------------------------------------------------------------
 //
 //     ABI 5 : Factor 5 - MoSys/MusyX

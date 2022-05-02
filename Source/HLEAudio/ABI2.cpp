@@ -37,9 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 bool isMKABI = false;
 bool isZeldaABI = false;
 
-static u32 gEnv_t3 = 0, gEnv_s5 = 0, gEnv_s6 = 0;
-static u16 env[8];
-
 // AudioHLEInstruction ABI2[0x20] =
 std::array<AudioHLEInstruction, 0x20> ABI2 = {
     SPNOOP,    ADPCM2,      CLEARBUFF2, UNKNOWN,    ADDMIXER,  RESAMPLE2,
