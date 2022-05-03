@@ -2,7 +2,7 @@
 #define SYSPSP_UI_PSPMENU_H_
 
 #include "Base/Types.h"
-#include "SysPSP/Utility/PathsPSP.h"
+
 
 // User Interface Variables
 const s16 SCREEN_WIDTH {480};

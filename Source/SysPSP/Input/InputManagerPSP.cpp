@@ -16,7 +16,7 @@
 #include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math
 #include "Base/MathUtil.h"
-#include "SysPSP/Utility/PathsPSP.h"
+
 #include "Utility/IniFile.h"
 #include "System/IO.h"
 #include "Base/Macros.h"

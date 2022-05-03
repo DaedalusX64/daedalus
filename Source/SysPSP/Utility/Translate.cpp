@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/Translate.h"
 #include "SysPSP/Utility/VolatileMem.h"
 
-#include "SysPSP/Utility/PathsPSP.h"
+
 
 #include "Base/Macros.h"
 #define TRANSLATE_DUMP_VALUE 0xDAEDDAED

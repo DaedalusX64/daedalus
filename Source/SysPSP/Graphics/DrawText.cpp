@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
 #include "intraFont.h"
-#include "SysPSP/Utility/PathsPSP.h"
+
 #include "Base/Macros.h"
 #include "Interface/Preferences.h"
 #include "SysPSP/Utility/Translate.h"

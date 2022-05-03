@@ -57,7 +57,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/UI/SplashScreen.h"
 #include "SysPSP/UI/UIContext.h"
 #include "SysPSP/Utility/Buttons.h"
-#include "SysPSP/Utility/PathsPSP.h"
+
 #include "System/SystemInit.h"
 #include "Test/BatchTest.h"
 #include "System/IO.h"
@@ -129,7 +129,7 @@ extern void initExceptionHandler();
 		PSP_IS_SLIM = true;
 		g32bitColorMode = true;
 		sceGeEdramSetSize(4*1024*1024);
-		HAVE_DVE = CModule::Load("dvemgr.prx");
+		HAVE_DVE = CModule::Load("plugins/dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
 		if (PSP_TV_CABLE == 1)
