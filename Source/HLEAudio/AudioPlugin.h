@@ -51,7 +51,7 @@ public:
 //	This needs to be defined for all targets.
 //	The implementation can return NULL if audio is not supported
 //
-extern std::shared_ptr<CAudioPlugin> gAudioPlugin;
-std::shared_ptr<CAudioPlugin> CreateAudioPlugin();
+extern std::unique_ptr<CAudioPlugin> gAudioPlugin;
+std::unique_ptr<CAudioPlugin> CreateAudioPlugin();
 
 #endif // PLUGINS_AUDIOPLUGIN_H_
