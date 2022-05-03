@@ -205,7 +205,7 @@ EProcessResult	CAudioPluginCTR::ProcessAList()
 //
 //*****************************************************************************
 
-std::unique_ptr<CAudioPlugin> CreateAudioPlugin()
+std::shared_ptr<CAudioPlugin> CreateAudioPlugin()
 {
 	return std::make_unique<CAudioPluginCTR>();
 }
