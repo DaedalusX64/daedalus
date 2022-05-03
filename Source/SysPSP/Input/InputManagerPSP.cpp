@@ -320,7 +320,7 @@ bool	IInputManager::Initialise()
 	mControllerConfigs.push_back( p_default_config );
 
 	// Parse all the ini files here
-	LoadControllerConfigs( DAEDALUS_PSP_PATH( "ControllerConfigs/" ) );
+	LoadControllerConfigs("ControllerConfigs/" );
 
 	mpControllerConfig = mControllerConfigs[gControllerIndex];
 

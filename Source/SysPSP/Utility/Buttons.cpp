@@ -44,7 +44,7 @@ bool InitHomeButton()
 {
 	// Start our stack for either kernel or usermode buttons
 	//
-	int impose {CModule::Load("imposectrl.prx")};
+	int impose {CModule::Load("plugins/imposectrl.prx")};
 
 	//
 	// if imposectrl.prx loaded correctly, let's do some magic to take (forcely) control of HOME button

@@ -154,7 +154,7 @@ namespace
 
 		virtual	void			OnSelected()
 		{
-			Translate_Read( gGlobalPreferences.Language, DAEDALUS_PSP_PATH("Languages/") );
+			Translate_Read( gGlobalPreferences.Language, "Languages/");
 		}
 		virtual const char *	GetSettingName() const
 		{
@@ -205,13 +205,11 @@ namespace
 		{
 			if(gShowDialog.Render( mpContext,"Reset HLE cache?", false) )
 			{
-				// IO::Path::DeleteRecursive(DAEDALUS_PSP_PATH("SaveGames/Cache"),".hle");
-				// ThreadSleepMs(1000);	//safety wait for s
-
+		
 				if(gShowDialog.Render( mpContext,"Reset settings?", false) )
 				{
-					remove(DAEDALUS_PSP_PATH("preferences.ini"));
-					remove(DAEDALUS_PSP_PATH("rom.db"));
+					std::filesystem::remove("preferences.ini");
+				std::filesystem::remove("rom.db");
 					ThreadSleepMs(1000);	//safety wait for s
 
 					gShowDialog.Render( mpContext,"Daedalus will exit now",true);
@@ -221,9 +219,9 @@ namespace
 			}
 			if(gShowDialog.Render( mpContext,"Reset settings?", false) )
 			{
+				std::filesystem::remove("preferences.ini");
+				std::filesystem::remove("rom.db");
 
-				remove(DAEDALUS_PSP_PATH("preferences.ini"));
-				remove(DAEDALUS_PSP_PATH("rom.db"));
 				ThreadSleepMs(1000);	//safety wait for s
 
 				gShowDialog.Render( mpContext,"Daedalus will exit now",true);

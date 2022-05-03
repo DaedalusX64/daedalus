@@ -50,7 +50,7 @@ enum ECategory
 // Splash Screen
 
 const float	MAX_TIME  {0.8f}; // Rename to something more sane
-const char * const	LOGO_FILENAME {DAEDALUS_PSP_PATH( "Resources/logo.png" )};
+const char * const	LOGO_FILENAME { "Resources/logo.png"};
 
 
 
@@ -127,7 +127,7 @@ const f32				DEFAULT_MAX_DEADZONE = 1.0f;
 const char * const		gRomsDirectories[] =
 {
   "ms0:/n64/",
-  DAEDALUS_PSP_PATH( "Roms/" ),
+   "Roms/" ,
 #ifndef DAEDALUS_SILENT
   // For ease of developing with multiple source trees, common folder for roms can be placed at host1: in usbhostfs
   "host1:/",
@@ -148,7 +148,7 @@ const char * const		gNoRomsText[] =
 };
 ;
 
-const char * const		gPreviewDirectory = DAEDALUS_PSP_PATH( "Resources/Preview/" );
+const char * const		gPreviewDirectory =  "Resources/Preview/";
 
 const f32				PREVIEW_SCROLL_WAIT = 0.500f;		// seconds to wait for scrolling to stop before loading preview (prevent thrashing)
 const f32				PREVIEW_FADE_TIME = 0.50f;			// seconds
