@@ -13,6 +13,8 @@
 #include "System/IO.h"
 #include "System/Thread.h"
 
+#include "third_party/imgui/backends/imgui_impl_sdl.h"
+
 // TODO: Implemenent fullscreen toggle and window resize
 static bool toggle_fullscreen = false;
 
@@ -50,6 +52,7 @@ static void PollKeyboard(void * arg)
 	SDL_Event event;
 	while (SDL_PollEvent( &event) != 0)
 	{
+		 ImGui_ImplSDL2_ProcessEvent(&event);
 		if (event.type == SDL_QUIT)
 		{
 			CPU_Halt("Window Closed");	// SDL window was closed

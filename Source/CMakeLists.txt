@@ -1,4 +1,4 @@
-project (DaedalusX64 LANGUAGES C CXX ASM )
+project (DaedalusX64 LANGUAGES C CXX ASM OBJCXX)
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
@@ -15,11 +15,13 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
 		option(DAEDALUS_LOG "Enable various logging" ON)
 		add_definitions("-MD")
+		add_definitions("-g")
 	else()
 	message(${CMAKE_CXX_FLAGS_RELEASE}) ## Need to investigate this further as it breaks macOS build.. See what the PSP has on it for example
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 		add_compile_definitions(fltfo)
 		add_compile_definitions(NDEBUG)
+		add_compile_definitions(O3)
 	endif()
 
 	##Determine Dynarec compatibility and link in appropriate Dynarec
@@ -118,7 +120,6 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 
 	add_executable(daedalus SysPSP/main.cpp)
 
-	## No idea why this fails on the PSP Build
 	target_link_libraries(daedalus LINK_PUBLIC
 												Debug_PSP DynaRec_PSP Graphics_PSP HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP
 												Core Config Debug DynaRec Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility
@@ -156,14 +157,15 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	endif (APPLE)
 
 	if (UNIX)
+	find_package(SDL2 CONFIG REQUIRED)
 		add_definitions(-DDAEDALUS_POSIX -DDAEDALUS_GL)
-		 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPosix/Include .)
+		 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPosix/Include . ${PROJECT_SOURCE_DIR}/third_party/imgui ${SDL2_INCLUDE_DIRS})
 
 		add_executable(daedalus SysPosix/main.cpp)
 
 		target_link_libraries(daedalus LINK_PUBLIC
 												   Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility 
-												   Graphics_GL HLEGraphics_GL Input_GL Interface_GL 
+												   Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui
 												   Posix_Debug Posix_DynaRec Posix_Audio Posix_HLEGraphics Posix_Utility  
 												   png z minizip pthread GLEW SDL2 dl ${OS_LIBS}
 							 )
@@ -194,7 +196,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 		add_executable(daedalus SysW32/main.cpp)
 		target_link_libraries(daedalus LINK_PUBLIC
 												   Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility 
-												   Graphics_GL HLEGraphics_GL Input_GL Interface_GL 
+												   Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui
 												   Win_Debug Win_Audio Win_Utility X86_Dynarec
 												   png z minizip pthread GLEW SDL2 dl ${OS_LIBS} )
 
@@ -220,6 +222,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	if(UNIX)
 	add_subdirectory(SysPosix)
 	add_subdirectory(SysGL)
+	add_subdirectory(third_party/imgui)
 	elseif(WIN32) ## Probably keep this generic as we'll build this on Linux too?
 	add_subdirectory(SysGL)
 	add_subdirectory(SysW32)
