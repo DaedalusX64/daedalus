@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/TextureInfo.h"
 
 #include <map>
+#include <array>
 
 struct SetLoadTile;
 
@@ -62,7 +63,7 @@ public:
 	const TextureInfo &				GetUpdatedTextureDescriptor( u32 idx );
 
 private:
-	inline void				InvalidateAllTileTextureInfo()		{ memset( mTileTextureInfoValid, 0, sizeof(mTileTextureInfoValid) ); }
+	inline void				InvalidateAllTileTextureInfo()		{ mTileTextureInfoValid.fill(0); }
 	inline u32				EntryIsValid( const u32 tmem )const	{ return (mValidEntryBits >> tmem) & 1; }	//Return 1 if entry is valid else 0
 	inline void				SetValidEntry( const u32 tmem )		{ mValidEntryBits |= (1 << tmem); }	//Set TMEM address entry as valid
 	inline void				ClearEntries( const u32 tmem )		{ mValidEntryBits &= ((u32)~0 >> (31-tmem)); }	//Clear all entries after the specified TMEM address
@@ -75,14 +76,19 @@ private:
 		u32					Pitch;			// May be different from that derived from Image.Pitch
 		bool				Swapped;
 	};
+	std::array<RDP_Tile, 8> mTiles;
+	std::array<RDP_TileSize, 8> mTileSizes;
+	 std::array<TimgLoadDetails, 32> mTmemLoadInfo;
 
-	RDP_Tile				mTiles[ 8 ];
-	RDP_TileSize			mTileSizes[ 8 ];
-	TimgLoadDetails			mTmemLoadInfo[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
+	// RDP_Tile				mTiles[ 8 ];
+	// RDP_TileSize			mTileSizes[ 8 ];
+	// TimgLoadDetails			mTmemLoadInfo[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
 	u32						mValidEntryBits;		//Use bits to signal valid entries in TMEM
 
-	TextureInfo				mTileTextureInfo[ 8 ];
-	bool					mTileTextureInfoValid[ 8 ];		// Set to false if this needs rebuilding
+	std::array<TextureInfo, 8> mTileTextureInfo;
+	std::array<bool, 8> mTileTextureInfoValid;
+	// TextureInfo				mTileTextureInfo[ 8 ];
+	// bool					mTileTextureInfoValid[ 8 ];		// Set to false if this needs rebuilding
 
 	bool					EmulateMirror;
 };

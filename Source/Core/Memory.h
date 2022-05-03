@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_rcp.h"
 #include "System/AtomicPrimitives.h"
 #include "System/Endian.h"
+#include <array>
 
 enum MEMBANKTYPE
 {
@@ -77,8 +78,11 @@ extern u32		gRamSize;
 extern u32		gTLBReadHit;
 extern u32		gTLBWriteHit;
 #endif
-extern void *	g_pMemoryBuffers[NUM_MEM_BUFFERS];
-extern const u32 MemoryRegionSizes[NUM_MEM_BUFFERS];
+// extern void *	g_pMemoryBuffers[NUM_MEM_BUFFERS];
+// extern const u32 MemoryRegionSizes[NUM_MEM_BUFFERS];
+
+extern std::array<void *, NUM_MEM_BUFFERS> g_pMemoryBuffers;
+extern std::array< const u32, NUM_MEM_BUFFERS> MemoryRegionSizes;
 
 bool			Memory_Init();
 void			Memory_Fini();
@@ -93,8 +97,10 @@ using MemWriteValueFunction = void (*)(u32 address, u32 value);
 using InternalMemFastFunction = bool (*)(u32 address, void ** p_translated);
 #endif
 
+// extern std::array<MemFuncRead, 0x4000> g_MemoryLookupTableRead;
+extern std::array<MemFuncWrite, 0x4000> g_MemoryLookupTableWrite;
 extern MemFuncRead  				g_MemoryLookupTableRead[0x4000];
-extern MemFuncWrite 				g_MemoryLookupTableWrite[0x4000];
+// extern MemFuncWrite 				g_MemoryLookupTableWrite[0x4000];
 
 // Fast memory access
 inline void* DAEDALUS_ATTRIBUTE_CONST ReadAddress( u32 address )

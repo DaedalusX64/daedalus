@@ -45,4 +45,5 @@ public:
 	static u32 Translate(u32 address, bool& missing);
 };
 
-ALIGNED_EXTERN(TLBEntry, g_TLBs[32], CACHE_ALIGN);
+// ALIGNED_EXTERN(TLBEntry, g_TLBs[32], CACHE_ALIGN);
+extern std::array<TLBEntry, 32> g_TLBs;

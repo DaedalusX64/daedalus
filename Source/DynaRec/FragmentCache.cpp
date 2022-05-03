@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 #include <algorithm>
+#include <cstring>
 
 #include "DynaRec/AssemblyUtils.h"
 #include "DynaRec/CodeBufferManager.h"
@@ -48,7 +49,7 @@ CFragmentCache::CFragmentCache()
 ,	mCachedFragmentAddress( 0 )
 ,	mpCachedFragment( nullptr )
 {
-	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
+	std::memset( mpCacheHashTable.data(), 0, mpCacheHashTable.size() * sizeof(mpCacheHashTable[0]));
 
 	mFragments.reserve( 2000 );
 
@@ -289,7 +290,7 @@ void CFragmentCache::Clear()
 	mOutputLength = 0;
 	mCachedFragmentAddress = 0;
 	mpCachedFragment = nullptr;
-	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
+	std::memset( mpCacheHashTable.data(), 0, mpCacheHashTable.size() * sizeof(mpCacheHashTable[0]));
 	mJumpMap.clear();
 
 	mCacheCoverage.Reset();
@@ -303,6 +304,63 @@ void CFragmentCache::Clear()
 bool CFragmentCache::ShouldInvalidateOnWrite( u32 address, u32 length ) const
 {
 	return mCacheCoverage.IsCovered( address, length );
+}
+
+
+
+
+//*************************************************************************************
+//
+//*************************************************************************************
+#define AddressToIndex( addr ) ((addr - BASE_ADDRESS) >> MEM_USAGE_SHIFT)
+
+//*************************************************************************************
+//
+//*************************************************************************************
+void CFragmentCacheCoverage::ExtendCoverage( u32 address, u32 len )
+{
+	u32 first_entry = AddressToIndex( address );
+	u32 last_entry = AddressToIndex( address + len );
+
+	// Mark all entries as true
+	for( u32 i = first_entry; i <= last_entry && i < NUM_MEM_USAGE_ENTRIES; ++i )
+	{
+		mCacheCoverage[ i ] = true;
+	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+bool CFragmentCacheCoverage::IsCovered( u32 address, u32 len ) const
+{
+	#ifdef DAEDALUS_DEBUG_CONSOLE
+	if((address - BASE_ADDRESS) == 0)
+	{
+		DBGConsole_Msg( 0, "Cache coverage address is overlapping" );
+		return true;
+	}
+#endif
+	u32 first_entry = AddressToIndex( address );
+	u32 last_entry = AddressToIndex( address + len );
+
+	// Mark all entries as true
+	for( u32 i = first_entry; i <= last_entry && i < NUM_MEM_USAGE_ENTRIES; ++i )
+	{
+		if( mCacheCoverage[ i ] )
+			return true;
+	}
+
+	return false;
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+void CFragmentCacheCoverage::Reset( )
+{
+	std::fill(std::begin(mCacheCoverage), std::end(mCacheCoverage), 0);
+		// std::memset( mCacheCoverage.data(), false, mCacheCoverage.size() * sizeof( mCacheCoverage ) );
 }
 
 #ifdef DAEDALUS_DEBUG_DYNAREC
@@ -320,7 +378,7 @@ struct SDescendingCyclesSort
 //*************************************************************************************
 //
 //*************************************************************************************
-void CFragmentCache::DumpStats( const char * outputdir ) const
+void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 {
 
 	using FragmentList = std::vector< CFragment *>;
@@ -340,17 +398,21 @@ void CFragmentCache::DumpStats( const char * outputdir ) const
 
 	std::sort( all_fragments.begin(), all_fragments.end(), SDescendingCyclesSort() );
 
+	std::filesystem::path filename "fragments.html";
+	std::filesystem::path fragments_dir = "fragments"
+	std::filesystem::exists(fragments_dir);
 
-	IO::Filename	filename;
-	IO::Filename	fragments_dir;
+	// IO::Filename	filename;
+	// IO::Filename	fragments_dir;
 
-	IO::Path::Assign( fragments_dir, outputdir );
-	IO::Path::Append( fragments_dir, "fragments" );
-	IO::Directory::EnsureExists( fragments_dir );
+	// IO::Path::Assign( fragments_dir, outputdir );
+	// IO::Path::Append( fragments_dir, "fragments" );
+	// IO::Directory::EnsureExists( fragments_dir );
 
-	IO::Path::Combine( filename, outputdir, "fragments.html" );
+	// IO::Path::Combine( filename, outputdir, "fragments.html" );
+	fragments_dir /= filename;
 
-	FILE * fh( fopen( filename, "w" ) );
+	FILE * fh( fopen( filename.c_str(), "w" ) );
 	if(fh)
 	{
 		fputs( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">", fh );
@@ -402,57 +464,3 @@ void CFragmentCache::DumpStats( const char * outputdir ) const
 	}
 }
 #endif // DAEDALUS_DEBUG_DYNAREC
-
-
-//*************************************************************************************
-//
-//*************************************************************************************
-#define AddressToIndex( addr ) ((addr - BASE_ADDRESS) >> MEM_USAGE_SHIFT)
-
-//*************************************************************************************
-//
-//*************************************************************************************
-void CFragmentCacheCoverage::ExtendCoverage( u32 address, u32 len )
-{
-	u32 first_entry( AddressToIndex( address ) );
-	u32 last_entry( AddressToIndex( address + len ) );
-
-	// Mark all entries as true
-	for( u32 i = first_entry; i <= last_entry && i < NUM_MEM_USAGE_ENTRIES; ++i )
-	{
-		mCacheCoverage[ i ] = true;
-	}
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-bool CFragmentCacheCoverage::IsCovered( u32 address, u32 len ) const
-{
-	#ifdef DAEDALUS_DEBUG_CONSOLE
-	if((address - BASE_ADDRESS) == 0)
-	{
-		DBGConsole_Msg( 0, "Cache coverage address is overlapping" );
-		return true;
-	}
-#endif
-	u32 first_entry( AddressToIndex( address ) );
-	u32 last_entry( AddressToIndex( address + len ) );
-
-	// Mark all entries as true
-	for( u32 i = first_entry; i <= last_entry && i < NUM_MEM_USAGE_ENTRIES; ++i )
-	{
-		if( mCacheCoverage[ i ] )
-			return true;
-	}
-
-	return false;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-void CFragmentCacheCoverage::Reset( )
-{
-	memset( mCacheCoverage, 0, sizeof( mCacheCoverage ) );
-}

@@ -363,8 +363,9 @@ bool DLParser_Initialise()
 	gUcodeName = gNormalInstructionName[ GBI_0 ];
 
 	//Clear pointers in TMEM block //Corn
+	#ifdef DAEDALUS_ACCURATE_TMEM
 	memset(gTlutLoadAddresses, 0, sizeof(gTlutLoadAddresses));
-	
+	#endif
 	return true;
 }
 

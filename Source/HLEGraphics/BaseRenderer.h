@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/TextureInfo.h"
 #include "Graphics/ColourValue.h"
 #include "Interface/Preferences.h"
+#include <array>
 
 #ifdef DAEDALUS_PSP
 #include <pspgu.h>
@@ -436,15 +437,18 @@ protected:
 	};
 	static const u32 kNumBoundTextures = 2;
 
-	TextureInfo				mBoundTextureInfo[ kNumBoundTextures ];
+	std::array<TextureInfo, kNumBoundTextures> mBoundTextureInfo;
 	CRefPtr<CNativeTexture>	mBoundTexture[ kNumBoundTextures ];
+	std::array<TexCoord, kNumBoundTextures> mTileTopLeft;
+	std::array<TextureWrap, kNumBoundTextures> mTexWrap;
 
-	TexCoord				mTileTopLeft[ kNumBoundTextures ];
-	TextureWrap				mTexWrap[ kNumBoundTextures ];
+	// TextureInfo				mBoundTextureInfo[ kNumBoundTextures ];
+	// TexCoord				mTileTopLeft[ kNumBoundTextures ];
+	// TextureWrap				mTexWrap[ kNumBoundTextures ];
 
 	// Index of the corresponding tile state.
-	u8						mActiveTile[ kNumBoundTextures ];
-
+	// u8						mActiveTile[ kNumBoundTextures ];
+	std::array<u8, kNumBoundTextures> mActiveTile;
 
 	//Max is 18 according to the manual //Corn
 	//I think we should make this more deep to avoid any issues //Salvy
@@ -469,10 +473,12 @@ protected:
 #endif
 
 	static const u32 	kMaxIndices = 320;					// We need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn
+	// std::array<u16, kMaxIndices> mIndexBuffer;
 	u16					mIndexBuffer[kMaxIndices];
 	u32					mNumIndices;
 
 	// Processed vertices waiting for output...
+	// std::array<DaedalusVtx4, kMaxN64Vertices> mVtxProjected;
 	DaedalusVtx4		mVtxProjected[kMaxN64Vertices];		// Transformed and projected vertices (suitable for clipping etc)
 	u32					mVtxClipFlagsUnion;					// Bitwise OR of all the vertex flags added to the current batch. If this is 0, we can trivially accept everything without clipping
 

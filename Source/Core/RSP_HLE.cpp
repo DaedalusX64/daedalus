@@ -140,7 +140,7 @@ void RSP_HLE_Finished(u32 setbits)
 	//
 	// Set the SP flags appropriately. The RSP is not running anyway, no need to stop it
 	//
-	u32 status( Memory_SP_SetRegisterBits(SP_STATUS_REG, setbits) );
+	u32 status = Memory_SP_SetRegisterBits(SP_STATUS_REG, setbits);
 
 	//
 	// We've set the SP_STATUS_BROKE flag - better check if it causes an interrupt

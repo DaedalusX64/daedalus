@@ -43,7 +43,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/IO.h"
 #include "Utility/Profiler.h"
 
+#include <array>
+
 static std::vector<u8>		gTexelBuffer;
+// std::array<NativePf8888, 256> gPaletteBuffer;
 static NativePf8888			gPaletteBuffer[ 256 ];
 
 // NB: On the PSP we generate a lightweight hash of the texture data before
@@ -69,7 +72,8 @@ static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
 
 #define DEFTEX	TexFmt_8888
 
-static const ETextureFormat TFmt[ 32 ] =
+// static const ETextureFormat TFmt[ 32 ] =
+std::array<const ETextureFormat, 32> TFmt =
 {
 //	4bpp				8bpp				16bpp				32bpp
 	DEFTEX,				DEFTEX,				TexFmt_5551,		TexFmt_8888,		// RGBA
@@ -82,7 +86,8 @@ static const ETextureFormat TFmt[ 32 ] =
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?
 };
 
-static const ETextureFormat TFmt_hack[ 32 ] =
+// static const ETextureFormat TFmt_hack[ 32 ] =
+std::array<const ETextureFormat, 32> TFmt_hack =
 {
 //	4bpp				8bpp				16bpp				32bpp
 	DEFTEX,				DEFTEX,				TexFmt_4444,		TexFmt_8888,		// RGBA

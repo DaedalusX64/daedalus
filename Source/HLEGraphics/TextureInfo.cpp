@@ -18,6 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
+#include <array>
+
 #include "BuildOptions.h"
 #include "Base/Types.h"
 
@@ -29,8 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Hash.h"
 #include "Utility/Profiler.h"
 
-static const char * const	gImageFormatNames[8] {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
-static const u32			gImageSizesInBits[4] {4, 8, 16, 32};
+std::array<const char * const, 8> gImageFormatNames = {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
+// static const char * const	gImageFormatNames[8] {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
+std::array<const u32, 4> gImageSizesInBits = {4, 8, 16, 32};
+// static const u32			gImageSizesInBits[4] {4, 8, 16, 32};
 
 const char * TextureInfo::GetFormatName() const
 {

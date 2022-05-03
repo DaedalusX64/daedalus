@@ -86,10 +86,10 @@ struct CPUEvent
 #ifdef DAEDALUS_ENABLE_ASSERTS
 DAEDALUS_STATIC_ASSERT( sizeof( CPUEvent ) == 8 );
 #endif
-typedef REG64 register_32x64[32];
-typedef REG64 register_16x64[16];
-typedef REG32 register_32x32[32];
 
+using register_32x64 = REG64[32];
+using register_16x64 = REG64[16];
+using register_32x32 = std::array<REG32,32>;
 //
 //	We declare various bits of the CPU state in a struct.
 //	During dynarec compilation we can keep the base address of this
@@ -129,7 +129,8 @@ ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 	REG32			Temp3;				// 0x2A8	Temp storage Dynarec
 	REG32			Temp4;				// 0x2AC	Temp storage Dynarec
 
-	CPUEvent		Events[ MAX_CPU_EVENTS ];	// 0x2B0 //In practice there should only ever be 2 CPU_EVENTS
+	std::array<CPUEvent, MAX_CPU_EVENTS> Events;
+	// CPUEvent		Events[ MAX_CPU_EVENTS ];	// 0x2B0 //In practice there should only ever be 2 CPU_EVENTS
 	u32				NumEvents;
 
 	void			AddJob( u32 job );

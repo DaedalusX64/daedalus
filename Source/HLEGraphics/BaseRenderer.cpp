@@ -578,7 +578,8 @@ void BaseRenderer::FlushTris()
 //Croping triangles just outside the NDC box and let PSP HW do the final crop
 //improves quality but fails in some games (Rocket Robot/Lego racers)//Corn
 //*****************************************************************************
-ALIGNED_TYPE(const v4, NDCPlane[6], 16) =
+// ALIGNED_TYPE(const v4, NDCPlane[6], 16) =
+std::array<const v4, 6> NDCPlane = 
 {
 	v4(  0.f,  0.f, -1.f, -1.f ),	// near
 	v4(  0.f,  0.f,  1.f, -1.f ),	// far
@@ -794,11 +795,15 @@ static u32 set_clip_flags(const v4 & projected)
 //*****************************************************************************
 namespace
 {
+		
+	// std::array<DaedalusVtx4, 8> temp_a;
+	// std::array<DaedalusVtx4, 8> temp_b;
 	DaedalusVtx4		temp_a[ 8 ];
 	DaedalusVtx4		temp_b[ 8 ];
 	// Flying Dragon clips more than 256
 	const u32			MAX_CLIPPED_VERTS = 320;
 	DaedalusVtx			clip_vtx[MAX_CLIPPED_VERTS];
+	// std::array<DaedalusVtx, MAX_CLIPPED_VERTS> clip_vtx;
 }
 
 //*****************************************************************************
@@ -927,7 +932,7 @@ void BaseRenderer::PrepareTrisClipped( TempVerts * temp_verts ) const
 	if (num_vertices > 0)
 	{
 		DaedalusVtx * p_vertices = temp_verts->Alloc(num_vertices);
-
+		// std::copy(clip_vtx.begin(), clip_vtx.end(),)
 		memcpy( p_vertices, clip_vtx, num_vertices * sizeof(DaedalusVtx) );	//std memcpy() is as fast as VFPU here!
 	}
 }

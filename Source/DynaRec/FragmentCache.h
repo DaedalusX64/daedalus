@@ -22,12 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
+
 class	CFragment;
 class	CJumpLocation;
 class	CCodeBufferManager;
 
 #include <map>
 #include <vector>
+#include <array>
 
 struct FHashT
 {
@@ -58,7 +60,8 @@ private:
 	static const u32 MEM_USAGE_SHIFT = 12;		// 4k
 	static const u32 NUM_MEM_USAGE_ENTRIES = MEMORY_8_MEG >> MEM_USAGE_SHIFT;
 
-	bool			mCacheCoverage[ NUM_MEM_USAGE_ENTRIES ];
+	std::array<bool, NUM_MEM_USAGE_ENTRIES> mCacheCoverage;
+
 };
 
 //*************************************************************************************
@@ -80,7 +83,7 @@ public:
 	void					Clear();
 
 #ifdef DAEDALUS_DEBUG_DYNAREC
-	void					DumpStats( const char * outputdir ) const;
+	void					DumpStats( const std::fiilesystem::path outputdir ) const;
 #endif
 
 	u32						GetMemoryUsage() const					{ return mMemoryUsage; }
@@ -127,7 +130,8 @@ private:
 	//#define MakeHashIdx( addr ) (((addr >> (2 * HASH_TABLE_BITS + 2)) ^ (addr >> (HASH_TABLE_BITS + 2)) ^ addr >> 2 ) & (HASH_TABLE_SIZE-1))
 	#define MakeHashIdx( addr ) (((addr >> (HASH_TABLE_BITS + 2)) ^ addr >> 2 ) & (HASH_TABLE_SIZE-1))
 
-	mutable FHashT			mpCacheHashTable[HASH_TABLE_SIZE];
+	mutable std::array<FHashT, HASH_TABLE_SIZE> mpCacheHashTable;
+	// mutable FHashT			mpCacheHashTable[HASH_TABLE_SIZE];
 
 	CCodeBufferManager *	mpCodeBufferManager;
 

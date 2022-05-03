@@ -23,14 +23,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // convert rgba values (0-255 per channel) to a dword in A8R8G8B8 order..
 #define CONVERT_RGBA(r,g,b,a)  (a<<24) | (b<<16) | (g<<8) | r
 
+#include <array>
 
-static const u8 OneToEight[] = {
+static std::array<const u8, 2> OneToEight = {
+// static const u8 OneToEight[] = {
 	0x00,   // 0 -> 00 00 00 00
 	0xff    // 1 -> 11 11 11 11
 };
 
-static const u8 ThreeToEight[8] =
-{
+// static const u8 ThreeToEight[8] =
+static std::array<const u8, 8> ThreeToEight = {
 	0x00,	// 000 -> 00 00 00 00
 	0x24,	// 001 -> 00 10 01 00
 	0x49,	// 010 -> 01 00 10 01
@@ -41,15 +43,16 @@ static const u8 ThreeToEight[8] =
 	0xff	// 111 -> 11 11 11 11
 };
 
-static const u8 FourToEight[16] =
-{
+// static const u8 FourToEight[16] =
+static std::array< const u8, 16> FourToEight = {
 	0x00, 0x11, 0x22, 0x33,
 	0x44, 0x55, 0x66, 0x77,
 	0x88, 0x99, 0xaa, 0xbb,
 	0xcc, 0xdd, 0xee, 0xff
 };
 
-static const u8 FiveToEight[] = {
+// static const u8 FiveToEight[] = {
+static std::array<const u8, 32> FiveToEight = {
 	0x00, // 00000 -> 00000000
 	0x08, // 00001 -> 00001000
 	0x10, // 00010 -> 00010000
@@ -66,7 +69,6 @@ static const u8 FiveToEight[] = {
 	0x6b, // 01101 -> 01101011
 	0x73, // 01110 -> 01110011
 	0x7b, // 01111 -> 01111011
-
 	0x84, // 10000 -> 10000100
 	0x8c, // 10001 -> 10001100
 	0x94, // 10010 -> 10010100

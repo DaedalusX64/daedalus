@@ -45,6 +45,8 @@ RDP_OtherMode		gRDPOtherMode;
 #define MAX_TMEM_ADDRESS 4096
 
 //Granularity down to 24bytes is good enuff also only need to address the upper half of TMEM for palettes//Corn
+
+// std::array<u32,MAX_TMEM_ADDRESS >> 6> gTlutLoadAddresses;
 u32 gTlutLoadAddresses[ MAX_TMEM_ADDRESS >> 6 ];
 
 
@@ -68,10 +70,12 @@ void CRDPStateManager::Reset()
 {
 	ClearAllEntries();
 	InvalidateAllTileTextureInfo();
-
-	memset(mTiles, 0, sizeof(mTiles));
-	memset(mTileSizes, 0, sizeof(mTileSizes));
-	memset(mTileTextureInfo, 0, sizeof(mTileTextureInfo));
+	mTiles = {};
+	mTileSizes = {};
+	mTileTextureInfo = {};
+	// memset(mTiles, 0, sizeof(mTiles));
+	// memset(mTileSizes, 0, sizeof(mTileSizes));
+	// memset(mTileTextureInfo, 0, sizeof(mTileTextureInfo));
 }
 
 void CRDPStateManager::SetTile( const RDP_Tile & tile )
