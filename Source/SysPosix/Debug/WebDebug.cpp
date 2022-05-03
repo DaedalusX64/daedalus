@@ -408,7 +408,7 @@ static void AddStaticContent(const char * dir, const char * root)
 			resource_path += '/';
 			resource_path += find_data.Name;
 
-			if (IO::Directory::IsDirectory(full_path))
+			if (std::filesystem::is_directory(full_path))
 			{
 				AddStaticContent(full_path, resource_path.c_str());
 			}

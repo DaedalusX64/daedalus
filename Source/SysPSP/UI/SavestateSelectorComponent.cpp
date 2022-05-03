@@ -101,6 +101,7 @@ namespace
 {
 	void MakeSaveSlotPath(char * path, char * png_path, u32 slot_idx, char *slot_path )
 	{
+		std::filesystem::create_directory("SaveStates");
 		IO::Filename	filename_png;
 		IO::Filename	filename_ss;
 		IO::Filename    sub_path;
@@ -108,17 +109,17 @@ namespace
 		sprintf( filename_png, "saveslot%u.ss.png", slot_idx );
 		sprintf( filename_ss, "saveslot%u.ss", slot_idx );
 		sprintf( sub_path, "SaveStates/%s", slot_path);
-		if(!IO::Directory::IsDirectory( "ms0:/n64/SaveStates/" ))
+		if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
 		{
 			IO::Path::Combine( path, gDaedalusExePath.c_str(), sub_path );
 			IO::Path::Combine( png_path, gDaedalusExePath.c_str(), sub_path );
-			IO::Directory::EnsureExists( path );		// Ensure this dir exists
+			std::filesystem::exists(path);	// Ensure this dir exists
 		}
 		else
 		{
 			IO::Path::Combine( path, "ms0:/n64/", sub_path );
 			IO::Path::Combine( png_path, "ms0:/n64/", sub_path );
-			IO::Directory::EnsureExists( path );		// Ensure this dir exists
+			std::filesystem::exists(path);	// Ensure this dir exists
 		}
 		IO::Path::Append( path, filename_ss );
 		IO::Path::Append( png_path, filename_png );
@@ -166,7 +167,7 @@ void ISavestateSelectorComponent::LoadFolders(){
 		do
 		{
 			IO::Path::Combine( full_path, "ms0:/n64/SaveStates", find_data.Name);
-			if(IO::Directory::IsDirectory(full_path) && strlen( find_data.Name ) > 2 )
+			if(std::filesystem::is_directory(full_path) && strlen( find_data.Name ) > 2 )
 			{
 				COutputStringStream str;
 				CUIElement * element;
@@ -186,7 +187,7 @@ void ISavestateSelectorComponent::LoadFolders(){
 		do
 		{
 			IO::Path::Combine( full_path, "SaveStates", find_data.Name);
-			if(IO::Directory::IsDirectory(full_path) && strlen( find_data.Name ) > 2 )
+			if(std::filesystem::is_directory(full_path) && strlen( find_data.Name ) > 2 )
 			{
 				COutputStringStream str;
 				CUIElement *element;
@@ -363,7 +364,7 @@ void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
     sprintf( filename_png, "saveslot%u.png", id_ss );
     sprintf( sub_path, "SaveStates/%s", current_slot_path);
 			std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-	if(!IO::Directory::IsDirectory( "ms0:/n64/SaveStates/" ))
+	if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
 	{
 		IO::Path::Combine( path, gDaedalusExePath.c_str(), sub_path );
 		IO::Path::Combine( png_path, gDaedalusExePath.c_str(), sub_path );

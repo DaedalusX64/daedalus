@@ -120,7 +120,7 @@ void Translate_Unload()
 bool	Translate_Init()
 {
 	// Init translations if available
-	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );
+	Translate_Load("Languages/" );
 
 	return /*gLanguage.empty() == 0*/ true;
 }

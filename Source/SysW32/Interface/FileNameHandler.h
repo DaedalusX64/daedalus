@@ -48,7 +48,7 @@ private:
 	char				m_szFile[300];
 	char				m_szFileTitle[300];
 
-	IO::Filename		m_szCurrentDirectory;
+	std::filesystem::path		m_szCurrentDirectory;
 };
 
 #endif // SYSW32_INTERFACE_FILENAMEHANDLER_H_

@@ -197,16 +197,16 @@ void IRomDB::Reset()
 	mDirty = true;
 }
 
-bool IRomDB::OpenDB( const std::filesystem::path filename )
+bool IRomDB::OpenDB( const std::filesystem::path mRomDBFileName )
 {
 	u32 num_read;
 
 	//
 	// Remember the filename
 	//
-	IO::Path::Assign( mRomDBFileName, filename.c_str() );
+	// IO::Path::Assign( mRomDBFileName, filename.c_str() );
 
-	FILE * fh = fopen( filename.c_str(), "rb" );
+	FILE * fh = fopen( mRomDBFileName.c_str(), "rb" );
 	if ( !fh )
 	{
 		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", mRomDBFileName );

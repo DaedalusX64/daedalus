@@ -31,7 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void InitMempackContent();
 
-// static IO::Filename		gSaveFileName;
 std::filesystem::path gSaveFileName;
 static bool				gSaveDirty;
 static u32				gSaveSize;

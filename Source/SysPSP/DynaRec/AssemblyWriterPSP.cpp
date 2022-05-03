@@ -79,9 +79,8 @@ void	CAssemblyWriterPSP::GetLoadConstantOps( EPspReg reg, s32 value, PspOpCode *
 
 void	CAssemblyWriterPSP::LoadConstant( EPspReg reg, s32 value )
 {
-	PspOpCode	op1 {};
-	PspOpCode	op2 {};
-
+	PspOpCode	op1;
+	PspOpCode	op2;
 	GetLoadConstantOps( reg, value, &op1, &op2 );
 
 	AppendOp( op1 );
@@ -98,7 +97,7 @@ void	CAssemblyWriterPSP::LoadConstant( EPspReg reg, s32 value )
 
 void	CAssemblyWriterPSP::LoadRegister( EPspReg reg_dst, OpCodeValue load_op, EPspReg reg_base, s16 offset )
 {
-	PspOpCode		op_code {};
+	PspOpCode		op_code;
 	op_code._u32 = 0;
 
 	op_code.op = load_op;
@@ -114,7 +113,7 @@ void	CAssemblyWriterPSP::LoadRegister( EPspReg reg_dst, OpCodeValue load_op, EPs
 
 void	CAssemblyWriterPSP::StoreRegister( EPspReg reg_src, OpCodeValue store_op, EPspReg reg_base, s16 offset )
 {
-	PspOpCode		op_code {};
+	PspOpCode		op_code;
 	op_code._u32 = 0;
 
 	op_code.op = store_op;
@@ -130,7 +129,7 @@ void	CAssemblyWriterPSP::StoreRegister( EPspReg reg_src, OpCodeValue store_op, E
 
 void	CAssemblyWriterPSP::NOP()
 {
-	PspOpCode		op_code {};
+	PspOpCode		op_code;
 	op_code._u32 = 0;
 	AppendOp( op_code );
 }
@@ -204,7 +203,7 @@ void	CAssemblyWriterPSP::LW( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 
 void	CAssemblyWriterPSP::LWC1( EPspFloatReg reg_dst, EPspReg reg_base, s16 offset )
 {
-	PspOpCode		op_code {};
+	PspOpCode		op_code;
 	op_code._u32 = 0;
 
 	op_code.op = OP_LWC1;
@@ -220,7 +219,7 @@ void	CAssemblyWriterPSP::LWC1( EPspFloatReg reg_dst, EPspReg reg_base, s16 offse
 
 void	CAssemblyWriterPSP::SWC1( EPspFloatReg reg_src, EPspReg reg_base, s16 offset )
 {
-	PspOpCode		op_code {};
+	PspOpCode		op_code;
 	op_code._u32 = 0;
 
 	op_code.op = OP_SWC1;

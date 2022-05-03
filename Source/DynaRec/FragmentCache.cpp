@@ -401,15 +401,6 @@ void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 	std::filesystem::path filename "fragments.html";
 	std::filesystem::path fragments_dir = "fragments"
 	std::filesystem::exists(fragments_dir);
-
-	// IO::Filename	filename;
-	// IO::Filename	fragments_dir;
-
-	// IO::Path::Assign( fragments_dir, outputdir );
-	// IO::Path::Append( fragments_dir, "fragments" );
-	// IO::Directory::EnsureExists( fragments_dir );
-
-	// IO::Path::Combine( filename, outputdir, "fragments.html" );
 	fragments_dir /= filename;
 
 	FILE * fh( fopen( filename.c_str(), "w" ) );

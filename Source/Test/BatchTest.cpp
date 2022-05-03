@@ -109,7 +109,7 @@ static void MakeNewLogFilename( IO::Filename & filepath, const char * rundir )
 
 		IO::Path::Combine(filepath, rundir, filename);
 	}
-	while( IO::File::Exists( filepath ) );
+	while( std::filesystem::exists( filepath ) );
 }
 
 static void SprintRunDirectory( IO::Filename & rundir, const char * batchdir, u32 run_id )
@@ -126,9 +126,7 @@ static bool MakeRunDirectory( IO::Filename & rundir, const char * batchdir )
 	{
 		SprintRunDirectory( rundir, batchdir, run_id );
 
-		// Skip if it already exists as a file or directory
-		if( IO::Directory::Create( rundir ) )
-			return true;
+		std::filesystem::create_directory(rundir);
 	}
 
 	return false;
@@ -187,7 +185,7 @@ void BatchTestMain( int argc, char* argv[] )
 	else
 	{
 		SprintRunDirectory( rundir, batchdir, run_id );
-		if( !IO::Directory::IsDirectory( rundir ) )
+		if( !std::filesystem::is_directory( rundir ) )
 		{
 			printf( "Couldn't resume run %d\n", run_id );
 			return;
@@ -242,7 +240,7 @@ void BatchTestMain( int argc, char* argv[] )
 		IO::Path::Combine( rom_logpath, rundir, IO::Path::FindFileName( r.c_str() ) );
 		IO::Path::SetExtension( rom_logpath, ".txt" );
 
-		bool	result_exists( IO::File::Exists( rom_logpath ) );
+		bool	result_exists( std::filesystem::exists( rom_logpath ) );
 
 		if( !update_results && result_exists )
 		{
@@ -281,7 +279,7 @@ void BatchTestMain( int argc, char* argv[] )
 				{
 					std::delete( rom_logpath );
 				}
-				if( !IO::File::Move( tmpfilepath, rom_logpath ) )
+				if( !std::filesystem::rename( tmpfilepath, rom_logpath ) )
 				{
 					fprintf( gBatchFH, "%#.3f: Coping %s -> %s failed\n", timer.GetElapsedSecondsSinceReset(), tmpfilepath, rom_logpath );
 				}

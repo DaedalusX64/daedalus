@@ -73,7 +73,7 @@ void Dump_GetDumpDirectory(char * rootdir, const char * subdir)
 		//DBGConsole_Msg( 0, "Dump dir: [C%s]", rootdir );
 	}
 #endif
-	IO::Directory::EnsureExists(rootdir);
+std::filesystem::exists(rootdir);
 
 }
 
