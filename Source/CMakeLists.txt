@@ -117,13 +117,13 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 		add_definitions(-DDAEDALUS_PSP)
 		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
 		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu -lpspge)
-
+		set(SDL_LIBS SDL2 SDL2main pspvram psphprm GL pspvfpu )
 	add_executable(daedalus SysPSP/main.cpp)
 
 	target_link_libraries(daedalus LINK_PUBLIC
 												Debug_PSP DynaRec_PSP Graphics_PSP HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP
 												Core Config Debug DynaRec Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility
-												stdc++ png z c g m pthread ${PLAT_LIBS} )
+												stdc++ png z c g m pthread ${SDL_LIBS}  ${PLAT_LIBS}  )
  
 	create_pbp_file(
     	TARGET daedalus

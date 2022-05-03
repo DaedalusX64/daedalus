@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if defined(DAEDALUS_POSIX) || defined(DAEDALUS_PSP)
 #include <pthread.h>
+#include <mutex>
 #endif
 
 #if defined(DAEDALUS_W32)
@@ -69,31 +70,35 @@ public:
 
 	Mutex()
 	{
-		pthread_mutex_init(&mMutex, NULL);
+		// pthread_mutex_init(&mMutex, NULL);
+		std::mutex mMutex;
 	}
 
 	explicit Mutex( const char * name )
 	{
-		pthread_mutex_init(&mMutex, NULL);
+		std::mutex mMutex;
+		// pthread_mutex_init(&mMutex, NULL);
 	}
 
 	~Mutex()
 	{
-		pthread_mutex_destroy(&mMutex);
+		// pthread_mutex_destroy(&mMutex);
 	}
 
 	void Lock()
 	{
-		pthread_mutex_lock(&mMutex);
+		// pthread_mutex_lock(&mMutex);
+			mMutex.lock();
 	}
 
 	void Unlock()
 	{
-		pthread_mutex_unlock(&mMutex);
+		// pthread_mutex_unlock(&mMutex);
+		 	mMutex.unlock();
 	}
 
 public:
-	pthread_mutex_t  mMutex;
+	std::mutex  mMutex;
 };
 
 
