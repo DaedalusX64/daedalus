@@ -25,7 +25,7 @@ Cond * CondCreate()
 
 void CondDestroy(Cond * cond)
 {
-	pthread_cond_destroy( (pthread_cond_t *)cond );
+	// pthread_cond_destroy( (pthread_cond_t *)cond );
 	free( cond );
 }
 
@@ -49,14 +49,14 @@ void CondWait(Cond * cond, Mutex * mutex, double timeout)
 {
 	if (timeout <= 0)
 	{
-		pthread_cond_wait( (pthread_cond_t *)cond, &mutex->mMutex );
+		// pthread_cond_wait( (pthread_cond_t *)cond, &mutex->mMutex );
 	}
 	else
 	{
 		timespec wait;
 		ComputeWait(timeout, &wait);
 
-		pthread_cond_timedwait( (pthread_cond_t *)cond, &mutex->mMutex, &wait );
+		// pthread_cond_timedwait( (pthread_cond_t *)cond, &mutex->mMutex, &wait );
 	}
 }
 

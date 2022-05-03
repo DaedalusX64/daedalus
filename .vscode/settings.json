@@ -82,6 +82,10 @@
         "variant": "cpp",
         "__functional_base": "cpp",
         "filesystem": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "version": "cpp"
+    }
+    {
+        "editor.formatOnSave": true
     }
 }
