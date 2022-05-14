@@ -4,6 +4,8 @@
     if (APPLE)
     # set(BACKEND ${PROJECT_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_SDL.mm) ?
     set(BACKEND ${PROJECT_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_opengl3.cpp)
+    elseif(CTR)
+    set(BACKEND ${PROJECT_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_3DS.cpp)
     endif()
 
 add_library(imgui OBJECT
