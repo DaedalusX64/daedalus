@@ -30,10 +30,7 @@ jobs:
     - name: Prepare artifacts
       run: |
         tar -zcvf daedalusX64-PSP.tar.gz \
-          DaedalusX64/dvemgr.prx \
-          DaedalusX64/exception.prx \
-          DaedalusX64/imposectrl.prx \
-          DaedalusX64/mediaengine.prx \
+          DaedalusX64/Plugins \
           DaedalusX64/EBOOT.PBP \
           DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
