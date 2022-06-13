@@ -1,12 +1,7 @@
-project (DaedalusX64 LANGUAGES C CXX ASM)
-cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
 
-message("DaedalusX64 Build")
-message(${CMAKE_SYSTEM_PROCESSOR} " Detected") 
-
-	#Build Type
+#Build Type
 	if(DEBUG)
 		set(CMAKE_BUILD_TYPE Debug)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
@@ -95,6 +90,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	add_compile_definitions(DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE)
 	endif()
 
+
 	## These build options are required so we define as nothing until needed
 	if(NOT WIN32)
 		add_compile_definitions(R4300_CALL_TYPE=${})
@@ -111,11 +107,10 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 
 	#PSP Build
 	set (GPROF_SRCS SysPSP/Debug/prof.c SysPSP/Debug/mcount.S )
-	set (PSP_MAIN_FILES SysPSP/main.cpp)
 
 	if (PSP)
 		add_definitions(-DDAEDALUS_PSP)
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include .)
+		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/Source/SysPSP/Include .)
 		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu -lpspge)
 		set(SDL_LIBS SDL2 SDL2main pspvram psphprm GL pspvfpu )
 	add_executable(daedalus SysPSP/main.cpp)
@@ -127,8 +122,8 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
  
 	create_pbp_file(
     	TARGET daedalus
-    	ICON_PATH ${PROJECT_SOURCE_DIR}/SysPSP/Resources/eboot_icons/icon0.png
-    	BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/SysPSP/Resources/eboot_icons/pic1.png
+    	ICON_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/icon0.png
+    	BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png
     	PREVIEW_PATH NULL
     	TITLE DaedalusX64
     	BUILD_PRX
@@ -159,7 +154,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	if (UNIX)
 	find_package(SDL2 CONFIG REQUIRED)
 		add_definitions(-DDAEDALUS_POSIX -DDAEDALUS_GL)
-		 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPosix/Include . ${PROJECT_SOURCE_DIR}/third_party/imgui ${SDL2_INCLUDE_DIRS})
+		 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/Source/SysPosix/Include . ${PROJECT_SOURCE_DIR}/Source/third_party/imgui ${SDL2_INCLUDE_DIRS})
 
 		add_executable(daedalus SysPosix/main.cpp)
 
@@ -184,7 +179,7 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 		#add_compile_options("/Od")
 		##Windows todo
 		# Pull in modules for glew / SDL2 / ZLib / LibPNG / Minizip
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysW32/Include .)
+		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/Source/SysW32/Include .)
 
 #		add_library(sysGL OBJECT ${SYSGL_BUILD})
 #		target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 Xinput ${OS_LIBS})
@@ -230,4 +225,13 @@ message(${CMAKE_SYSTEM_PROCESSOR} " Detected")
 	add_subdirectory(SysCTR)
 	else(PSP)
 	add_subdirectory(SysPSP)
+
 	endif()
+
+
+	## Install and setup basic directories	
+	set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/..) ## Need to change this to be out of tree
+	install(DIRECTORY DESTINATION DaedalusX64)
+	install(DIRECTORY DESTINATION DaedalusX64/Roms)
+	install(DIRECTORY DESTINATION DaedalusX64/SaveGames)
+	install(DIRECTORY DESTINATION DaedalusX64/SaveStates)

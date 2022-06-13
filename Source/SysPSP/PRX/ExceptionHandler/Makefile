@@ -22,4 +22,3 @@ PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak
 
 all: $(FINAL_TARGET)
-	cp $(FINAL_TARGET) "../../../../DaedalusX64/Plugins"
