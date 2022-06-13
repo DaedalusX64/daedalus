@@ -191,24 +191,24 @@ Matrix4x4 & Matrix4x4::SetRotateZ( float angle )
 
 v3 Matrix4x4::TransformCoord( const v3 & vec ) const
 {
-	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41,
+	return std::move(v3( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32 + m42,
-			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43 );
+			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43 ));
 }
 
 v3 Matrix4x4::TransformNormal( const v3 & vec ) const
 {
-	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31,
+	return std::move(v3( vec.x * m11 + vec.y * m21 + vec.z * m31,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32,
-			   vec.x * m13 + vec.y * m23 + vec.z * m33 );
+			   vec.x * m13 + vec.y * m23 + vec.z * m33 ));
 }
 
 v4 Matrix4x4::Transform( const v4 & vec ) const
 {
-	return v4( vec.x * m11 + vec.y * m21 + vec.z * m31 + vec.w * m41,
+	return std::move(v4( vec.x * m11 + vec.y * m21 + vec.z * m31 + vec.w * m41,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32 + vec.w * m42,
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 + vec.w * m43,
-			   vec.x * m14 + vec.y * m24 + vec.z * m34 + vec.w * m44 );
+			   vec.x * m14 + vec.y * m24 + vec.z * m34 + vec.w * m44 ));
 }
 
 v3 Matrix4x4::Transform( const v3 & vec ) const
@@ -223,7 +223,7 @@ v3 Matrix4x4::Transform( const v3 & vec ) const
 		return v3( trans.x / trans.w, trans.y / trans.w, trans.z / trans.w );
 	}
 
-	return v3(trans.x, trans.y, trans.z);
+	return std::move(v3(trans.x, trans.y, trans.z));
 }
 /*
 Matrix4x4		Matrix4x4::Transpose() const

@@ -12,12 +12,12 @@ public:
 
 	v3 operator+( const v3 & v ) const
 	{
-		return v3( x + v.x, y + v.y, z + v.z );
+		return std::move(v3( x + v.x, y + v.y, z + v.z ));
 	}
 
 	v3 operator-( const v3 & v ) const
 	{
-		return v3( x - v.x, y - v.y, z - v.z );
+		return std::move(v3( x - v.x, y - v.y, z - v.z ));
 	}
 
 	v3 operator+() const
@@ -27,23 +27,23 @@ public:
 
 	v3 operator-() const
 	{
-		return v3( -x, -y, -z );
+		return std::move(v3( -x, -y, -z ));
 	}
 
 	v3 operator*( float s ) const
 	{
-		return v3( x * s, y * s, z * s );
+		return std::move(v3( x * s, y * s, z * s ));
 	}
 
 	inline friend v3 operator*( float s, const v3 & v )
 	{
-		return v3( v.x * s, v.y * s, v.z * s );
+		return std::move(v3( v.x * s, v.y * s, v.z * s ));
 	}
 
 	v3 operator/( float s ) const
 	{
 		float r( 1.0f / s );
-		return v3( x * r, y * r, z * r );
+		return std::move(v3( x * r, y * r, z * r ));
 	}
 
 	const v3 & operator+=( const v3 & rhs )
@@ -83,12 +83,12 @@ public:
 
 	float Length() const
 	{
-		return sqrtf( (x*x)+(y*y)+(z*z) );
+		return std::move(sqrtf( (x*x)+(y*y)+(z*z) ));
 	}
 
 	float LengthSq() const
 	{
-		return (x*x)+(y*y)+(z*z);
+		return std::move((x*x)+(y*y)+(z*z));
 	}
 
 	float MinComponent() const
@@ -109,7 +109,7 @@ public:
 
 	float Dot( const v3 & rhs ) const
 	{
-		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z);
+		return std::move((x*rhs.x) + (y*rhs.y) + (z*rhs.z));
 	}
 
 	float x, y, z;

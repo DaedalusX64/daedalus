@@ -26,36 +26,36 @@ public:
 			z *= r;
 			w *= r;
 		}
-		return len_sq;
+		return std::move(len_sq);
 	}
 
 	v4 operator+( const v4 & v ) const
 	{
-		return v4( x + v.x, y + v.y, z + v.z, w + v.w );
+		return std::move(v4( x + v.x, y + v.y, z + v.z, w + v.w ));
 	}
 	v4 operator-( const v4 & v ) const
 	{
-		return v4( x - v.x, y - v.y, z - v.z, w - v.w );
+		return std::move(v4( x - v.x, y - v.y, z - v.z, w - v.w ));
 	}
 
 	v4 operator*( float s ) const
 	{
-		return v4( x * s, y * s, z * s, w * s );
+		return std::move(v4( x * s, y * s, z * s, w * s ));
 	}
 
 	float Length() const
 	{
-		return sqrtf( (x*x)+(y*y)+(z*z)+(w*w) );
+		return std::move(sqrtf( (x*x)+(y*y)+(z*z)+(w*w) ));
 	}
 
 	float LengthSq() const
 	{
-		return (x*x)+(y*y)+(z*z)+(w*w);
+		return std::move((x*x)+(y*y)+(z*z)+(w*w));
 	}
 
 	float Dot( const v4 & rhs ) const
 	{
-		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z) + (w*rhs.w);
+		return std::move((x*rhs.x) + (y*rhs.y) + (z*rhs.z) + (w*rhs.w));
 	}
 
 	float x, y, z, w;

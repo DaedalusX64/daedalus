@@ -6,6 +6,7 @@
 #include "Vector3.h"
 class v4;
 
+
 ALIGNED_TYPE(class, Matrix4x4, 16)
 {
 	public:
@@ -55,7 +56,7 @@ ALIGNED_TYPE(class, Matrix4x4, 16)
 				float	m31, m32, m33, m34;
 				float	m41, m42, m43, m44;
 			};
-
+			// std::array<float, std::array< float, 4> 4> m;
 			float	m[ 4 ][ 4 ];
 			float	mRaw[ 16 ];
 		};
