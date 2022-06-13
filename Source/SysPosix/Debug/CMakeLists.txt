@@ -3,4 +3,4 @@ add_library(Posix_Debug OBJECT
                             DebugConsolePosix.cpp 
                             WebDebug.cpp 
                             WebDebugTemplate.cpp 
-                            ${PROJECT_SOURCE_DIR}/third_party/webby/webby.c)
+                            ${PROJECT_SOURCE_DIR}/Source/third_party/webby/webby.c)
