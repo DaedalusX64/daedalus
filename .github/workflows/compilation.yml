@@ -30,14 +30,14 @@ jobs:
     - name: Prepare artifacts
       run: |
         tar -zcvf daedalusX64-PSP.tar.gz \
-          DaedalusX64/Plugins \
-          DaedalusX64/EBOOT.PBP \
-          DaedalusX64/roms.ini \
-          DaedalusX64/readme.txt \
-          DaedalusX64/copying.txt \
-          DaedalusX64/Resources \
-          DaedalusX64/Languages \
-          DaedalusX64/ControllerConfigs \
+          daedalus/DaedalusX64/Plugins \
+          daedalus/DaedalusX64/EBOOT.PBP \
+          daedalus/DaedalusX64/roms.ini \
+          daedalus/DaedalusX64/readme.txt \
+          daedalus/DaedalusX64/copying.txt \
+          daedalus/DaedalusX64/Resources \
+          daedalus/DaedalusX64/Languages \
+          daedalus/DaedalusX64/ControllerConfigs \
 
 
     - name: Upload artifacts
@@ -94,11 +94,11 @@ jobs:
     - name: Prepare artifacts
       run: |
         tar -zcvf daedalusX64-linux.tar.gz \
-          DaedalusX64/daedalus \
-          DaedalusX64/n64.psh \
-          DaedalusX64/roms.ini \
-          DaedalusX64/readme.txt \
-          DaedalusX64/copying.txt \
+          daedalus/DaedalusX64/daedalus \
+          daedalus/DaedalusX64/n64.psh \
+          daedalus/DaedalusX64/roms.ini \
+          daedalus/DaedalusX64/readme.txt \
+         daedalus/ DaedalusX64/copying.txt \
 #          DaedalusX64/Resources \ # Not used in Posix Buiilds
 #          DaedalusX64/Languages \ # Not used in Posix Builds
 #           DaedalusX64/ControllerConfigs \ # Not used in Posix Builds
@@ -160,11 +160,11 @@ jobs:
     - name: Prepare artifacts
       run: |
         tar -zcvf daedalusX64-macos-x86.tar.gz \
-          DaedalusX64/daedalus \
-          DaedalusX64/n64.psh \
-          DaedalusX64/roms.ini \
-          DaedalusX64/readme.txt \
-          DaedalusX64/copying.txt \
+          daedalus/DaedalusX64/daedalus \
+          daedalus/DaedalusX64/n64.psh \
+         daedalus/DaedalusX64/roms.ini \
+         daedalus/DaedalusX64/readme.txt \
+         daedalus/DaedalusX64/copying.txt \
 #          DaedalusX64/Resources \ # Not used in Posix Buiilds
 #          DaedalusX64/Languages \ # Not used in Posix Builds
 #           DaedalusX64/ControllerConfigs \ # Not used in Posix Builds
