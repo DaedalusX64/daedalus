@@ -39,8 +39,8 @@ static void MP3ADDY(AudioHLECommand command) {
   //	setaddr = (command.cmd1 & 0xffffff);
 }
 
-// AudioHLEInstruction ABI3[0x20] =
-std::array<AudioHLEInstruction, 0x20> ABI3 = {
+AudioHLEInstruction ABI3[0x20] = {
+// std::array<AudioHLEInstruction, 0x20> ABI3 = {
     DISABLE,   ADPCM3,      CLEARBUFF3, ENVMIXER3, LOADBUFF3, RESAMPLE3,
     SAVEBUFF3, MP3,         MP3ADDY,    SETVOL3,   DMEMMOVE3, LOADADPCM3,
     MIXER3,    INTERLEAVE3, WHATISTHIS, SETLOOP3,  SPNOOP,    SPNOOP,

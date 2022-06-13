@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 #include "BuildOptions.h"
+// #include 
 
 #include <string.h>
 
@@ -37,8 +38,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 bool isMKABI = false;
 bool isZeldaABI = false;
 
-// AudioHLEInstruction ABI2[0x20] =
-std::array<AudioHLEInstruction, 0x20> ABI2 = {
+AudioHLEInstruction ABI2[0x20] = {
+// std::array<AudioHLEInstruction, 0x20> ABI2 = {
     SPNOOP,    ADPCM2,      CLEARBUFF2, UNKNOWN,    ADDMIXER,  RESAMPLE2,
     UNKNOWN,   SEGMENT2,    SETBUFF2,   DUPLICATE2, DMEMMOVE2, LOADADPCM2,
     MIXER2,    INTERLEAVE2, HILOGAIN,   SETLOOP2,   SPNOOP,    DEINTERLEAVE2,

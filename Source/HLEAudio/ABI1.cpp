@@ -31,8 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
 
-// AudioHLEInstruction ABI1[0x20] =
-std::array<AudioHLEInstruction, 0x20> ABI1 = {
+AudioHLEInstruction ABI1[0x20] = {
+// std::array<AudioHLEInstruction, 0x20> ABI1 = {
     SPNOOP,  ADPCM,   CLEARBUFF, ENVMIXER, LOADBUFF,  RESAMPLE, SAVEBUFF,
     UNKNOWN, SETBUFF, SETVOL,    DMEMMOVE, LOADADPCM, MIXER,    INTERLEAVE,
     UNKNOWN, SETLOOP, SPNOOP,    SPNOOP,   SPNOOP,    SPNOOP,   SPNOOP,
