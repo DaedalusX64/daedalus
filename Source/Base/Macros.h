@@ -6,7 +6,7 @@
 #ifdef _MSC_VER
 #define DAEDALUS_FORCEINLINE __forceinline
 #else
-#define DAEDALUS_FORCEINLINE inline __attribute__((always_inline))
+#define DAEDALUS_FORCEINLINE inline
 #endif
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
