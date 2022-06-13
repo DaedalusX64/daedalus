@@ -30,14 +30,14 @@ jobs:
     - name: Prepare artifacts
       run: |
         tar -zcvf daedalusX64-PSP.tar.gz \
-          $HOME/daedalus/daedalus/X64/Plugins \
-          $HOME/daedalus/daedalus//DaedalusX64/EBOOT.PBP \
-          $HOME/daedalus/daedalus//DaedalusX64/roms.ini \
-          $HOME/daedalus/daedalus//DaedalusX64/readme.txt \
-          $HOME/daedalus/daedalus//DaedalusX64/copying.txt \
-          $HOME/daedalus/daedalus//DaedalusX64/Resources \
-          $HOME/daedalus/daedalus//DaedalusX64/Languages \
-          $HOME/daedalus/daedalus//DaedalusX64/ControllerConfigs \
+          $HOME/daedalus/X64/Plugins \
+          $HOME/daedalus//DaedalusX64/EBOOT.PBP \
+          $HOME/daedalus//DaedalusX64/roms.ini \
+          $HOME/daedalus//DaedalusX64/readme.txt \
+          $HOME/daedalus//DaedalusX64/copying.txt \
+          $HOME/daedalus//DaedalusX64/Resources \
+          $HOME/daedalus//DaedalusX64/Languages \
+          $HOME/daedalus//DaedalusX64/ControllerConfigs \
 
 
     - name: Upload artifacts
@@ -94,11 +94,11 @@ jobs:
     - name: Prepare artifacts
       run: |
         tar -zcvf daedalusX64-linux.tar.gz \
-          $HOME/daedalus/daedalus/DaedalusX64/daedalus \
-          $HOME/daedalus/daedalus/DaedalusX64/n64.psh \
-          $HOME/daedalus/daedalus/DaedalusX64/roms.ini \
-          $HOME/daedalus/daedalus/DaedalusX64/readme.txt \
-         $HOME/daedalus/daedalus/DaedalusX64/copying.txt \
+          $HOME/daedalus/DaedalusX64/daedalus \
+          $HOME/daedalus/DaedalusX64/n64.psh \
+          $HOME/daedalus/DaedalusX64/roms.ini \
+          $HOME/daedalus/DaedalusX64/readme.txt \
+         $HOME/daedalus/DaedalusX64/copying.txt \
 #          DaedalusX64/Resources \ # Not used in Posix Buiilds
 #          DaedalusX64/Languages \ # Not used in Posix Builds
 #           DaedalusX64/ControllerConfigs \ # Not used in Posix Builds
@@ -160,11 +160,11 @@ jobs:
     - name: Prepare artifacts
       run: |
         tar -zcvf daedalusX64-macos-x86.tar.gz \
-          $HOME/daedalus/daedalus/DaedalusX64/daedalus \
-          $HOME/daedalus/daedalus/DaedalusX64/n64.psh \
-         $HOME/daedalus/daedalus/DaedalusX64/roms.ini \
-         $HOME/daedalus/daedalus/DaedalusX64/readme.txt \
-         $HOME/daedalus/daedalus/DaedalusX64/copying.txt \
+          $HOME/daedalus/DaedalusX64/daedalus \
+          $HOME/daedalus/DaedalusX64/n64.psh \
+         $HOME/daedalus/DaedalusX64/roms.ini \
+         $HOME/daedalus/DaedalusX64/readme.txt \
+         $HOME/daedalus/DaedalusX64/copying.txt \
 #          DaedalusX64/Resources \ # Not used in Posix Buiilds
 #          DaedalusX64/Languages \ # Not used in Posix Builds
 #           DaedalusX64/ControllerConfigs \ # Not used in Posix Builds

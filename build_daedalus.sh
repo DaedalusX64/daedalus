@@ -30,4 +30,4 @@ esac
 
     cmake $TOOLCHAIN $CMAKEDEFINES -S . -B build 
     cmake --build build -j${PROC_NR}
-    cmake --install build --prefix .
+    cmake --install build --prefix $PWD

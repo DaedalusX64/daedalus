@@ -229,8 +229,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	endif()
 
 
-	## Install and setup basic directories	
-	set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/..) ## Need to change this to be out of tree
+	## Install and setup basic directories
 	install(DIRECTORY DESTINATION DaedalusX64)
 	install(DIRECTORY DESTINATION DaedalusX64/Roms)
 	install(DIRECTORY DESTINATION DaedalusX64/SaveGames)
