@@ -1,7 +1,7 @@
     
     
-    ## This will need to be fixed up for 3DS and Vita Ports
-    if (APPLE)
+    ## This will need to be fixed for all platforms for proper detection
+    if (UNIX)
     # set(BACKEND ${PROJECT_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_SDL.mm) ?
     set(BACKEND ${PROJECT_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_opengl3.cpp)
     elseif(CTR)
