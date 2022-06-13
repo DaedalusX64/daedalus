@@ -21,7 +21,7 @@ function finalPrep() {
 }
 
 function psp_plugins() {
- mkdir -p $PWD/DaedalusX64/Plugins
+ mkdir -p "$PWD/DaedalusX64/Plugins"
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/DveMgr" || { exit 1; }
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/ExceptionHandler" || { exit 1; }
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/KernelButtons" || { exit 1; }
