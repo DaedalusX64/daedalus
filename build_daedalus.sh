@@ -21,7 +21,6 @@ function finalPrep() {
 }
 
 function psp_plugins() {
- mkdir -p "$PWD/DaedalusX64/Plugins"
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/DveMgr" || { exit 1; }
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/ExceptionHandler" || { exit 1; }
   make --quiet -j $PROC_NR -C "$PWD/../Source/SysPSP/PRX/KernelButtons" || { exit 1; }
@@ -46,6 +45,7 @@ fi
 
 case "$1" in
     PSP)
+    mkdir -p "$PWD/DaedalusX64/Plugins"
     psp_plugins
     cmake -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake $CMAKEDEFINES ../Source
     build

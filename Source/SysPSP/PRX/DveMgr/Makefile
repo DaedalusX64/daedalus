@@ -29,4 +29,4 @@ pspDveManager_driver.S : $(PRX_EXPORTS)
 	psp-build-exports --build-stubs $(PRX_EXPORTS)
 
 all: $(FINAL_TARGET) pspDveManager.S pspDveManager_driver.S
-	cp $(FINAL_TARGET) "../../../../DaedalusX64/Plugins"
+	cp $(FINAL_TARGET) "../../../../DaedalusX64/Plugins/"
