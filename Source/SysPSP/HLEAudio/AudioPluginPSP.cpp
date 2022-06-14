@@ -61,7 +61,7 @@ volatile me_struct *mei;
 bool InitialiseMediaEngine()
 {
 
-	if( CModule::Load("mediaengine.prx") < 0 )	return false;
+	if( CModule::Load("Plugins/mediaengine.prx") < 0 )	return false;
 
 	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
 	mei = (volatile struct me_struct *)(make_uncached_ptr(mei));
