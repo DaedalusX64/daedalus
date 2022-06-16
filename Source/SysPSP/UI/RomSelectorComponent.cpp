@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/UI/RomSelectorComponent.h"
 #include "SysPSP/UI/UIContext.h"
 #include "SysPSP/UI/UIScreen.h"
-#include "SysPSP/Utility/Buttons.h"
+
 
 #include "System/IO.h"
 #include "Interface/Preferences.h"
@@ -647,7 +647,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			}
 		}
 #ifndef DAEDALUS_PSP_GPROF
-		if(new_buttons & PSP_CTRL_HOME)
+		if(new_buttons & PSP_CTRL_SELECT)
 		{
 			sceKernelExitGame();
 		}

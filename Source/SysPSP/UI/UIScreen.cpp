@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Vector2.h"
 #include "SysPSP/UI/UIContext.h"
 #include "SysPSP/UI/UIScreen.h"
-#include "SysPSP/Utility/Buttons.h"
+
 #include "Utility/Timer.h"
 
 
@@ -45,7 +45,6 @@ void	CUIScreen::Run()
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mpContext != NULL, "No context" );
 	#endif
-	const u32 PSP_BUTTONS_MASK( 0xffff );		// Mask off e.g. PSP_CTRL_HOME, PSP_CTRL_HOLD etc
 
 	SceCtrlData		pad;
 	sceCtrlPeekBufferPositive(&pad, 1);
@@ -59,7 +58,7 @@ void	CUIScreen::Run()
 	{
 		f32		elapsed_time( timer.GetElapsedSeconds() );
 
-		u32 old_buttons = (pad.Buttons & PSP_BUTTONS_MASK);
+		u32 old_buttons = pad.Buttons;
 		sceCtrlPeekBufferPositive(&pad, 1);
 
 		s32		stick_x( pad.Lx - 128 );
@@ -93,7 +92,7 @@ void	CUIScreen::Run()
 	//	Wait until all buttons are release before continuing
 	//  We do this to avoid any undesirable button input after returning to the emulation from pause menu.
 	//
-	while( (pad.Buttons & PSP_BUTTONS_MASK) != 0 )
+	while( (pad.Buttons) != 0 ) // XX Really needed?
 	{
 		sceCtrlPeekBufferPositive(&pad, 1);
 	}

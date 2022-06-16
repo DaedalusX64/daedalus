@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/UI/GlobalSettingsComponent.h"
 #include "SysPSP/UI/PauseOptionsComponent.h"
 #include "SysPSP/UI/PauseScreen.h"
-#include "SysPSP/Utility/Buttons.h"
+
 #include "SysPSP/Utility/Functor.h"
 #include "SysPSP/Utility/Translate.h"
 #include "PSPMenu.h"
@@ -193,7 +193,7 @@ void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons
 {
 	static bool button_released(false);
 
-	if(!(new_buttons & PSP_CTRL_HOME) && button_released)
+	if(!(new_buttons & PSP_CTRL_SELECT) && button_released)
 	{
 		button_released = false;
 		mIsFinished = true;
@@ -211,10 +211,10 @@ void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons
 			mCurrentOption = GetNextValidOption();
 			new_buttons &= ~PSP_CTRL_RTRIGGER;
 		}
-		if(new_buttons & PSP_CTRL_HOME)
+		if(new_buttons & PSP_CTRL_SELECT)
 		{
 			button_released = true;
-			new_buttons &= ~PSP_CTRL_HOME;
+			new_buttons &= ~PSP_CTRL_SELECT;
 		}
 	}
 

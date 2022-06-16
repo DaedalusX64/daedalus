@@ -983,7 +983,7 @@ void IDisplayListDebugger::Run()
 	bool	dump_next_screen( false );
 	bool	dump_texture_dlist( false );
 
-	while( (pad_state.NewButtons & PSP_CTRL_HOME) != 0 || !menu_button_pressed )
+	while( (pad_state.NewButtons & PSP_CTRL_SELECT) != 0 || !menu_button_pressed )
 	{
 		//guSwapBuffersBehaviour( PSP_DISPLAY_SETBUF_IMMEDIATE );
 
