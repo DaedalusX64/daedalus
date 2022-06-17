@@ -15,7 +15,6 @@ install(DIRECTORY DESTINATION DaedalusX64/Plugins)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/PRX/MediaEngine/mediaengine.prx DESTINATION DaedalusX64/Plugins)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/PRX/DveMgr/dvemgr.prx DESTINATION DaedalusX64/Plugins)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}//PRX/ExceptionHandler/exception.prx DESTINATION DaedalusX64/Plugins)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/PRX/KernelButtons/imposectrl.prx DESTINATION DaedalusX64/Plugins)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../EBOOT.PBP DESTINATION DaedalusX64)
 
 #PSP Resources
