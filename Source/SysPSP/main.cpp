@@ -68,8 +68,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/Translate.h"
 #include "Utility/Timer.h"
 
-#include <SDL2/SDL.h>
+
 #include <filesystem>
+
+#ifdef DAEDALUS_SDL
+#include <SDL2/SDL.h>
+#else
+
+PSP_MODULE_INFO( DaedalusX64 1.1.9a, 0, 1, 1 );
+PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
+#endif
 
 extern "C"
 {
@@ -98,8 +106,6 @@ extern int PSP_TV_LACED;
 bool g32bitColorMode = false; // We might be able to ditch this soon. Phat exclusive.
 bool PSP_IS_SLIM = false;
 
-// PSP_MODULE_INFO( DaedalusX64 1.1.9a, 0, 1, 1 );
-// PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 PSP_HEAP_SIZE_KB(-256);
 
 
@@ -110,12 +116,13 @@ static bool	Initialize()
 
 	scePowerSetClockFrequency(333, 333, 166);
 	// InitHomeButton();
-
+	#ifdef DAEDALUS_SDL
 		if( SDL_Init( SDL_INIT_AUDIO ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
+	#endif
 // This Breaks gdb, better disable it in debug build
 //
 #ifdef DAEDALUS_DEBUG_CONSOLE

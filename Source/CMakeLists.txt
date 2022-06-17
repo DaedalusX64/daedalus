@@ -45,6 +45,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF) ## Probably should be a default option. 
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
 
+
 	# Additional Debug Options
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
 	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" OFF)
@@ -55,6 +56,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 	# Additional PSP Options
 	option(DAEDALUS_PSP_GPROF "PSP Profiling, needs Silent enabled" OFF)
+	option(DAEDALUS_SDL "SDL PSP Stuff, Still in testing" OFF)
 
 	## Enable specific options per platform based on Release build ## XXX need to handle GPROF
 
@@ -64,10 +66,13 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	option(DAEDALUS_PSP "PSP specific Options" ON)
 	option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
 	option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
+	option(DAEDALUS_SIM_DOUBLES "Simulate Doubles" ON)
 	elseif(UNIX)
 	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
 	option(DAEDALUS_POSIX "Posix specific options" ON)
 	option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
+	option(DAEDALUS_128BIT_MULT "128 Bit Multiplication, not supported on PSP" ON)
+	option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)")
 	elseif(WIN32)
 	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 	option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
@@ -112,8 +117,12 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		add_definitions(-DDAEDALUS_PSP)
 		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/Source/SysPSP/Include .)
 		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu -lpspge)
+		
+		if (DAEDALUS_SDL)
 		set(SDL_LIBS SDL2 SDL2main pspvram psphprm GL pspvfpu )
-	add_executable(daedalus SysPSP/main.cpp)
+		endif (DAEDALUS_SDL)
+		
+		add_executable(daedalus SysPSP/main.cpp)
 
 	target_link_libraries(daedalus LINK_PUBLIC
 												Debug_PSP DynaRec_PSP Graphics_PSP HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP
