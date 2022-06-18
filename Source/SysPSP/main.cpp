@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspdisplay.h>
 #include <pspgu.h>
 #include <pspge.h>
+#include <pspfpu.h>
 #include <pspkernel.h>
 #include <kubridge.h>
 #include <pspsysmem.h>
@@ -81,8 +82,6 @@ PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 
 extern "C"
 {
-	/* Disable FPU exceptions */
-	void _DisableFPUExceptions();
 
 	/* Video Manager functions */
 	int pspDveMgrCheckVideoOut();
@@ -130,7 +129,7 @@ extern void initExceptionHandler();
 	initExceptionHandler();
 #endif
 
-	_DisableFPUExceptions();
+	pspFpuSetEnable(0); // Disable PFU Exceptions
 	VolatileMemInit();
 
 
