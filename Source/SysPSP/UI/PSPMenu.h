@@ -47,6 +47,15 @@ enum ECategory
   NUM_CATEGORIES,
 };
 
+enum PspModel
+{
+    PSP_MODEL_STANDARD = 0,
+    PSP_MODEL_SLIM_AND_LITE = 1,
+    PSP_MODEL_BRITE = 8,
+    PSP_MODEL_GO = 4,
+    PSP_MODEL_STREET = 10
+};
+
 // Splash Screen
 
 const float	MAX_TIME  {0.8f}; // Rename to something more sane

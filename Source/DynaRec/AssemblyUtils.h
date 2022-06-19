@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 
 #include "Base/Types.h"
+#include "BuildOptions.h"
 
 class CCodeLabel
 {
@@ -60,8 +61,9 @@ public:
 	const u8 *		GetTargetU8P() const		{ return reinterpret_cast< const u8 * >( mpLocation ); }
 	u8 *			GetWritableU8P() const
 	{
-		//Todo: PSP
+		#ifdef DAEDALUS_PSP
 		return reinterpret_cast< u8 * >( make_uncached_ptr(mpLocation) );
+		#endif
 		//Todo: Check this
 		//return reinterpret_cast< u8 * >( mpLocation );
 	}

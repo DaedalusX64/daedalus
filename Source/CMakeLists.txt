@@ -74,8 +74,15 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	option(DAEDALUS_128BIT_MULT "128 Bit Multiplication, not supported on PSP" ON)
 	option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)")
 	elseif(WIN32)
+	option(DAEDALUS_WIN32 "Windows specific Options" ON)
 	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 	option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
+	option(DAEDALUS_BREAKPOINTS_ENABLED "Enable Breakpoints" OFF)
+	elseif(CTR)
+	option(DAEDALUS_CTR "3DS Specific Options" ON)
+	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
+	option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
+
 	endif()
 
 	include(${PROJECT_SOURCE_DIR}/Options.cmake)
@@ -104,18 +111,12 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		add_compile_definitions(DAEDALUS_ZLIB_CALL_TYPE=${})
 	endif()
 
-## These are only defined in the PSP Build
-	if(NOT PSP)
-		add_compile_definitions(DAEDALUS_ATTRIBUTE_PURE=${}) #Does not modify global memory
-		add_compile_definitions(DAEDALUS_ATTRIBUTE_CONST=${}) #Does not read/modify global memory
-	endif()
-
 	#PSP Build
 	set (GPROF_SRCS SysPSP/Debug/prof.c SysPSP/Debug/mcount.S )
 
 	if (PSP)
 		add_definitions(-DDAEDALUS_PSP)
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/Source/SysPSP/Include .)
+		include_directories(BEFORE .)
 		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu -lpspge)
 		
 		if (DAEDALUS_SDL)
@@ -163,7 +164,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	if (UNIX)
 	find_package(SDL2 CONFIG REQUIRED)
 		add_definitions(-DDAEDALUS_POSIX -DDAEDALUS_GL)
-		 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/Source/SysPosix/Include . ${PROJECT_SOURCE_DIR}/Source/third_party/imgui ${SDL2_INCLUDE_DIRS})
+		 include_directories(BEFORE. ${PROJECT_SOURCE_DIR}/Source/third_party/imgui ${SDL2_INCLUDE_DIRS})
 
 		add_executable(daedalus SysPosix/main.cpp)
 
