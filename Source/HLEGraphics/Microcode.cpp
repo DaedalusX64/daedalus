@@ -137,7 +137,7 @@ struct MicrocodeData
 	const char *ucode_name;
 };
 
-static const MicrocodeData gMicrocodeData[] =
+static const std::array<MicrocodeData, 12> gMicrocodeData {
 {
 	//
 	//	The only games that need defining here are custom ucodes or ucodes that lack a version string in the microcode data
@@ -155,7 +155,7 @@ static const MicrocodeData gMicrocodeData[] =
 	{ GBI_BETA,		GBI_0,	0x6cbb521d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Star Wars - Shadows of the Empire (v1.0)"
 	{ GBI_LL,		GBI_1,	0xdd560323,	"RSP Gfx ucode: Unknown"},			//"Toukon Road - Brave Spirits"
 	{ GBI_BETA,		GBI_0,	0x64cc729d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Wave Race 64 (v1.1)"
-};
+}};
 
 UcodeInfo GBIMicrocode_SetCache(u32 index, u32 code_base, u32 data_base, 
 	const MicroCodeInstruction * ucode_function, const char ** name )
@@ -203,7 +203,7 @@ UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_bas
 	//
 	u32 code_hash = GBIMicrocode_MicrocodeHash( code_base, code_size );
 
-	for ( u32 i = 0; i < ARRAYSIZE(gMicrocodeData); i++ )
+	for ( u32 i = 0; i < gMicrocodeData.size(); i++ )
 	{
 		if ( code_hash == gMicrocodeData[i].hash )
 		{

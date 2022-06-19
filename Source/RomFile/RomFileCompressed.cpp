@@ -87,7 +87,7 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 		do
 		{
 			err = unzGetCurrentFileInfo(mZipFile, &file_info,
-										rom_filename, ARRAYSIZE(rom_filename),
+										rom_filename, rom_filename.size(),
 										NULL, 0,
 										NULL, 0);
 			if (err != UNZ_OK)
