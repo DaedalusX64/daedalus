@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "Utility/FastMemcpy.h"
 #include "System/Endian.h"
-#include "Base/Alignment.h"
+
 
 #include <gtest/gtest.h>
 
@@ -23,12 +23,10 @@ protected:
 	memset(mDst, 0, sizeof(mDst));
 	memset(mExpected, 0, sizeof(mExpected));
 
-
 	}
-
-	ALIGNED_MEMBER(u8, mSrc[64], 64);
-	ALIGNED_MEMBER(u8, mDst[64], 64);
-	ALIGNED_MEMBER(u8, mExpected[64], 64);
+	u8 alignas(CACHE_ALIGN) mSrc[64];
+	u8 alignas(CACHE_ALIGN) mDst[64];
+	u8 alignas(CACHE_ALIGN) mExpected[64];
 };
 
 static void memcpy_byteswap_reference( void * dst, u32 dst_off, const void * src, u32 src_off, size_t size )

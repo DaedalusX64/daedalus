@@ -18,9 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "BuildOptions.h"
+#include "Base/Macros.h"
 #include "Base/Types.h"
-
-
 
 #include "Core/Memory.h"
 #include "Core/ROM.h"
@@ -31,8 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/uCodes/UcodeDefs.h"
 #include "Base/MathUtil.h"
 #include "Ultra/ultra_gbi.h"
-#include "Base/Alignment.h"
-#include "Base/Macros.h"
+
 
 extern SImageDescriptor g_TI;		//Texture data from Timg ucode
 
@@ -51,7 +49,7 @@ u32 gTlutLoadAddresses[ MAX_TMEM_ADDRESS >> 6 ];
 
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-ALIGNED_GLOBAL(u8, gTMEM[ MAX_TMEM_ADDRESS ], 16);	// 4Kb
+u8 alignas(DATA_ALIGN) gTMEM[ MAX_TMEM_ADDRESS ];
 #endif
 
 

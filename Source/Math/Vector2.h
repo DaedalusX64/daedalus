@@ -2,7 +2,7 @@
 #define MATH_VECTOR2_H_
 
 #include "Math/Math.h"	// VFPU Math
-#include "Base/Alignment.h"
+
 
 class v2
 {

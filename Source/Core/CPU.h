@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CORE_CPU_H_
 
 #include <stdlib.h>
-
+#include <stdalign.h>
 #include "Core/Memory.h"
 #include "Core/R4300Instruction.h"
 #include "Core/R4300OpCode.h"
@@ -105,7 +105,7 @@ using register_32x32 = std::array<REG32,32>;
 #ifdef USE_SCRATCH_PAD
 struct SCPUState
 #else
-ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
+struct alignas(CACHE_ALIGN) SCPUState
 #endif
 {
 	register_32x64	CPU;				// 0x000 .. 0x100
@@ -147,7 +147,8 @@ ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 extern SCPUState *gPtrCPUState;
 #define gCPUState (*gPtrCPUState)
 #else	//USE_SCRATCH_PAD
-ALIGNED_EXTERN(SCPUState, gCPUState, CACHE_ALIGN);
+extern struct SCPUState gCPUState;
+// ALIGNED_EXTERN(SCPUState, gCPUState, CACHE_ALIGN);
 #endif //USE_SCRATCH_PAD
 
 #define gGPR (gCPUState.CPU)

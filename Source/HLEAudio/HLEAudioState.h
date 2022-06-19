@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEAUDIO_AUDIOHLEPROCESSOR_H_
 #define HLEAUDIO_AUDIOHLEPROCESSOR_H_
 
-#include "Base/Alignment.h"
+
 #include "Base/Types.h"
 
 struct AudioHLEState {
@@ -62,7 +62,8 @@ private:
   void ExtractSamples(s32 *output, u32 inPtr) const;
 
 public:
-  ALIGNED_TYPE(u8, Buffer[0x10000],16); // Seems excesively large? 0x1000 should be enough, but will
+  u8 Buffer[0x10000];
+  // ALIGNED_TYPE(u8, Buffer[0x10000],16); // Seems excesively large? 0x1000 should be enough, but will
                     // require to make many changes, ex update the bitfields
   std::array<u16, 0x88> ADPCMTable;
   // u16 ADPCMTable[0x88];

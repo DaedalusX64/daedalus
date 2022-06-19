@@ -126,7 +126,7 @@ struct FiddledVtx
 };
 DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtx) == 16 );
 
-ALIGNED_TYPE(struct, DaedalusLight, 16)
+struct alignas(DATA_ALIGN) DaedalusLight
 {
 	v3		Direction;		// w component is ignored. Should be normalised
 	u32		SkipIfZero;		// Used by CBFD & MM
@@ -182,7 +182,8 @@ struct TnLMode
 	};
 };
 
-ALIGNED_TYPE(struct, TnLParams, 16)
+struct alignas(DATA_ALIGN) TnLParams
+// ALIGNED_TYPE(struct, TnLParams, 16)
 {
 	TnLMode			Flags;			//TnL flags
 	u32				NumLights;		//Number of lights

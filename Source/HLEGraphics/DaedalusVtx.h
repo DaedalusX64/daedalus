@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 // The ordering of these elements is required for the VectorTnL code.
-ALIGNED_TYPE(struct, DaedalusVtx4, 16)
+struct alignas(DATA_ALIGN) DaedalusVtx4
 {
     v4	TransformedPos;
     v4	ProjectedPos;

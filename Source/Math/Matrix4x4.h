@@ -1,13 +1,12 @@
 #ifndef MATH_MATRIX4X4_H_
 #define MATH_MATRIX4X4_H_
 
-#include "Base/Alignment.h"
+
 
 #include "Vector3.h"
 class v4;
 
-
-ALIGNED_TYPE(class, Matrix4x4, 16)
+class alignas(DATA_ALIGN) Matrix4x4
 {
 	public:
 

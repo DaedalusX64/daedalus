@@ -9,7 +9,6 @@
 #include "HLEGraphics/TextureInfo.h"
 #include "Graphics/NativePixelFormat.h"
 #include "System/Endian.h"
-#include "Base/Alignment.h"
 
 #include <vector>
 
@@ -33,7 +32,7 @@ struct TileDestInfo
 	//NativePf8888 *		Palette;
 };
 
-ALIGNED_EXTERN(u8, gTMEM[4096], 16);
+extern u8 alignas(DATA_ALIGN) gTMEM[4096];
 
 
 static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)

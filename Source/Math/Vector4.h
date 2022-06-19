@@ -2,10 +2,10 @@
 #define MATH_VECTOR4_H_
 
 #include "Math/Math.h"	// VFPU Math
-#include "Base/Alignment.h"
+
 #include "Base/Types.h"
 
-ALIGNED_TYPE(class, v4, 16)
+class alignas(DATA_ALIGN) v4
 {
 public:
 	v4() {}

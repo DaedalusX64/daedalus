@@ -156,8 +156,8 @@ inline f32 roundf(f32 x)			{ return floorf(x + 0.5f); }
 
 inline void sincosf(float x, float * s, float * c)
 {
-	*s = pspFpuSin(x);
-	*c = pspFpuCos(x);
+	*s = sinf(x);
+	*c = cosf(x);
 }
 
 inline float InvSqrt(float x)

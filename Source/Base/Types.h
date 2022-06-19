@@ -113,4 +113,9 @@ union REG32
 
 DAEDALUS_STATIC_ASSERT( sizeof( REG32 ) == sizeof( u32 ) );
 
+
+// Alignment Size Specifiers
+#define DATA_ALIGN	16
+#define CACHE_ALIGN	64
+
 #endif // UTILITY_DAEDALUSTYPES_H_

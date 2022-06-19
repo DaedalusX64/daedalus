@@ -97,7 +97,7 @@ static u32			VI_INTR_CYCLES(kInitialVIInterruptCycles);
 #ifdef USE_SCRATCH_PAD
 SCPUState *gPtrCPUState = (SCPUState*)0x10000;
 #else
-ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
+struct SCPUState gCPUState;
 #endif
 
 static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
