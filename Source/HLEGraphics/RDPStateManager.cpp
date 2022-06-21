@@ -49,7 +49,7 @@ u32 gTlutLoadAddresses[ MAX_TMEM_ADDRESS >> 6 ];
 
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-u8 alignas(DATA_ALIGN) gTMEM[ MAX_TMEM_ADDRESS ];
+u8 gTMEM[ MAX_TMEM_ADDRESS ];
 #endif
 
 

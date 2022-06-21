@@ -32,7 +32,7 @@ struct TileDestInfo
 	//NativePf8888 *		Palette;
 };
 
-extern u8 alignas(DATA_ALIGN) gTMEM[4096];
+extern u8 gTMEM[4096];
 
 
 static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)

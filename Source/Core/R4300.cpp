@@ -40,7 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SIM_DOUBLES
 #else
 #include <float.h>
-#define DAEDALUS_128BIT_MULT // On PSP we only handle 64bit mults for performance
 #endif
 
 #ifdef DAEDALUS_POSIX
