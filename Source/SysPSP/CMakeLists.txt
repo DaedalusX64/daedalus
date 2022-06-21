@@ -9,6 +9,16 @@ add_subdirectory(UI)
 add_subdirectory(Utility)
 
 
+## Build EBoot 
+
+create_pbp_file(
+    TARGET daedalus
+    ICON_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/icon0.png
+    BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png
+    PREVIEW_PATH NULL
+    TITLE DaedalusX64
+    BUILD_PRX
+            )
 # Create and install Plugin files
 
 install(DIRECTORY DESTINATION DaedalusX64/Plugins) 

@@ -1,7 +1,16 @@
+# DaedalusX64 CMake Build File 
+# Created and Maintained by Wally 
+# Yes right now this is a mess, hoping to simplify things further in future but please deal with it for now :)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
 
-#Build Type
+# Below is related to Macros within the project, a lot of these could be deprecated and deleted.
+# For now they will remain here so they're visible and can be switched on and off as desired.
+
+include(${PROJECT_SOURCE_DIR}/Options.cmake)
+
+## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 	if(DEBUG)
 		set(CMAKE_BUILD_TYPE Debug)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
@@ -19,8 +28,8 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		add_compile_definitions(O3)
 	endif()
 
-	##Determine Dynarec compatibility and link in appropriate Dynarec
-	##Todo Move all relevant Dyanrecs to the Dynarec/arch folder and enable here when correct platform is detected
+	#Determine Dynarec compatibility and link in appropriate Dynarec
+	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
 	if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" )
 		option(DAEDALUS_ENABLE_DYNAREC  "Enable Dynarec" OFF)
 		message("No Dynarec on arm64 yet")
@@ -37,6 +46,8 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 		endif()
 
+	# Options below are general macros found within the project, as per earlier, a lot of these may
+	# disappear in future as we progress and strip them from the binary if not needed.
 
 	# General options
 
@@ -59,6 +70,9 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	option(DAEDALUS_SDL "SDL PSP Stuff, Still in testing" OFF)
 
 	## Enable specific options per platform based on Release build ## XXX need to handle GPROF
+	# Handle specific options (These were all found in platforms.h and now belong here)
+	# PSP / Vita / CTR options are required as non-linux embedded platforms are not able to be reliably detected.
+	# Windows, Linux and macOS builds are auto detected.
 
 	if(PSP) 
 	option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
@@ -84,10 +98,9 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
 
 	endif()
-
-	include(${PROJECT_SOURCE_DIR}/Options.cmake)
 	
-	#Endianness Check
+	#Check the Endian of the host platform and apply endian rules. 
+	# Big Endian does not work at the moment and there's some investigation going to happen soon
 	set(DAEDALUS_ENDIAN_LITTLE 1)
 	set(DAEDALUS_ENDIAN_BIG 2)
 
@@ -103,7 +116,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	endif()
 
 
-	## These build options are required so we define as nothing until needed
+	## Generic defines for certain things that Windows requires.
 	if(NOT WIN32)
 		add_compile_definitions(R4300_CALL_TYPE=${})
 		add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
@@ -111,14 +124,19 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		add_compile_definitions(DAEDALUS_ZLIB_CALL_TYPE=${})
 	endif()
 
-	#PSP Build
-	set (GPROF_SRCS SysPSP/Debug/prof.c SysPSP/Debug/mcount.S )
+	# Include the base directory first as BuildOptions.h contains some function Macros
+	# As of writing CMake does not yet support function Macros
+
+	include_directories(BEFORE .)
+
+	# Linker and executable targets are here
+	# I'm assuming we'll be able to simplfiy this a lot more in future as a lot of the things here are common
+	# between Operating Systems.
 
 	if (PSP)
-		add_definitions(-DDAEDALUS_PSP)
-		include_directories(BEFORE .)
-		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge -lpspaudiolib -lpspaudio -lintrafont -lpspkubridge -lpspfpu -lpspge)
-		
+		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge pspaudiolib pspaudio intrafont pspkubridge pspfpu pspge)
+		set (GPROF_SRCS SysPSP/Debug/prof.c SysPSP/Debug/mcount.S )
+
 		if (DAEDALUS_SDL)
 		set(SDL_LIBS SDL2 SDL2main pspvram psphprm GL pspvfpu )
 		endif (DAEDALUS_SDL)
@@ -129,19 +147,9 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 												Debug_PSP DynaRec_PSP Graphics_PSP HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP
 												Core Config Debug DynaRec Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility
 												stdc++ png z c g m pthread ${SDL_LIBS}  ${PLAT_LIBS}  )
- 
-	create_pbp_file(
-    	TARGET daedalus
-    	ICON_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/icon0.png
-    	BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png
-    	PREVIEW_PATH NULL
-    	TITLE DaedalusX64
-    	BUILD_PRX
-				)
  	endif (PSP)
 
 	if (UNIX AND NOT APPLE)
-		add_definitions(-DDAEDALUS_LINUX) ## Still required?
 		## Assume Linux uses X11 for now
 		set (OS_LIBS X11 GL)
 		set (AUDIO_DRIVER ${LINUX_AUDIO})
@@ -164,7 +172,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	if (UNIX)
 	find_package(SDL2 CONFIG REQUIRED)
 		add_definitions(-DDAEDALUS_POSIX -DDAEDALUS_GL)
-		 include_directories(BEFORE. ${PROJECT_SOURCE_DIR}/Source/third_party/imgui ${SDL2_INCLUDE_DIRS})
+		 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/Source/third_party/imgui ${SDL2_INCLUDE_DIRS})
 
 		add_executable(daedalus SysPosix/main.cpp)
 
