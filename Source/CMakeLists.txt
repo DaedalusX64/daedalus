@@ -215,7 +215,7 @@ if(WIN32)
 	target_link_libraries(daedalus LINK_PUBLIC	
 										   Core Config Debug  Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility 
 										   Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui
-										   Win_Debug Win_Audio Win_Utility X86_Dynarec
+										   Win_Debug Win_Audio Win_Utility X86_Dynarec)
 	endif (WIN32)
 
 		# Build command
