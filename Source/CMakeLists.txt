@@ -9,7 +9,6 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 # For now they will remain here so they're visible and can be switched on and off as desired.
 
 
-
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 	if(DEBUG)
 		set(CMAKE_BUILD_TYPE Debug)
@@ -35,16 +34,19 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		message("No Dynarec on arm64 yet")
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "mips" )
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
+		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 		## X86 Dynarec Code needs to be moved from W32 emulator
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
+		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
 		add_subdirectory(DynaRec/ARM)
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 		endif()
+		
 
 	# Options below are general macros found within the project, as per earlier, a lot of these may
 	# disappear in future as we progress and strip them from the binary if not needed.
@@ -76,27 +78,27 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	# The below options file
 
 	if(PSP) 
-	option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
-	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
-	option(DAEDALUS_PSP "PSP specific Options" ON)
-	option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
-	option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
-	option(DAEDALUS_SIM_DOUBLES "Simulate Doubles" ON)
+		option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
+		option(DAEDALUS_PSP "PSP specific Options" ON)
+		option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
+		option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
+		option(DAEDALUS_SIM_DOUBLES "Simulate Doubles" ON)
 	elseif(UNIX)
-	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
-	option(DAEDALUS_POSIX "Posix specific options" ON)
-	option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
-	option(DAEDALUS_128BIT_MULT "128 Bit Multiplication, not supported on PSP" ON)
-	option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)")
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
+		option(DAEDALUS_POSIX "Posix specific options" ON)
+		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
+		option(DAEDALUS_128BIT_MULT "128 Bit Multiplication, not supported on PSP" ON)
+		option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)")
 	elseif(WIN32)
-	option(DAEDALUS_WIN32 "Windows specific Options" ON)
-	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
-	option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
-	option(DAEDALUS_BREAKPOINTS_ENABLED "Enable Breakpoints" OFF)
+		option(DAEDALUS_WIN32 "Windows specific Options" ON)
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
+		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
+		option(DAEDALUS_BREAKPOINTS_ENABLED "Enable Breakpoints" OFF)
 	elseif(CTR)
-	option(DAEDALUS_CTR "3DS Specific Options" ON)
-	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
-	option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
+		option(DAEDALUS_CTR "3DS Specific Options" ON)
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
+		option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
 
 	endif()
 
@@ -137,23 +139,19 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	# I'm assuming we'll be able to simplfiy this a lot more in future as a lot of the things here are common
 	# between Operating Systems.
 
-	if (PSP)
-	# add_definitions(-DDAEDALUS_PSP) # why on earth is this needed here when we define in options? Check later
-		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge pspaudiolib pspaudio intrafont pspkubridge pspfpu pspge)
-		set (GPROF_SRCS SysPSP/Debug/prof.c SysPSP/Debug/mcount.S )
+		
 
-		if (DAEDALUS_SDL)
+	if (PSP)
+		set(PLAT_EXTRA Graphics_Plat Input_Plat UI_Plat Plugins_Plat UI_Plat )
+		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge pspaudiolib pspaudio intrafont pspkubridge pspfpu pspge ${SDL_LIBS})
+	
+	if (DAEDALUS_SDL)
 		set(SDL_LIBS SDL2 SDL2main pspvram psphprm GL pspvfpu )
-		endif (DAEDALUS_SDL)
+	endif (DAEDALUS_SDL)
 		
 		add_executable(daedalus SysPSP/main.cpp)
 
-	target_link_libraries(daedalus LINK_PUBLIC
-												Debug_PSP DynaRec_PSP Graphics_PSP HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP
-												Core Config Debug DynaRec Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility
-												stdc++ png z c g m pthread ${SDL_LIBS}  ${PLAT_LIBS}  )
-
-	#Generate EBoot
+	#Generate Eboot, This might be better to do in the .sh file given the complexity it adds
 		create_pbp_file(
 		TARGET daedalus
 		ICON_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/icon0.png
@@ -164,71 +162,68 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 					)
  	endif (PSP)
 
-	if (UNIX AND NOT APPLE)
-		## Assume Linux uses X11 for now
-		set (OS_LIBS X11 GL)
-		set (AUDIO_DRIVER ${LINUX_AUDIO})
-	endif (UNIX AND NOT APPLE)
-
 	if (APPLE)
-		set (OS_LIBS "-framework OpenGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")
-		set (AUDIO_DRIVER ${MAC_AUDIO})
-
+		set (PLAT_LIBS "-framework OpenGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")
 		## Homebrew uses a separate path on Apple Silicon
 		if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" ) 
-		include_directories(/opt/homebrew/include) 
-		link_directories(/opt/homebrew/lib)
+			include_directories(/opt/homebrew/include) 
+			link_directories(/opt/homebrew/lib)
 		else()
-		include_directories(/usr/local/include)
-		link_directories(/usr/local/lib)
+			include_directories(/usr/local/include)
+			link_directories(/usr/local/lib)
 		endif()
 	endif (APPLE)
 
 	if (UNIX)
-	find_package(SDL2 CONFIG REQUIRED)
-		add_definitions(-DDAEDALUS_POSIX -DDAEDALUS_GL)
+		find_package(SDL2 CONFIG REQUIRED)
+		set(PLAT_EXTRA Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui)
+		set(PLAT_LIBS png z minizip pthread GL GLEW SDL2 dl )
+		add_definitions( -DDAEDALUS_GL)
 		 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/Source/third_party/imgui ${SDL2_INCLUDE_DIRS})
-
 		add_executable(daedalus SysPosix/main.cpp)
-
-		target_link_libraries(daedalus LINK_PUBLIC
-												   Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility 
-												   Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui
-												   Posix_Debug Posix_DynaRec Posix_Audio Posix_HLEGraphics Posix_Utility  
-												   png z minizip pthread GLEW SDL2 dl ${OS_LIBS}
-							 )
 	endif (UNIX)
 
+if (CTR)
+	set (PLAT_EXTRA Graphics_Plat Input_Plat UI_Plat )
+	set (PLAT_LIBS) ## TODO
+endif(CTR)
 
-	if(WIN32)
-		set(CMAKE_TOOLCHAIN_FILE ${VCPKG_TOOLCHAIN})
-		message(CMAKE_TOOLCHAIN_FILE)
-		find_package(ZLIB)
-		find_package(SDL2 CONFIG REQUIRED)
-		find_package(GLEW REQUIRED)
+if (VITA) 
+	set (PLAT_EXTRA)
+	set (PLAT_LIBS)
+endif(VITA)
+
+if(WIN32)
+	set(CMAKE_TOOLCHAIN_FILE ${VCPKG_TOOLCHAIN})
+	find_package(ZLIB)
+	find_package(SDL2 CONFIG REQUIRED)
+	find_package(GLEW REQUIRED)
 		
-		add_definitions(-DDAEDALUS_WIN32 -DDAEDALUS_GL)
+	add_definitions(-DDAEDALUS_GL)
+	set(PLAT_LIBS png z minizip pthread GLEW SDL2 dl ${OS_LIBS})
+	# Pull in modules for glew / SDL2 / ZLib / LibPNG / Minizip
+	include_directories(BEFORE .)
 
-		#add_compile_options("/Od")
-		##Windows todo
-		# Pull in modules for glew / SDL2 / ZLib / LibPNG / Minizip
-		include_directories(BEFORE ${PROJECT_SOURCE_DIR}/Source/SysW32/Include .)
+#	add_library(sysGL OBJECT ${SYSGL_BUILD})
+#	target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 Xinput ${OS_LIBS})
 
-#		add_library(sysGL OBJECT ${SYSGL_BUILD})
-#		target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 Xinput ${OS_LIBS})
+#	add_library(daedalus.lib OBJECT ${BUILD} ${WIN_BUILD} ${AUDIO_DRIVER} )
+#	target_link_libraries(daedalus.lib dsound dxguid sysGL libpng zlib zlibwapi)
 
-#		add_library(daedalus.lib OBJECT ${BUILD} ${WIN_BUILD} ${AUDIO_DRIVER} )
-#		target_link_libraries(daedalus.lib dsound dxguid sysGL libpng zlib zlibwapi)
-
-		#Build and Link Executable
-		add_executable(daedalus SysW32/main.cpp)
-		target_link_libraries(daedalus LINK_PUBLIC
-												   Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility 
-												   Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui
-												   Win_Debug Win_Audio Win_Utility X86_Dynarec
-												   png z minizip pthread GLEW SDL2 dl ${OS_LIBS} )
-
+	#Build and Link Executable
+	add_executable(daedalus SysW32/main.cpp)
+	target_link_libraries(daedalus LINK_PUBLIC	
+										   Core Config Debug  Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility 
+										   Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui
+										   Win_Debug Win_Audio Win_Utility X86_Dynarec
 	endif (WIN32)
+
+		# Build command
+		set(CORE Core Config Debug ${DYNAREC} Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility)
+		set(PLAT_CORE Debug_Plat DynaRec_Plat HLEAudio_Plat HLEGraphics_Plat Utility_Plat)
+		set(DEFAULT_LIBS stdc++ png z c g m pthread )
+		target_link_libraries(daedalus LINK_PUBLIC ${CORE} ${PLAT_CORE} ${PLAT_EXTRA} ${DEFAULT_LIBS} ${PLAT_LIBS}  )
+	
 
 	## Daedalus Core Build
 	add_subdirectory(Config)

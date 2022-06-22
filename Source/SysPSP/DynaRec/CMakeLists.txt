@@ -1,4 +1,4 @@
-add_library(DynaRec_PSP OBJECT
+add_library(DynaRec_Plat OBJECT
                             AssemblyWriterPSP.cpp 
                             AssemblyUtilsPSP.cpp 
                             CodeBufferManagerPSP.cpp 

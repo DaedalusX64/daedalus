@@ -1,1 +1,1 @@
-add_library(Win_Debug DaedalusAssertW32.cpp)
+add_library(Graphics_Plat DaedalusAssertW32.cpp)

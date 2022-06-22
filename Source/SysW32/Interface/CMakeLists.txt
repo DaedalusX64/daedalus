@@ -1,3 +1,3 @@
-add_library(Win_Interface OBJECT 
+add_library(Interface_Plat OBJECT 
                                 FileNameHandler.cpp
             )

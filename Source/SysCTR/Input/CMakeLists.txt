@@ -1,1 +1,1 @@
-add_library(Input_CTR OBJECT InputManagerCTR.cpp)
+add_library(Input_Plat OBJECT InputManagerCTR.cpp)

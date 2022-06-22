@@ -1,4 +1,4 @@
-add_library(UI_PSP OBJECT 
+add_library(UI_Plat OBJECT 
                             AboutComponent.cpp 
                             AdjustDeadzoneScreen.cpp 
                             AdvancedOptionsScreen.cpp 

@@ -1,4 +1,4 @@
-add_library(Posix_Utility OBJECT 
+add_library(Utility_Plat OBJECT 
                                 CondPosix.cpp 
                                 IOPosix.cpp 
                                 ThreadPosix.cpp 

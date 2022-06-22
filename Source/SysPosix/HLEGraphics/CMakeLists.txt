@@ -1,3 +1,3 @@
-add_library(Posix_HLEGraphics OBJECT 
+add_library(HLEGraphics_Plat OBJECT 
                                     DisplayListDebugger.cpp
             )

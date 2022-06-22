@@ -1,1 +1,1 @@
-add_library(Audio_CTR OBJECT AudioOutput.cpp AudioPluginCTR.cpp)
+add_library(HLEAudio_Plat OBJECT AudioOutput.cpp AudioPluginCTR.cpp)

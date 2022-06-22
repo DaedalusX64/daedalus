@@ -1,4 +1,4 @@
-add_library(Graphics_PSP OBJECT 
+add_library(Graphics_Plat OBJECT 
                                 DrawText.cpp 
                                 GraphicsContext.cpp 
                                 NativeTexturePSP.cpp 

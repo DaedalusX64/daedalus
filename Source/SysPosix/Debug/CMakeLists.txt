@@ -1,4 +1,4 @@
-add_library(Posix_Debug OBJECT 
+add_library(Debug_Plat OBJECT 
                             DaedalusAssertPosix.cpp 
                             DebugConsolePosix.cpp 
                             WebDebug.cpp 

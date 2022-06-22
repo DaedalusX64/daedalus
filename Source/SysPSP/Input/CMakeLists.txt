@@ -1,3 +1,3 @@
-add_library(Input_PSP OBJECT 
+add_library(Input_Plat OBJECT 
                                 InputManagerPSP.cpp
             )

@@ -1,3 +1,3 @@
-add_library(Posix_DynaRec OBJECT 
+add_library(DynaRec_Plat OBJECT 
                                 CodeBufferManagerPosix.cpp
             )

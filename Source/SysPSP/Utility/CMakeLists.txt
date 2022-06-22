@@ -1,4 +1,4 @@
-add_library(Utility_PSP OBJECT 
+add_library(Utility_Plat OBJECT 
                                 AtomicPrimitives.S 
                                 BatteryPSP.cpp 
                                 DebugMemory.cpp 
