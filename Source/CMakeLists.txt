@@ -46,8 +46,17 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 		endif()
-		
-
+	
+	#Check the Endian of the host platform and apply endian rules. 
+	include (TestBigEndian)
+	TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
+	if(IS_BIG_ENDIAN)
+		message(STATUS "Big Endian Detected")
+		option(DAEDALUS_ENDIAN_BIG "Big Endian Processor" ON)
+	else()
+		message(STATUS "Little Endian Detected")
+		option(DAEDALUS_ENDIAN_LITTLE "Litle Endian Processor" ON)
+	endif()
 	# Options below are general macros found within the project, as per earlier, a lot of these may
 	# disappear in future as we progress and strip them from the binary if not needed.
 
@@ -57,7 +66,6 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM `Support" OFF) ## Probably should be a default option. 
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
-
 
 	# Additional Debug Options
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
@@ -75,7 +83,6 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	# Handle specific options (These were all found in platforms.h and now belong here)
 	# PSP / Vita / CTR options are required as non-linux embedded platforms are not able to be reliably detected.
 	# Windows, Linux and macOS builds are auto detected.
-	# The below options file
 
 	if(PSP) 
 		option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
@@ -102,25 +109,10 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 	endif()
 
+
 	# Needed below the options to post process
 	include(${PROJECT_SOURCE_DIR}/Options.cmake) 
 	
-	#Check the Endian of the host platform and apply endian rules. 
-	# Big Endian does not work at the moment and there's some investigation going to happen soon
-	set(DAEDALUS_ENDIAN_LITTLE 1)
-	set(DAEDALUS_ENDIAN_BIG 2)
-
-	include (TestBigEndian)
-	TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
-	if(IS_BIG_ENDIAN)
-	message(STATUS "Big Endian Detected")
-	set(ENDIAN DAEDALUS_ENDIAN_BIG)
-	add_compile_definitions(DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_BIG)
-	else()
-	message(STATUS "Little Endian Detected")
-	add_compile_definitions(DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE)
-	endif()
-
 
 	## Generic defines for certain things that Windows requires.
 	if(NOT WIN32)
@@ -136,18 +128,14 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	include_directories(BEFORE .)
 
 	# Linker and executable targets are here
-	# I'm assuming we'll be able to simplfiy this a lot more in future as a lot of the things here are common
-	# between Operating Systems.
-
-		
-
 	if (PSP)
 		set(PLAT_EXTRA Graphics_Plat Input_Plat UI_Plat Plugins_Plat UI_Plat )
 		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge pspaudiolib pspaudio intrafont pspkubridge pspfpu pspge ${SDL_LIBS})
 	
-	if (DAEDALUS_SDL)
-		set(SDL_LIBS SDL2 SDL2main pspvram psphprm GL pspvfpu )
-	endif (DAEDALUS_SDL)
+		## SDL Libraries for use with the experimental SDL Audio Plugin
+		if (DAEDALUS_SDL)
+			set(SDL_LIBS SDL2 SDL2main pspvram psphprm GL pspvfpu )
+		endif (DAEDALUS_SDL)
 		
 		add_executable(daedalus SysPSP/main.cpp)
 
@@ -256,10 +244,8 @@ if(WIN32)
 
 	endif()
 
-
 	## Install and setup basic directories
 	install(DIRECTORY DESTINATION DaedalusX64)
 	install(DIRECTORY DESTINATION DaedalusX64/Roms)
 	install(DIRECTORY DESTINATION DaedalusX64/SaveGames)
 	install(DIRECTORY DESTINATION DaedalusX64/SaveStates)
-

@@ -198,7 +198,7 @@ u32 Patch_bzero()
 
 	u8* dst8 = (u8*)ReadAddress(dst);
 
-#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+#ifdef DAEDALUS_ENDIAN_BIG
 	memset( dst8, 0, len);
 #else
 	// Align dst on 4 bytes or just resume if already done

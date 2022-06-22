@@ -102,3 +102,11 @@ endif()
 if(DUMPOSFUNCTIONS)
  add_compile_definitions(DUMPOSFUNCTIONS)
  endif()
+
+ if(DAEDALUS_ENDIAN_BIG)
+ add_compile_definitions(DAEDALUS_ENDIAN_BIG)
+ endif()
+ 
+ if(DAEDALUS_ENDIAN_LITTLE)
+ add_compile_definitions(DAEDALUS_ENDIAN_LITTLE)
+ endif()

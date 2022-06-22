@@ -271,7 +271,7 @@ struct OpCode
 	{
 		u32 _u32;
 
-#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+#ifdef DAEDALUS_ENDIAN_BIG
 		struct
 		{
 			unsigned op : 6;
@@ -388,7 +388,7 @@ struct OpCode
 			unsigned : 2;
 			unsigned patch_index : 24;
 		};
-#elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
+#elif DAEDALUS_ENDIAN_LITTLE
 		struct
 		{
 			unsigned offset : 16;

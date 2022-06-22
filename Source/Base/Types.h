@@ -72,11 +72,11 @@ union REG64
 	s64		_s64;
 	u64		_u64;
 
-#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+#ifdef DAEDALUS_ENDIAN_BIG
 	struct { f32 _f32_1, _f32_0; };
 	struct { s32 _s32_1, _s32_0; };
 	struct { u32 _u32_1, _u32_0; };
-#elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
+#elif DAEDALUS_ENDIAN_LITTLE
 	struct { f32 _f32_0, _f32_1; };
 	struct { s32 _s32_0, _s32_1; };
 	struct { u32 _u32_0, _u32_1; };
