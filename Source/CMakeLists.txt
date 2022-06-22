@@ -53,7 +53,7 @@ include(${PROJECT_SOURCE_DIR}/Options.cmake)
 
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
-	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF) ## Probably should be a default option. 
+	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM `Support" OFF) ## Probably should be a default option. 
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
 
 
@@ -64,7 +64,7 @@ include(${PROJECT_SOURCE_DIR}/Options.cmake)
 	option(DAEDALUS_ENABLE_SYNCHRONISATION "Enable for sync testing" OFF)
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
 	option(DAEDALUS_PROFILE_EXECUTION "Keep track of various execution stats" OFF)
-
+	option(DUMPOSFUNCTIONS "Dump OSHLE Functions" OFF)
 	# Additional PSP Options
 	option(DAEDALUS_PSP_GPROF "PSP Profiling, needs Silent enabled" OFF)
 	option(DAEDALUS_SDL "SDL PSP Stuff, Still in testing" OFF)
