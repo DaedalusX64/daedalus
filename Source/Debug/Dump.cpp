@@ -37,7 +37,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_R4300.h"
 #include "System/IO.h"
 #include "Core/PrintOpCode.h"
-#include <filesystem>
+
+
 static IO::Filename gDumpDir = "";
 
 
@@ -143,7 +144,8 @@ void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 	}
 	else
 	{
-		IO::Path::Assign(file_path, p_file_name);
+		file_path /= "p_file_name";
+		// IO::Path::Assign(file_path, p_file_name);
 	}
 
 	u8 * p_base;
@@ -153,7 +155,7 @@ void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 		return;
 	}
 
-	FILE * fp( fopen(file_path, "w") );
+	FILE * fp( fopen(file_path.c_str(), "w") );
 	if (fp == NULL)
 		return;
 
@@ -244,7 +246,7 @@ void Dump_RSPDisassemble(const char * p_file_name)
 
 	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
 
-	FILE * fp( fopen(file_path, "w") );
+	FILE * fp( fopen(file_path.c_str(), "w") );
 	if (fp == NULL)
 		return;
 
@@ -289,7 +291,7 @@ void Dump_Strings( const char * p_file_name )
 	DBGConsole_Msg(0, "Dumping strings in rom ([C%s])", file_path);
 
 	// Overwrite here
-	fp = fopen(file_path, "w");
+	fp = fopen(file_path.c_str(), "w");
 	if (fp == NULL)
 		return;
 
