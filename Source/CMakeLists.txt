@@ -147,6 +147,16 @@ include(${PROJECT_SOURCE_DIR}/Options.cmake)
 												Debug_PSP DynaRec_PSP Graphics_PSP HLEAudio_PSP HLEGraphics_PSP Input_PSP Plugins_PSP UI_PSP Utility_PSP
 												Core Config Debug DynaRec Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility
 												stdc++ png z c g m pthread ${SDL_LIBS}  ${PLAT_LIBS}  )
+
+	#Generate EBoot
+		create_pbp_file(
+		TARGET ${CMAKE_CURRENT_BINARY_DIR}/../daedalus
+		ICON_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/icon0.png
+		BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png
+		PREVIEW_PATH NULL
+		TITLE DaedalusX64
+		BUILD_PRX
+					)
  	endif (PSP)
 
 	if (UNIX AND NOT APPLE)
