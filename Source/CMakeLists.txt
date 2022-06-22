@@ -8,7 +8,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 # Below is related to Macros within the project, a lot of these could be deprecated and deleted.
 # For now they will remain here so they're visible and can be switched on and off as desired.
 
-include(${PROJECT_SOURCE_DIR}/Options.cmake)
+
 
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 	if(DEBUG)
@@ -73,6 +73,7 @@ include(${PROJECT_SOURCE_DIR}/Options.cmake)
 	# Handle specific options (These were all found in platforms.h and now belong here)
 	# PSP / Vita / CTR options are required as non-linux embedded platforms are not able to be reliably detected.
 	# Windows, Linux and macOS builds are auto detected.
+	# The below options file
 
 	if(PSP) 
 	option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
@@ -98,6 +99,9 @@ include(${PROJECT_SOURCE_DIR}/Options.cmake)
 	option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
 
 	endif()
+
+	# Needed below the options to post process
+	include(${PROJECT_SOURCE_DIR}/Options.cmake) 
 	
 	#Check the Endian of the host platform and apply endian rules. 
 	# Big Endian does not work at the moment and there's some investigation going to happen soon
@@ -134,6 +138,7 @@ include(${PROJECT_SOURCE_DIR}/Options.cmake)
 	# between Operating Systems.
 
 	if (PSP)
+	# add_definitions(-DDAEDALUS_PSP) # why on earth is this needed here when we define in options? Check later
 		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge pspaudiolib pspaudio intrafont pspkubridge pspfpu pspge)
 		set (GPROF_SRCS SysPSP/Debug/prof.c SysPSP/Debug/mcount.S )
 
@@ -150,7 +155,7 @@ include(${PROJECT_SOURCE_DIR}/Options.cmake)
 
 	#Generate EBoot
 		create_pbp_file(
-		TARGET ${CMAKE_CURRENT_BINARY_DIR}/../daedalus
+		TARGET daedalus
 		ICON_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/icon0.png
 		BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png
 		PREVIEW_PATH NULL
@@ -262,3 +267,4 @@ include(${PROJECT_SOURCE_DIR}/Options.cmake)
 	install(DIRECTORY DESTINATION DaedalusX64/Roms)
 	install(DIRECTORY DESTINATION DaedalusX64/SaveGames)
 	install(DIRECTORY DESTINATION DaedalusX64/SaveStates)
+
