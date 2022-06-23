@@ -8,7 +8,6 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 # Below is related to Macros within the project, a lot of these could be deprecated and deleted.
 # For now they will remain here so they're visible and can be switched on and off as desired.
 
-
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 	if(DEBUG)
 		set(CMAKE_BUILD_TYPE Debug)
@@ -130,7 +129,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	# Linker and executable targets are here
 	if (PSP)
 		set(PLAT_EXTRA Graphics_Plat Input_Plat UI_Plat Plugins_Plat UI_Plat )
-		set(PLAT_LIBS psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge pspaudiolib pspaudio intrafont pspkubridge pspfpu pspge ${SDL_LIBS})
+		set(PLAT_LIBS g psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge pspaudiolib pspaudio intrafont pspkubridge pspfpu pspge ${SDL_LIBS})
 	
 		## SDL Libraries for use with the experimental SDL Audio Plugin
 		if (DAEDALUS_SDL)
@@ -209,7 +208,7 @@ if(WIN32)
 		# Build command
 		set(CORE Core Config Debug ${DYNAREC} Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility)
 		set(PLAT_CORE Debug_Plat DynaRec_Plat HLEAudio_Plat HLEGraphics_Plat Utility_Plat)
-		set(DEFAULT_LIBS stdc++ png z c g m pthread )
+		set(DEFAULT_LIBS stdc++ png z c m pthread )
 		target_link_libraries(daedalus LINK_PUBLIC ${CORE} ${PLAT_CORE} ${PLAT_EXTRA} ${DEFAULT_LIBS} ${PLAT_LIBS}  )
 	
 
