@@ -947,12 +947,8 @@ fail_find:
 
 static void Patch_FlushCache()
 {
-	// IO::Filename name;
-	// std::filesystem::path Save_As(const std::filesystem::path filename, const char * extension, std::filesystem::path dest);
 	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "SaveGames/Cache");
-	// Dump_GetSaveDirectory(name, g_ROM.mFileName.c_str(), ".hle");
 
-	DBGConsole_Msg(0, "Write OSHLE cache: %s", name);
 
 	FILE *fp = fopen(name.c_str(), "wb");
 
@@ -1010,7 +1006,7 @@ static bool Patch_GetCache()
 
 	if (fp != nullptr)
 	{
-		DBGConsole_Msg(0, "Read from OSHLE cache: %s", name);
+		DBGConsole_Msg(0, "Read from OSHLE cache: %s", name.c_str());
 		u32 data;
 
 		fread(&data, 1, sizeof(data), fp);

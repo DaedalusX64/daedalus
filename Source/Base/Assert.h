@@ -24,6 +24,7 @@
 #define DEBUG_DAEDALUSASSERT_H_
 
 #include "Base/Macros.h"
+#include "BuildOptions.h"
 
 #define DAEDALUS_STATIC_ASSERT( x ) static_assert((x), "Static Assert")
 
@@ -38,9 +39,29 @@ enum EAssertResult
 
 EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... );
 
-#ifndef DAEDALUS_HALT
-#error DAEDALUS_HALT should be defined in Platform.h
+#ifdef DAEDALUS_PSP
+    #define DAEDALUS_HALT			__asm__ __volatile__ ( "break" )
+#elif DAEDALUS_POSIX
+    #define DAEDALUS_HALT			__builtin_trap()
+    //#define DAEDALUS_HALT			__builtin_debugger()
+#elif DAEDALUS_CTR
+    #define DAEDALUS_HALT			__asm__ __volatile__ ( "bkpt" )
+
+#elif DAEDALUS_W32 // Ugh this needs simplifying
+    #include "Sys32/Include/DaedalusW32.h" // Windows is special
+    #define __PRETTY_FUNCTION__ __FUNCTION__
+    #define _CRT_SECURE_NO_DEPRECATE
+    #define _DO_NOT_DECLARE_INTERLOCKED_INTRINSICS_IN_MEMORY
+
+    #define R4300_CALL_TYPE						__fastcall
+    #define DAEDALUS_THREAD_CALL_TYPE			__stdcall // Thread functions need to be __stdcall to work with the W32 api
+    #define DAEDALUS_VARARG_CALL_TYPE			__cdecl // Vararg functions need to be __cdecl
+    #define	DAEDALUS_ZLIB_CALL_TYPE				__cdecl // Zlib is compiled as __cdecl
+    #define DAEDALUS_HALT					__asm { int 3 }
+#else
+#error Unknown Platforn DAEDALUS_HALT should be defined in Base/Assert.h
 #endif
+
 
 //
 //	Use this api to override the default assert handler, e.g. for logging asserts during a batch process

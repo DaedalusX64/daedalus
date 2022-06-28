@@ -71,10 +71,10 @@ bool Save_Reset()
 	{
 		gSaveFileName = Save_As(g_ROM.mFileName, ext, "SaveGames/");
 
-		FILE * fp = std::fopen(gSaveFileName.c_str(), "rb");
+		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{
-			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName);
+			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName.c_str());
 
 			u8 buffer[2048];
 			u8 * dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
@@ -92,7 +92,7 @@ bool Save_Reset()
 		}
 		else
 		{
-			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", gSaveFileName);
+			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", gSaveFileName.c_str());
 		}
 	}
 
@@ -102,14 +102,14 @@ bool Save_Reset()
 		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{
-			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gSaveFileName);
+			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gSaveFileName.c_str());
 			fread(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
 			fclose(fp);
 			gMempackDirty = false;
 		}
 		else
 		{
-			DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", gSaveFileName);
+			DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", gSaveFileName.c_str());
 			InitMempackContent();
 			gMempackDirty = true;
 		}
@@ -140,9 +140,9 @@ void Save_Flush()
 {
 	if (gSaveDirty && g_ROM.settings.SaveType != SAVE_TYPE_UNKNOWN)
 	{
-		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName);
+		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName.c_str());
 
-		FILE * fp = std::fopen(gSaveFileName.c_str(), "wb");
+		FILE * fp = fopen(gSaveFileName.c_str(), "wb");
 		if (fp != nullptr)
 		{
 			u8 buffer[2048];
