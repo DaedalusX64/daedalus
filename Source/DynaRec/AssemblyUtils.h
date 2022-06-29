@@ -61,9 +61,7 @@ public:
 	const u8 *		GetTargetU8P() const		{ return reinterpret_cast< const u8 * >( mpLocation ); }
 	u8 *			GetWritableU8P() const
 	{
-		#ifdef DAEDALUS_PSP
 		return reinterpret_cast< u8 * >( make_uncached_ptr(mpLocation) );
-		#endif
 		//Todo: Check this
 		//return reinterpret_cast< u8 * >( mpLocation );
 	}
