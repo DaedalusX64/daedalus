@@ -124,7 +124,7 @@ class IRomSettingsDB : public CRomSettingsDB
 		//
 		// CRomSettingsDB implementation
 		//
-		bool			OpenSettingsFile( const char * filename );
+		bool			OpenSettingsFile( const std::filesystem::path filename );
 		void			Commit();												// (STRMNNRMN - Write ini back out to disk?)
 
 		bool			GetSettings( const RomID & id, RomSettings * p_settings ) const;
@@ -221,9 +221,9 @@ static RomID	RomIDFromString( const char * str )
 	return RomID( crc1, crc2, (u8)country );
 }
 
-bool IRomSettingsDB::OpenSettingsFile( const char * filename )
+bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 {
-	strcpy(mFilename, filename);
+	std::filesystem::path(mFilename) = filename;
 
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == nullptr )
@@ -329,11 +329,8 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 //	Write out the .ini file, keeping the original comments intact
 void IRomSettingsDB::Commit()
 {
-	IO::Filename filename_tmp;
-	IO::Filename filename_del;
-
-	IO::Path::AddExtension(filename_tmp, ".tmp");
-	IO::Path::AddExtension(filename_del, ".del");
+	
+	std::filesystem::path filename_tmp("roms.ini.tmp");
 
 	FILE * fh_src = fopen(mFilename, "r");
 	if (fh_src == nullptr)
@@ -341,7 +338,7 @@ void IRomSettingsDB::Commit()
 		return;
 	}
 
-	FILE * fh_dst = fopen(filename_tmp, "w");
+	FILE * fh_dst = fopen(filename_tmp.c_str(), "w");
 	if (fh_dst == nullptr)
 	{
 		fclose(fh_src);
@@ -406,10 +403,8 @@ void IRomSettingsDB::Commit()
 	fclose( fh_src );
 
 	// Create the new file
-	std::filesystem::rename(mFilename, filename_del);
-	std::filesystem::rename(filename_tmp, filename_del);
-	std::filesystem::remove(filename_del);
-
+	std::filesystem::remove(mFilename);
+	std::filesystem::rename(filename_tmp, mFilename);
 
 	mDirty = false;
 }
