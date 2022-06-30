@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <mutex>
+#include "System/Mutex.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/Cheats.h"
@@ -79,7 +79,7 @@ u8 *				gLastAddress     = nullptr;
 std::string			gSaveStateFilename  = "";
 
 static bool			gCPUStopOnSimpleState = false;			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
-static std::mutex		gSaveStateMutex;
+static Mutex		gSaveStateMutex;
 
 enum ESaveStateOperation
 {
@@ -425,7 +425,7 @@ bool CPU_RequestSaveState( const std::filesystem::path filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
-	gSaveStateMutex.lock();
+	MutexLock lock( &gSaveStateMutex );
 
 	// Abort if already in the process of loading/saving
 	if( gSaveStateOperation != SSO_NONE )
@@ -444,7 +444,7 @@ bool CPU_RequestLoadState( const std::filesystem::path filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
-	gSaveStateMutex.lock();
+	MutexLock lock( &gSaveStateMutex );
 
 	// Abort if already in the process of loading/saving
 	if( gSaveStateOperation != SSO_NONE )
@@ -465,7 +465,7 @@ static void HandleSaveStateOperationOnVerticalBlank()
 	if( gSaveStateOperation == SSO_NONE )
 		return;
 
-	gSaveStateMutex.lock();
+	MutexLock lock( &gSaveStateMutex );
 
 	//
 	// Handle the save state
@@ -508,7 +508,7 @@ static bool HandleSaveStateOperationOnCPUStopRunning()
 	if (gSaveStateOperation != SSO_LOAD)
 		return false;
 
-	gSaveStateMutex.lock();
+	MutexLock lock( &gSaveStateMutex );
 
 	gSaveStateOperation = SSO_NONE;
 
