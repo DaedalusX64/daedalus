@@ -45,7 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_POSIX
 #include <fenv.h>
 //Accurate cvt for W32/OSX, convert using the rounding mode specified in the Floating Control/Status register (FCSR)
-#define ACCURATE_CVT // This also works with Windows
+#define DAEDALUS_ACCURATE_CVT // This also works with Windows
 #endif
 
 #ifdef DAEDALUS_W32
@@ -331,7 +331,7 @@ DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); r
 DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floorf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )
 {
-#ifdef ACCURATE_CVT
+#ifdef DAEDALUS_ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
 	case FPCSR_RM_RN:		return f32_to_s32_round( x );
@@ -351,7 +351,7 @@ DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); r
 DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)floorf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x )
 {
-#ifdef ACCURATE_CVT
+#ifdef DAEDALUS_ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
 	case FPCSR_RM_RN:		return f32_to_s64_round( x );
@@ -371,7 +371,7 @@ DAEDALUS_FORCEINLINE s32 d64_to_s32_ceil( d64 x )	{ SET_ROUND_MODE( RM_CEIL ); r
 DAEDALUS_FORCEINLINE s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floor(x); }
 DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x )
 {
-#ifdef ACCURATE_CVT
+#ifdef DAEDALUS_ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
 	case FPCSR_RM_RN:		return d64_to_s32_round( x );
@@ -391,7 +391,7 @@ DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); 
 DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)floor(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x )
 {
-#ifdef ACCURATE_CVT
+#ifdef DAEDALUS_ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
 	case FPCSR_RM_RN:		return d64_to_s64_round( x );

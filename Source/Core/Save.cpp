@@ -102,16 +102,11 @@ bool Save_Reset()
 
 		std::fstream fp(gMempackFileName, std::ios::in | std::ios::binary);
 		
-		// FILE * fp = fopen(gMempackFileName.c_str(), "rb");
-		
-		// if (fp != nullptr)
 		if (fp.is_open())
 		{
 			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gSaveFileName.c_str());
 			fp.read(reinterpret_cast<char *>(g_pMemoryBuffers[MEM_MEMPACK]), MemoryRegionSizes[MEM_MEMPACK]);
 			fp.close();
-			// fread(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
-			// fclose(fp);
 			gMempackDirty = false;
 		}
 		else
