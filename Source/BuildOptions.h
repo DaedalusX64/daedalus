@@ -21,7 +21,7 @@
 #ifdef DAEDALUS_PSP
     template <typename T>
     T make_uncached_ptr(T ptr) {
-        return reinterpret_cast<T>(reinterpret_cast<unsigned int>(ptr) | 0x40000000);
+        return reinterpret_cast<T>(reinterpret_cast<uint32_t>(ptr) | 0x40000000);
     }
 #else
 #define make_uncached_ptr(x)	(x)
