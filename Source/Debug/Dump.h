@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 struct OpCode;
-std::filesystem::path Save_As(const std::filesystem::path filename, const char * extension, std::filesystem::path dest);
+std::filesystem::path Save_As(const std::filesystem::path filename, const std::filesystem::path extension, std::filesystem::path dest);
 std::filesystem::path Dump_Directory(std::filesystem::path name, std::filesystem::path dir);
 void Dump_GetDumpDirectory(char * rootdir, const char * subdir);
 

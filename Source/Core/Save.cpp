@@ -28,67 +28,67 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 #include "System/IO.h"
 #include <iostream>
+#include <fstream>
 
 static void InitMempackContent();
 
-std::filesystem::path gSaveFileName;
-static bool				gSaveDirty;
-static u32				gSaveSize;
-static IO::Filename		gMempackFileName;
-static bool				gMempackDirty;
+static std::filesystem::path 	gSaveFileName;
+static std::filesystem::path 	gSaveExtension;
+static std::filesystem::path	gMempackFileName;
+static u32						gSaveSize;
 
+static bool	gSaveDirty;
+static bool	gMempackDirty;
 
 bool Save_Reset()
 {
-	const char * ext;
 	switch (g_ROM.settings.SaveType)
 	{
 	case SAVE_TYPE_EEP4K:
-		ext = ".sav";
+		gSaveExtension = ".sav";
 		gSaveSize = 4 * 1024;
 		break;
 	case SAVE_TYPE_EEP16K:
-		ext = ".sav";
+		gSaveExtension = ".sav";
 		gSaveSize = 16 * 1024;
 		break;
 	case SAVE_TYPE_SRAM:
-		ext = ".sra";
+		gSaveExtension = ".sra";
 		gSaveSize = 32 * 1024;
 		break;
 	case SAVE_TYPE_FLASH:
-		ext = ".fla";
+		gSaveExtension = ".fla";
 		gSaveSize = 128 * 1024;
 		break;
 	default:
-		ext = "";
+		gSaveExtension = "";
 		gSaveSize = 0;
 		break;
 	}
-	DAEDALUS_ASSERT( gSaveSize <= MemoryRegionSizes[MEM_SAVE], "Save size is larger than allocated memory");
 
 	gSaveDirty = false;
+
 	if (gSaveSize > 0)
 	{
-		gSaveFileName = Save_As(g_ROM.mFileName, ext, "SaveGames/");
+		gSaveFileName = Save_As(g_ROM.mFileName, gSaveExtension, "SaveGames/");
 
-		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
-		if (fp != nullptr)
+		std::fstream fp(gSaveFileName, std::ios::in | std::ios::binary);
+
+		if (fp.is_open())
 		{
-			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName.c_str());
-
-			u8 buffer[2048];
+			std::array<u8, 2048> buffer;
 			u8 * dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
 
 			for (u32 d = 0; d < gSaveSize; d += sizeof(buffer))
 			{
-				fread(buffer, sizeof(buffer), 1, fp);
+				fp.read(reinterpret_cast<char *>(&buffer), sizeof(buffer));
 
 				for (u32 i = 0; i < sizeof(buffer); i++)
 				{
 					dst[d+i] = buffer[i^U8_TWIDDLE];
 				}
 			}
-			fclose(fp);
+			fp.close();
 		}
 		else
 		{
@@ -98,13 +98,20 @@ bool Save_Reset()
 
 	// init mempack, we always assume the presence of the mempack for simplicity 
 	{	
-		gSaveFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
-		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
-		if (fp != nullptr)
+		gMempackFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
+
+		std::fstream fp(gMempackFileName, std::ios::in | std::ios::binary);
+		
+		// FILE * fp = fopen(gMempackFileName.c_str(), "rb");
+		
+		// if (fp != nullptr)
+		if (fp.is_open())
 		{
 			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gSaveFileName.c_str());
-			fread(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
-			fclose(fp);
+			fp.read(reinterpret_cast<char *>(g_pMemoryBuffers[MEM_MEMPACK]), MemoryRegionSizes[MEM_MEMPACK]);
+			fp.close();
+			// fread(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
+			// fclose(fp);
 			gMempackDirty = false;
 		}
 		else
@@ -138,14 +145,16 @@ void Save_MarkMempackDirty()
 
 void Save_Flush()
 {
+	gSaveFileName = Save_As(g_ROM.mFileName, gSaveExtension, "SaveGames/");
+	
 	if (gSaveDirty && g_ROM.settings.SaveType != SAVE_TYPE_UNKNOWN)
 	{
-		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName.c_str());
+		 DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName.c_str());
 
-		FILE * fp = fopen(gSaveFileName.c_str(), "wb");
-		if (fp != nullptr)
-		{
-			u8 buffer[2048];
+		std::fstream fp(gSaveFileName, std::ios::out | std::ios::binary);
+			if (fp.is_open())
+			{
+			std::array<char, 2048> buffer;
 			u8 * src = (u8*)g_pMemoryBuffers[MEM_SAVE];
 
 			for (u32 d = 0; d < gSaveSize; d += sizeof(buffer))
@@ -154,32 +163,27 @@ void Save_Flush()
 				{
 					buffer[i^U8_TWIDDLE] = src[d+i];
 				}
-				fwrite(buffer, 1, sizeof(buffer), fp);
+				  fp.write(reinterpret_cast<char *>(&buffer), sizeof(buffer));
 			}
-			fclose(fp);
+			fp.close();
 		}
 		gSaveDirty = false;
 	}
 
-	if (gMempackDirty)
-	{
-		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName);
+		gMempackFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
 
-		FILE * fp = fopen(gMempackFileName, "wb");
-		if (fp != nullptr)
+		std::fstream fp(gMempackFileName, std::ios::out | std::ios::binary);
+		
+		if (fp.is_open())
 		{
-			fwrite(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
-			fclose(fp);
+			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gSaveFileName.c_str());
+			fp.write(reinterpret_cast<char *>(g_pMemoryBuffers[MEM_MEMPACK]), MemoryRegionSizes[MEM_MEMPACK]);
+			fp.close();
 		}
 		gMempackDirty = false;
 	}
-}
 
-// Mempack Stuffs
-
-//
-// Initialisation values taken from PJ64
-//
+// Mempack Initialisation Code
 static const u8 gMempackInitialize[] =
 {
 	0x81,0x01,0x02,0x03, 0x04,0x05,0x06,0x07, 0x08,0x09,0x0a,0x0b, 0x0C,0x0D,0x0E,0x0F,

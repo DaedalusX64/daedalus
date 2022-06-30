@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <ctype.h>
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -78,9 +79,8 @@ std::filesystem::exists(rootdir);
 
 }
 
-// Fetch the filename, extension, and destination.
-// Call this by assigning to a std::filesystem::path variable.
-std::filesystem::path Save_As(const std::filesystem::path filename, const char * extension, std::filesystem::path dest)
+// Fetch the filename, extension, create the output file.
+std::filesystem::path Save_As(const std::filesystem::path filename, const std::filesystem::path extension, std::filesystem::path dest)
 {
 	std::filesystem::create_directories("SaveGames/Cache"); // Create the Save Directories if not already done
 	std::filesystem::path tmp;
@@ -88,7 +88,6 @@ std::filesystem::path Save_As(const std::filesystem::path filename, const char *
 	tmp = filename.filename();
 	tmp.replace_extension(extension);	
 	gSaveFileName = dest /= tmp;
-		std::cout << "Saving to: " << gSaveFileName << std::endl;
 	return gSaveFileName;
 
 }
