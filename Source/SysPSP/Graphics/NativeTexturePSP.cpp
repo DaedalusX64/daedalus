@@ -440,7 +440,7 @@ namespace
 	//	p_texture is either an existing texture (in case it must be of the
 	//	correct dimensions and format) else a new texture is created and returned.
 	//*****************************************************************************
-	CRefPtr<CNativeTexture>	LoadPng( const char * p_filename, ETextureFormat texture_format )
+	CRefPtr<CNativeTexture>	LoadPng( const std::filesystem::path p_filename, ETextureFormat texture_format )
 	{
 		const size_t	SIGNATURE_SIZE = 8;
 		u8	signature[ SIGNATURE_SIZE ];
@@ -555,7 +555,7 @@ namespace
 //*****************************************************************************
 //
 //*****************************************************************************
-CRefPtr<CNativeTexture>	CNativeTexture::CreateFromPng( const char * p_filename, ETextureFormat texture_format )
+CRefPtr<CNativeTexture>	CNativeTexture::CreateFromPng( const std::filesystem::path p_filename, ETextureFormat texture_format )
 {
 	return LoadPng( p_filename, texture_format );
 }

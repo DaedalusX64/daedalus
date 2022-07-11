@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <string.h>
 #include <png.h>
+#include <filesystem> 
 
 static const u32 kPalette4BytesRequired = 16 * sizeof( NativePf8888 );
 static const u32 kPalette8BytesRequired = 256 * sizeof( NativePf8888 );
@@ -159,12 +160,12 @@ namespace
 	//	p_texture is either an existing texture (in case it must be of the
 	//	correct dimensions and format) else a new texture is created and returned.
 	//*****************************************************************************
-	CRefPtr<CNativeTexture>	LoadPng( const char * p_filename, ETextureFormat texture_format )
+	CRefPtr<CNativeTexture>	LoadPng( const std::filesystem::path p_filename, ETextureFormat texture_format )
 	{
 		const size_t	SIGNATURE_SIZE = 8;
 		u8	signature[ SIGNATURE_SIZE ];
 
-		FILE * fh = fopen( p_filename,"rb" );
+		FILE * fh = fopen( p_filename.c_str(),"rb" );
 		if (fh == NULL)
 		{
 			return NULL;

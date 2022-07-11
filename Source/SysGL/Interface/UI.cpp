@@ -5,6 +5,8 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <filesystem>
+#include <iostream> 
+#include <sstream>
 
 #include "Core/CPU.h"
 #include "Core/ROM.h"
@@ -12,6 +14,7 @@
 #include "SysGL/GL.h"
 #include "System/IO.h"
 #include "System/Thread.h"
+
 
 #include "third_party/imgui/backends/imgui_impl_sdl.h"
 
@@ -80,19 +83,14 @@ static void PollKeyboard(void * arg)
 			s32 idx = -1;
 			if ((idx = get_saveslot_from_keysym(event.key.keysym.scancode)) >= 0)
 			{
-				char filename_ss[64];
-				sprintf( filename_ss, "saveslot%u.ss", idx );
+				std::ostringstream filename_ss;
+				filename_ss << "saveslot" << idx << ".ss";
 
-				IO::Filename path_sub;
-				sprintf( path_sub, "%s", IO::Path::FindFileName(g_ROM.settings.GameName.c_str()));
-
+				std::filesystem::path path_sub = IO::Path::FindFileName(g_ROM.settings.GameName.c_str());
 				std::filesystem::path path_ss = "SaveStates/";
-				path_ss /= path_sub;
+				std::filesystem::path filename = path_ss /= path_sub /= filename_ss.str();
 
-				std::filesystem::create_directory(path_ss);
-
-				IO::Filename filename;
-				IO::Path::Combine(filename, path_ss.c_str(), filename_ss);
+				std::cout << "SaveState Name:" << filename << std::endl;
 
 				bool ctrl_down = event.key.keysym.mod & ( KMOD_LCTRL | KMOD_RCTRL );
 				if (ctrl_down)
