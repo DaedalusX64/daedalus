@@ -228,7 +228,7 @@ bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == nullptr )
 	{
-		DBGConsole_Msg( 0, "Failed to open roms.ini from %s\n", filename );
+		DBGConsole_Msg( 0, "Failed to open roms.ini from %s\n", filename.c_str() );
 		return false;
 	}
 
