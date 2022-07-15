@@ -293,9 +293,10 @@ static bool	trim( char * p_string, const char * p_trim_chars )
 //*****************************************************************************
 //
 //*****************************************************************************
-CIniFile *	CIniFile::Create( const std::filesystem::path filename )
+std::unique_ptr<CIniFile> CIniFile::Create( const std::filesystem::path filename )
 {
-	IIniFile * p_file( new IIniFile );
+	auto p_file = std::make_unique<IIniFile>();
+	
 	if( p_file != NULL )
 	{
 		if( p_file->Open( filename ) )
@@ -303,7 +304,7 @@ CIniFile *	CIniFile::Create( const std::filesystem::path filename )
 			return p_file;
 		}
 
-		delete p_file;
+		// delete p_file;
 	}
 
 	return NULL;

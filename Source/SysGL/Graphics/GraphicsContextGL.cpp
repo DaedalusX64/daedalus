@@ -48,9 +48,9 @@ public:
 
 template<> bool CSingleton< CGraphicsContext >::Create()
 {
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 
-	mpInstance = new GraphicsContextGL();
+	mpInstance = std::make_shared<GraphicsContextGL>();
 	return mpInstance->Initialise();
 }
 

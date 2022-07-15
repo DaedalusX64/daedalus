@@ -244,7 +244,7 @@ template<> bool	CSingleton< CController >::Create()
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	#endif
-	mpInstance = new IController();
+	mpInstance = std::make_shared<IController>();
 
 	return true;
 }

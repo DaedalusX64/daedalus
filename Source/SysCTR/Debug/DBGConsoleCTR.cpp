@@ -48,9 +48,9 @@ private:
 
 template<> bool	CSingleton< CDebugConsole >::Create()
 {
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 
-	mpInstance = new IDebugConsole();
+	mpInstance = std::make_shared<IDebugConsole>();
 
 	return true;
 }

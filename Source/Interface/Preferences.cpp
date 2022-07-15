@@ -90,9 +90,9 @@ class IPreferences : public CPreferences
 template<> bool	CSingleton< CPreferences >::Create()
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 #endif
-	mpInstance = new IPreferences();
+	mpInstance = std::make_shared<IPreferences>();
 
 	return true;
 }
@@ -128,7 +128,8 @@ bool IPreferences::OpenPreferencesFile( const std::filesystem::path  filename )
 {
 	mFilename = filename;
 
-	CIniFile * p_ini_file( CIniFile::Create( filename ) );
+	auto p_ini_file = CIniFile::Create( filename ) ;
+	// CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == NULL )
 	{
 		return false;
@@ -289,7 +290,6 @@ bool IPreferences::OpenPreferencesFile( const std::filesystem::path  filename )
 
 	mDirty = false;
 
-	delete p_ini_file;
 	return true;
 }
 

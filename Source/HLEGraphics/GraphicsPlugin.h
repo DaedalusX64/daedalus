@@ -41,7 +41,7 @@ class CGraphicsPlugin
 //
 //	This needs to be defined for all targets.
 //
-CGraphicsPlugin *		CreateGraphicsPlugin();
-extern CGraphicsPlugin * gGraphicsPlugin;
+std::unique_ptr<CGraphicsPlugin> CreateGraphicsPlugin();
+extern std::unique_ptr<CGraphicsPlugin> gGraphicsPlugin;
 
 #endif // PLUGINS_GRAPHICSPLUGIN_H_

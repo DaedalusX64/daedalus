@@ -276,22 +276,20 @@ void CGraphicsPluginImpl::RomClosed()
 {
 	DBGConsole_Msg(0, "Finalising GLGraphics");
 	ImGui_ImplOpenGL3_Shutdown();
-  ImGui_ImplSDL2_Shutdown();
-  ImGui::DestroyContext();
+  	ImGui_ImplSDL2_Shutdown();
+ 	ImGui::DestroyContext();
 	DLParser_Finalise();
 	CTextureCache::Destroy();
 	DestroyRenderer();
 }
 
-class CGraphicsPlugin *	CreateGraphicsPlugin()
+class std::unique_ptr<CGraphicsPlugin>	CreateGraphicsPlugin()
 {
 	DBGConsole_Msg( 0, "Initialising Graphics Plugin [CGL]" );
-
-	CGraphicsPluginImpl * plugin = new CGraphicsPluginImpl;
+	auto plugin = std::make_unique<CGraphicsPluginImpl>();
 	if (!plugin->Initialise())
 	{
-		delete plugin;
-		plugin = NULL;
+		plugin = nullptr;
 	}
 
 	return plugin;

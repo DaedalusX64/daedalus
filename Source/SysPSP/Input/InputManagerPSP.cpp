@@ -449,25 +449,12 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-template<> bool	CSingleton< CInputManager >::Create()
+template<> bool CSingleton< CInputManager >::Create()
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-	#endif
 
-	IInputManager * manager( new IInputManager() );
-
-	if(manager->Initialise())
-	{
-		mpInstance = manager;
-		return true;
-	}
-
-	delete manager;
-	return false;
+	mpInstance = std::make_shared<IInputManager>();
+	return mpInstance->Initialise();
 }
 
 //*****************************************************************************
@@ -841,7 +828,8 @@ CControllerConfig *	IInputManager::BuildDefaultConfig()
 //*****************************************************************************
 CControllerConfig *	IInputManager::BuildControllerConfig( const std::filesystem::path filename )
 {
-	CIniFile * p_ini_file( CIniFile::Create( filename ) );
+	auto p_ini_file = CIniFile::Create( filename );
+
 	if( p_ini_file == NULL )
 	{
 		return NULL;
@@ -900,8 +888,6 @@ CControllerConfig *	IInputManager::BuildControllerConfig( const std::filesystem:
 	{
 		//printf( "Couldn't find buttons section\n" );
 	}
-
-	delete p_ini_file;
 
 	return p_config;
 }

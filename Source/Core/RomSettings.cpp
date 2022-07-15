@@ -152,7 +152,7 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	#endif
-	mpInstance = new IRomSettingsDB();
+	mpInstance = std::make_shared<IRomSettingsDB>();
 
 	 std::filesystem::path p("roms.ini");
 	 const char *ini_filename = p.c_str();
@@ -225,7 +225,8 @@ bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 {
 	std::filesystem::path(mFilename) = filename;
 
-	CIniFile * p_ini_file( CIniFile::Create( filename ) );
+	auto p_ini_file = CIniFile::Create(filename);
+	// CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == nullptr )
 	{
 		DBGConsole_Msg( 0, "Failed to open roms.ini from %s\n", filename.c_str() );
@@ -321,7 +322,6 @@ bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 
 	mDirty = false;
 
-	delete p_ini_file;
 	return true;
 }
 

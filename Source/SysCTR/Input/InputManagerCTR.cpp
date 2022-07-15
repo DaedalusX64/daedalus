@@ -126,7 +126,7 @@ void IInputManager::GetState( OSContPad pPad[4] )
 
 template<> bool	CSingleton< CInputManager >::Create()
 {
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 
 	IInputManager * manager = new IInputManager();
 

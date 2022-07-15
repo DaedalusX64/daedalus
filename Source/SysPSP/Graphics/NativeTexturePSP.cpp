@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspgu.h>
 #include <pspdebug.h>
 #include <pspkernel.h>
+#include <filesystem>
 
 #include "BuildOptions.h"
 #include "Base/Types.h"
@@ -445,7 +446,7 @@ namespace
 		const size_t	SIGNATURE_SIZE = 8;
 		u8	signature[ SIGNATURE_SIZE ];
 
-		FILE * fh( fopen( p_filename,"rb" ) );
+		FILE * fh( fopen( p_filename.c_str(),"rb" ) );
 		if(fh == nullptr)
 		{
 			return nullptr;
@@ -555,7 +556,7 @@ namespace
 //*****************************************************************************
 //
 //*****************************************************************************
-CRefPtr<CNativeTexture>	CNativeTexture::CreateFromPng( const std::filesystem::path p_filename, ETextureFormat texture_format )
+CRefPtr<CNativeTexture>	CNativeTexture::CreateFromPng( const char * p_filename, ETextureFormat texture_format )
 {
 	return LoadPng( p_filename, texture_format );
 }

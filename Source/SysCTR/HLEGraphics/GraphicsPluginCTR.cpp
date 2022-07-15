@@ -255,16 +255,12 @@ void CGraphicsPluginImpl::RomClosed()
 	DestroyRenderer();
 }
 
-CGraphicsPlugin * CreateGraphicsPlugin()
+class std::unique_ptr<CGraphicsPlugin>	CreateGraphicsPlugin()
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg( 0, "Initialising Graphics Plugin [CTR]" );
-#endif
-
-	CGraphicsPluginImpl * plugin = new CGraphicsPluginImpl;
-	if( !plugin->Initialise() )
+	auto plugin = std::make_unique<CGraphicsPluginImpl>();
+	if (!plugin->Initialise())
 	{
-		delete plugin;
 		plugin = nullptr;
 	}
 

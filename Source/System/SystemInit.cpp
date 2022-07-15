@@ -63,8 +63,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/AudioPlugin.h"
 
 #include <array>
+#include <memory>
 
-CGraphicsPlugin * gGraphicsPlugin   = NULL;
+
+std::unique_ptr<CGraphicsPlugin> gGraphicsPlugin;
 std::unique_ptr<CAudioPlugin> gAudioPlugin;
 
 static bool InitAudioPlugin()
@@ -82,7 +84,7 @@ static bool InitGraphicsPlugin()
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gGraphicsPlugin == NULL, "The graphics plugin should not be initialised at this point" );
 	#endif
-	CGraphicsPlugin * graphics_plugin = CreateGraphicsPlugin();
+	std::unique_ptr<CGraphicsPlugin> graphics_plugin = CreateGraphicsPlugin();
 	if( graphics_plugin != NULL )
 	{
 		 gGraphicsPlugin = std::move(graphics_plugin);
@@ -95,7 +97,7 @@ static void DisposeGraphicsPlugin()
 	if ( gGraphicsPlugin != NULL )
 	{
 		gGraphicsPlugin->RomClosed();
-		delete gGraphicsPlugin;
+		// delete gGraphicsPlugin;
 		gGraphicsPlugin = NULL;
 	}
 }

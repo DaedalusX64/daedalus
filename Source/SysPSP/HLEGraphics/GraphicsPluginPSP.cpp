@@ -46,8 +46,8 @@ extern void HandleEndOfFrame();
 
 extern bool gFrameskipActive;
 
-u32		gSoundSync = 44100;
-u32		gVISyncRate =1500;
+u32		gSoundSync =  44100;
+u32		gVISyncRate = 1500;
 bool	gTakeScreenshot = false;
 bool	gTakeScreenshotSS = false;
 
@@ -284,16 +284,12 @@ void CGraphicsPluginImpl::RomClosed()
 	DestroyRenderer();
 }
 
-CGraphicsPlugin * CreateGraphicsPlugin()
+class std::unique_ptr<CGraphicsPlugin>	CreateGraphicsPlugin()
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
-	DBGConsole_Msg( 0, "Initialising Graphics Plugin [CPSP]" );
-#endif
-
-	CGraphicsPluginImpl * plugin = new CGraphicsPluginImpl;
-	if( !plugin->Initialise() )
+	DBGConsole_Msg( 0, "Initialising PSP Graphics Plugin" );
+	auto plugin = std::make_unique<CGraphicsPluginImpl>();
+	if (!plugin->Initialise())
 	{
-		delete plugin;
 		plugin = nullptr;
 	}
 

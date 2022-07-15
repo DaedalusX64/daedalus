@@ -331,7 +331,7 @@ void	IMainMenuScreen::OnRomSelected( const char * rom_filename )
 
 // This feature is not really stable
 
-void	IMainMenuScreen::OnSavestateSelected( const std::filesystem::path savestate_filename )
+void	IMainMenuScreen::OnSavestateSelected( const char * savestate_filename )
 {
 	// If the CPU is running we need to queue a request to load the state
 	// (and possibly switch roms). Otherwise we just load the rom directly
@@ -348,7 +348,7 @@ void	IMainMenuScreen::OnSavestateSelected( const std::filesystem::path savestate
 	}
 	else
 	{
-		const std::filesystem::path rom_filename = SaveState_GetRom(savestate_filename);
+		const char * rom_filename = SaveState_GetRom(savestate_filename);
 		if( rom_filename == NULL )
 		{
 			// report error?

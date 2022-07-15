@@ -47,7 +47,7 @@ template<> bool CSingleton< CVideoMemoryManager >::Create()
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 #endif
-	mpInstance = new IVideoMemoryManager();
+	mpInstance = std::make_shared<IVideoMemoryManager>();
 	return mpInstance != nullptr;
 }
 

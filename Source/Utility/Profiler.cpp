@@ -416,9 +416,9 @@ CProfiler::~CProfiler()
 
 template<> bool CSingleton< CProfiler >::Create()
 {
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 
-	mpInstance = new CProfiler();
+	mpInstance = std::make_shared<CProfiler>();
 
 	return true;
 }

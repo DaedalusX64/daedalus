@@ -63,7 +63,7 @@ class CIniFile
 	public:
 		virtual								~CIniFile();
 
-		static CIniFile *					Create( const std::filesystem::path filename );
+		static std::unique_ptr<CIniFile>					Create( const std::filesystem::path filename );
 
 		virtual const CIniFileSection *		GetDefaultSection() const = 0;
 

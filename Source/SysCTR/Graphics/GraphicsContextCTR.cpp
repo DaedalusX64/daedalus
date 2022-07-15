@@ -85,7 +85,7 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 #endif
-	mpInstance = new IGraphicsContext();
+	mpInstance = std::make_shared<IGraphicsContext>();
 	return mpInstance->Initialise();
 }
 

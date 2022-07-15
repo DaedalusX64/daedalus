@@ -24,6 +24,7 @@
 #define UTILITY_SINGLETON_H_
 
 #include <stdlib.h>
+#include <memory>
 
 #include "Base/Assert.h"
 
@@ -47,10 +48,10 @@ template < class T > class CSingleton
 		//CSingleton();
 		virtual ~CSingleton() {}
 
-		inline static T * Get()
+		inline static std::shared_ptr<T> Get()
 		{
 			#ifdef DAEDALUS_ENABLE_ASSERTS
-			DAEDALUS_ASSERT(mpInstance != NULL, "%s", __PRETTY_FUNCTION__ );
+			DAEDALUS_ASSERT(mpInstance != nullptr, "%s", __PRETTY_FUNCTION__ );
 			#endif
 			return mpInstance;
 		}
@@ -62,29 +63,28 @@ template < class T > class CSingleton
 		static void Destroy()
 		{
 			#ifdef DAEDALUS_ENABLE_ASSERTS
-			DAEDALUS_ASSERT_Q(mpInstance != NULL);
+			DAEDALUS_ASSERT_Q(mpInstance != nullptr);
 			#endif
-			delete mpInstance;
-			mpInstance = NULL;
+			mpInstance = nullptr;
 		}
 
 		inline static bool IsAvailable()
 		{
-			return (mpInstance != NULL);
+			return (mpInstance != nullptr);
 		}
 
-		static void Attach( T * p )
+		static void Attach( std::unique_ptr<T> p )
 		{
 			#ifdef DAEDALUS_ENABLE_ASSERTS
-			DAEDALUS_ASSERT_Q(mpInstance == NULL);
+			DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 			#endif
 			mpInstance = p;
 		}
 
 	protected:
-		static T * mpInstance;
+		static std::shared_ptr<T> mpInstance;
 };
 
-template < class T > T * CSingleton< T >::mpInstance = NULL;
+template < class T > std::shared_ptr<T> CSingleton< T >::mpInstance = NULL;
 
 #endif // UTILITY_SINGLETON_H_
