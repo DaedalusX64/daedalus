@@ -73,7 +73,7 @@ namespace
 //*************************************************************************************
 //
 //*************************************************************************************
-CFragment::CFragment( CCodeBufferManager * p_manager,
+CFragment::CFragment( std::shared_ptr<CCodeBufferManager> p_manager,
 					  u32 entry_address,
 					  u32 exit_address,
 					  const TraceBuffer & trace,
@@ -107,7 +107,7 @@ CFragment::CFragment( CCodeBufferManager * p_manager,
 //*************************************************************************************
 // Create a Fragement for Patch Function
 //*************************************************************************************
-CFragment::CFragment(CCodeBufferManager * p_manager, u32 entry_address,
+CFragment::CFragment(std::shared_ptr<CCodeBufferManager> p_manager, u32 entry_address,
 						u32 function_length, void* function_Ptr)
 	:	mEntryAddress( entry_address )
 	,	mInputLength(function_length  * sizeof( OpCode ) )
@@ -566,7 +566,7 @@ void	CFragment::AddPatch( u32 address, CJumpLocation jump_location )
 //*************************************************************************************
 //
 //*************************************************************************************
-void CFragment::Assemble( CCodeBufferManager * p_manager,
+void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager,
 						  u32 exit_address,
 						  const std::vector< STraceEntry > & trace,
 						  const std::vector< SBranchDetails > & branch_details,
@@ -576,7 +576,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 
 	const u32				NO_JUMP_ADDRESS( 0 );
 
-	CCodeGenerator *		p_generator( p_manager->StartNewBlock() );
+	std::shared_ptr<CCodeGenerator>	p_generator = p_manager->StartNewBlock();
 
 	mEntryPoint = p_generator->GetEntryPoint();
 
@@ -831,19 +831,18 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 	mFragmentFunctionLength = p_manager->FinaliseCurrentBlock();
 	mOutputLength = mFragmentFunctionLength - ADDITIONAL_OUTPUT_BYTES;
 
-	delete p_generator;
 }
 
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 //*************************************************************************************
 //
 //*************************************************************************************
-void CFragment::Assemble( CCodeBufferManager * p_manager, CCodeLabel function_ptr)
+void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager, CCodeLabel function_ptr)
 {
 	std::vector< CJumpLocation >		exception_handler_jumps;
 	SRegisterUsageInfo register_usage;
 
-	CCodeGenerator *p_generator = p_manager->StartNewBlock();
+	std::shared_ptr<CCodeGenerator> p_generator = p_manager->StartNewBlock();
 	mEntryPoint = p_generator->GetEntryPoint();
 
 
@@ -862,7 +861,6 @@ void CFragment::Assemble( CCodeBufferManager * p_manager, CCodeLabel function_pt
 	mFragmentFunctionLength = p_manager->FinaliseCurrentBlock();
 	mOutputLength = mFragmentFunctionLength - ADDITIONAL_OUTPUT_BYTES;
 
-	delete p_generator;
 }
 #endif
 //*************************************************************************************

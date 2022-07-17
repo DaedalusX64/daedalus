@@ -30,6 +30,7 @@ class	CCodeBufferManager;
 #include <map>
 #include <vector>
 #include <array>
+#include <memory>
 
 struct FHashT
 {
@@ -88,7 +89,7 @@ public:
 
 	u32						GetMemoryUsage() const					{ return mMemoryUsage; }
 
-	CCodeBufferManager *	GetCodeBufferManager() const			{ return mpCodeBufferManager; }
+	std::shared_ptr<CCodeBufferManager>	GetCodeBufferManager() const			{ return mpCodeBufferManager; }
 
 	bool					ShouldInvalidateOnWrite( u32 address, u32 length ) const;
 
@@ -133,7 +134,7 @@ private:
 	mutable std::array<FHashT, HASH_TABLE_SIZE> mpCacheHashTable;
 	// mutable FHashT			mpCacheHashTable[HASH_TABLE_SIZE];
 
-	CCodeBufferManager *	mpCodeBufferManager;
+	std::shared_ptr<CCodeBufferManager>	mpCodeBufferManager;
 
 	CFragmentCacheCoverage	mCacheCoverage;
 };

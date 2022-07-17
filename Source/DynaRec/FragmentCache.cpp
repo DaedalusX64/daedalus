@@ -68,7 +68,6 @@ CFragmentCache::~CFragmentCache()
 	Clear();
 
 	mpCodeBufferManager->Finalise();
-	delete mpCodeBufferManager;
 }
 
 //*************************************************************************************

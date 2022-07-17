@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/RegisterSpan.h"
 
 #include <vector>
-
+#include <memory>
 //*************************************************************************************
 //	Enable this to allow simulation of the buffer rather than direct execution
 //*************************************************************************************
@@ -65,11 +65,11 @@ class CFragment
 	using TraceBuffer = std::vector<STraceEntry>;
 	using BranchBuffer = std::vector<SBranchDetails>;
 public:
-		CFragment( CCodeBufferManager * p_manager, u32 entry_address, u32 exit_address,
+		CFragment( std::shared_ptr<CCodeBufferManager> p_manager, u32 entry_address, u32 exit_address,
 			const TraceBuffer & trace, SRegisterUsageInfo &	register_usage, const BranchBuffer & branch_details, bool need_indirect_exit_map );
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
-		CFragment(CCodeBufferManager * p_manager, u32 entry_address, u32 input_length, void* function_Ptr);
-		void		Assemble( CCodeBufferManager * p_manager, CCodeLabel native_function);
+		CFragment(std::shared_ptr<CCodeBufferManager> p_manager, u32 entry_address, u32 input_length, void* function_Ptr);
+		void		Assemble( std::shared_ptr<CCodeBufferManager> p_manager, CCodeLabel native_function);
 #endif
 		~CFragment();
 
@@ -100,7 +100,7 @@ public:
 
 private:
 		void		Analyse( const std::vector< STraceEntry > & trace, SRegisterUsageInfo & register_usage );
-		void		Assemble( CCodeBufferManager * p_manager, u32 exit_address, const std::vector< STraceEntry > & trace, const std::vector<SBranchDetails> & branch_details, const SRegisterUsageInfo & register_usage );
+		void		Assemble( std::shared_ptr<CCodeBufferManager> p_manager, u32 exit_address, const std::vector< STraceEntry > & trace, const std::vector<SBranchDetails> & branch_details, const SRegisterUsageInfo & register_usage );
 
 		void		AddPatch( u32 address, CJumpLocation jump_location );
 

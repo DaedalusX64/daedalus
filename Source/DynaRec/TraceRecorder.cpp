@@ -292,7 +292,7 @@ void	CTraceRecorder::StopTrace( u32 exit_address )
 
 //
 
-CFragment *		CTraceRecorder::CreateFragment( CCodeBufferManager * p_manager )
+CFragment *		CTraceRecorder::CreateFragment( std::shared_ptr<CCodeBufferManager> p_manager )
 {
 	#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
 	DAEDALUS_PROFILE( "CTraceRecorder::CreateFragment" );
