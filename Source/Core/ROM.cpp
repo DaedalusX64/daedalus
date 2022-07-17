@@ -547,7 +547,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 
 bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_name )
 {
-	ROMFile * p_rom_file = ROMFile::Create( filename.c_str());
+	auto p_rom_file = ROMFile::Create( filename );
 	if (p_rom_file == nullptr)
 	{
 		return false;
@@ -557,7 +557,7 @@ bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_na
 
 	if (!p_rom_file->Open( messages ))
 	{
-		delete p_rom_file;
+		// delete p_rom_file;
 		return false;
 	}
 
@@ -570,7 +570,7 @@ bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_na
 	{
 		// Lots of files don't have any info - don't worry about it
 		delete [] p_bytes;
-		delete p_rom_file;
+		// delete p_rom_file;
 		return false;
 	}
 
@@ -583,7 +583,6 @@ bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_na
 	ROM_GetRomNameFromHeader( game_name, *prh );
 
 	delete [] p_bytes;
-	delete p_rom_file;
 	return true;
 }
 

@@ -31,7 +31,7 @@ bool IsRomfilename( const char * rom_filename );
 class ROMFile
 {
 public:
-	static ROMFile * Create( const std::filesystem::path filename );
+	static std::shared_ptr<ROMFile> Create( const std::filesystem::path filename );
 
 	ROMFile( const std::filesystem::path filename );
 	virtual ~ROMFile();

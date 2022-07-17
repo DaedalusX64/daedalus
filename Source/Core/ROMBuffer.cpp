@@ -69,9 +69,9 @@ namespace
 	}
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-	ROMFile *	DecompressRom( ROMFile * p_rom_file, const char * temp_filename, COutputStream & messages )
+	std::shared_ptr<ROMFile> DecompressRom( std::shared_ptr<ROMFile> p_rom_file, const char * temp_filename, COutputStream & messages )
 	{
-		ROMFile *	p_new_file( nullptr );
+		auto p_new_file = nullptr;
 		FILE *		fh( fopen( temp_filename, "wb" ) );
 
 		if( fh == nullptr )
@@ -182,7 +182,7 @@ bool RomBuffer::Open()
 {
 	CNullOutputStream messages;
 	const std::filesystem::path filename   = g_ROM.mFileName;
-	ROMFile *    p_rom_file = ROMFile::Create( filename.c_str() );
+	auto p_rom_file = ROMFile::Create( filename.c_str() );
 	if(p_rom_file == nullptr)
 	{
 		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename.c_str());
@@ -193,7 +193,6 @@ bool RomBuffer::Open()
 	{
 
 		DBGConsole_Msg(0, "Failed to open [C%s]\n", filename.c_str());
-		delete p_rom_file;
 		return false;
 	}
 
@@ -212,7 +211,6 @@ bool RomBuffer::Open()
 			DBGConsole_Msg(0, "Failed to load [C%s]\n", filename.c_str());
 			#endif
 			CROMFileMemory::Get()->Free( p_bytes );
-			delete p_rom_file;
 			return false;
 		}
 #else
@@ -247,7 +245,6 @@ bool RomBuffer::Open()
 		spRomData = p_bytes;
 		sRomFixed = true;
 
-		delete p_rom_file;
 	}
 	else
 	{
@@ -277,7 +274,7 @@ bool RomBuffer::Open()
 				#endif
 				CNullOutputStream		local_messages;
 
-				ROMFile * p_new_file = DecompressRom( p_rom_file, temp_filename, local_messages );
+				auto p_new_file = DecompressRom( p_rom_file, temp_filename, local_messages );
 				#ifdef DAEDALUS_DEBUG_CONSOLE
 				DBGConsole_Msg( 0, "messages:\n%s", local_messages.c_str() );
 				#endif

@@ -400,7 +400,7 @@ static bool GenerateRomDetails( const std::filesystem::path filename, RomID * id
 	//
 	//	Haven't seen this rom before - try to add it to the database
 	//
-	ROMFile * rom_file( ROMFile::Create( filename ) );
+	auto rom_file = ROMFile::Create( filename );
 	if( rom_file == NULL )
 	{
 		return false;
@@ -410,7 +410,7 @@ static bool GenerateRomDetails( const std::filesystem::path filename, RomID * id
 
 	if( !rom_file->Open( messages ) )
 	{
-		delete rom_file;
+
 		return false;
 	}
 
@@ -426,7 +426,6 @@ static bool GenerateRomDetails( const std::filesystem::path filename, RomID * id
 	{
 		// Lots of files don't have any info - don't worry about it
 		delete [] bytes;
-		delete rom_file;
 		return false;
 	}
 
@@ -453,7 +452,6 @@ static bool GenerateRomDetails( const std::filesystem::path filename, RomID * id
 	*id = RomID( prh->CRC1, prh->CRC2, prh->CountryID );
 
 	delete [] bytes;
-	delete rom_file;
 	return true;
 }
 

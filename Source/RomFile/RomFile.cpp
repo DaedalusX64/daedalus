@@ -50,7 +50,7 @@ bool IsRomfilename( const char * rom_filename )
 		    strcasecmp(last_period, ".zip") == 0);
 }
 
-ROMFile * ROMFile::Create( const std::filesystem::path filename )
+std::shared_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
 {
 	const char * ext = IO::Path::FindExtension( filename.c_str() );
 	if (ext && strcasecmp(ext, ".zip") == 0)
@@ -63,7 +63,7 @@ ROMFile * ROMFile::Create( const std::filesystem::path filename )
 	}
 	else
 	{
-		return new ROMFileUncompressed( filename.c_str() );
+		return std::make_shared<ROMFileUncompressed>( filename.c_str() );
 	}
 }
 

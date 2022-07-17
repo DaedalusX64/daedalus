@@ -105,7 +105,7 @@ ROMFileCache::~ROMFileCache()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	ROMFileCache::Open( ROMFile * p_rom_file )
+bool	ROMFileCache::Open( std::shared_ptr<ROMFile> p_rom_file )
 {
 	mpROMFile = p_rom_file;
 
@@ -138,7 +138,6 @@ void	ROMFileCache::Close()
 	delete [] mpChunkMap;
 	mpChunkMap = NULL;
 	mChunkMapEntries = 0;
-	delete mpROMFile;
 	mpROMFile = NULL;
 }
 
