@@ -45,9 +45,9 @@ static const u32 kPlaceholderTextureWidth  = 16;
 static const u32 kPlaceholderTextureHeight = 16;
 static const u32 kPlaceholderSize = kPlaceholderTextureWidth * kPlaceholderTextureHeight;
 
-u32 alignas(DATA_ALIGN) gWhiteTexture[kPlaceHolderSize];
-u32 alignas(DATA_ALIGN) gPlaceholderTexture[kPlaceHolderSize];
-u32 alignas(DATA_ALIGN) gSelectedTexture[kPlaceHolderSize];
+u32 alignas(DATA_ALIGN) gWhiteTexture[kPlaceholderSize];
+u32 alignas(DATA_ALIGN) gPlaceholderTexture[kPlaceholderSize];
+u32 alignas(DATA_ALIGN) gSelectedTexture[kPlaceholderSize];
 
 #define BLEND_MODE_MAKER \
 { \
