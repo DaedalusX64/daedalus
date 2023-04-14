@@ -23,3 +23,6 @@ add_library(Core OBJECT
                         Save.cpp 
                         TLB.cpp
                         )
+
+list(APPEND daed_libs "Core")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

@@ -1,4 +1,4 @@
-add_library(DynaRec_Plat OBJECT
+add_library(Dynarec_PSP OBJECT
                             AssemblyWriterPSP.cpp 
                             AssemblyUtilsPSP.cpp 
                             CodeBufferManagerPSP.cpp 
@@ -7,3 +7,7 @@ add_library(DynaRec_Plat OBJECT
                             DynaRecStubs.S 
                             N64RegisterCachePSP.cpp
             )
+
+            
+list(APPEND daed_libs "Dynarec_PSP")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

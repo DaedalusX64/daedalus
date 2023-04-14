@@ -18,3 +18,12 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../EBOOT.PBP DESTINATION DaedalusX64)
 
 #PSP Resources
 install(DIRECTORY ${PROJECT_BINARY_DIR}/../Data/ DESTINATION DaedalusX64)
+
+list(APPEND daed_libs)
+set(daed_libs ${daed_libs} PARENT_SCOPE)
+
+list(APPEND sys_libraries g psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge pspaudiolib pspaudio intrafont pspkubridge pspfpu pspge )
+## PSP_SDL Additional Requirements - pspvram psphprm GL pspvfpu)
+set(sys_libraries ${sys_libraries} PARENT_SCOPE)
+
+set(plat_main SysPSP/main.cpp PARENT_SCOPE)

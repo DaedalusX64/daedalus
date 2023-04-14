@@ -1,5 +1,6 @@
 ## Options File Ugh, I wish tehre were a better way for this
 
+
 if(DAEDALUS_BATCH_TEST_ENABLED)
     add_compile_definitions(DAEDALUS_BATCH_TEST_ENABLED)
 endif(DAEDALUS_BATCH_TEST_ENABLED)
@@ -98,6 +99,9 @@ if(DAEDALUS_DAEDALUS_ACCURATE_CVT)
 endif()
 if(DAEDALUS_SDL)
     add_compile_definitions(DAEDALUS_SDL)
+endif()
+if(DAEDALUS_GL)
+    add_compile_definitions(DAEDALUS_GL)
 endif()
 if(DUMPOSFUNCTIONS)
  add_compile_definitions(DUMPOSFUNCTIONS)

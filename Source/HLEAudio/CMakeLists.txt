@@ -13,3 +13,6 @@ add_library(HLEAudio
                     HLEAudioState.cpp
                     HLEMain.cpp 
                     )
+
+list(APPEND daed_libs "HLEAudio")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

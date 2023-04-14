@@ -1,4 +1,4 @@
-add_library(UI_Plat OBJECT 
+add_library(UI_PSP OBJECT 
                             AboutComponent.cpp 
                             AdjustDeadzoneScreen.cpp 
                             AdvancedOptionsScreen.cpp 
@@ -21,3 +21,7 @@ add_library(UI_Plat OBJECT
                             UIScreen.cpp 
                             UISetting.cpp
             )
+
+            
+list(APPEND daed_libs "UI_PSP")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

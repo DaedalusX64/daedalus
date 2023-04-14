@@ -14,3 +14,6 @@ add_library(HLEGraphics OBJECT
                             TMEM.cpp 
                             uCodes/Ucode.cpp
             )
+
+list(APPEND daed_libs "HLEGraphics")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

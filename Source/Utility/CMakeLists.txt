@@ -12,3 +12,8 @@ add_library(Utility OBJECT
 
 
             # Utility/FastMemcpy_test.cpp Utility/MemoryPool.cpp These are testing
+
+
+            
+list(APPEND daed_libs "Utility")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

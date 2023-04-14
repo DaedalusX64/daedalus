@@ -6,3 +6,6 @@ add_library(DynaRec OBJECT
                                 IndirectExitMap.cpp 
                                 StaticAnalysis.cpp 
                                 TraceRecorder.cpp)
+
+list(APPEND daed_libs "DynaRec")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

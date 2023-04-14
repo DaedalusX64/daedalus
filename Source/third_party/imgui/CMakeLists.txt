@@ -1,5 +1,5 @@
-    
-    
+
+
     ## This will need to be fixed for all platforms for proper detection
     if (UNIX)
     # set(BACKEND ${PROJECT_SOURCE_DIR}/Source/third_party/imgui/backends/imgui_impl_SDL.mm) ?
@@ -8,6 +8,7 @@
     set(BACKEND ${PROJECT_SOURCE_DIR}/Source/third_party/imgui/backends/imgui_impl_3DS.cpp)
     endif()
 
+    
 add_library(imgui OBJECT
             ${PROJECT_SOURCE_DIR}/Source/third_party/imgui/imgui.cpp 
             ${PROJECT_SOURCE_DIR}/Source/third_party/imgui/imgui_demo.cpp 

@@ -1,4 +1,4 @@
-add_library(Utility_Plat OBJECT 
+add_library(Utility_PSP OBJECT 
                                 AtomicPrimitives.S 
                                 BatteryPSP.cpp 
                                 DebugMemory.cpp 
@@ -12,3 +12,7 @@ add_library(Utility_Plat OBJECT
                                 ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/ThreadPosix.cpp
                                 ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/IOPosix.cpp
             )
+
+            
+list(APPEND daed_libs "Utility_PSP")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

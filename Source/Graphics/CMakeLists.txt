@@ -3,3 +3,6 @@ add_library(Graphics
                     PngUtil.cpp 
                     TextureTransform.cpp
             )
+
+list(APPEND daed_libs "Graphics")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

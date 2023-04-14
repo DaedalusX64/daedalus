@@ -1,4 +1,4 @@
-add_library(HLEGraphics_Plat OBJECT 
+add_library(HLEGraphics_PSP OBJECT 
                                     Blender.cpp 
                                     BlendModes.cpp 
                                     ColourAdjuster.cpp 
@@ -16,3 +16,7 @@ add_library(HLEGraphics_Plat OBJECT
                                     Combiner/CombinerTree.cpp 
                                     Combiner/RenderSettings.cpp
             )
+
+            
+list(APPEND daed_libs "HLEGraphics_PSP")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

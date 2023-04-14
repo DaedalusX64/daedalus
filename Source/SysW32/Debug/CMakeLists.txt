@@ -1,1 +1,5 @@
-add_library(Graphics_Plat DaedalusAssertW32.cpp)
+add_library(Debug_Windows DaedalusAssertW32.cpp)
+
+list(APPEND daed_libs Debug_Win)
+set(daed_libs ${daed_libs} PARENT_SCOPE)
+

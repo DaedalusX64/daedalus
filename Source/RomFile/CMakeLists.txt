@@ -7,3 +7,7 @@ add_library(RomFile
                     RomFileMemory.cpp 
                     RomFileUncompressed.cpp
             )
+
+            
+list(APPEND daed_libs "RomFile")
+set(daed_libs ${daed_libs} PARENT_SCOPE)
