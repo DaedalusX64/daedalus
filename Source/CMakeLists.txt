@@ -21,15 +21,16 @@ list(APPEND plat_main )
 		option(DAEDALUS_LOG "Enable various logging" ON)
 		add_definitions("-MD")
 		add_definitions("-g")
+
 	else()
 	# message(${CMAKE_CXX_FLAGS_RELEASE}) ## Need to investigate this further as it breaks macOS build.. See what the PSP has on it for example
 	if(NOT APPLE)
-		# set(CMAKE_BUILD_TYPE Release)
+		 set(CMAKE_BUILD_TYPE Release)
 	endif(NOT APPLE)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 		add_compile_definitions(fltfo)
 		add_compile_definitions(NDEBUG)
-		# add_compile_definitions(O3)
+		add_compile_definitions(O3)
 	endif()
 
 	#Determine Dynarec compatibility and link in appropriate Dynarec
