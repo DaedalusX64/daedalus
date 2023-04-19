@@ -648,3 +648,5 @@ u32 ROM_GetTvTypeFromID( u8 country_id )
 
 	return OS_TV_NTSC;
 }
+
+u32 Rom_test(u8 
