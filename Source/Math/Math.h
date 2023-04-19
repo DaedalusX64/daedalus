@@ -2,6 +2,7 @@
 #define MATH_MATH_H_
 
 #include <math.h>
+#include <utility>
 
 //ToDo: Use M_PI for x86 platform?
 #define PI   3.141592653589793f
