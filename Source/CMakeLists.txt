@@ -233,7 +233,7 @@ if(WIN32)
 			BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png
 			PREVIEW_PATH NULL
 			TITLE DaedalusX64
-
+			BUILD_PRX
 			)
 	endif(PSP)
 	

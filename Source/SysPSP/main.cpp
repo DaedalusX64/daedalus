@@ -80,6 +80,7 @@ PSP_MODULE_INFO( DaedalusX64 1.1.9a, 0, 1, 1 );
 PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 #endif
 
+
 extern "C"
 {
 
@@ -140,7 +141,7 @@ extern void initExceptionHandler();
 		PSP_IS_SLIM = true;
 		g32bitColorMode = true;
 		sceGeEdramSetSize(4*1024*1024);
-		HAVE_DVE = CModule::Load("plugins/dvemgr.prx");
+		HAVE_DVE = CModule::Load("Plugins/dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
 		if (PSP_TV_CABLE == 1)
@@ -225,7 +226,7 @@ void HandleEndOfFrame()
 		CDrawText::Destroy();
 
 		// Commit the preferences database before starting to run
-		CPreferences::Get()->Commit();
+		// CPreferences::Get()->Commit();
 	}
 
 	//	Reset the elapsed time to avoid glitches when we restart
@@ -267,8 +268,8 @@ int main(int argc, char* argv[])
 			DisplayRomsAndChoose( show_splash );
 			show_splash = false;
 
-			CRomDB::Get()->Commit();
-			CPreferences::Get()->Commit();
+			// CRomDB::Get()->Commit();
+			// CPreferences::Get()->Commit();
 
 			CPU_Run();
 			System_Close();
