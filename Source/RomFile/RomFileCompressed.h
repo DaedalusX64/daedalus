@@ -39,11 +39,11 @@ public:
 
 	virtual ~ROMFileCompressed();
 
-	virtual bool		Open( COutputStream & messages );
+	virtual bool		Open();
 
 	virtual bool		IsCompressed() const			{ return true; }
 	virtual u32			GetRomSize() const				{ return mRomSize; }
-	virtual bool		LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages );
+	virtual bool		LoadRawData( u32 bytes_to_read, u8 *p_bytes );
 
 	virtual bool		ReadChunk( u32 offset, u8 * p_dst, u32 length );
 

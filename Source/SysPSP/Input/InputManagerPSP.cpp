@@ -21,7 +21,6 @@
 #include "System/IO.h"
 #include "Base/Macros.h"
 #include "Interface/Preferences.h"
-#include "Utility/Stream.h"
 #include "Debug/Synchroniser.h"
 
 namespace

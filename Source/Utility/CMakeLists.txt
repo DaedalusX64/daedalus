@@ -5,7 +5,6 @@ add_library(Utility OBJECT
                             IniFile.cpp 
                             MemoryHeap.cpp  
                             Profiler.cpp  
-                            Stream.cpp 
                             StringUtil.cpp 
                             Timer.cpp
             )

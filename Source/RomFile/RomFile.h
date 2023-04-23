@@ -36,12 +36,12 @@ public:
 	ROMFile( const std::filesystem::path filename );
 	virtual ~ROMFile();
 
-			bool		LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages );
+			bool		LoadData( u32 bytes_to_read, u8 *p_bytes);
 
 			//
 			//	Streaming functions
 			//
-	virtual bool		Open( COutputStream & messages ) = 0;
+	virtual bool		Open() = 0;
 	virtual bool		ReadChunk( u32 offset, u8 * p_dst, u32 length ) = 0;
 
 	virtual bool		IsCompressed() const = 0;
@@ -57,7 +57,7 @@ protected:
 			void		CorrectSwap( u8 * p_bytes, u32 length );
 
 private:
-	virtual bool		LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages ) = 0;
+	virtual bool		LoadRawData( u32 bytes_to_read, u8 *p_bytes) = 0;
 
 protected:
 	std::filesystem::path mFilename;

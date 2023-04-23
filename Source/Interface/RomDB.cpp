@@ -32,7 +32,6 @@
 #include "Base/MathUtil.h"
 #include "System/IO.h"
 #include "RomFile/RomFile.h"
-#include "Utility/Stream.h"
 #include <filesystem>
 
 static const u64 ROMDB_MAGIC_NO	= 0x42444D5244454144LL; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
@@ -406,9 +405,7 @@ static bool GenerateRomDetails( const std::filesystem::path filename, RomID * id
 		return false;
 	}
 
-	CNullOutputStream messages;
-
-	if( !rom_file->Open( messages ) )
+	if( !rom_file->Open( ) )
 	{
 
 		return false;
@@ -422,7 +419,7 @@ static bool GenerateRomDetails( const std::filesystem::path filename, RomID * id
 	u32		size_aligned( AlignPow2( bytes_to_read, 4 ) );	// Needed?
 	u8 *	bytes( new u8[size_aligned] );
 
-	if( !rom_file->LoadData( bytes_to_read, bytes, messages ) )
+	if( !rom_file->LoadData( bytes_to_read, bytes ) )
 	{
 		// Lots of files don't have any info - don't worry about it
 		delete [] bytes;
