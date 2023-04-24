@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include <vector>
-
+#include <random>
 
 #include "Config/ConfigOptions.h"
 #include "Core/ROM.h"
@@ -239,6 +239,7 @@ bool CachedTexture::Initialise()
 	#endif
 	u32 width  = mTextureInfo.GetWidth();
 	u32 height = mTextureInfo.GetHeight();
+	std::default_random_engine FastRando;
 
 	if (mTextureInfo.GetEmulateMirrorS()) width  *= 2;
 	if (mTextureInfo.GetEmulateMirrorT()) height *= 2;
@@ -252,7 +253,7 @@ bool CachedTexture::Initialise()
 
 		if(gCheckTextureHashFrequency > 0)
 		{
-			mFrameLastUpToDate = gRDPFrame + (FastRand() & (gCheckTextureHashFrequency - 1));
+			mFrameLastUpToDate = gRDPFrame + (FastRando() & (gCheckTextureHashFrequency - 1));
 		}
 		UpdateTextureHash();
 		UpdateTexture( mTextureInfo, mpTexture );
@@ -313,6 +314,7 @@ bool CachedTexture::IsFresh() const
 
 bool CachedTexture::HasExpired() const
 {
+	std::default_random_engine FastRand;
 	if (!kUpdateTexturesEveryFrame)
 	{
 		if (!IsFresh())

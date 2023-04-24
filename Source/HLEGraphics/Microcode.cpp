@@ -25,9 +25,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Math.h"
 
 #include "Debug/DBGConsole.h"
-
-
 #include "Ultra/ultra_gbi.h"
+
+#include <random>
 
 // Limit cache ucode entries to 6
 // In theory we should never reach this max
@@ -160,6 +160,7 @@ static const std::array<MicrocodeData, 12> gMicrocodeData {
 UcodeInfo GBIMicrocode_SetCache(u32 index, u32 code_base, u32 data_base, 
 	const MicroCodeInstruction * ucode_function, const char ** name )
 {
+		std::default_random_engine FastRand;
 	//
 	// If the max of ucode entries is reached, spread it randomly
 	// Otherwise we'll keep overriding the last entry

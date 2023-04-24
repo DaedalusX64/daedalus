@@ -39,6 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include <vector>
+#include <random> 
 
 // Vertex allocation.
 // AllocVerts/FreeVerts:
@@ -288,7 +289,7 @@ void BaseRenderer::InitViewport()
 	// Init the N64 viewport.
 	mVpScale = v2( 640.f*0.25f, 480.f*0.25f );
 	mVpTrans = v2( 640.f*0.25f, 480.f*0.25f );
-
+		std::default_random_engine FastRand;
 	// Get the current display dimensions. This might change frame by frame e.g. if the window is resized.
 	u32 display_width  = 0;
 	u32 display_height = 0;

@@ -19,6 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "BuildOptions.h"
 #include "Base/Types.h"
 
+#include <random>
+
+#include "Base/Macros.h"
 #include "Core/CPU.h"
 #include "Core/Interrupt.h"
 #include "Core/R4300.h"
@@ -30,8 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/TraceRecorder.h"
 #include "Math/Math.h"	// VFPU Math
 #include "Ultra/ultra_R4300.h"
-
-#include "Base/Macros.h"
 
 #ifdef DAEDALUS_PSP
 #include <pspfpu.h>
@@ -57,7 +58,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	R4300_CALL_MAKE_OP( var )	OpCode	var;	var._u32 = op_code_bits
 
-#define R4300_Rand()		FastRand()
+std::default_random_engine R4300_Rand();
+// #define R4300_Rand()		FastRand()
 
 #if defined(DAEDALUS_PSP) && defined(SIM_DOUBLES)
 #define R4300_IsNaN(x) 		isnanf((x))
@@ -2040,11 +2042,12 @@ static void R4300_CALL_TYPE R4300_TLB_TLBWI( R4300_CALL_SIGNATURE )			// TLB Wri
 
 static void R4300_CALL_TYPE R4300_TLB_TLBWR( R4300_CALL_SIGNATURE )
 {
-
 	u32 wired = gCPUState.CPUControl[C0_WIRED]._u32 & 0x1F;
+	std::default_random_engine random;
+	std::uniform_int_distribution<u32> d{wired, 31};
 
 	// Select a value for index between wired and 31
-	u32 i = (R4300_Rand()%(32-wired)) + wired;
+	static u32 i = d(random) + wired;
 
 		#ifdef DAEDALUS_PROFILER
 			DPF( DEBUG_TLB, "TLBWR: INDEX: 0x%04x. ", i );
