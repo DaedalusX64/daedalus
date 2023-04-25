@@ -83,31 +83,3 @@ u32 ParseU32(ConstStringRef str, u32 base)
 
 	return val;
 }
-
-// void Print(const std::vector<ConstStringRef> & pieces)
-// {
-// 	for (size_t i = 0; i < pieces.size(); ++i)
-// 	{
-// 		printf("'%.*s',", pieces[i].size(), pieces[i].Begin);
-// 	}
-// 	printf("\n");
-// }
-
-// void TestSplit(const char * str)
-// {
-// 	ConstStringRef r(str);
-// 	std::vector<ConstStringRef> v;
-// 	Split(r, '&', &v);
-// 	printf("%s -> %d pieces\n", str, v.size());
-// 	Print(v);
-// }
-
-// void TestSplit()
-// {
-// 	TestSplit("");
-// 	TestSplit("&");
-// 	TestSplit("&&");
-// 	TestSplit("&a");
-// 	TestSplit("a&");
-// 	TestSplit("abc&def");
-// }

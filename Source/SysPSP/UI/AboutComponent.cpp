@@ -31,10 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Graphics/DrawText.h"
 
 #include "Base/Macros.h"
-#include "Utility/String.h"
 #include "SysPSP/Utility/Translate.h"
 #include "SysPSP/UI/PSPMenu.h"
 
+#include <string>
 #include <pspctrl.h>
 #include <pspgu.h>
 

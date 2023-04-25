@@ -17,13 +17,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#pragma once
-
 #ifndef CORE_ROMSETTINGS_H_
 #define CORE_ROMSETTINGS_H_
 
-#include "Utility/String.h"
+#include <string>
 
+#include "Base/Singleton.h"
 //*****************************************************************************
 // Configurable settings for a rom
 //*****************************************************************************
@@ -50,10 +49,10 @@ const u32 NUM_EXPANSIONPAK_USAGE_TYPES = PAK_REQUIRED + 1;
 
 struct RomSettings
 {
-	CFixedString<64>	GameName;
-	CFixedString<64>	Comment;
-	CFixedString<64>	Info;
-	CFixedString<64>	Preview;
+	std::string	GameName;
+	std::string	Comment;
+	std::string	Info;
+	std::string	Preview;
 
 	EExpansionPakUsage	ExpansionPakUsage;
 	ESaveType			SaveType;
@@ -79,7 +78,7 @@ struct RomSettings
 	void	Reset();
 };
 
-#include "Base/Singleton.h"
+
 
 //*****************************************************************************
 //
