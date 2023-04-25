@@ -1,6 +1,6 @@
 
 
-add_library(RomFile 
+add_library(RomFile OBJECT
                     RomFile.cpp 
                     RomFileCache.cpp 
                     RomFileCompressed.cpp 

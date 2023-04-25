@@ -19,18 +19,16 @@ list(APPEND plat_main )
 		option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
 		option(DAEDALUS_LOG "Enable various logging" ON)
-		add_definitions("-MD")
 		add_definitions("-g")
-
+		add_compile_options("-Wall")
 	else()
 	# message(${CMAKE_CXX_FLAGS_RELEASE}) ## Need to investigate this further as it breaks macOS build.. See what the PSP has on it for example
 	if(NOT APPLE)
 		 set(CMAKE_BUILD_TYPE Release)
 	endif(NOT APPLE)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
-		add_compile_definitions(fltfo)
-		add_compile_definitions(NDEBUG)
-		add_compile_definitions(O3)
+		add_compile_definitions("O3")
+		add_compile_definitions("flto")
 	endif()
 
 	#Determine Dynarec compatibility and link in appropriate Dynarec
@@ -221,7 +219,7 @@ if(WIN32)
 	# ---  Build ---- 
 
 	add_executable(daedalus ${plat_main})
-	list(APPEND default_libraries png z c m pthread) ## Required Libraries 
+	list(APPEND default_libraries png z m pthread) ## Required Libraries 
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
 	target_link_libraries(daedalus LINK_PUBLIC ${daed_libs} ${sys_libraries} ${plat_libraries} ${default_libraries}  )
 

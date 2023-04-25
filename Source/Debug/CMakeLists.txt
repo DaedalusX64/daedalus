@@ -1,4 +1,4 @@
-add_library(Debug
+add_library(Debug OBJECT
                 DebugConsoleImpl.cpp 
                 DebugLog.cpp
                 Dump.cpp
