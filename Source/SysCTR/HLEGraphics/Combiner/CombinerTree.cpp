@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RenderSettings.h"
 #include "BlendConstant.h"
 #include "HLEGraphics/RDP.h"
+#include "Utility/Stream.h"
 
 //*****************************************************************************
 //
