@@ -27,9 +27,9 @@
 
 class RomID;
 
-bool SaveState_LoadFromFile( const std::filesystem::path filename );
-bool SaveState_SaveToFile( const std::filesystem::path filename );
-RomID SaveState_GetRomID( const std::filesystem::path filename );
-const char* SaveState_GetRom(const std::filesystem::path filename);
+bool SaveState_LoadFromFile( const std::filesystem::path &filename );
+bool SaveState_SaveToFile( const std::filesystem::path &filename );
+RomID SaveState_GetRomID( const std::filesystem::path &filename );
+const char* SaveState_GetRom(const std::filesystem::path &filename);
 
 #endif // CORE_SAVESTATE_H_

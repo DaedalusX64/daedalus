@@ -17,7 +17,7 @@ public:
 	FileSink();
 	~FileSink();
 
-	bool Open(const std::filesystem::path filename, const char * mode);
+	bool Open(const std::filesystem::path &filename, const char * mode);
 
 	virtual size_t Write(const void * p, size_t len);
 	virtual void Flush();
