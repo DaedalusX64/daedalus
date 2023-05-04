@@ -8,6 +8,8 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <string.h>
+#include <strings.h>
 
 #include "BuildOptions.h"
 #include "Base/Types.h"
@@ -137,7 +139,7 @@ class CProfilerImpl
 		std::vector< CProfileItem * >	mActiveItems;
 		std::vector< CProfileCallstack * >	mActiveCallstacks;
 
-	using CallstackStatsMap = std::map< u32, CProfileCallstack *>
+	using CallstackStatsMap = std::map< u32, CProfileCallstack *>;
 
 		CallstackStatsMap		mCallstackStatsMap;
 
