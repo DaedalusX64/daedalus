@@ -2,6 +2,7 @@
 #define SYSPSP_UI_PSPMENU_H_
 
 #include "Base/Types.h"
+#include <string>
 
 
 // User Interface Variables
@@ -78,16 +79,15 @@ const char * const		LOADING_TITLE_TEXT = "Select a Slot to Load From";
 // About components
 #define MAX_PSP_MODEL 11
 
-const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
-
-const char * const		DATE_TEXT = "Built ";
+const std::string DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
+const std::string		DATE_TEXT = "Built ";
 
 const char * const		URL_TEXT_1 = "https://github.com/daedalusx64/daedalus/";
 const char * const		URL_TEXT_2 = "https://discord.gg/AHWDYmB";
 
 const char * const		INFO_TEXT[] =
 {
-  "Copyright (C) 2008-2019 DaedalusX64 Team",
+  "Copyright (C) 2008-2023 DaedalusX64 Team",
   "Copyright (C) 2001-2009 StrmnNrmn",
   "Audio HLE code by Azimer",
   "",

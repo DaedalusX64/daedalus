@@ -19,7 +19,7 @@ FileSink::~FileSink()
 		fclose(Handle);
 }
 
-bool FileSink::Open(const std::filesystem::path filename, const char * mode)
+bool FileSink::Open(const std::filesystem::path &filename, const char * mode)
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(Handle == NULL, "Already have an open file");

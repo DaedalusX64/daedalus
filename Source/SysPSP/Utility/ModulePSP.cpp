@@ -38,24 +38,21 @@ namespace CModule
 
 		if(ret < 0)
 		{
-			printf("Couldn't unload module! : 0x%08X\n",ret);
+			std::cout << "Couldn't unload module!" << id <<": " << ret << std::endl;
 		}
 	}
 
 	int Load( const std::filesystem::path path )
 	{
-		int ret = pspSdkLoadStartModule(path.c_str()
-		, PSP_MEMORY_PARTITION_KERNEL);
+		int ret = pspSdkLoadStartModule(path.c_str(), PSP_MEMORY_PARTITION_KERNEL);
 
 		if( ret < 0 )
 		{	
-			std::cout << "Failed to load" << path <<": " << ret;
-			// printf( "Failed to load %s: %d\n",path, ret );
+			std::cout << "Failed to load" << path <<": " << ret << std::endl;
 			return ret; //-1
 		}
 
-		printf( "Successfully loaded %s: %08X\n", path, ret );
-
+		std::cout << "Successfully loaded" << path <<": " << ret << std::endl;
 		return ret;
 	}
 }

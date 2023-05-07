@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RomFile/RomFile.h"
 #include "RomFile/RomFileCache.h"
 #include "RomFile/RomFileMemory.h"
+#include "Utility/Stream.h"
 #include "System/IO.h"
 
 
@@ -68,15 +69,14 @@ namespace
 	}
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-	std::shared_ptr<ROMFile> DecompressRom( std::shared_ptr<ROMFile> p_rom_file, const char * temp_filename)
+	std::shared_ptr<ROMFile> DecompressRom( std::shared_ptr<ROMFile> p_rom_file, const char * temp_filename, COutputStream & messages )
 	{
 		auto p_new_file = nullptr;
 		FILE *		fh( fopen( temp_filename, "wb" ) );
 
 		if( fh == nullptr )
 		{
-			DAEDALUS_ERROR("Unable to create temporary rom %s for decompression", temp_filename);
-			// messages << "Unable to create temporary rom '" << temp_filename << "' for decompression\n";
+			messages << "Unable to create temporary rom '" << temp_filename << "' for decompression\n";
 		}
 		else
 		{
@@ -127,7 +127,7 @@ namespace
 
 			if( failed )
 			{
-				// messages << "Failed to decompress rom to '" << temp_filename << "' - out of disk space?\n";
+				messages << "Failed to decompress rom to '" << temp_filename << "' - out of disk space?\n";
 			}
 			else
 			{
@@ -137,13 +137,13 @@ namespace
 				p_new_file = ROMFile::Create( temp_filename );
 				if( p_new_file == nullptr )
 				{
-					// messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
+					messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
 				}
 				else
 				{
-					if( !p_new_file->Open() )
+					if( !p_new_file->Open( messages ) )
 					{
-						// messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
+						messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
 						delete p_new_file;
 						p_new_file = nullptr;
 					}
@@ -180,7 +180,7 @@ void RomBuffer::Destroy()
 //*****************************************************************************
 bool RomBuffer::Open()
 {
-	// CNullOutputStream messages;
+	CNullOutputStream messages;
 	const std::filesystem::path filename   = g_ROM.mFileName;
 	auto p_rom_file = ROMFile::Create( filename.c_str() );
 	if(p_rom_file == nullptr)
@@ -189,7 +189,7 @@ bool RomBuffer::Open()
 		return false;
 	}
 
-	if( !p_rom_file->Open() )
+	if( !p_rom_file->Open( messages ) )
 	{
 
 		DBGConsole_Msg(0, "Failed to open [C%s]\n", filename.c_str());
@@ -205,7 +205,7 @@ bool RomBuffer::Open()
 		u8 *	p_bytes( (u8*)CROMFileMemory::Get()->Alloc( size_aligned ) );
 
 #ifndef DAEDALUS_PSP
-		if( !p_rom_file->LoadData( sRomSize, p_bytes ) )
+		if( !p_rom_file->LoadData( sRomSize, p_bytes, messages ) )
 		{
 			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Failed to load [C%s]\n", filename.c_str());
@@ -272,9 +272,13 @@ bool RomBuffer::Open()
 				}
 				DBGConsole_Msg( 0, "Decompressing rom to [C%s] (this may take some time)", temp_filename );
 				#endif
-				// CNullOutputStream		local_messages;
+				CNullOutputStream		local_messages;
 
-				auto p_new_file = DecompressRom( p_rom_file, temp_filename );
+				auto p_new_file = DecompressRom( p_rom_file, temp_filename, local_messages );
+				#ifdef DAEDALUS_DEBUG_CONSOLE
+				DBGConsole_Msg( 0, "messages:\n%s", local_messages.c_str() );
+				#endif
+				messages << local_messages;
 
 				if(p_new_file != nullptr)
 				{

@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 bool System_Init();
 
 // Open a ROM. After this call, you can call CPU_Run safely.
-bool System_Open(const std::filesystem::path filename);
+bool System_Open(const std::filesystem::path &filename);
 
 // Close the ROM and cleanup the resources
 void System_Close();

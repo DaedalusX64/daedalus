@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "System/IO.h"
 #include "Base/Macros.h"
-#include 
+#include "Utility/Stream.h"
 
 //*****************************************************************************
 //
@@ -56,7 +56,7 @@ ROMFileCompressed::~ROMFileCompressed()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool ROMFileCompressed::Open()
+bool ROMFileCompressed::Open( COutputStream & messages )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mZipFile == NULL, "Opening the zipfile twice?" );
@@ -66,8 +66,8 @@ bool ROMFileCompressed::Open()
 	mZipFile = unzOpen(mFilename);
 	if (mZipFile == NULL)
 	{
-		DAEDALUS_ERROR("Couldn't open %s", mFilename);
 
+		messages << "Couldn't open " << mFilename;
 		return false;
 	}
 
@@ -78,7 +78,8 @@ bool ROMFileCompressed::Open()
 	err = unzGoToFirstFile(mZipFile);
 	if (err != UNZ_OK)
 	{
-		DAEDALUS_ERROR("Error %s with zipfile in unzGoToFirstFile", err);
+
+		messages << "error " << err << "with zipfile in unzGoToFirstFile";
 
 	}
 	else
@@ -92,7 +93,7 @@ bool ROMFileCompressed::Open()
 			if (err != UNZ_OK)
 			{
 
-				DAEDALUS_ERROR("Error %s with zipfile in unzGoToFirstFile", err);
+				messages << "error " << err << "with zipfile in unzGetCurrentFileInfo";
 				break;
 			}
 
@@ -175,7 +176,7 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStre
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 		if( bytes_read < 0 )
 		{
-			// messages << "error (" << bytes_read << ") with zipfile in unzReadCurrentFile";
+			messages << "error (" << bytes_read << ") with zipfile in unzReadCurrentFile";
 		}
 		else if( bytes_read == 0 )
 		{
@@ -184,7 +185,7 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStre
 		else if( bytes_read < s32( bytes_to_read ) )
 		{
 			// Not enough bytes read
-			// messages << "Unable to read sufficent bytes from zip.\nRead " << bytes_read << ", wanted " << bytes_to_read;
+			messages << "Unable to read sufficent bytes from zip.\nRead " << bytes_read << ", wanted " << bytes_to_read;
 		}
 #endif
 		unzCloseCurrentFile(mZipFile);
@@ -199,7 +200,7 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStre
 	if( err == UNZ_CRCERROR )
 	{
 
-		// messages << "CRC Error in ZipFile";
+		messages << "CRC Error in ZipFile";
 
 		unzCloseCurrentFile(mZipFile);
 		return false;

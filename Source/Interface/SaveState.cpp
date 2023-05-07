@@ -188,7 +188,7 @@ private:
 };
 
 
-bool SaveState_SaveToFile( const std::filesystem::path filename )
+bool SaveState_SaveToFile( const std::filesystem::path &filename )
 {
 	SaveState_ostream_gzip stream( filename );
 
@@ -251,7 +251,7 @@ bool SaveState_SaveToFile( const std::filesystem::path filename )
 	return true;
 }
 
-bool SaveState_LoadFromFile( const std::filesystem::path filename )
+bool SaveState_LoadFromFile( const std::filesystem::path &filename )
 {
 	SaveState_istream_gzip stream( filename );
 
@@ -374,7 +374,7 @@ bool SaveState_LoadFromFile( const std::filesystem::path filename )
 	return true;
 }
 
-RomID SaveState_GetRomID( const std::filesystem::path filename )
+RomID SaveState_GetRomID( const std::filesystem::path &filename )
 {
 	SaveState_istream_gzip stream( filename );
 
@@ -396,7 +396,7 @@ RomID SaveState_GetRomID( const std::filesystem::path filename )
 	return RomID( rom_header.CRC1, rom_header.CRC2, rom_header.CountryID );
 }
 
-const char* SaveState_GetRom( const std::filesystem::path filename )
+const char* SaveState_GetRom( const std::filesystem::path &filename )
 {
 	SaveState_istream_gzip stream( filename );
 

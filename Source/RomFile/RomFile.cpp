@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RomFile/RomFile.h"
 #include "RomFile/RomFileCompressed.h"
 #include "RomFile/RomFileUncompressed.h"
+#include "Utility/Stream.h"
 #include "System/IO.h"
 
 #include <algorithm>
@@ -77,11 +78,11 @@ ROMFile::~ROMFile()
 {
 }
 
-bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes )
+bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
 {
-	if( !LoadRawData( bytes_to_read, p_bytes ) )
+	if( !LoadRawData( bytes_to_read, p_bytes, messages ) )
 	{
-		DAEDALUS_ERROR( "Unable to get rom info from: %s", mFilename.c_str() );
+		messages << "Unable to get rom info from '" << mFilename.c_str() << "'";
 		return false;
 	}
 

@@ -421,7 +421,7 @@ void CPU_SelectCore()
 	}
 }
 
-bool CPU_RequestSaveState( const std::filesystem::path filename )
+bool CPU_RequestSaveState( const std::filesystem::path &filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
@@ -440,7 +440,7 @@ bool CPU_RequestSaveState( const std::filesystem::path filename )
 	return true;
 }
 
-bool CPU_RequestLoadState( const std::filesystem::path filename )
+bool CPU_RequestLoadState( const std::filesystem::path &filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
@@ -850,37 +850,41 @@ void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 // Return true if change the core
 bool CPU_CheckStuffToDo()
 {
-	// We do this in a slightly different order to ensure that
-	// any interrupts are taken care of before we execute an op
-	u32 stuff_to_do = gCPUState.GetStuffToDo();
-	DAEDALUS_ASSERT( stuff_to_do, "Check Me: Should always have something to do");
+    // Get jobs to do
+    u32 stuff_to_do = gCPUState.GetStuffToDo();
 
-	// Process Interrupts/Exceptions on a priority basis
-	// Call most likely first!
-	if (stuff_to_do & CPU_CHECK_INTERRUPTS)
-	{
-		R4300_Handle_Interrupt();
-		gCPUState.ClearJob(CPU_CHECK_INTERRUPTS);
-	}
-	else if (stuff_to_do & CPU_CHECK_EXCEPTIONS)
-	{
-		R4300_Handle_Exception();
-		gCPUState.ClearJob(CPU_CHECK_EXCEPTIONS);
-	}
-	else if (stuff_to_do & CPU_CHANGE_CORE)
-	{
-		gCPUState.ClearJob(CPU_CHANGE_CORE);
-		return true;
-	}
-	else if (stuff_to_do & CPU_STOP_RUNNING)
-	{
-		gCPUState.ClearJob(CPU_STOP_RUNNING);
-		gCPURunning = false;
-		return true;
-	}
-	// Clear\stuff_to_do?
+    // Early return if nothing to do
+    if (stuff_to_do == 0) {
+        return false;
+    }
 
-	return false;
+    // Process Interrupts/Exceptions on a priority basis using a switch statement
+    switch (stuff_to_do) {
+        case CPU_CHECK_INTERRUPTS:
+            R4300_Handle_Interrupt();
+            gCPUState.ClearJob(CPU_CHECK_INTERRUPTS);
+            break;
+        case CPU_CHECK_EXCEPTIONS:
+            R4300_Handle_Exception();
+            gCPUState.ClearJob(CPU_CHECK_EXCEPTIONS);
+            break;
+        case CPU_CHANGE_CORE:
+            gCPUState.ClearJob(CPU_CHANGE_CORE);
+            return true;
+        case CPU_STOP_RUNNING:
+            gCPUState.ClearJob(CPU_STOP_RUNNING);
+            gCPURunning = false;
+            return true;
+        default:
+            break;
+    }
+
+    // Clear stuff_to_do if necessary
+    if (stuff_to_do & ~(CPU_CHECK_INTERRUPTS | CPU_CHECK_EXCEPTIONS)) {
+        gCPUState.ClearJob(stuff_to_do);
+    }
+
+    return false;
 }
 
 // FIX ME: This gets called alot

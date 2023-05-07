@@ -1,4 +1,4 @@
-add_library(Graphics 
+add_library(Graphics OBJECT
                     ColourValue.cpp 
                     PngUtil.cpp 
                     TextureTransform.cpp

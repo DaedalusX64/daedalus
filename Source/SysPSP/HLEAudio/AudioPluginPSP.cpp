@@ -60,26 +60,31 @@ volatile me_struct *mei;
 
 bool InitialiseMediaEngine()
 {
-
-	if( CModule::Load("Plugins/mediaengine.prx") < 0 )	return false;
-
-	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
-	mei = (volatile struct me_struct *)(make_uncached_ptr(mei));
-	sceKernelDcacheWritebackInvalidateAll();
-
-	if (InitME(mei) == 0)
+	if ( gLoadedMediaEnginePRX == false)
 	{
-		gLoadedMediaEnginePRX = true;
-		return true;
+		if( CModule::Load("Plugins/mediaengine.prx") < 0 )	return false;
+
+		mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
+		mei = (volatile struct me_struct *)(make_uncached_ptr(mei));
+		sceKernelDcacheWritebackInvalidateAll();
+
+		if (InitME(mei) == 0)
+		{
+			gLoadedMediaEnginePRX = true;
+			return true;
+		}
+		else
+		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
+			printf(" Couldn't initialize MediaEngine Instance\n");
+			#endif
+			return false;
+		}
 	}
 	else
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
-		printf(" Couldn't initialize MediaEngine Instance\n");
-		#endif
-		return false;
+		printf("Media Engine already Initialised\n");
 	}
-
 }
 
 #endif

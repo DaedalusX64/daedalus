@@ -221,7 +221,7 @@ bool System_Init()
 	return true;
 }
 
-bool System_Open(const std::filesystem::path filename)
+bool System_Open(const std::filesystem::path &filename)
 {
 	g_ROM.mFileName = filename;
 	

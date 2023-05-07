@@ -1,4 +1,4 @@
-add_library(HLEAudio 
+add_library(HLEAudio OBJECT
                     ABI1.cpp
                     ABI2.cpp
                     ABI3.cpp

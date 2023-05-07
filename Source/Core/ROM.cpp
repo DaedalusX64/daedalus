@@ -46,6 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Macros.h"
 #include "Interface/Preferences.h"
 #include "RomFile/RomFile.h"
+#include "Utility/Stream.h"
 #include "Debug/Synchroniser.h"
 
 #if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
@@ -552,8 +553,9 @@ bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_na
 		return false;
 	}
 
+	CNullOutputStream messages;
 
-	if (!p_rom_file->Open())
+	if (!p_rom_file->Open( messages ))
 	{
 		// delete p_rom_file;
 		return false;
@@ -564,7 +566,7 @@ bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_na
 	u32			size_aligned = AlignPow2( bytes_to_read, 4 );	// Needed?
 	u8 *		p_bytes = new u8[size_aligned];
 
-	if (!p_rom_file->LoadData( bytes_to_read, p_bytes ))
+	if (!p_rom_file->LoadData( bytes_to_read, p_bytes, messages ))
 	{
 		// Lots of files don't have any info - don't worry about it
 		delete [] p_bytes;

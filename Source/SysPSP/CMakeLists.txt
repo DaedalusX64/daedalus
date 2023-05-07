@@ -21,8 +21,7 @@ install(DIRECTORY ${PROJECT_BINARY_DIR}/../Data/ DESTINATION DaedalusX64)
 
 list(APPEND daed_libs)
 set(daed_libs ${daed_libs} PARENT_SCOPE)
-
-list(APPEND sys_libraries g psppower pspgu pspctrl pspdebug pspsdk pspdisplay pspge pspaudiolib pspaudio intrafont pspkubridge pspfpu pspge )
+ list(APPEND sys_libraries pspfpu psppower pspkubridge pspdebug pspctrl intrafont pspge pspgu pspaudiolib pspaudio pspdisplay )
 ## PSP_SDL Additional Requirements - pspvram psphprm GL pspvfpu)
 set(sys_libraries ${sys_libraries} PARENT_SCOPE)
 

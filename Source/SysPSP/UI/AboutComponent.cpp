@@ -31,11 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Graphics/DrawText.h"
 
 #include "Base/Macros.h"
-#include "Utility/String.h"
 #include "SysPSP/Utility/Translate.h"
 #include "SysPSP/UI/PSPMenu.h"
 
-#include <kubridge.h>
+#include <string>
 #include <pspctrl.h>
 #include <pspgu.h>
 
@@ -81,7 +80,6 @@ void	IAboutComponent::Update( float elapsed_time, const v2 & stick, u32 old_butt
 
 void	IAboutComponent::Render()
 {
-#define IsPSPModelValid( ver )		( (ver) >= PSP_MODEL_STANDARD && (ver) < MAX_PSP_MODEL )
 
 		s16 text_top( 38 );
 
@@ -106,18 +104,12 @@ void	IAboutComponent::Render()
 
 	y = text_top;
 
-	CFixedString<128>	version( Translate_String(DAEDALUS_VERSION_TEXT) );
-	version += DAEDALUS_CONFIG_VERSION;
+	std::string	version = DAEDALUS_VERSION_TEXT + DAEDALUS_CONFIG_VERSION;
 
-	CFixedString<128>	date( Translate_String(DATE_TEXT) );
-	date += __DATE__;
-	date += " (";
-	date += IsPSPModelValid( kuKernelGetModel() ) ? pspModel[ kuKernelGetModel() ] : "UNKNOWN PSP";
-	date += ")";
 
-	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, version, DrawTextUtilities::TextWhite ); y += line_height;
-	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, date, DrawTextUtilities::TextWhite ); y += line_height;
-
+std::string	date = DATE_TEXT + __DATE__;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, version.data(), DrawTextUtilities::TextWhite ); y += line_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, date.data(), DrawTextUtilities::TextWhite ); y += line_height;
 
 	// Spacer
 	y += line_height;
