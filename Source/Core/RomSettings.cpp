@@ -59,7 +59,7 @@ EExpansionPakUsage	ExpansionPakUsageFromString( const char * str )
 
 ESaveType	SaveTypeFromString( const char * str )
 {
-	for( u32 i = 0; i < NUM_SAVE_TYPES; ++i )
+	for( u32 i = 0; i < kNumSaveTypes; ++i )
 	{
 		ESaveType	save_type = ESaveType( i );
 
@@ -69,7 +69,7 @@ ESaveType	SaveTypeFromString( const char * str )
 		}
 	}
 
-	return SAVE_TYPE_UNKNOWN;
+	return ESaveType::UNKNOWN;
 }
 
 }
@@ -100,14 +100,14 @@ const char * ROM_GetSaveTypeName( ESaveType save_type )
 {
 	switch ( save_type )
 	{
-		case SAVE_TYPE_UNKNOWN:		return "Unknown";
-		case SAVE_TYPE_EEP4K:		return "Eeprom4k";
-		case SAVE_TYPE_EEP16K:		return "Eeprom16k";
-		case SAVE_TYPE_SRAM:		return "SRAM";
-		case SAVE_TYPE_FLASH:		return "FlashRam";
+		case ESaveType::UNKNOWN:		return "Unknown";
+		case ESaveType::EEP4K:		return "Eeprom4k";
+		case ESaveType::EEP16K:		return "Eeprom16k";
+		case ESaveType::SRAM:		return "SRAM";
+		case ESaveType::FLASH:		return "FlashRam";
 	}
 #ifdef DAEDALUS_DEBUG_CONSOLE
-	DAEDALUS_ERROR( "Unknown save type" );
+	 DAEDALUS_ERROR( "Unknown save type" );
 	#endif
 	return "?";
 }
@@ -154,9 +154,9 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 	#endif
 	mpInstance = std::make_shared<IRomSettingsDB>();
 
-	 std::filesystem::path p("roms.ini");
+	 std::filesystem::path p("romsbob.ini");
 	 const char *ini_filename = p.c_str();
-
+		
 	mpInstance->OpenSettingsFile( ini_filename );
 
 	return true;
@@ -240,6 +240,7 @@ bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 		RomID			id( RomIDFromString( p_section->GetName() ) );
 		RomSettings	settings;
 
+
 		const CIniFileProperty * p_property;
 		if( p_section->FindProperty( "Comment", &p_property ) )
 		{
@@ -263,7 +264,7 @@ bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 		}
 		if( p_section->FindProperty( "SaveType", &p_property ) )
 		{
-			settings.SaveType = SaveTypeFromString( p_property->GetValue() );
+			// settings.SaveType = SaveTypeFromString( p_property->GetValue() );
 		}
 		if( p_section->FindProperty( "PatchesEnabled", &p_property ) )
 		{
@@ -434,7 +435,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( settings.CheatsEnabled )				fprintf(fh, "CheatsEnabled=yes\n");
 
 	if ( settings.ExpansionPakUsage != PAK_STATUS_UNKNOWN )	fprintf(fh, "ExpansionPakUsage=%s\n", ROM_GetExpansionPakUsageName( settings.ExpansionPakUsage ) );
-	if ( settings.SaveType != SAVE_TYPE_UNKNOWN )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
+	if ( settings.SaveType != ESaveType::UNKNOWN )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
 
 	fprintf(fh, "\n");			// Spacer
 }
@@ -478,7 +479,7 @@ void	IRomSettingsDB::SetSettings( const RomID & id, const RomSettings & settings
 
 RomSettings::RomSettings()
 :	ExpansionPakUsage( PAK_STATUS_UNKNOWN )
-,	SaveType( SAVE_TYPE_UNKNOWN )
+// ,	SaveType( ESaveType::UNKNOWN )
 ,	PatchesEnabled( true )
 ,	SpeedSyncEnabled( 1 )
 ,	DynarecSupported( true )
@@ -506,7 +507,7 @@ void	RomSettings::Reset()
 	Comment = "";
 	Info = "";
 	ExpansionPakUsage = PAK_STATUS_UNKNOWN;
-	SaveType = SAVE_TYPE_UNKNOWN;
+	// SaveType = ESaveType::UNKNOWN;
 	PatchesEnabled = true;
 	SpeedSyncEnabled = 0;
 	DynarecSupported = true;

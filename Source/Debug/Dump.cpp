@@ -88,6 +88,7 @@ std::filesystem::path Save_As(const std::filesystem::path filename, const std::f
 	tmp = filename.filename();
 	tmp.replace_extension(extension);	
 	gSaveFileName = dest /= tmp;
+	std::cout << gSaveFileName << std::endl;
 	return gSaveFileName;
 
 }

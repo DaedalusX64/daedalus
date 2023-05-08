@@ -27,15 +27,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Configurable settings for a rom
 //*****************************************************************************
 
-enum ESaveType
+enum class ESaveType :u32
 {
-	SAVE_TYPE_UNKNOWN = 0,
-	SAVE_TYPE_EEP4K,
-	SAVE_TYPE_EEP16K,
-	SAVE_TYPE_SRAM,
-	SAVE_TYPE_FLASH,
+	UNKNOWN,
+	EEP4K,
+	EEP16K,
+	SRAM,
+	FLASH,
 };
-const u32 NUM_SAVE_TYPES = SAVE_TYPE_FLASH + 1;
+constexpr u32 kNumSaveTypes = static_cast<u32>(ESaveType::FLASH) + 1;
 
 enum EExpansionPakUsage
 {

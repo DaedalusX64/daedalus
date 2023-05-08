@@ -17,11 +17,11 @@ TEST_DISABLE_EEPROM_FUNCS
 	// Set up ContStatus values
 	switch(g_ROM.settings.SaveType)
 	{
-	case SAVE_TYPE_EEP4K:
+	case ESaveType::EEP4K:
 		type = CONT_EEPROM;
 		data = 0;
 		break;
-	case SAVE_TYPE_EEP16K:
+	case ESaveType::EEP16K:
 		type = CONT_EEP16K;
 		data = 0;
 		break;
@@ -84,10 +84,10 @@ TEST_DISABLE_EEPROM_FUNCS
 	u32 data = 0;
 	switch( g_ROM.settings.SaveType )
 	{
-	case SAVE_TYPE_EEP4K:
+	case ESaveType::EEP4K:
 		data= EEPROM_TYPE_4K;
 		break;
-	case SAVE_TYPE_EEP16K:
+	case ESaveType::EEP16K:
 		data = EEPROM_TYPE_16K;
 		break;
 	default:			// No Eeprom, SRAM, FlashRam etc. or error..

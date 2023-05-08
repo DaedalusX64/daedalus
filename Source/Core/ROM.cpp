@@ -500,6 +500,10 @@ void ROM_UnloadFile()
 
 bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences )
 {
+	
+
+	CRomDB::Get()->RomIndex(g_ROM.mFileName);
+	
 	DBGConsole_Msg(0, "Reading rom image: [C%s]", g_ROM.mFileName.c_str());
 
 	// Get information about the rom header
@@ -516,7 +520,9 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	g_ROM.settings = settings;
 	g_ROM.TvType   = ROM_GetTvTypeFromID( g_ROM.rh.CountryID );
 
+
 	// Game specific hacks..
+
 	SpecificGameHacks( g_ROM.rh );
 
 	DumpROMInfo( g_ROM.rh );

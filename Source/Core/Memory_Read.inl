@@ -179,7 +179,7 @@ static void * Read_8480_848F( u32 address )
 
 static void * ReadFlashRam( u32 address )
 {
-	if (g_ROM.settings.SaveType == SAVE_TYPE_FLASH)
+	if (g_ROM.settings.SaveType == ESaveType::FLASH)
 	{
 		if ((address&0x1FFFFFFF) == FLASHRAM_READ_ADDR)
 		{

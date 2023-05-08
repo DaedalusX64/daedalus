@@ -32,7 +32,6 @@ jobs:
         tar -zcvf daedalusX64-PSP.tar.gz \
           DaedalusX64/Plugins \
           DaedalusX64/EBOOT.PBP \
-          DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
           DaedalusX64/copying.txt \
           DaedalusX64/Resources \
@@ -96,7 +95,6 @@ jobs:
         tar -zcvf daedalusX64-linux.tar.gz \
           DaedalusX64/daedalus \
           DaedalusX64/n64.psh \
-          DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
           DaedalusX64/copying.txt \
 #          DaedalusX64/Resources \ # Not used in Posix Buiilds
@@ -162,7 +160,6 @@ jobs:
         tar -zcvf daedalusX64-macos-x86.tar.gz \
           DaedalusX64/daedalus \
           DaedalusX64/n64.psh \
-          DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
           DaedalusX64/copying.txt \
 #          DaedalusX64/Resources \ # Not used in Posix Buiilds

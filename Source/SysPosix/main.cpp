@@ -38,10 +38,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <linux/limits.h>
 #endif
 
+		std::filesystem::path filename;
+
 int main(int argc, char **argv)
 {
 	int result = 0;
-
 	//ReadConfiguration();
 
 	if (!System_Init())
@@ -54,7 +55,7 @@ int main(int argc, char **argv)
 	if (argc > 1)
 	{
 		bool 			batch_test = false;
-		const char *	filename   = NULL;
+
 
 		for (int i = 1; i < argc; ++i)
 		{
@@ -86,27 +87,31 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if (batch_test)
-		{
-#ifdef DAEDALUS_BATCH_TEST_ENABLED
-				BatchTestMain(argc, argv);
-#else
-				fprintf(stderr, "BatchTest mode is not present in this build.\n");
-#endif
-		}
-		else if (filename)
-		{
+// 		if (batch_test)
+// 		{
+// #ifdef DAEDALUS_BATCH_TEST_ENABLED
+// 				BatchTestMain(argc, argv);
+// #else
+// 				fprintf(stderr, "BatchTest mode is not present in this build.\n");
+// #endif
+// 		}
+// 		else if (filename)
+// 		{
+	
 			System_Open( filename );
+			CRomDB::Get()->RomIndex(g_ROM.mFileName);			 
+
 
 			//
 			// Commit the preferences and roms databases before starting to run
 			//
-			CRomDB::Get()->Commit();
+			// Get the Rom Info here
+
 			//CPreferences::Get()->Commit();
 
 			CPU_Run();
 			System_Close();
-		}
+		// }
 	}
 	else
 	{
@@ -151,7 +156,6 @@ int main(int argc, char **argv)
 			std::cout << "Filename is: " << filename << std::endl;
 			
 			System_Open(filename);
-			CRomDB::Get()->Commit();
 			CPU_Run();
 			System_Close();
 		}

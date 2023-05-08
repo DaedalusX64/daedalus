@@ -26,6 +26,7 @@
 #include "Base/Singleton.h"
 
 #include "Core/ROM.h"
+#include <filesystem>
 
 class	RomID;
 
@@ -35,11 +36,9 @@ class	CRomDB :  public CSingleton< CRomDB >
 		virtual ~CRomDB();
 
 		virtual bool			OpenDB( const std::filesystem::path filename ) = 0;												// Open the specified rom db, or creates a new one if it does not currently exist
-		virtual void			Reset() = 0;																		// Resets the contents of the database
-		virtual bool			Commit() = 0;																		// Commits any changes made to the database to disk
-
+		virtual void			Reset() = 0;																		// Resets the contents of the database																// Commits any changes made to the database to disk
 		virtual void			AddRomDirectory(const std::filesystem::path directory) = 0;
-
+    virtual void			RomIndex(const std::filesystem::path& filename) = 0;
 		virtual bool			QueryByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type ) = 0;		// Query a rom from the database
 		virtual bool			QueryByID( const RomID & id, u32 * rom_size, ECicType * cic_type ) const = 0;						// Query a rom from the database
 		virtual const char *	QueryFilenameFromID( const RomID & id ) const = 0;

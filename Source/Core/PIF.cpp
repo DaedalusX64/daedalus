@@ -86,26 +86,22 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 // Stuff to handle controllers
 
 #include <time.h>
+#include <iostream>
 
 #include "BuildOptions.h"
 #include "Base/Types.h"
 
+#include "Core/ROM.h"
 #include "Core/PIF.h"
 #include "Core/CPU.h"
 #include "Core/Memory.h"
-#include "Core/ROM.h"
+
 #include "Core/Save.h"
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
 #include "Base/MathUtil.h"
 #include "Ultra/ultra_os.h"
 #include "Interface/Preferences.h"
-
-
-
-
-
-
 
 
 #ifdef _MSC_VER
@@ -123,6 +119,7 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 #endif
 
 #define PIF_RAM_SIZE 64
+
 
 bool gRumblePakActive = false;
 
@@ -297,12 +294,12 @@ IController::~IController()
 #endif
 }
 
-
 // Called whenever a new rom is opened
 
 bool IController::OnRomOpen()
 {
 	ESaveType save_type  = g_ROM.settings.SaveType;
+	std::cout << "SaveType in PIF " << static_cast<int>(save_type) << std::endl;
 	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
 	if ( mpEepromData )
@@ -310,7 +307,7 @@ bool IController::OnRomOpen()
 		mpEepromData = nullptr;
 	}
 
-	if ( save_type == SAVE_TYPE_EEP4K )
+	if ( save_type == ESaveType::EEP4K )
 	{
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
 		mEepromContType = 0x80;
@@ -318,7 +315,7 @@ bool IController::OnRomOpen()
 		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", 4096/8 );	// 4k bits
 		#endif
 	}
-	else if ( save_type == SAVE_TYPE_EEP16K )
+	else if ( save_type == ESaveType::EEP16K )
 	{
 
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
@@ -429,7 +426,7 @@ void IController::Process()
 				break;
 			default:
 				#ifdef DAEDALUS_DEBUG_CONSOLE
-				DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
+				// DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
 				#endif
 				break;
 			}

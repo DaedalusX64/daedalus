@@ -22,8 +22,12 @@
 #include "Base/Types.h"
 
 #include <algorithm>
-#include <stdio.h>
+#include <filesystem>
+#include <string_view>
+#include <sstream>
+#include <iostream>
 #include <vector>
+
 
 #include "Core/ROM.h"
 #include "Core/ROMImage.h"
@@ -33,7 +37,6 @@
 #include "System/IO.h"
 #include "RomFile/RomFile.h"
 #include "Utility/Stream.h"
-#include <filesystem>
 
 static const u64 ROMDB_MAGIC_NO	= 0x42444D5244454144LL; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
 static const u32 ROMDB_CURRENT_VERSION = 4;
@@ -49,21 +52,18 @@ class IRomDB : public CRomDB
 		IRomDB();
 		~IRomDB();
 
-		//
 		// CRomDB implementation
-		//
 		void			Reset();
-		bool			Commit();
 
 		void			AddRomDirectory(const std::filesystem::path directory);
 
 		bool			QueryByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type );
 		bool			QueryByID( const RomID & id, u32 * rom_size, ECicType * cic_type ) const;
 		const char *	QueryFilenameFromID( const RomID & id ) const;
-
+		void			RomIndex(const std::filesystem::path& filename);
+		
 	private:
 		void			AddRomFile(const std::filesystem::path filename);
-
 		void			AddRomEntry( const std::filesystem::path filename, const RomID & id, u32 rom_size, ECicType cic_type );
 		bool			OpenDB( const std::filesystem::path filename );
 
@@ -166,29 +166,17 @@ class IRomDB : public CRomDB
 		bool							mDirty;
 };
 
+// It seems the only file that uses this is SaveState
 template<> bool	CSingleton< CRomDB >::Create()
-{
+{	
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	mpInstance = std::make_shared<IRomDB>();
-
-	 std::filesystem::path p("rom.db");
-	 const char *romdb_filename = p.c_str();
-
-	/*ret = */mpInstance->OpenDB( romdb_filename );
-
-	return true;
+		return true;
 }
 
-IRomDB::IRomDB()
-:	mDirty( false )
-{
-	mRomDBFileName[ 0 ] = '\0';
-}
+IRomDB::IRomDB() {}
 
-IRomDB::~IRomDB()
-{
-	Commit();
-}
+IRomDB::~IRomDB() {}
 
 void IRomDB::Reset()
 {
@@ -199,134 +187,6 @@ void IRomDB::Reset()
 
 bool IRomDB::OpenDB( const std::filesystem::path filename )
 {
-	u32 num_read;
-
-	//
-	// Remember the filename
-	//
-	IO::Path::Assign( mRomDBFileName, filename.c_str() );
-
-	FILE * fh = fopen( filename.c_str(), "rb" );
-	if ( !fh )
-	{
-		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", mRomDBFileName );
-		return false;
-	}
-
-	//
-	// Check the magic number
-	//
-	u64 magic;
-	num_read = fread( &magic, sizeof( magic ), 1, fh );
-	if ( num_read != 1 || magic != ROMDB_MAGIC_NO )
-	{
-		DBGConsole_Msg( 0, "RomDB has wrong magic number." );
-		goto fail;
-	}
-
-	//
-	// Check the version number
-	//
-	u32 version;
-	num_read = fread( &version, sizeof( version ), 1, fh );
-	if ( num_read != 1 || version != ROMDB_CURRENT_VERSION )
-	{
-		DBGConsole_Msg( 0, "RomDB has wrong version for this build of Daedalus." );
-		goto fail;
-	}
-
-	u32		num_files;
-	num_read = fread( &num_files, sizeof( num_files ), 1, fh );
-	if ( num_read != 1 )
-	{
-		DBGConsole_Msg( 0, "RomDB EOF reading number of files." );
-		goto fail;
-	}
-	else if ( num_files > MAX_SENSIBLE_FILES )
-	{
-		DBGConsole_Msg( 0, "RomDB has unexpectedly large number of files (%d).", num_files );
-		goto fail;
-	}
-
-	mRomFiles.resize( num_files );
-	if( fread( &mRomFiles[0], sizeof(RomFilesKeyValue), num_files, fh ) != num_files )
-	{
-		goto fail;
-	}
-	// Redundant?
-	std::sort( mRomFiles.begin(), mRomFiles.end(), SSortByFilename() );
-
-	u32		num_details;
-	num_read = fread( &num_details, sizeof( num_details ), 1, fh );
-	if ( num_read != 1 )
-	{
-		DBGConsole_Msg( 0, "RomDB EOF reading number of details." );
-		goto fail;
-	}
-	else if ( num_details > MAX_SENSIBLE_DETAILS )
-	{
-		DBGConsole_Msg( 0, "RomDB has unexpectedly large number of details (%d).", num_details );
-		goto fail;
-	}
-
-	mRomDetails.resize( num_details );
-	if( fread( &mRomDetails[0], sizeof(RomDetails), num_details, fh ) != num_details )
-	{
-		goto fail;
-	}
-	// Redundant?
-	std::sort( mRomDetails.begin(), mRomDetails.end(), SSortDetailsByID() );
-	DBGConsole_Msg( 0, "RomDB initialised with %d files and %d details.", mRomFiles.size(), mRomDetails.size() );
-	fclose( fh );
-	return true;
-
-fail:
-	fclose( fh );
-	return false;
-}
-
-bool IRomDB::Commit()
-{
-	if( !mDirty )
-		return true;
-
-	//
-	// Check if we have a valid filename
-	//
-	if ( strlen( mRomDBFileName ) <= 0 )
-		return false;
-
-	FILE * fh = fopen( mRomDBFileName, "wb" );
-
-	if ( !fh )
-		return false;
-
-	//
-	// Write the magic
-	//
-	fwrite( &ROMDB_MAGIC_NO, sizeof( ROMDB_MAGIC_NO ), 1, fh );
-
-	//
-	// Write the version
-	//
-	fwrite( &ROMDB_CURRENT_VERSION, sizeof( ROMDB_CURRENT_VERSION ), 1, fh );
-
-	{
-		u32 num_files( mRomFiles.size() );
-		fwrite( &num_files, sizeof( num_files ), 1, fh );
-		fwrite( &mRomFiles[0], sizeof(RomFilesKeyValue), num_files, fh );
-	}
-
-	{
-		u32 num_details( mRomDetails.size() );
-		fwrite( &num_details, sizeof( num_details ), 1, fh );
-		fwrite( &mRomDetails[0], sizeof(RomDetails), num_details, fh );
-	}
-
-	fclose( fh );
-
-	mDirty = true;
-	return true;
 }
 
 void IRomDB::AddRomEntry( const std::filesystem::path filename, const RomID & id, u32 rom_size, ECicType cic_type )
@@ -456,7 +316,8 @@ static bool GenerateRomDetails( const std::filesystem::path filename, RomID * id
 }
 
 bool IRomDB::QueryByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type )
-{
+{	
+	RomIndex(filename);
 	//
 	// First of all, check if we have these details cached in the rom database
 	//
@@ -507,4 +368,45 @@ const char * IRomDB::QueryFilenameFromID( const RomID & id ) const
 	}
 
 	return NULL;
+}
+	// Move this to a utility file
+constexpr std::uint32_t fnv1a_hash(std::string_view str, std::uint32_t hash = 2166136261)
+{
+    for (auto c : str)
+    {
+        hash ^= static_cast<std::uint32_t>(c);
+        hash *= 16777619;
+    }
+
+    return hash;
+}
+
+
+void IRomDB::RomIndex(const std::filesystem::path& filename) 
+{
+
+// Append CRC1 and CRC2 values and convert to a hexadecimal string
+std::ostringstream oss;
+oss << std::hex << g_ROM.rh.CRC1 << g_ROM.rh.CRC2;
+std::string_view crcCountry = oss.str();
+
+std::cout << crcCountry << std::endl;
+    // Determine game name and save type based on the joined string
+    switch (fnv1a_hash(crcCountry.data()))
+    {
+        case fnv1a_hash("ff2b5a632623028b"):
+            g_ROM.settings.GameName = "Super Mario 64";
+            g_ROM.settings.SaveType = ESaveType::EEP4K;
+			std::cout << "SaveType in DB " << static_cast<int>(g_ROM.settings.SaveType) << std::endl;
+            break;
+        case fnv1a_hash("66092ea912391c34"):
+            // gameName = "007 - The World is not Enough (Beta)";
+            // saveType = "SRAM_32K";
+            break;
+        default:
+            // gameName = "Unknown";
+            // saveType = "Unknown";
+            break;
+    }
+
 }

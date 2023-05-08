@@ -279,7 +279,7 @@ void DMA_PI_CopyToRDRAM()
 		u32       src_size = (MemoryRegionSizes[MEM_SAVE]);
 		cart_address -= PI_DOM2_ADDR2;
 
-		if (g_ROM.settings.SaveType != SAVE_TYPE_FLASH)
+		if (g_ROM.settings.SaveType != ESaveType::FLASH)
 			copy_succeeded = DMA_HandleTransfer( g_pu8RamBase, mem_address, gRamSize, p_src, cart_address, src_size, pi_length_reg );
 		else
 			copy_succeeded = DMA_FLASH_CopyToDRAM(mem_address, cart_address, pi_length_reg);
@@ -366,7 +366,7 @@ void DMA_PI_CopyFromRDRAM()
 		u32	dst_size = MemoryRegionSizes[MEM_SAVE];
 		cart_address -= PI_DOM2_ADDR2;
 
-		if (g_ROM.settings.SaveType != SAVE_TYPE_FLASH)
+		if (g_ROM.settings.SaveType != ESaveType::FLASH)
 			copy_succeeded = DMA_HandleTransfer( p_dst, cart_address, dst_size, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
 		else
 			copy_succeeded = DMA_FLASH_CopyFromDRAM(mem_address, pi_length_reg);
