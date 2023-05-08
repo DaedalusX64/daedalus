@@ -43,7 +43,7 @@ constexpr std::size_t BUFFER_SIZE = 2048;
 
 bool Save_Reset()
 {
-	const std::filesystem::path ext;
+	 std::filesystem::path ext;
 	switch (g_ROM.settings.SaveType)
 	{
 	case ESaveType::EEP4K:
