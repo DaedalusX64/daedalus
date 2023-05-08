@@ -90,7 +90,6 @@ std::filesystem::path Save_As(const std::filesystem::path filename, const std::f
 	gSaveFileName = dest /= tmp;
 	std::cout << gSaveFileName << std::endl;
 	return gSaveFileName;
-
 }
 
 #ifndef DAEDALUS_SILENT

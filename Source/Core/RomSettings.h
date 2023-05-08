@@ -100,7 +100,6 @@ class CRomSettingsDB : public CSingleton< CRomSettingsDB >
 		virtual void			SetSettings( const RomID & id, const RomSettings & settings ) = 0;
 };
 
-const char * ROM_GetExpansionPakUsageName( EExpansionPakUsage pak_usage );
 const char *	ROM_GetSaveTypeName( ESaveType save_type );
 
 

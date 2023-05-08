@@ -32,10 +32,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void InitMempackContent();
 
-std::filesystem::path gSaveFileName;
+static std::filesystem::path gSaveFileName;
 static bool				gSaveDirty;
 static u32				gSaveSize;
-static IO::Filename		gMempackFileName;
+static std::filesystem::path	gMempackFileName;
 static bool				gMempackDirty;
 
 
@@ -70,11 +70,11 @@ bool Save_Reset()
 	DAEDALUS_ASSERT( gSaveSize <= MemoryRegionSizes[MEM_SAVE], "Save size is larger than allocated memory");
 
 gSaveDirty = false;
+
 if (gSaveSize > 0)
 {
-    gSaveFileName = Save_As(g_ROM.mFileName, ext, "SaveGames/");
 
-    std::ifstream infile(gSaveFileName.c_str(), std::ios::binary);
+    std::ifstream infile(gSaveFileName, std::ios::binary);
     if (infile.is_open())
     {
         DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName.c_str());
@@ -100,7 +100,7 @@ if (gSaveSize > 0)
 
 	// init mempack, we always assume the presence of the mempack for simplicity 
 	{	
-		gSaveFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
+		gMempackFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
 		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{

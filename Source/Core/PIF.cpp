@@ -298,8 +298,8 @@ IController::~IController()
 
 bool IController::OnRomOpen()
 {
-	ESaveType save_type  = g_ROM.settings.SaveType;
-	std::cout << "SaveType in PIF " << static_cast<int>(save_type) << std::endl;
+	
+	ESaveType save_type  = g_ROM.settings.SaveType=ESaveType::EEP4K;
 	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
 	if ( mpEepromData )
@@ -426,7 +426,7 @@ void IController::Process()
 				break;
 			default:
 				#ifdef DAEDALUS_DEBUG_CONSOLE
-				// DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
+				DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
 				#endif
 				break;
 			}

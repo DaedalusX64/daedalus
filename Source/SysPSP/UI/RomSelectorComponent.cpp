@@ -422,8 +422,6 @@ void IRomSelectorComponent::RenderPreview()
 		DrawInfoText( mpContext, y, "Size:", buffer );	y += line_height;
 
 		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) ); y += line_height;
-		DrawInfoText( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) ); y += line_height;
-
 	}
 	else
 	{

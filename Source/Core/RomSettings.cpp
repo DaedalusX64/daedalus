@@ -36,62 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/IO.h"
 #include <filesystem>
 
-namespace
-{
-
-
-//
-
-EExpansionPakUsage	ExpansionPakUsageFromString( const char * str )
-{
-	for( u32 i = 0; i < NUM_EXPANSIONPAK_USAGE_TYPES; ++i )
-	{
-		EExpansionPakUsage	pak_usage = EExpansionPakUsage( i );
-
-		if( strcasecmp( str, ROM_GetExpansionPakUsageName( pak_usage ) ) == 0 )
-		{
-			return pak_usage;
-		}
-	}
-
-	return PAK_STATUS_UNKNOWN;
-}
-
-ESaveType	SaveTypeFromString( const char * str )
-{
-	for( u32 i = 0; i < kNumSaveTypes; ++i )
-	{
-		ESaveType	save_type = ESaveType( i );
-
-		if( strcasecmp( str, ROM_GetSaveTypeName( save_type ) ) == 0 )
-		{
-			return save_type;
-		}
-	}
-
-	return ESaveType::UNKNOWN;
-}
-
-}
-
-
-//
-
-const char * ROM_GetExpansionPakUsageName( EExpansionPakUsage pak_usage )
-{
-	switch( pak_usage )
-	{
-		case PAK_STATUS_UNKNOWN:	return "Unknown";
-		case PAK_UNUSED:			return "Unused";
-		case PAK_USED:				return "Used";
-		case PAK_REQUIRED:			return "Required";
-	}
-
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	DAEDALUS_ERROR( "Unknown expansion pak type" );
-	#endif
-	return "?";
-}
 
 
 // Get the name of a save type from an ESaveType enum
@@ -257,10 +201,6 @@ bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 		if( p_section->FindProperty( "Preview", &p_property ) )
 		{
 			settings.Preview = p_property->GetValue();
-		}
-		if( p_section->FindProperty( "ExpansionPakUsage", &p_property ) )
-		{
-			settings.ExpansionPakUsage = ExpansionPakUsageFromString( p_property->GetValue() );
 		}
 		if( p_section->FindProperty( "SaveType", &p_property ) )
 		{
@@ -433,8 +373,6 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n");
 	if( settings.MemoryAccessOptimisation )		fprintf(fh, "MemoryAccessOptimisation=yes\n");
 	if( settings.CheatsEnabled )				fprintf(fh, "CheatsEnabled=yes\n");
-
-	if ( settings.ExpansionPakUsage != PAK_STATUS_UNKNOWN )	fprintf(fh, "ExpansionPakUsage=%s\n", ROM_GetExpansionPakUsageName( settings.ExpansionPakUsage ) );
 	if ( settings.SaveType != ESaveType::UNKNOWN )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
 
 	fprintf(fh, "\n");			// Spacer
@@ -503,7 +441,7 @@ RomSettings::~RomSettings() {}
 
 void	RomSettings::Reset()
 {
-	GameName = "";
+	// GameName = ""; 
 	Comment = "";
 	Info = "";
 	ExpansionPakUsage = PAK_STATUS_UNKNOWN;
