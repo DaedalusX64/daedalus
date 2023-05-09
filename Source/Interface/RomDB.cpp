@@ -27,6 +27,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <codecvt> // For the UTF Conversion
 
 
 #include "Core/ROM.h"
@@ -467,14 +468,195 @@ std::cout << "CRC Country is: " << crcCountry << std::endl;
             g_ROM.settings.SaveType = ESaveType::EEP4K;
 			std::cout << "SaveType in DB " << static_cast<int>(g_ROM.settings.SaveType) << std::endl;
             break;
+		case fnv1a_hash("134c3f03a7e79e31"):
         case fnv1a_hash("66092ea912391c34"):
-            // gameName = "007 - The World is not Enough (Beta)";
-            // saveType = "SRAM_32K";
+		case fnv1a_hash("9516943beb5e0af9"):
+            g_ROM.settings.GameName = "007 - The World is not Enough (Beta)";
+			g_ROM.settings.Preview = "007_The World_Is_Not_Enough.png";
             break;
+		case fnv1a_hash("61f1ba1ff1541c2c"):
+		case fnv1a_hash("253ffd588daa2ed9"):
+            g_ROM.settings.GameName = "1080 Snowboarding";
+			g_ROM.settings.SaveType = ESaveType::SRAM;
+			g_ROM.settings.Preview = "1080_Snowboarding.png";
+            	break;
+		case fnv1a_hash("091da5abd9ba68c"):
+            g_ROM.settings.GameName = "40 Winks";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "40_Winks.png";
+            	break;
+		case fnv1a_hash("56a48bb9af762b5b"):
+            g_ROM.settings.GameName = "64 de Hakken!! Tamagotchi - Minna de Tamagotchi World";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "Tamagotchi_World_64.png";
+            	break;
+		case fnv1a_hash("bf2ff236f2128931"):
+            g_ROM.settings.GameName = "64 Hanafuda - Tenshi no Yakusoku";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "64_Hanafuda_-_Tenshi_no_Yakusoku.png";
+            	break;
+		case fnv1a_hash("6910969c8d48eaf5"):
+            g_ROM.settings.GameName = "64 Oozumou";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "Ohzumou_64.png";
+            	break;
+		case fnv1a_hash("168bc185af2296df"):
+            g_ROM.settings.GameName = "64 Oozumo 2";
+			// g_ROM.settings.SaveType = ESaveType::EEP4K;;
+			g_ROM.settings.Preview = "Ohzumou_64_2.png";
+			/// Oozumou 1 uses EEP4K?
+            	break;
+		case fnv1a_hash("fc81607a787a8fff"):
+            g_ROM.settings.GameName = "64 Trump Collection - Alice no Wakuwaku Trump World";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;;
+			g_ROM.settings.Preview = "Alice_no_Wakuwaku_Trump_World.png";
+            	break;
+		case fnv1a_hash("d927f2df69814d0d"):
+		case fnv1a_hash("fd04dc82f4822dcf"):
+		case fnv1a_hash("c0ae382b10b85063"):
+		case fnv1a_hash("ce893bf67dd58245"):
+		case fnv1a_hash("96c0128fe117dc45"):
+            g_ROM.settings.GameName = "A Bug's Life";
+			g_ROM.settings.Preview = "A_Bugs_Life.png";
+            	break;
+		case fnv1a_hash("f18b591b459ba2ec"):
+		case fnv1a_hash("95bef662d6d602f1"):
+            g_ROM.settings.GameName = "Aero Fighters Assault";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "AeroFighters_Assault.png";
+            	break;	
+		case fnv1a_hash("3e46beae4b4671cc"):
+		case fnv1a_hash("c90309b046c11639"):
+		case fnv1a_hash("3111f480f6454638"):
+		case fnv1a_hash("c84530d8363a9df2"):
+            g_ROM.settings.GameName = "AeroGauge";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "Aero_Gauge.png";
+            	break;
+		case fnv1a_hash("a682c18cb0cad0c2"):
+            g_ROM.settings.GameName = "AI Shougi 3";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "AI_Shogi_3.png";
+            	break;
+		case fnv1a_hash("d2512011acf8be68"):
+		case fnv1a_hash("ccffc42d215affc8"):
+		case fnv1a_hash("4f5aa9e623ead2ba"):
+            g_ROM.settings.GameName = "Aidyn Chronicles - The First Mage";
+			g_ROM.settings.Preview = "Aidyn_Chronicles_The_First_Mage.png";
+			// Requires clean scene enabled
+            	break;
+		case fnv1a_hash("0cb6456c300ee5dc"):
+		case fnv1a_hash("d025c427c1992d8c"):
+            g_ROM.settings.GameName = "Airboarder 64";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "Airboarder_64.png";
+            	break;
+		case fnv1a_hash("941a95b6af49c863"):
+            g_ROM.settings.GameName = "Akumajou Dracula Mokushiroku - Real Action Adventure";
+			g_ROM.settings.SaveType = ESaveType::EEP16K;
+			g_ROM.settings.Preview = "Akumajou_Dracula_Mokushiroku_Real_Action_Adventure.png";
+            	break;
+		case fnv1a_hash("063153a55b5ef2b9"):
+            g_ROM.settings.GameName = "Akumajou Dracula Mokushiroku Gaiden - Legend of Cornell";
+			g_ROM.settings.SaveType = ESaveType::EEP16K;
+			g_ROM.settings.Preview = "Akumajou_Dracula_Mokushiroku_Gaiden_Legend_of_Cornell.png";
+            	break;
+		case fnv1a_hash("ad84d7df036642ae"):
+		case fnv1a_hash("91e285e16d76504e"):
+            g_ROM.settings.GameName = "All Star Tennis '99";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "All_Star_Tennis_99.png";
+            	break;
+		case fnv1a_hash("a7233ec41a68b140"):
+		case fnv1a_hash("4dd5edd974e2b86b"):
+            g_ROM.settings.GameName = "All Star Baseball 99";
+			g_ROM.settings.Preview = "All_Star_Baseball_99.png";
+            	break;
+		case fnv1a_hash("4d7a545e9507e690"):
+            g_ROM.settings.GameName = "All Star Baseball 2000";
+			g_ROM.settings.Preview = "All_Star_Baseball_2000.png";
+            	break;
+		case fnv1a_hash("efc64654bb478ee1"):
+            g_ROM.settings.GameName = "All Star Baseball 2001";
+			g_ROM.settings.Preview = "All_Star_Baseball_2001.png";
+            	break;
+		case fnv1a_hash("17dbf6c032d5e080"):
+		case fnv1a_hash("32d9b51f1b48a93b"):
+		case fnv1a_hash("5071c73c87b9cd21"):
+            g_ROM.settings.GameName = "Armorines - Project S.W.A.R.M.";
+			g_ROM.settings.Preview = "Armorines_Project_SWARM.png";
+            	break;
+		case fnv1a_hash("b2bb524c6b0fabce"):
+            g_ROM.settings.GameName = "Army Men - Air Combat";
+			g_ROM.settings.Preview = "Army_Men_Air_Combat.png";
+            	break;
+		case fnv1a_hash("57062c866d89fd8d"):
+		case fnv1a_hash("19df10b21a8db598"):
+            g_ROM.settings.GameName = "Army Men - Sarge's Heroes";
+			g_ROM.settings.Preview = "Army_Men_Sarges_Heroes.png";
+            	break;
+		case fnv1a_hash("b6730fb234fc7529"):
+            g_ROM.settings.GameName = "Army Men - Sarge's Heroes 2";
+			g_ROM.settings.Preview = "Army_Men_Sarges_Heroes_2.png";
+            	break;
+		case fnv1a_hash("abd8f7d146043b29"):
+            g_ROM.settings.GameName = "Asteroids Hyper 64";
+			g_ROM.settings.Preview = "Asteroids_Hyper_64.png";
+            	break;
+		case fnv1a_hash("c45db2418667721b"):
+		case fnv1a_hash("bf9777fc3ce8954a"):
+            g_ROM.settings.GameName = "Automobili Lamborghini";
+			g_ROM.settings.Preview = "Automobili_Lamborghini.png";
+            	break;
+		case fnv1a_hash("9ca440e3418d3174"):
+            g_ROM.settings.GameName = "Baku Bomberman";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "Baku_Bomberman.png";
+            	break;
+		case fnv1a_hash("4f7c3ce738b893af"):
+            g_ROM.settings.GameName = "Baku Bomberman 2";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;
+			g_ROM.settings.Preview = "Baku_Bomberman_2.png";
+            	break;
+		case fnv1a_hash("5db998df78098458"):
+            g_ROM.settings.GameName = "Bakuretsu Muteki Bangaioh";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;		
+			g_ROM.settings.Preview = "Bakuretsu_Muteki_Bangaioh.png";
+            	break;
+		case fnv1a_hash("20d568510dcd5fca"):
+            g_ROM.settings.GameName = "Banjo to Kazooie no Daibouken";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;		
+			g_ROM.settings.Preview = "Banjo_to_Kazooie_no_Daibouken.png";
+            	break;
+		case fnv1a_hash("b1cc3f73f9924844"):
+		case fnv1a_hash("0693bfa4d1df0cbf"):
+		case fnv1a_hash("ac5975cdaef56cb2"):
+            g_ROM.settings.GameName = "Banjo-Kazooie";
+			g_ROM.settings.SaveType = ESaveType::EEP4K;	
+			g_ROM.settings.Preview = "Banjo_Kazooie.png";
+            	break;
+		case fnv1a_hash("396d17c9d17947ea"):
+		case fnv1a_hash("9aaae9c2aa705d47"):
+		case fnv1a_hash("df7c5b152573daf0"):
+            g_ROM.settings.GameName = "Banjo-Tooie";
+			g_ROM.settings.SaveType = ESaveType::EEP16K;	
+			g_ROM.settings.Preview = "Banjo_Tooie.png";
+            	break;	
+		case fnv1a_hash("00694b518198b1b4"):
+            g_ROM.settings.GameName = "Banjo to Kazooie no Daibouken 2";
+			g_ROM.settings.SaveType = ESaveType::EEP16K;
+			g_ROM.settings.Preview = "Banjo_to_Kazooie_no_Daibouken_2.png";
+            	break;
+		case fnv1a_hash("ac3363d79d21b60c"):
+            g_ROM.settings.GameName = "Bass Rush - ECOGEAR PowerWorm Championship";
+			g_ROM.settings.Preview = "Bass_Tsuri_No._1.png";
+				
+				
         default:
-            // gameName = "Unknown";
-            // saveType = "Unknown";
+			g_ROM.settings.GameName = "Unknown";
+            g_ROM.settings.SaveType = ESaveType::EEP4K; // As a sanity check, set to the most popular rom
             break;
     }
+	std::cout << g_ROM.settings.GameName << std::endl;
 
 }
