@@ -263,12 +263,16 @@ int main(int argc, char* argv[])
 #endif
 		//Translate_Init();
 		bool show_splash = true;
+		std::filesystem::path filename;
+
 		for(;;)
 		{
+						CRomDB::Get()->RomIndex(filename);
+			
 			DisplayRomsAndChoose( show_splash );
 			show_splash = false;
+			
 
-			// CRomDB::Get()->Commit();
 			// CPreferences::Get()->Commit();
 
 			CPU_Run();

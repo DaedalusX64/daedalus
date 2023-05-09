@@ -26,6 +26,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/IO.h"
 #include <string>
 #include <filesystem>
+#include "Interface/RomDB.h"
+#include <iostream>
+
+#include "RomSettings.h"
+
+
+struct SRomPreferences;
+
+//*****************************************************************************
+// Functions
+//*****************************************************************************
+bool ROM_ReBoot();
+void ROM_Unload();
+bool ROM_LoadFile();
+void ROM_LoadFile(std::filesystem::path);
+void ROM_UnloadFile();
+bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences );
+
+bool ROM_GetRomDetailsByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * boot_type );
+bool ROM_GetRomDetailsByID( const RomID & id, u32 * rom_size, ECicType * boot_type );
+bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_name );
+
+const char *	ROM_GetCountryNameFromID( u8 country_id )	DAEDALUS_ATTRIBUTE_PURE;
+u32				ROM_GetTvTypeFromID( u8 country_id )		DAEDALUS_ATTRIBUTE_PURE;
+const char *	ROM_GetCicTypeName( ECicType cic_type );
+
+
+
 class RomID
 {
 	public:
@@ -80,11 +108,14 @@ class RomID
 
 		u32		CRC[2];
 		u8		CountryID;
+
+		
 };
 
-#include "RomSettings.h"
 
-struct SRomPreferences;
+
+
+
 
 // Increase this everytime you add a new hack, don't forget to add it in gGameHackNames too !!!
 //
@@ -121,9 +152,7 @@ enum EGameHacks
 	MAX_HACK_NAMES	//DONT CHANGE THIS! AND SHOULD BE LAST ENTRY
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 struct RomInfo
 {
 	std::filesystem::path	mFileName;
@@ -133,6 +162,8 @@ struct RomInfo
 	RomSettings 	settings;				// Settings for this rom
 	u32				TvType;					// OS_TV_NTSC etc
 	ECicType		cic_chip;				// CIC boot chip type
+	u32				mRomSize;				// Size of the ROM
+
 	union
 	{
 		u32 HACKS_u32;
@@ -156,30 +187,51 @@ struct RomInfo
 			u32			PadE:1;	//free
 			u32			PadF:1;	//free
 		};
+
+
 	};
+
+	RomInfo() = default;
+	RomInfo( const std::filesystem::path filename )
+		:	mFileName( filename )
+	{
+		if ( ROM_GetRomDetailsByFilename( filename, &mRomID, &mRomSize, &cic_chip ) )
+		{
+			if ( !CRomSettingsDB::Get()->GetSettings( mRomID, &settings ) )
+			{
+				// Create new entry, add
+				settings.Reset();
+				settings.Comment = "Unknown";
+				// std::cout << "Game Name: " << settings.GameName << std::endl;
+
+				// std::cout << "Rom Header CRC1: " << rh.CRC1 << std::endl;
+				//
+				// We want to get the "internal" name for this rom from the header
+				// Failing that, use the filename
+				//
+				std::string game_name;
+				if ( !ROM_GetRomName( filename, game_name ) )
+				{
+					game_name = IO::Path::FindFileName( filename.c_str() );
+				}
+				game_name = game_name.substr(0, 63);
+				settings.GameName = game_name.c_str();
+				CRomSettingsDB::Get()->SetSettings( mRomID, settings );
+				
+			}
+		}
+		else
+		{
+			settings.GameName = "Can't get rom info";
+		}
+
+	}
 };
-
-//*****************************************************************************
-// Functions
-//*****************************************************************************
-bool ROM_ReBoot();
-void ROM_Unload();
-bool ROM_LoadFile();
-void ROM_UnloadFile();
-bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences );
-
-bool ROM_GetRomDetailsByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * boot_type );
-bool ROM_GetRomDetailsByID( const RomID & id, u32 * rom_size, ECicType * boot_type );
-bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_name );
-
-const char *	ROM_GetCountryNameFromID( u8 country_id )	DAEDALUS_ATTRIBUTE_PURE;
-u32				ROM_GetTvTypeFromID( u8 country_id )		DAEDALUS_ATTRIBUTE_PURE;
-const char *	ROM_GetCicTypeName( ECicType cic_type );
-
 //*****************************************************************************
 // Externs (urgh)
 //*****************************************************************************
 extern RomInfo g_ROM;
+
 
 #if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
 extern u32 g_dwNumFrames;

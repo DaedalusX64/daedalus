@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspdisplay.h>
 #include <psputility.h>
 #include <pspgu.h>
+#include <iostream>
 
 #include "BuildOptions.h"
 #include "Base/Types.h"
@@ -38,6 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 #include "Base/MathUtil.h"
 #include "Math/Vector2.h"
+
 #include "SysPSP/Graphics/DrawText.h"
 #include "SysPSP/UI/PSPMenu.h"
 #include "SysPSP/UI/RomSelectorComponent.h"
@@ -86,51 +88,6 @@ namespace
 
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-struct SRomInfo
-{
-	std::filesystem::path	mFilename;
-
-	RomID			mRomID;
-	u32				mRomSize;
-	ECicType		mCicType;
-
-	RomSettings		mSettings;
-
-	SRomInfo( const std::filesystem::path filename )
-		:	mFilename( filename )
-	{
-		if ( ROM_GetRomDetailsByFilename( filename, &mRomID, &mRomSize, &mCicType ) )
-		{
-			if ( !CRomSettingsDB::Get()->GetSettings( mRomID, &mSettings ) )
-			{
-				// Create new entry, add
-				mSettings.Reset();
-				mSettings.Comment = "Unknown";
-
-				//
-				// We want to get the "internal" name for this rom from the header
-				// Failing that, use the filename
-				//
-				std::string game_name;
-				if ( !ROM_GetRomName( filename, game_name ) )
-				{
-					game_name = IO::Path::FindFileName( filename.c_str() );
-				}
-				game_name = game_name.substr(0, 63);
-				mSettings.GameName = game_name.c_str();
-				CRomSettingsDB::Get()->SetSettings( mRomID, mSettings );
-			}
-		}
-		else
-		{
-			mSettings.GameName = "Can't get rom info";
-		}
-
-	}
-};
 
 //*************************************************************************************
 //
@@ -141,18 +98,18 @@ static ECategory Categorise( const char * name )
 	return GetCategory( c );
 }
 
-static bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
+static bool SortByGameName( const RomInfo * a, const RomInfo * b )
 {
 	// Sort by the category first, then on the actual string.
-	ECategory	cat_a( Categorise( a->mSettings.GameName.c_str() ) );
-	ECategory	cat_b( Categorise( b->mSettings.GameName.c_str() ) );
+	ECategory	cat_a( Categorise( a->settings.GameName.c_str() ) );
+	ECategory	cat_b( Categorise( b->settings.GameName.c_str() ) );
 
 	if( cat_a != cat_b )
 	{
 		return cat_a < cat_b;
 	}
 
-	return ( strcmp( a->mSettings.GameName.c_str(), b->mSettings.GameName.c_str() ) < 0 );
+	return ( strcmp( a->settings.GameName.c_str(), b->settings.GameName.c_str() ) < 0 );
 }
 
 //*************************************************************************************
@@ -164,7 +121,7 @@ static u32 mCurrentSelection = 0;
 
 class IRomSelectorComponent : public CRomSelectorComponent
 {
-		using RomInfoList = std::vector<SRomInfo*>;
+		using RomInfoList = std::vector<RomInfo*>;
 		using AlphaMap = std::map< ECategory, u32 >;
 	public:
 
@@ -250,7 +207,7 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 	// Build up a map of the first location for each initial letter
 	for( u32 i = 0; i < mRomsList.size(); ++i )
 	{
-		const char *	p_gamename( mRomsList[ i ]->mSettings.GameName.c_str() );
+		const char *	p_gamename( mRomsList[ i ]->settings.GameName.c_str() );
 		ECategory		category( Categorise( p_gamename ) );
 
 		if( mRomCategoryMap.find( category ) == mRomCategoryMap.end() )
@@ -267,7 +224,7 @@ IRomSelectorComponent::~IRomSelectorComponent()
 {
 	for(RomInfoList::iterator it = mRomsList.begin(); it != mRomsList.end(); ++it)
 	{
-		SRomInfo *	p_rominfo( *it );
+		RomInfo *	p_rominfo( *it );
 
 		delete p_rominfo;
 	}
@@ -283,7 +240,7 @@ void	IRomSelectorComponent::UpdateROMList()
 {
 	for(RomInfoList::iterator it = mRomsList.begin(); it != mRomsList.end(); ++it)
 	{
-		SRomInfo *	p_rominfo( *it );
+		RomInfo *	p_rominfo( *it );
 
 		delete p_rominfo;
 	}
@@ -304,7 +261,7 @@ void	IRomSelectorComponent::UpdateROMList()
 	// Build up a map of the first location for each initial letter
 	for( u32 i = 0; i < mRomsList.size(); ++i )
 	{
-		const char *	p_gamename( mRomsList[ i ]->mSettings.GameName.c_str() );
+		const char *	p_gamename( mRomsList[ i ]->settings.GameName.c_str() );
 		ECategory		category( Categorise( p_gamename ) );
 
 		if( mRomCategoryMap.find( category ) == mRomCategoryMap.end() )
@@ -333,9 +290,10 @@ void	IRomSelectorComponent::AddRomDirectory(const char * p_roms_dir, RomInfoList
 				full_path = p_roms_dir;
 				full_path += rom_filename;
 
-				SRomInfo *	p_rom_info = new SRomInfo( full_path.c_str() );
+				RomInfo *	p_rom_info = new RomInfo( full_path.c_str() );
 
-				roms.push_back( p_rom_info );
+				roms.emplace_back( p_rom_info );
+			
 			}
 		}
 		while(IO::FindFileNext( find_handle, find_data ));
@@ -351,7 +309,7 @@ ECategory	IRomSelectorComponent::GetCurrentCategory() const
 {
 	if( !mRomsList.empty() )
 	{
-		return Categorise( mRomsList[ mCurrentSelection ]->mSettings.GameName.c_str() );
+		return Categorise( mRomsList[ mCurrentSelection ]->settings.GameName.c_str() );
 	}
 
 	return C_NUMBERS;
@@ -408,9 +366,9 @@ void IRomSelectorComponent::RenderPreview()
 
 	if( mCurrentSelection < mRomsList.size() )
 	{
-		SRomInfo *	p_rominfo( mRomsList[ mCurrentSelection ] );
+		RomInfo *	p_rominfo( mRomsList[ mCurrentSelection ] );
 
-		const char *	cic_name( ROM_GetCicName( p_rominfo->mCicType ) );
+		const char *	cic_name( ROM_GetCicName( p_rominfo->cic_chip ) );
 		const char *	country( ROM_GetCountryNameFromID( p_rominfo->mRomID.CountryID ) );
 		u32				rom_size( p_rominfo->mRomSize );
 
@@ -421,7 +379,7 @@ void IRomSelectorComponent::RenderPreview()
 		DrawInfoText( mpContext, y, "Country:", country );	y += line_height;
 		DrawInfoText( mpContext, y, "Size:", buffer );	y += line_height;
 
-		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) ); y += line_height;
+		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->settings.SaveType ) ); y += line_height;
 	}
 	else
 	{
@@ -453,11 +411,11 @@ void IRomSelectorComponent::RenderRomList()
 		const char *	p_gamename;
 		if( mDisplayFilenames )
 		{
-			p_gamename = mRomsList[ i ]->mFilename.c_str();
+			p_gamename = mRomsList[ i ]->mFileName.c_str();
 		}
 		else
 		{
-			p_gamename = mRomsList[ i ]->mSettings.GameName.c_str();
+			p_gamename = mRomsList[ i ]->settings.GameName.c_str();
 		}
 
 		//
@@ -661,7 +619,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		{
 			if(mCurrentSelection < mRomsList.size())
 			{
-				mSelectedRom = mRomsList[ mCurrentSelection ]->mFilename;
+				mSelectedRom = mRomsList[ mCurrentSelection ]->mFileName;
 
 				if(OnRomSelected != NULL)
 				{
@@ -675,7 +633,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		{
 			if(mCurrentSelection < mRomsList.size())
 			{
-				mSelectedRom = mRomsList[ mCurrentSelection ]->mFilename;
+				mSelectedRom = mRomsList[ mCurrentSelection ]->mFileName;
 				mRomDelete = true;
 			}
 		}
@@ -765,10 +723,10 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			mPreviewLoadedTime = 0.0f;
 			mPreviewIdx = mCurrentSelection;
 
-			if( !mRomsList[ mCurrentSelection ]->mSettings.Preview.empty() )
+			if( !mRomsList[ mCurrentSelection ]->settings.Preview.empty() )
 			{
 	IO::Filename preview_filename;
-				IO::Path::Combine( preview_filename, gPreviewDirectory, mRomsList[ mCurrentSelection ]->mSettings.Preview.c_str() );
+				IO::Path::Combine( preview_filename, gPreviewDirectory, mRomsList[ mCurrentSelection ]->settings.Preview.c_str() );
 
 				mpPreviewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_8888 );
 			}

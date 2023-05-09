@@ -37,6 +37,7 @@
 #include "System/IO.h"
 #include "RomFile/RomFile.h"
 #include "Utility/Stream.h"
+#include "Interface/Preferences.h"
 
 static const u64 ROMDB_MAGIC_NO	= 0x42444D5244454144LL; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
 static const u32 ROMDB_CURRENT_VERSION = 4;
@@ -60,7 +61,9 @@ class IRomDB : public CRomDB
 		bool			QueryByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type );
 		bool			QueryByID( const RomID & id, u32 * rom_size, ECicType * cic_type ) const;
 		const char *	QueryFilenameFromID( const RomID & id ) const;
-		void			RomIndex(const std::filesystem::path& filename);
+		void			RomIndex( std::filesystem::path& filename);
+		void 			BuildIndex( std::filesystem::path& filename);
+		void 			GetSettings(std::filesystem::path &filename, RomID &id);
 		
 	private:
 		void			AddRomFile(const std::filesystem::path filename);
@@ -196,6 +199,7 @@ void IRomDB::AddRomEntry( const std::filesystem::path filename, const RomID & id
 	if( fit != mRomFiles.end() && strcmp( fit->FileName, filename.c_str() ) == 0 )
 	{
 		fit->ID = id;
+		
 	}
 	else
 	{
@@ -315,21 +319,18 @@ static bool GenerateRomDetails( const std::filesystem::path filename, RomID * id
 	return true;
 }
 
-bool IRomDB::QueryByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type )
+bool IRomDB::QueryByFilename( std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type )
 {	
-	RomIndex(filename);
-	//
 	// First of all, check if we have these details cached in the rom database
-	//
-	FilenameVec::const_iterator fit( std::lower_bound( mRomFiles.begin(), mRomFiles.end(), filename.c_str(), SSortByFilename() ) );
-	if( fit != mRomFiles.end() && strcmp( fit->FileName, filename.c_str() ) == 0 )
-	{
-		if( QueryByID( fit->ID, rom_size, cic_type ) )
-		{
-			*id = fit->ID;
-			return true;
-		}
-	}
+	// FilenameVec::const_iterator fit( std::lower_bound( mRomFiles.begin(), mRomFiles.end(), filename.c_str(), SSortByFilename() ) );
+	// if( fit != mRomFiles.end() && strcmp( fit->FileName, filename.c_str() ) == 0 )
+	// {
+	// 	if( QueryByID( fit->ID, rom_size, cic_type ) )
+	// 	{
+	// 		*id = fit->ID;
+	// 		return true;
+	// 	}
+	// }
 
 	if( GenerateRomDetails( filename, id, rom_size, cic_type ) )
 	{
@@ -382,15 +383,82 @@ constexpr std::uint32_t fnv1a_hash(std::string_view str, std::uint32_t hash = 21
 }
 
 
-void IRomDB::RomIndex(const std::filesystem::path& filename) 
+/*
+We really need to build up the information about the ROM here and initialise the gROM Struct with this data
+
+This needs to be called early so we can setup the values below
+gROM.GameName
+gROM.FileName
+gROM.Preview // Will be setup in the RomIndex Function.
+gROM.SaveType // Setup in the RomIndex Function
+gROM.rh.CRC1
+gROM.rh.CRC2
+gROM.ExpansionPakUsage // Needed??
+
+// Open Rom
+*/
+
+std::vector<std::filesystem::path> romList;
+
+// Build the Rom Index and Sort
+void IRomDB::BuildIndex( std::filesystem::path& filename)
+{
+	std::filesystem::path romDir = "Roms";
+
+	for (const auto& entry : std::filesystem::directory_iterator(romDir))
+	{
+			// Just filter out directories for now
+		if (entry.is_regular_file())
+		{
+			filename = entry.path().filename().string();
+			romList.push_back(filename);
+		
+		}
+	}
+	std::sort(romList.begin(), romList.end());
+}
+
+void IRomDB::GetSettings(std::filesystem::path &filename, RomID &id)
 {
 
-// Append CRC1 and CRC2 values and convert to a hexadecimal string
-std::ostringstream oss;
-oss << std::hex << g_ROM.rh.CRC1 << g_ROM.rh.CRC2;
-std::string_view crcCountry = oss.str();
+	// Load Rom File 
+	
+	for (auto i : romList)
+	{
+	ROM_LoadFile(i);
+	}
+}
 
-std::cout << crcCountry << std::endl;
+
+void IRomDB::RomIndex( std::filesystem::path& filename) 
+{
+	RomID id;
+	BuildIndex(filename);
+	GetSettings(filename, id);
+
+
+g_ROM.mFileName = filename;
+std::ostringstream oss;
+oss.str("");
+
+// Initialise some Settings
+
+// Append CRC1 and CRC2 values and convert to a hexadecimal string
+
+std::cout << g_ROM.rh.CRC1;
+std::cout << g_ROM.rh.CRC2;
+
+oss << std::hex << g_ROM.rh.CRC1 << g_ROM.rh.CRC2;
+std::string crcCountry = oss.str();
+
+// Convert the string to UTF-8 encoding
+std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
+std::u32string utf32 = convert.from_bytes(crcCountry);
+
+// Print the UTF-8 string to the console
+std::cout << std::string(utf32.begin(), utf32.end()) << std::endl;
+
+std::cout << "CRC Country is: " << crcCountry << std::endl;
     // Determine game name and save type based on the joined string
     switch (fnv1a_hash(crcCountry.data()))
     {

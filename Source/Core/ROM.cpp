@@ -475,6 +475,7 @@ bool ROM_LoadFile()
 	{
 		RomSettings			settings;
 		SRomPreferences		preferences;
+		
 
 		if (!CRomSettingsDB::Get()->GetSettings( rom_id, &settings ))
 		{
@@ -491,6 +492,33 @@ bool ROM_LoadFile()
 	return false;
 }
 
+void ROM_LoadFile(std::filesystem::path filename)
+{
+	RomID		rom_id;
+	u32			rom_size;
+	ECicType	boot_type;
+
+	if (ROM_GetRomDetailsByFilename(filename, &rom_id, &rom_size, &boot_type ))
+	{
+		RomSettings			settings;
+		SRomPreferences		preferences;
+		
+
+		if (!CRomSettingsDB::Get()->GetSettings( rom_id, &settings ))
+		{
+			settings.Reset();
+		}
+		if (!CPreferences::Get()->GetRomPreferences( rom_id, &preferences ))
+		{
+			preferences.Reset();
+		}
+
+		// return ROM_LoadFile( rom_id, settings, preferences );
+	}
+
+	// return false;
+}
+
 void ROM_UnloadFile()
 {
 	// Copy across various bits
@@ -500,9 +528,6 @@ void ROM_UnloadFile()
 
 bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences )
 {
-	
-
-	CRomDB::Get()->RomIndex(g_ROM.mFileName);
 	
 	DBGConsole_Msg(0, "Reading rom image: [C%s]", g_ROM.mFileName.c_str());
 
