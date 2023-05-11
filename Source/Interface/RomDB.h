@@ -23,12 +23,27 @@
 #ifndef INTERFACE_ROMDB_H_
 #define INTERFACE_ROMDB_H_
 
-#include "Base/Singleton.h"
 
-#include "Core/ROM.h"
+
 #include <filesystem>
+#include <vector>
+
+#include "Base/Singleton.h"
+#include "Core/ROM.h"
+#include "Core/RomSettings.h"
 
 class	RomID;
+
+struct GameInfo 
+{
+    std::filesystem::path file;
+    std::string gameName;
+    u32 gameSize;
+    std::string crc;
+    ESaveType saveType;
+    std::string previewImage;
+
+};
 
 class	CRomDB :  public CSingleton< CRomDB >
 {
@@ -43,7 +58,8 @@ class	CRomDB :  public CSingleton< CRomDB >
 		virtual bool			QueryByID( const RomID & id, u32 * rom_size, ECicType * cic_type ) const = 0;						// Query a rom from the database
 		virtual const char *	QueryFilenameFromID( const RomID & id ) const = 0;
     virtual void 			GetSettings(std::filesystem::path &filename, RomID &id) = 0;
-
+    virtual std::vector<GameInfo> BuildHeader(const std::vector<std::filesystem::path>& file, const std::vector<std::string>& gameName,
+                                       const std::vector<u32>& gameSize, const std::vector<std::string>& crc);
     virtual 	void 			BuildIndex( std::filesystem::path& filename) = 0;
 };
 

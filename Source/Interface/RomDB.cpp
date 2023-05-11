@@ -28,6 +28,7 @@
 #include <iostream>
 #include <vector>
 #include <codecvt> // For the UTF Conversion
+#include <fstream>
 
 
 #include "Core/ROM.h"
@@ -64,6 +65,10 @@ class IRomDB : public CRomDB
 		const char *	QueryFilenameFromID( const RomID & id ) const;
 		void			RomIndex( std::filesystem::path& filename);
 		void 			BuildIndex( std::filesystem::path& filename);
+	
+std::vector<GameInfo> BuildHeader(const std::vector<std::filesystem::path>& file, const std::vector<std::string>& gameName,
+                                       const std::vector<u32>& gameSize, const std::vector<std::string>& crc);
+
 		void 			GetSettings(std::filesystem::path &filename, RomID &id);
 		
 	private:
@@ -383,6 +388,33 @@ constexpr std::uint32_t fnv1a_hash(std::string_view str, std::uint32_t hash = 21
     return hash;
 }
 
+std::string buildCRC(const std::string& file_path) {
+    // Open file in binary mode
+    std::ifstream rom(file_path, std::ios::binary);
+
+    // Seek to start of ROM header
+    rom.seekg(0x40, std::ios::beg);
+
+    // Read first 4 bytes for CRC1
+    std::array<char, 4> crc1_data;
+    rom.read(crc1_data.data(), crc1_data.size());
+    uint32_t crc1 = *(reinterpret_cast<uint32_t*>(crc1_data.data()));
+
+    // Read next 4 bytes for CRC2
+    std::array<char, 4> crc2_data;
+    rom.read(crc2_data.data(), crc2_data.size());
+    uint32_t crc2 = *(reinterpret_cast<uint32_t*>(crc2_data.data()));
+
+    // Combine CRC1 and CRC2 and convert to string
+    std::stringstream ss;
+    ss << std::hex << ((crc1 << 8) | (crc2 >> 24));
+    return ss.str();
+}
+
+
+
+
+
 
 /*
 We really need to build up the information about the ROM here and initialise the gROM Struct with this data
@@ -399,11 +431,38 @@ gROM.ExpansionPakUsage // Needed??
 // Open Rom
 */
 
-std::vector<std::filesystem::path> romList;
+
+// This builds the vector required to store information struct
+std::vector<GameInfo> IRomDB::BuildHeader(const std::vector<std::filesystem::path>& file, const std::vector<std::string>& gameName,
+                                       const std::vector<u32>& gameSize, const std::vector<std::string>& crc)
+{
+// We really only need Filename and CRC here. GameSize shouldn't really matter in this case.
+    std::vector<GameInfo> game;
+	// We fill in the GameInfo Header with stuff we know, we'll move the RomHeader Struct here in future.
+	for (const auto& entry : std::filesystem::directory_iterator("Roms"))
+	{
+			// Just filter out regular files for now
+		if (entry.is_regular_file())
+  
+	// 	{
+
+    // for (std::size_t i = 0; i < game.size(); ++i)
+    // {
+    //     // game.emplace_back(GameInfo{file[i], gameName[i], gameSize[i], buildCRC(i), saveType[i], previewImage[i]});
+    // }
+
+    return game;
+
+}
 
 // Build the Rom Index and Sort
-void IRomDB::BuildIndex( std::filesystem::path& filename)
+std::vector<std::filesystem::path> romList;
+
+void IRomDB::BuildIndex(std::filesystem::path &filename)
 {
+	// Iterate over the Rom Directory and parse in the FileName to the vector
+		// This should be a vector of it's own, defaulted to Roms and other directories based on the OS can be added
+
 	std::filesystem::path romDir = "Roms";
 
 	for (const auto& entry : std::filesystem::directory_iterator(romDir))
@@ -421,12 +480,11 @@ void IRomDB::BuildIndex( std::filesystem::path& filename)
 
 void IRomDB::GetSettings(std::filesystem::path &filename, RomID &id)
 {
-
-	// Load Rom File 
 	
 	for (auto i : romList)
 	{
-	ROM_LoadFile(i);
+		std::ifstream rom_file(i, std::ios::binary);
+
 	}
 }
 
