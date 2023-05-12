@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <fstream>
 #include <numeric>
+#include <sstream>
+#include <unordered_map>
 
 // Temporary 
 enum ESaveType :uint32_t
@@ -26,15 +28,15 @@ struct GameData
     std::string internalName;
     std::string CRC;
     std::string gameName;
+    ESaveType saveType;
         // ESaveType SaveType; // This will need to be the SaveType Enum
   GameData() = default;
 
-  GameData(const std::filesystem::path& p, const std::string& n, const std::string& c, const std::string& o)
-      : file(p), internalName(n), CRC(c), gameName(o) {}
+  GameData(const std::filesystem::path& p, const std::string& n, const std::string& c, const std::string& o, const ESaveType& t =ESaveType::UNKNOWN)
+      : file(p), internalName(n), CRC(c), gameName(o), saveType(t) {}
 
 };
 
-    std::vector<GameData> gameinfo;
     GameData data;
 
 
@@ -84,29 +86,17 @@ std::string get_internal_name(const std::filesystem::directory_entry &entry) {
 }
 
 // Get List of Rom Files and add to struct
-std::vector<GameData> index(const std::filesystem::path &file)
-{
-        // Just target directory Roms for now, we'll need to add
-    for (const auto& entry : std::filesystem::directory_iterator(file))
-    {
-            if (entry.is_regular_file())
-            {
-                std::string CRC = "";
-                // GameData data;
-                // data.file = entry.path();
-                // data.internalName = get_internal_name(entry);
-                // data.CRC = buildCRC(data);
-
-                // std::string internal_name = get_internal_name(entry);
-                // std::filesystem::path filename = entry.path().filename().string();
-                // std::string crc_value = buildCRC(entry);
-               gameinfo.emplace_back(entry.path(), get_internal_name(entry), readCRC(entry), "Unknown Game"  );
-
-            }
+std::unordered_map<std::string, GameData> index(const std::filesystem::path& file) {
+    std::unordered_map<std::string, GameData> gameinfo;
+    for (const auto& entry : std::filesystem::directory_iterator(file)) {
+        if (entry.is_regular_file()) {
+            std::string crc = readCRC(entry);
+            GameData data(file.path(), get_internal_name(entry), crc, "Unknown Game",ESaveType::UNKNOWN);
+            gameinfo.emplace(crc, std::move(data));
+        }
     }
     return gameinfo;
 }
-
 
 constexpr std::uint32_t fnv1a_hash(std::string_view str, std::uint32_t hash = 2166136261)
 {
@@ -119,29 +109,44 @@ constexpr std::uint32_t fnv1a_hash(std::string_view str, std::uint32_t hash = 21
     return hash;
 }
 
-
-
 int main()
 {
 
+       std::unordered_map<std::string, GameData> gameinfo = index("Roms");
 
-    std::filesystem::path romDir = "Roms";
-    index("Roms");
-    for (auto i : gameinfo)
-    {
-    std::string_view crcResult = i.CRC;
 
-    switch (fnv1a_hash(crcResult.data()))
+    // Access game info by CRC value // Doesn't look like we have much choice here but to do it this way
+    std::string crc = "";
+    for (auto& it : gameinfo)
     {
-      case fnv1a_hash("ff2b5a632623028b"):
-           data.gameName = "Super Mario 64";
-           std::cout << "It's a me a mario";
-            // g_ROM.settings.SaveType = ESaveType::EEP4K;
-			// std::cout << "SaveType in DB " << static_cast<int>(g_ROM.settings.SaveType) << std::endl;
-            break;
+        switch(fnv1a_hash(crc))
+        {
+  case fnv1a_hash("abd8f7d146043b29"):
+            gameinfo["abd8f7d146043b29"].gameName = "Asteroids Hyper 64";
+            	break;
+        }
     }
-        // std::cout << i.file << " "<< i.internalName << " "<< crcResult << std::endl;
-        
-    }
+
+// if (gameinfo.count("ff2b5a632623028b")) 
+//     {
+//     gameinfo["ff2b5a632623028b"].gameName = "Super Mario 64";
+//     gameinfo["ff2b5a632623028b"].saveType = ESaveType::EEP4K;
+//     }
+// if (gameinfo.count("b5426c3a1bdaca1a"))
+//     {
+//         gameinfo["b5426c3a1bdaca1a"].gameName = "Mario Tennis";
+//     }
+
+
+for (const auto& pair : gameinfo) {
+    const GameData& data = pair.second;
+    std::cout << "File: " << data.file << std::endl;
+    std::cout << "Internal Name: " << data.internalName << std::endl;
+    std::cout << "CRC: " << data.CRC << std::endl;
+    std::cout << "Game Name: " << data.gameName << std::endl;
+    std::cout << "Save Type: " << data.saveType << std::endl;
+    std::cout << std::endl;
+                                    }
+    return 0;
 
 }
