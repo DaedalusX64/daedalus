@@ -39,8 +39,9 @@ while read -r line; do
     save_type="${save_type/Eeprom4k/EEP4K}"
   save_type="${save_type/Eeprom16k/EEP16K}"
   save_type="${save_type/FlashRam/FLASH}"
+    save_type="${save_type/FlashRAM/FLASH}"
 
-    printf '{"%s", "%s", "ESaveType::%s", "%s"},\n' "$id_done" "$name" "$save_type" "$preview"
+    printf '{"%s", "%s", ESaveType::%s, "%s"},\n' "$id_done" "$name" "$save_type" "$preview"
     # Reset the variables to empty for next iteration
     id_done=""
     name=""
