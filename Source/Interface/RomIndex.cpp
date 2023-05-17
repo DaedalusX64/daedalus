@@ -102,15 +102,12 @@ bool compareGameDataByGameName(const GameData& a, const GameData& b) {
     return a.gameName < b.gameName;
 }
 
-
-// Get list of ROM files and add to struct, sorted by gameName
-
 // Get list of ROM files and add to struct, sorted by gameName
 std::map<std::string, GameData> index(const std::filesystem::path& file) {
     std::map<std::string, GameData> gameinfo;
+     std::vector<GameData> gameDataVec;
 
-    // Insert the GameData objects into a vector
-    std::vector<GameData> gameDataVec;
+
     for (const auto& entry : std::filesystem::directory_iterator(file)) {
         if (entry.is_regular_file()) {
             std::string crc = readCRC(entry);
@@ -120,7 +117,7 @@ std::map<std::string, GameData> index(const std::filesystem::path& file) {
     }
 
     // Sort the vector by gameName
-    std::sort(gameDataVec.begin(), gameDataVec.end(), compareGameDataByGameName);
+    // Should we be doing this 
 
     // Insert the sorted GameData objects into a map
     for (const auto& data : gameDataVec) {
@@ -1129,42 +1126,26 @@ std::vector<std::tuple<std::string, std::string, ESaveType, std::string>> update
 {"693ef1ef2f4b24d845", "Wave Race 64 (Widescreen Patch)", ESaveType::FLASH, "Wave_Race_64.png"}
 
  };
+        std::sort(gameDataVec.begin(), gameDataVec.end(), compareGameDataByGameName);
+
 
 for (const auto& [crc, gameName, saveType, previewImage] : updateValues) {
     auto iter = gameinfo.find(crc);
     if (iter != gameinfo.end()) {
         GameData& data = iter->second;
-        data.gameName = gameName;
-        data.saveType = saveType;
-        data.previewImage = previewImage;
+        data.gameName = std::move(gameName);
+        data.saveType = std::move(saveType);
+        data.previewImage = std::move(previewImage);
         }
     }
-
     return gameinfo;
 }
 
 
+// int main()
+// {
 
 
 
-int main()
-{
-
-
-       auto gameinfo = index("Roms");
-
-
-
-for (const auto& pair : gameinfo) {
-    const GameData& data = pair.second;
-    std::cout << "File: " << data.file << std::endl;
-    std::cout << "Internal Name: " << data.internalName << std::endl;
-    std::cout << "CRC: " << data.CRC << std::endl;
-    std::cout << "Game Name: " << data.gameName << std::endl;
-    std::cout << "Save Type: " << data.saveType << std::endl;
-    std::cout << "Preview Path: " << data.previewImage << std::endl;
-    std::cout << std::endl;
-                                    }
-
-    return 0;
-}
+//     return 0;
+// }

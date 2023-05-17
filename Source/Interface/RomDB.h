@@ -53,14 +53,11 @@ class	CRomDB :  public CSingleton< CRomDB >
 		virtual bool			OpenDB( const std::filesystem::path filename ) = 0;												// Open the specified rom db, or creates a new one if it does not currently exist
 		virtual void			Reset() = 0;																		// Resets the contents of the database																// Commits any changes made to the database to disk
 		virtual void			AddRomDirectory(const std::filesystem::path directory) = 0;
-    virtual void			RomIndex( std::filesystem::path& filename) = 0;
 		virtual bool			QueryByFilename( std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type ) = 0;		// Query a rom from the database
 		virtual bool			QueryByID( const RomID & id, u32 * rom_size, ECicType * cic_type ) const = 0;						// Query a rom from the database
 		virtual const char *	QueryFilenameFromID( const RomID & id ) const = 0;
     virtual void 			GetSettings(std::filesystem::path &filename, RomID &id) = 0;
-    virtual std::vector<GameInfo> BuildHeader(const std::vector<std::filesystem::path>& file, const std::vector<std::string>& gameName,
-                                       const std::vector<u32>& gameSize, const std::vector<std::string>& crc);
-    virtual 	void 			BuildIndex( std::filesystem::path& filename) = 0;
+
 };
 
 

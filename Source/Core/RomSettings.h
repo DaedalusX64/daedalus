@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 enum class ESaveType :u32
 {
-	UNKNOWN,
+	NONE,
 	EEP4K,
 	EEP16K,
 	SRAM,

@@ -44,7 +44,7 @@ const char * ROM_GetSaveTypeName( ESaveType save_type )
 {
 	switch ( save_type )
 	{
-		case ESaveType::UNKNOWN:		return "Unknown";
+		case ESaveType::NONE:		return "Unknown";
 		case ESaveType::EEP4K:		return "Eeprom4k";
 		case ESaveType::EEP16K:		return "Eeprom16k";
 		case ESaveType::SRAM:		return "SRAM";
@@ -373,7 +373,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n");
 	if( settings.MemoryAccessOptimisation )		fprintf(fh, "MemoryAccessOptimisation=yes\n");
 	if( settings.CheatsEnabled )				fprintf(fh, "CheatsEnabled=yes\n");
-	if ( settings.SaveType != ESaveType::UNKNOWN )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
+	if ( settings.SaveType != ESaveType::NONE )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
 
 	fprintf(fh, "\n");			// Spacer
 }
@@ -417,7 +417,7 @@ void	IRomSettingsDB::SetSettings( const RomID & id, const RomSettings & settings
 
 RomSettings::RomSettings()
 :	ExpansionPakUsage( PAK_STATUS_UNKNOWN )
-// ,	SaveType( ESaveType::UNKNOWN )
+// ,	SaveType( ESaveType::NONE )
 ,	PatchesEnabled( true )
 ,	SpeedSyncEnabled( 1 )
 ,	DynarecSupported( true )
@@ -445,7 +445,7 @@ void	RomSettings::Reset()
 	Comment = "";
 	Info = "";
 	ExpansionPakUsage = PAK_STATUS_UNKNOWN;
-	// SaveType = ESaveType::UNKNOWN;
+	// SaveType = ESaveType::NONE;
 	PatchesEnabled = true;
 	SpeedSyncEnabled = 0;
 	DynarecSupported = true;

@@ -141,7 +141,7 @@ void Save_MarkMempackDirty()
 }
 void Save_Flush() {
 	
-    if (gSaveDirty && g_ROM.settings.SaveType != ESaveType::UNKNOWN) {
+    if (gSaveDirty && g_ROM.settings.SaveType != ESaveType::NONE) {
         std::cout << "Saving to [" << gSaveFileName << "]" << std::endl;
 
         std::ofstream outfile(gSaveFileName, std::ios::out | std::ios::binary);

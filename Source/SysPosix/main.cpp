@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Test/BatchTest.h"
 #include "System/IO.h"
 #include "Config/ConfigOptions.h"
-
+#include "Interface/RomIndex.h"
 
 #include <SDL2/SDL.h>
 #include <vector>
@@ -97,9 +97,23 @@ int main(int argc, char **argv)
 // 		}
 // 		else if (filename)
 // 		{
-	
+
+
+       auto gameinfo = index("Roms");
+
+for (const auto& pair : gameinfo) {
+    const GameData& data = pair.second;
+    std::cout << "File: " << data.file << std::endl;
+    std::cout << "Internal Name: " << data.internalName << std::endl;
+    std::cout << "CRC: " << data.CRC << std::endl;
+    std::cout << "Game Name: " << data.gameName << std::endl;
+    // std::cout << "Save Type: " << data.saveType << std::endl;
+    std::cout << "Preview Path: " << data.previewImage << std::endl;
+    std::cout << std::endl;
+                                    }
+
 			System_Open( filename );
-			CRomDB::Get()->RomIndex(g_ROM.mFileName);			 
+				 
 
 
 			//

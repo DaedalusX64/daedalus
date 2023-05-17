@@ -2,7 +2,8 @@ add_library(Interface OBJECT
                             Preferences.cpp
                             RomDB.cpp
                             SaveState.cpp                
-            )
+                            RomIndex.cpp
+                            )
 
             
 list(APPEND daed_libs "Interface")
