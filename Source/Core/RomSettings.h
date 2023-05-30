@@ -37,7 +37,7 @@ enum class ESaveType :u32
 };
 constexpr u32 kNumSaveTypes = static_cast<u32>(ESaveType::FLASH) + 1;
 
-enum class MemPak :u32
+enum class EMemPak :u32
 {
 	NONE,
 	PRESENT,
