@@ -24,7 +24,6 @@ struct GameData
     std::string CRC;
     std::string gameName;
     ESaveType saveType;
-    MemPak memPak;
     std::string previewImage;
         // ESaveType SaveType; // This will need to be the SaveType Enum
   GameData() = default;
