@@ -1,5 +1,9 @@
 #include <map>
 #include <filesystem>
+#include "Core/RomSettings.h"
+#include "Core/ROM.h"
+
+#pragma once 
 
 // Temporary 
 // enum ESaveType :uint32_t
@@ -20,6 +24,7 @@ struct GameData
     std::string CRC;
     std::string gameName;
     ESaveType saveType;
+    MemPak memPak;
     std::string previewImage;
         // ESaveType SaveType; // This will need to be the SaveType Enum
   GameData() = default;
@@ -28,6 +33,7 @@ struct GameData
       : file(p), internalName(n), CRC(c), gameName(o), saveType(t), previewImage(j){}
 
 };
-
+extern GameData data;
 
 std::map<std::string, GameData> index(const std::filesystem::path& file);
+std::map<std::string, GameData>::const_iterator findGameByFilename(const std::map<std::string, GameData>& gameinfo, const std::string& filename);

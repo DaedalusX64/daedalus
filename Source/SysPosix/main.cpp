@@ -28,23 +28,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/IO.h"
 #include "Config/ConfigOptions.h"
 #include "Interface/RomIndex.h"
+#include "Core/RomSettings.h"
+#include "Interface/RomIndex.h"
 
 #include <SDL2/SDL.h>
 #include <vector>
 #include <filesystem>
 #include <iostream>
+#include <map>
 
 #ifdef DAEDALUS_LINUX
 #include <linux/limits.h>
 #endif
 
 		std::filesystem::path filename;
+			GameData data;
 
 int main(int argc, char **argv)
 {
 	int result = 0;
 	//ReadConfiguration();
 
+       auto gameinfo = index("Roms");
 	if (!System_Init())
 	{
 		fprintf(stderr, "System_Init failed\n");
@@ -52,70 +57,27 @@ int main(int argc, char **argv)
 	}
 
 
-	if (argc > 1)
-	{
-		bool 			batch_test = false;
+if (argc > 1) {
+    std::string filenameToFind = argv[1];
+    
+    auto it = findGameByFilename(gameinfo, filenameToFind);
+    if (it != gameinfo.end()) {
+        const std::string& gameKey = it->first;
+        const GameData& gameData = it->second;
+        std::cout << "Game found with key: " << gameKey << std::endl;
+        std::cout << "Game name: " << gameData.gameName << std::endl;
+        std::cout << "Preview image: " << gameData.previewImage << std::endl;
 
+		System_Open( gameData.file );
+    } else {
+        std::cout << "Game with filename \"" << filenameToFind << "\" not found." << std::endl;
+    }
+} else {
+    std::cout << "Please provide a filename as a command-line argument." << std::endl;
+}
 
-		for (int i = 1; i < argc; ++i)
-		{
-			const char * arg = argv[i];
-			if (*arg == '-')
-			{
-				++arg;
-				if( strcmp( arg, "-batch" ) == 0 )
-				{
-					batch_test = true;
-					break;
-				}
-				else if (strcmp( arg, "-roms" ) == 0 )
-				{
-					if (i+1 < argc)
-					{
-						const char *relative_path = argv[i+1];
-						++i;
-
-						char* dir = realpath(relative_path, nullptr);
-						CRomDB::Get()->AddRomDirectory(dir);
-						free(dir);
-					}
-				}
-			}
-			else
-			{
-				filename = arg;
-			}
-		}
-
-// 		if (batch_test)
-// 		{
-// #ifdef DAEDALUS_BATCH_TEST_ENABLED
-// 				BatchTestMain(argc, argv);
-// #else
-// 				fprintf(stderr, "BatchTest mode is not present in this build.\n");
-// #endif
-// 		}
-// 		else if (filename)
-// 		{
-
-
-       auto gameinfo = index("Roms");
-
-for (const auto& pair : gameinfo) {
-    const GameData& data = pair.second;
-    std::cout << "File: " << data.file << std::endl;
-    std::cout << "Internal Name: " << data.internalName << std::endl;
-    std::cout << "CRC: " << data.CRC << std::endl;
-    std::cout << "Game Name: " << data.gameName << std::endl;
-    // std::cout << "Save Type: " << data.saveType << std::endl;
-    std::cout << "Preview Path: " << data.previewImage << std::endl;
-    std::cout << std::endl;
-                                    }
-
-			System_Open( filename );
-				 
-
-
+			// System_Open( gamedata.file );
+	
 			//
 			// Commit the preferences and roms databases before starting to run
 			//
@@ -127,7 +89,6 @@ for (const auto& pair : gameinfo) {
 			System_Close();
 		// }
 	
-	}
 	System_Finalize();
 	return result;
 }

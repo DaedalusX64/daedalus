@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RomSettings.h"
 
 #include "Interface/RomDB.h"
+#include "Interface/RomIndex.h"
 #include "System/SystemInit.h"
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Graphics/VideoMemoryManager.h"
@@ -223,6 +224,7 @@ bool System_Init()
 
 bool System_Open(const std::filesystem::path &filename)
 {
+		//data.file = filename;
 	g_ROM.mFileName = filename;
 	
 	for (u32 i = 0; i < gRomInitTable.size(); i++)

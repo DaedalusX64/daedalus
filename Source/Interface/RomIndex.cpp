@@ -9,36 +9,10 @@
 #include <sstream>
 #include <map>
 #include <algorithm>
-
-// Temporary 
-enum ESaveType :uint32_t
-{
-	NONE,
-	EEP4K,
-	EEP16K,
-	SRAM,
-	FLASH,
-};
-constexpr uint32_t kNumSaveTypes = static_cast<uint32_t>(ESaveType::FLASH) + 1;
+#include "Interface/RomIndex.h"
+#include "Base/Types.h"
 
 // Let's fill this struct with the minimum required for the index
-struct GameData
-{
-    std::filesystem::path file;
-    std::string internalName;
-    std::string CRC;
-    std::string gameName;
-    ESaveType saveType;
-    std::string previewImage;
-        // ESaveType SaveType; // This will need to be the SaveType Enum
-  GameData() = default;
-
-  GameData(const std::filesystem::path& p, const std::string& n, const std::string& c, const std::string& o, const ESaveType& t =ESaveType::NONE, const std::string& j ="")
-      : file(p), internalName(n), CRC(c), gameName(o), saveType(t), previewImage(j){}
-
-};
-
-    GameData data;
 
 
 std::string readCRC(const std::filesystem::directory_entry &entry) {
@@ -861,7 +835,7 @@ std::vector<std::tuple<std::string, std::string, ESaveType, std::string>> update
 {"696b64f4951075c54a", "Super B-Daman - Battle Phoenix 64", ESaveType::NONE, "Superbdaman.png"},
 {"5a211daa9abecb9145", "Super Bowling", ESaveType::NONE, "Super_Bowling_64.png"},
 {"85f3f2f37f0c496e4a", "Super Bowling", ESaveType::NONE, "Super_Bowling-J.png"},
-{"ff2b5a632623028b45", "Super Mario 64", ESaveType::NONE, "super_mario_64.png"},
+{"ff2b5a632623028b45", "Super Mario 64", ESaveType::EEP4K, "super_mario_64.png"},
 {"0e3daa4e247c75744a", "Super Mario 64 (v1.0)", ESaveType::EEP4K, "Super_Mario_64-J.png"},
 {"a8a4fbd62caa26634a", "Super Mario 64 (v1.1) (Shindou Edition)", ESaveType::EEP4K, "Super_Mario_64-J.png"},
 {"36f03ca0d2c5c1bc50", "Super Mario 64", ESaveType::EEP4K, "super_mario_64.png"},
@@ -1139,6 +1113,15 @@ for (const auto& [crc, gameName, saveType, previewImage] : updateValues) {
         }
     }
     return gameinfo;
+}
+std::map<std::string, GameData>::const_iterator findGameByFilename(const std::map<std::string, GameData>& gameinfo, const std::string& filename) {
+    for (auto it = gameinfo.begin(); it != gameinfo.end(); ++it) {
+        if (it->second.file == filename) {
+            return it;
+        }
+    }
+
+    return gameinfo.end(); // Return the end iterator if the game is not found
 }
 
 

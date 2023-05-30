@@ -27,6 +27,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
 #include "System/IO.h"
+#include "Interface/RomIndex.h"
+
 
 #include <iostream>
 #include <fstream> 
@@ -39,15 +41,16 @@ static bool				gSaveDirty;
 static u32				gSaveSize;
 static std::filesystem::path	gMempackFileName;
 static bool				gMempackDirty;
+static std::filesystem::path ext; 
 
 
 constexpr std::size_t BUFFER_SIZE = 2048;
 
 bool Save_Reset()
 {
-	 std::filesystem::path ext;
-	switch (g_ROM.settings.SaveType)
+	switch (data.saveType)
 	{
+		std::cout << "Accessing Save Reset " << std::endl;
 	case ESaveType::EEP4K:
 		ext /= ".sav";
 		gSaveSize = 4 * 1024;
@@ -68,18 +71,22 @@ bool Save_Reset()
 		ext /= "";
 		gSaveSize = 0;
 		break;
+			std::cout << "Extension is: " << ext << std::endl;
 	}
+	std::cout << "Game Name in Save " << data.gameName << std::endl;
 	DAEDALUS_ASSERT( gSaveSize <= MemoryRegionSizes[MEM_SAVE], "Save size is larger than allocated memory");
+gSaveFileName = Save_As( g_ROM.mFileName, ext, "SaveGames");
+    std::ifstream infile(gSaveFileName, std::ios::binary);
+std::cout << "Game Name: "<<  data.gameName << std::endl;
 
 gSaveDirty = false;
 
 if (gSaveSize > 0)
 {
 
-    std::ifstream infile(gSaveFileName, std::ios::binary);
     if (infile.is_open())
     {
-        DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName.c_str());
+        DBGConsole_Msg(0, "Loading save from [C%s]", g_ROM.mFileName.c_str());
 
         u8 buffer[BUFFER_SIZE];
         u8* dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
@@ -140,8 +147,7 @@ void Save_MarkMempackDirty()
 	gMempackDirty = true;
 }
 void Save_Flush() {
-	
-    if (gSaveDirty && g_ROM.settings.SaveType != ESaveType::NONE) {
+    if (gSaveDirty && data.saveType != ESaveType::NONE) {
         std::cout << "Saving to [" << gSaveFileName << "]" << std::endl;
 
         std::ofstream outfile(gSaveFileName, std::ios::out | std::ios::binary);

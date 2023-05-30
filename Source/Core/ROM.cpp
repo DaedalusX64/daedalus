@@ -48,6 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RomFile/RomFile.h"
 #include "Utility/Stream.h"
 #include "Debug/Synchroniser.h"
+#include "Interface/RomIndex.h"
 
 #if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
 // This isn't really the most appropriate place. Need to check with
@@ -563,9 +564,9 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 		CheatCodes_Read( g_ROM.settings.GameName.c_str(), "Daedalus.cht", g_ROM.rh.CountryID );
 	}
 
-	DBGConsole_Msg(0, "[G%s]", g_ROM.settings.GameName.c_str());
+	DBGConsole_Msg(0, "[G%s]", data.gameName.c_str());
 	DBGConsole_Msg(0, "This game has been certified as [G%s] (%s)", g_ROM.settings.Comment.c_str(), g_ROM.settings.Info.c_str());
-	DBGConsole_Msg(0, "SaveType: [G%s]", ROM_GetSaveTypeName( g_ROM.settings.SaveType ) );
+	DBGConsole_Msg(0, "SaveType: [G%s]", ROM_GetSaveTypeName( data.saveType ) );
 	DBGConsole_Msg(0, "ApplyPatches: [G%s]", gOSHooksEnabled ? "on" : "off");
 	DBGConsole_Msg(0, "Check Texture Hash Freq: [G%d]", gCheckTextureHashFrequency);
 	DBGConsole_Msg(0, "SpeedSync: [G%d]", gSpeedSyncEnabled);

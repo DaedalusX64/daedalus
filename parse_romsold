@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# This extracts the data from 
+# Set the input file
+input_file="roms.ini"
+
+# Initialize variables
+name=""
+preview=""
+save_type=""
+id=""
+# Loop over each line in the input file
+while read -r line; do
+  # Disregard these, not required
+  if [[ $line == CleanSceneEnabled=* || $line == CleanSceneEnable=* || $line == DoubleDisplayEnabled=* || 
+        $line ==  cleanSceneEnabled=* || $line == Comment=*  || $line == SkipPifIRQ=*  || $line == *=Unused ||
+        $line == //* || $line == {} ]]; then
+    # Do nothing for the ignored lines
+    continue
+elif [[ $line =~ ^Name= ]]; then
+  # Extract the name and remove leading/trailing whitespace
+  name=$(echo "${line#Name=}" | awk '{$1=$1};1')
+  elif [[ $line =~ ^Preview= ]]; then
+    # Extract the preview
+    preview=${line#Preview=}
+  elif [[ $line =~ ^SaveType= ]]; then
+    # Extract the save type
+    save_type=${line#SaveType=}
+  elif [[ $line =~ ^\{[a-f0-9-]+\}$ ]]; then
+    # Extract the ID
+    id=$(echo "$line" | tr -d '{}-' | tr '[:upper:]' '[:lower:]')
+
+    # Format the output
+    if [[ $name == "" ]]; then
+        name="Untitled Game"
+    fi
+    if [[ $preview == "" ]]; then
+        preview="no_preview.png"
+    fi
+    save_type="${save_type/Eeprom4k/EEP4K}"
+    save_type="${save_type/Eeprom16k/EEP16K}"
+    save_type="${save_type/FlashRam/FLASH}"
+    echo "{\"$id\", \"$name\", ESaveType::$save_type, \"$preview\"},"
+  fi
+done < "$input_file"  > roms_formatted.txt

@@ -84,12 +84,12 @@ std::filesystem::path Save_As(const std::filesystem::path filename, const std::f
 {
 	std::filesystem::create_directories("SaveGames/Cache"); // Create the Save Directories if not already done
 	std::filesystem::path tmp;
-	std::filesystem::path gSaveFileName;
+	std::filesystem::path savename;
 	tmp = filename.filename();
 	tmp.replace_extension(extension);	
-	gSaveFileName = dest /= tmp;
-	std::cout << gSaveFileName << std::endl;
-	return gSaveFileName;
+	savename = dest /= tmp;
+	std::cout << "Save in Save_As Function: " << savename << std::endl;
+	return savename;
 }
 
 #ifndef DAEDALUS_SILENT

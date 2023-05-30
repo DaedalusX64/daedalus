@@ -97,6 +97,7 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 #include "Core/Memory.h"
 
 #include "Core/Save.h"
+#include "Interface/RomIndex.h"
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
 #include "Base/MathUtil.h"
@@ -299,7 +300,7 @@ IController::~IController()
 bool IController::OnRomOpen()
 {
 	
-	ESaveType save_type  = g_ROM.settings.SaveType=ESaveType::EEP4K;
+	ESaveType save_type  = data.saveType=ESaveType::EEP4K;
 	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
 	if ( mpEepromData )

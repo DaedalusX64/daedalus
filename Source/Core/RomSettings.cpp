@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "BuildOptions.h"
 #include "Base/Types.h"
-
+#include "Interface/RomIndex.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -355,7 +355,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	// Generate the CRC-ID for this rom:
 	fprintf(fh, "{%08x%08x-%02x}\n", id.CRC[0], id.CRC[1], id.CountryID );
 
-	fprintf(fh, "Name=%s\n", settings.GameName.c_str());
+	fprintf(fh, "Name=%s\n", data.gameName.c_str());
 
 	if( !settings.Comment.empty() )				fprintf(fh, "Comment=%s\n", settings.Comment.c_str());
 	if( !settings.Info.empty() )				fprintf(fh, "Info=%s\n", settings.Info.c_str());
@@ -373,7 +373,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n");
 	if( settings.MemoryAccessOptimisation )		fprintf(fh, "MemoryAccessOptimisation=yes\n");
 	if( settings.CheatsEnabled )				fprintf(fh, "CheatsEnabled=yes\n");
-	if ( settings.SaveType != ESaveType::NONE )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
+	if ( settings.SaveType != ESaveType::NONE )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( data.saveType ) );
 
 	fprintf(fh, "\n");			// Spacer
 }
