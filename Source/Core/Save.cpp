@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <iostream>
 #include <fstream> 
 #include <vector> 
+#include <filesystem>
 
 static void InitMempackContent();
 
@@ -42,13 +43,16 @@ static u32				gSaveSize;
 static std::filesystem::path	gMempackFileName;
 static bool				gMempackDirty;
 static std::filesystem::path ext; 
+extern struct GameData romData;
 
 
 constexpr std::size_t BUFFER_SIZE = 2048;
 
+
 bool Save_Reset()
 {
-	switch (data.saveType)
+
+	switch (romData.saveType)
 	{
 		std::cout << "Accessing Save Reset " << std::endl;
 	case ESaveType::EEP4K:
@@ -71,45 +75,45 @@ bool Save_Reset()
 		ext /= "";
 		gSaveSize = 0;
 		break;
-			std::cout << "Extension is: " << ext << std::endl;
 	}
-	std::cout << "Game Name in Save " << data.gameName << std::endl;
 	DAEDALUS_ASSERT( gSaveSize <= MemoryRegionSizes[MEM_SAVE], "Save size is larger than allocated memory");
-gSaveFileName = Save_As( g_ROM.mFileName, ext, "SaveGames");
-    std::ifstream infile(gSaveFileName, std::ios::binary);
-std::cout << "Game Name: "<<  data.gameName << std::endl;
+gSaveFileName = Save_As( romData.file, ext, "SaveGames");
 
 gSaveDirty = false;
 
 if (gSaveSize > 0)
 {
+//    Dump_GetSaveDirectory(gSaveFileName, g_ROM.mFileName, ext);
 
-    if (infile.is_open())
-    {
-        DBGConsole_Msg(0, "Loading save from [C%s]", g_ROM.mFileName.c_str());
+		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
+		if (fp != nullptr)
+		{
+			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName);
 
-        u8 buffer[BUFFER_SIZE];
-        u8* dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
+			u8 buffer[2048];
+			u8 * dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
 
-        while (infile.read((char*)buffer, BUFFER_SIZE))
-        {
-            for (u32 i = 0; i < BUFFER_SIZE; i++)
-            {
-                dst[infile.gcount() - BUFFER_SIZE + i] = buffer[i ^ U8_TWIDDLE];
-            }
-        }
-        infile.close();
-    }
-    else
-    {
-        DBGConsole_Msg(0, "Save File [C%s] cannot be found.", gSaveFileName.c_str());
-    }
+			for (u32 d = 0; d < gSaveSize; d += sizeof(buffer))
+			{
+				fread(buffer, sizeof(buffer), 1, fp);
+
+				for (u32 i = 0; i < sizeof(buffer); i++)
+				{
+					dst[d+i] = buffer[i^U8_TWIDDLE];
+				}
+			}
+			fclose(fp);
+		}
+		else
+		{
+			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", gSaveFileName);
+		}
 }
 
 
 	// init mempack, we always assume the presence of the mempack for simplicity 
 	{	
-		gMempackFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
+		gMempackFileName = Save_As(romData.gameName, ".mpk", "SaveGames/");
 		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{
@@ -146,37 +150,45 @@ void Save_MarkMempackDirty()
 {
 	gMempackDirty = true;
 }
-void Save_Flush() {
-    if (gSaveDirty && data.saveType != ESaveType::NONE) {
-        std::cout << "Saving to [" << gSaveFileName << "]" << std::endl;
+void Save_Flush()
+{
+	if (gSaveDirty && romData.saveType != ESaveType::NONE)
+	{
+		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName);
 
-        std::ofstream outfile(gSaveFileName, std::ios::out | std::ios::binary);
-        if (outfile.is_open()) {
-            auto src = reinterpret_cast<u8*>(g_pMemoryBuffers[MEM_SAVE]);
-            std::vector<u8> buffer(BUFFER_SIZE);
+		FILE * fp = fopen(gSaveFileName.c_str(), "wb");
+		if (fp != nullptr)
+		{
+			u8 buffer[2048];
+			u8 * src = (u8*)g_pMemoryBuffers[MEM_SAVE];
 
-            for (std::size_t d = 0; d < gSaveSize; d += BUFFER_SIZE) {
-                std::transform(src + d, src + d + BUFFER_SIZE, buffer.begin(), [](u8 val) {
-                    return val ^ U8_TWIDDLE;
-                });
-                outfile.write(reinterpret_cast<char*>(buffer.data()), buffer.size());
-            }
-            outfile.close();
-        }
-        gSaveDirty = false;
-    }
+			for (u32 d = 0; d < gSaveSize; d += sizeof(buffer))
+			{
+				for (u32 i = 0; i < sizeof(buffer); i++)
+				{
+					buffer[i^U8_TWIDDLE] = src[d+i];
+				}
+				fwrite(buffer, 1, sizeof(buffer), fp);
+			}
+			fclose(fp);
+		}
+		gSaveDirty = false;
+	}
 
-    if (gMempackDirty) {
-        std::cout << "Saving MemPack to [" << gMempackFileName << "]" << std::endl;
+	if (gMempackDirty)
+	{
+		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName);
 
-        std::ofstream outfile(gMempackFileName, std::ios::out | std::ios::binary);
-        if (outfile.is_open()) {
-            outfile.write(reinterpret_cast<char*>(g_pMemoryBuffers[MEM_MEMPACK]), MemoryRegionSizes[MEM_MEMPACK]);
-            outfile.close();
-        }
-        gMempackDirty = false;
-    }
+		FILE * fp = fopen(gMempackFileName.c_str(), "wb");
+		if (fp != nullptr)
+		{
+			fwrite(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
+			fclose(fp);
+		}
+		gMempackDirty = false;
+	}
 }
+
 // Mempack Stuffs
 
 //

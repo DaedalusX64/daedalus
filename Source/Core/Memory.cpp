@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_R4300.h"
 #include "HLEAudio/AudioPlugin.h"
 #include "HLEGraphics/GraphicsPlugin.h"
+#include "Interface/RomIndex.h"
 
 static const u32	kMaximumMemSize = MEMORY_8_MEG;
 
@@ -114,6 +115,9 @@ std::array<void *, NUM_MEM_BUFFERS> g_pMemoryBuffers;
 MemFuncRead  	g_MemoryLookupTableRead[0x4000];
 // MemFuncWrite 	g_MemoryLookupTableWrite[0x4000];
 // void * 			g_pMemoryBuffers[NUM_MEM_BUFFERS];
+
+
+extern struct GameData romData;
 
 
 #include "Memory_Read.inl"

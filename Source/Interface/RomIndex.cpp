@@ -14,7 +14,6 @@
 
 // Let's fill this struct with the minimum required for the index
 
-
 std::string readCRC(const std::filesystem::directory_entry &entry) {
     
     const std::filesystem::path filename = entry.path();
@@ -79,14 +78,14 @@ bool compareGameDataByGameName(const GameData& a, const GameData& b) {
 // Get list of ROM files and add to struct, sorted by gameName
 std::map<std::string, GameData> index(const std::filesystem::path& file) {
     std::map<std::string, GameData> gameinfo;
-     std::vector<GameData> gameDataVec;
+     std::vector<GameData> romDataVec;
 
 
     for (const auto& entry : std::filesystem::directory_iterator(file)) {
         if (entry.is_regular_file()) {
             std::string crc = readCRC(entry);
             GameData data(entry.path(), get_internal_name(entry), crc, "Unknown Game", ESaveType::EEP4K, "preview.png"); // set the savetype to eeprom4k by default
-            gameDataVec.push_back(std::move(data));
+            romDataVec.push_back(std::move(data));
         }
     }
 
@@ -94,7 +93,7 @@ std::map<std::string, GameData> index(const std::filesystem::path& file) {
     // Should we be doing this 
 
     // Insert the sorted GameData objects into a map
-    for (const auto& data : gameDataVec) {
+    for (const auto& data : romDataVec) {
         gameinfo.emplace(data.CRC, data);
     }
 
@@ -1100,7 +1099,7 @@ std::vector<std::tuple<std::string, std::string, ESaveType, std::string>> update
 {"693ef1ef2f4b24d845", "Wave Race 64 (Widescreen Patch)", ESaveType::EEP4K, "Wave_Race_64.png"}
 
  };
-        std::sort(gameDataVec.begin(), gameDataVec.end(), compareGameDataByGameName);
+        std::sort(romDataVec.begin(), romDataVec.end(), compareGameDataByGameName);
 
 
 for (const auto& [crc, gameName, saveType, previewImage] : updateValues) {

@@ -421,7 +421,7 @@ static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 
 static void WriteValue_FlashRam( u32 address, u32 value )
 {
-	if (g_ROM.settings.SaveType == ESaveType::FLASH)
+	if (romData.saveType == ESaveType::FLASH)
 	{
 		if ((address&0x1FFFFFFF) == FLASHRAM_WRITE_ADDR)
 		{

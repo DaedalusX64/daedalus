@@ -97,13 +97,14 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 #include "Core/Memory.h"
 
 #include "Core/Save.h"
-#include "Interface/RomIndex.h"
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
 #include "Base/MathUtil.h"
 #include "Ultra/ultra_os.h"
 #include "Interface/Preferences.h"
+#include "Interface/RomIndex.h"
 
+extern GameData romData;
 
 #ifdef _MSC_VER
 #pragma warning(default : 4002)
@@ -126,8 +127,7 @@ bool gRumblePakActive = false;
 
 bool has_rumblepak[4] = {false, false, false, false};
 
-//
-
+extern struct GameData romData;
 class	IController : public CController
 {
 	public:
@@ -299,8 +299,7 @@ IController::~IController()
 
 bool IController::OnRomOpen()
 {
-	
-	ESaveType save_type  = data.saveType=ESaveType::EEP4K;
+	// ESaveType save_type  = ;
 	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
 	if ( mpEepromData )
@@ -308,15 +307,14 @@ bool IController::OnRomOpen()
 		mpEepromData = nullptr;
 	}
 
-	if ( save_type == ESaveType::EEP4K )
+	if ( romData.saveType == ESaveType::EEP4K )
 	{
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
 		mEepromContType = 0x80;
-		#ifdef DAEDALUS_DEBUG_CONSOLE
+		std::cout << "Initialising EEPROM to 4K" << std::endl;
 		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", 4096/8 );	// 4k bits
-		#endif
 	}
-	else if ( save_type == ESaveType::EEP16K )
+	else if ( romData.saveType == ESaveType::EEP16K )
 	{
 
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
@@ -427,7 +425,7 @@ void IController::Process()
 				break;
 			default:
 				#ifdef DAEDALUS_DEBUG_CONSOLE
-				DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
+				// DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
 				#endif
 				break;
 			}

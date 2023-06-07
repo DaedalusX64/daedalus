@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/Fragment.h"
 #include "DynaRec/FragmentCache.h"
 #include "Math/Math.h"	// VFPU Math
+#include "Interface/RomIndex.h"
 #include "OSHLE/OS.h"
 #include "OSHLE/OSMesgQueue.h"
 #include "OSHLE/patch.h"
@@ -90,6 +91,8 @@ static const char * const gEventStrings[23] =
 #endif // DUMPOSFUNCTIONS
 
 u32 gNumOfOSFunctions;
+
+extern struct GameData romData;
 
 #define TEST_DISABLE_FUNCS //return PATCH_RET_NOT_PROCESSED;
 

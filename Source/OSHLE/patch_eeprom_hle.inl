@@ -1,5 +1,6 @@
 #define TEST_DISABLE_EEPROM_FUNCS //return PATCH_RET_NOT_PROCESSED;
 
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -15,9 +16,10 @@ TEST_DISABLE_EEPROM_FUNCS
 	DBGConsole_Msg(0, "osEepStatus(), ra = 0x%08x", (u32)gGPR[REG_ra]._s64);
 #endif
 	// Set up ContStatus values
-	switch(g_ROM.settings.SaveType)
+	switch(romData.saveType)
 	{
 	case ESaveType::EEP4K:
+	
 		type = CONT_EEPROM;
 		data = 0;
 		break;
@@ -82,7 +84,7 @@ TEST_DISABLE_EEPROM_FUNCS
 	DBGConsole_Msg(0, "osEepromProbe(), ra = 0x%08x", gGPR[REG_ra]._u32_0);
 #endif
 	u32 data = 0;
-	switch( g_ROM.settings.SaveType )
+	switch( romData.saveType )
 	{
 	case ESaveType::EEP4K:
 		data= EEPROM_TYPE_4K;

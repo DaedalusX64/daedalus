@@ -202,10 +202,7 @@ struct RomInfo
 				// Create new entry, add
 				settings.Reset();
 				settings.Comment = "Unknown";
-				// std::cout << "Game Name: " << settings.GameName << std::endl;
-
-				// std::cout << "Rom Header CRC1: " << rh.CRC1 << std::endl;
-				//
+	
 				// We want to get the "internal" name for this rom from the header
 				// Failing that, use the filename
 				//

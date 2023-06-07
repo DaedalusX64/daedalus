@@ -1,6 +1,7 @@
 #include "BuildOptions.h"
 #include "Base/Types.h"
 #include "SysGL/Interface/UI.h"
+#include "Interface/RomIndex.h"
 
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -16,7 +17,10 @@
 #include "System/Thread.h"
 
 
+
 #include "third_party/imgui/backends/imgui_impl_sdl.h"
+
+extern struct GameData romData;
 
 // TODO: Implemenent fullscreen toggle and window resize
 static bool toggle_fullscreen = false;
@@ -85,8 +89,8 @@ static void PollKeyboard(void * arg)
 			{
 				std::ostringstream filename_ss;
 				filename_ss << "saveslot" << idx << ".ss";
-
-				std::filesystem::path path_sub = IO::Path::FindFileName(g_ROM.settings.GameName.c_str());
+				
+				std::filesystem::path path_sub = IO::Path::FindFileName(romData.gameName.c_str());
 				std::filesystem::path path_ss = "SaveStates/";
 				std::filesystem::path filename = path_ss /= path_sub /= filename_ss.str();
 

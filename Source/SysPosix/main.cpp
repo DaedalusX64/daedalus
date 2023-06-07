@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/RomIndex.h"
 #include "Core/RomSettings.h"
 #include "Interface/RomIndex.h"
+#include "Core/Save.h"
 
 #include <SDL2/SDL.h>
 #include <vector>
@@ -42,7 +43,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 		std::filesystem::path filename;
-			GameData data;
+	GameData romData; 
+
 
 int main(int argc, char **argv)
 {
@@ -63,12 +65,12 @@ if (argc > 1) {
     auto it = findGameByFilename(gameinfo, filenameToFind);
     if (it != gameinfo.end()) {
         const std::string& gameKey = it->first;
-        const GameData& gameData = it->second;
+        romData = it->second;
         std::cout << "Game found with key: " << gameKey << std::endl;
-        std::cout << "Game name: " << gameData.gameName << std::endl;
-        std::cout << "Preview image: " << gameData.previewImage << std::endl;
-
-		System_Open( gameData.file );
+        std::cout << "Game name: " << romData.gameName << std::endl;
+        std::cout << "Preview image: " << romData.previewImage << std::endl;
+		std::cout << "Save Type : " << static_cast<u32>(romData.saveType) << std::endl;
+		System_Open( romData.file );
     } else {
         std::cout << "Game with filename \"" << filenameToFind << "\" not found." << std::endl;
     }

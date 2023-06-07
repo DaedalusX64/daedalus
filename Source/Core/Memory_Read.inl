@@ -17,6 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+
 static void * ReadInvalid( u32 address )
 {
 	#ifdef DAEDALUS_DEBUG_CONSOLE
@@ -179,7 +180,7 @@ static void * Read_8480_848F( u32 address )
 
 static void * ReadFlashRam( u32 address )
 {
-	if (g_ROM.settings.SaveType == ESaveType::FLASH)
+	if (romData.saveType == ESaveType::FLASH)
 	{
 		if ((address&0x1FFFFFFF) == FLASHRAM_READ_ADDR)
 		{
