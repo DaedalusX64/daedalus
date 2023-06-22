@@ -59,7 +59,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	R4300_CALL_MAKE_OP( var )	OpCode	var;	var._u32 = op_code_bits
 
 std::default_random_engine R4300_Rand();
-// #define R4300_Rand()		FastRand()
 
 #if defined(DAEDALUS_PSP) && defined(SIM_DOUBLES)
 #define R4300_IsNaN(x) 		isnanf((x))

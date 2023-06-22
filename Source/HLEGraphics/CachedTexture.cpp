@@ -239,7 +239,7 @@ bool CachedTexture::Initialise()
 	#endif
 	u32 width  = mTextureInfo.GetWidth();
 	u32 height = mTextureInfo.GetHeight();
-	std::default_random_engine FastRando;
+	std::default_random_engine FastRand;
 
 	if (mTextureInfo.GetEmulateMirrorS()) width  *= 2;
 	if (mTextureInfo.GetEmulateMirrorT()) height *= 2;
@@ -253,7 +253,7 @@ bool CachedTexture::Initialise()
 
 		if(gCheckTextureHashFrequency > 0)
 		{
-			mFrameLastUpToDate = gRDPFrame + (FastRando() & (gCheckTextureHashFrequency - 1));
+			mFrameLastUpToDate = gRDPFrame + (FastRand() & (gCheckTextureHashFrequency - 1));
 		}
 		UpdateTextureHash();
 		UpdateTexture( mTextureInfo, mpTexture );
