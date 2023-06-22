@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 
 #include "Base/Types.h"
+#include <unordered_map>
 
 enum	ETextureFormat
 {
@@ -42,24 +43,26 @@ inline bool IsTextureFormatPalettised( ETextureFormat texture_format )
 }
 
 
-inline u32		GetBitsPerPixel( ETextureFormat texture_format )
+inline uint32_t GetBitsPerPixel(ETextureFormat texture_format)
 {
-	switch( texture_format )
-	{
-	case TexFmt_5650:		return 16;
-	case TexFmt_5551:		return 16;
-	case TexFmt_4444:		return 16;
-	case TexFmt_8888:		return 32;
-
-	case TexFmt_CI4_8888:	return 4;
-	case TexFmt_CI8_8888:	return 8;
-	}
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	DAEDALUS_ERROR( "Unhandled texture format" );
-	#endif
-	return 8;
+    static const std::unordered_map<ETextureFormat, uint32_t> format_to_bpp{
+        {ETextureFormat::TexFmt_5650, 16},
+        {ETextureFormat::TexFmt_5551, 16},
+        {ETextureFormat::TexFmt_4444, 16},
+        {ETextureFormat::TexFmt_8888, 32},
+        {ETextureFormat::TexFmt_CI4_8888, 4},
+        {ETextureFormat::TexFmt_CI8_8888, 8}
+    };
+    
+    auto it = format_to_bpp.find(texture_format);
+    
+    if (it == format_to_bpp.end()) {
+        // Log error here, "Unhandled texture format"
+        return 8;  // Default bits per pixel
+    }
+    
+    return it->second;
 }
-
 inline u32		CalcBytesRequired( u32 pixels, ETextureFormat texture_format )
 {
 	return ( pixels * GetBitsPerPixel( texture_format ) + 4 ) / 8;

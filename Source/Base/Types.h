@@ -22,37 +22,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Assert.h"
 
-#if !defined(DAEDALUS_W32) || _MSC_VER >= 1600
-#include <stdint.h>
-using u8 =  uint8_t;
-using u16 = uint16_t;
-using u32 = uint32_t;
-using u64 = uint64_t;
+#include <cstdint>
 
-using s8 = int8_t;
-using s16 = int16_t;
-using s32 = int32_t;
-using s64 = int64_t;
+using u8 =  std::uint8_t;
+using u16 = std::uint16_t;
+using u32 = std::uint32_t;
+using u64 = std::uint64_t;
 
-using f32 = float;
-using f64 = double;
-
-#else
-
-using u8 = unsigned char;
-using u16 = unsigned short;
-using u32 = unsigned long;
-using u64 = unsigned long long;
-
-using s8  = signed char;
-using s16 = short;
-using s32 = long;
-using s64 = long long;
+using s8 = std::int8_t;
+using s16 = std::int16_t;
+using s32 = std::int32_t;
+using s64 = std::int64_t;
 
 using f32 = float;
 using f64 = double;
-
-#endif
 
 DAEDALUS_STATIC_ASSERT( sizeof( u8 ) == 1 );
 DAEDALUS_STATIC_ASSERT( sizeof( s8 ) == 1 );
@@ -84,17 +67,6 @@ union REG64
 #error No DAEDALUS_ENDIAN_MODE specified
 #endif
 
-/*	struct { u32 _f64_unused; f32 _f64_sim;};
-	struct { s16 _s16_3, _s16_2, _s16_1, _s16_0; };
-	struct { u16 _u16_3, _u16_2, _u16_1, _u16_0; };
-
-	f32		_f32[2];
-	s32		_s32[2];
-	u32		_u32[2];
-	s16		_s16[4];
-	u16		_u16[4];
-	s8		_s8[8];
-	u8		_u8[8];*/
 };
 
 DAEDALUS_STATIC_ASSERT( sizeof( REG64 ) == sizeof( u64 ) );
@@ -104,11 +76,6 @@ union REG32
 	f32		_f32;
 	s32		_s32;
 	u32		_u32;
-
-	/*s16		_s16[2];
-	u16		_u16[2];
-	s8		_s8[4];
-	u8		_u8[4];*/
 };
 
 DAEDALUS_STATIC_ASSERT( sizeof( REG32 ) == sizeof( u32 ) );
