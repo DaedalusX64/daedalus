@@ -191,24 +191,24 @@ Matrix4x4 & Matrix4x4::SetRotateZ( float angle )
 
 v3 Matrix4x4::TransformCoord( const v3 & vec ) const
 {
-	return std::move(v3( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41,
+	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32 + m42,
-			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43 ));
+			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43 );
 }
 
 v3 Matrix4x4::TransformNormal( const v3 & vec ) const
 {
-	return std::move(v3( vec.x * m11 + vec.y * m21 + vec.z * m31,
+	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32,
-			   vec.x * m13 + vec.y * m23 + vec.z * m33 ));
+			   vec.x * m13 + vec.y * m23 + vec.z * m33 );
 }
 
 v4 Matrix4x4::Transform( const v4 & vec ) const
 {
-	return std::move(v4( vec.x * m11 + vec.y * m21 + vec.z * m31 + vec.w * m41,
+	return v4( vec.x * m11 + vec.y * m21 + vec.z * m31 + vec.w * m41,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32 + vec.w * m42,
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 + vec.w * m43,
-			   vec.x * m14 + vec.y * m24 + vec.z * m34 + vec.w * m44 ));
+			   vec.x * m14 + vec.y * m24 + vec.z * m34 + vec.w * m44 );
 }
 
 v3 Matrix4x4::Transform( const v3 & vec ) const
@@ -223,7 +223,7 @@ v3 Matrix4x4::Transform( const v3 & vec ) const
 		return v3( trans.x / trans.w, trans.y / trans.w, trans.z / trans.w );
 	}
 
-	return std::move(v3(trans.x, trans.y, trans.z));
+	return v3(trans.x, trans.y, trans.z);
 }
 /*
 Matrix4x4		Matrix4x4::Transpose() const
@@ -361,69 +361,3 @@ const Matrix4x4	gMatrixIdentity( 1.0f, 0.0f, 0.0f, 0.0f,
 								 0.0f, 1.0f, 0.0f, 0.0f,
 								 0.0f, 0.0f, 1.0f, 0.0f,
 								 0.0f, 0.0f, 0.0f, 1.0f );
-//void test( const Matrix4x4 & rhs )
-//{
-//	Matrix4x4 r;
-//	Matrix4x4	r2;
-//
-//	Matrix4x4 * p_r = (Matrix4x4*)memalign(VFPU_ALIGNMENT, sizeof(Matrix4x4));
-//
-//	u32	NUM_LOOPS = 1000000;
-//
-//	u64 start_time, end_time, end_time2;
-//
-//	NTiming::GetPreciseTime( &start_time );
-//
-//	for( u32 i= 0; i < NUM_LOOPS;++i)
-//	{
-//		myMulMatrixCPU( &r, this, &rhs );
-//	}
-//
-//	NTiming::GetPreciseTime( &end_time );
-//
-//	for( u32 i= 0; i < NUM_LOOPS;++i)
-//	{
-//		MatrixMultiplyUnaligned( p_r, this, &rhs );
-//	}
-//
-//	NTiming::GetPreciseTime( &end_time2 );
-//
-//
-//	float	time_1( end_time - start_time );
-//	float	time_2( end_time2 - end_time );
-//
-//	printf( "CPU  took %fus\n", time_1 );
-//	printf( "CFPU took %fus\n", time_2 );
-//
-//
-//	printf( "Multiplying: \n" );
-//	print();
-//	printf( "by:\n" );
-//	rhs.print();
-//	printf( "Gives: \n" );
-//	r.print();
-//
-//
-//	printf( "\nBy VFPU\n" );
-//	printf( "Gives: \n" );
-//	p_r->print();
-//
-//	return r;
-//}
-
-/*
-void	Matrix4x4::print() const
-{
-	printf(
-	" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-	" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-	" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-	" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
-	m[0][0], m[0][1], m[0][2], m[0][3],
-	m[1][0], m[1][1], m[1][2], m[1][3],
-	m[2][0], m[2][1], m[2][2], m[2][3],
-	m[3][0], m[3][1], m[3][2], m[3][3]);
-}
-*/
-
-

@@ -12,12 +12,12 @@ public:
 
 	v2 operator+( const v2 & v ) const
 	{
-		return std::move(v2( x + v.x, y + v.y ));
+		return v2( x + v.x, y + v.y );
 	}
 
 	v2 operator-( const v2 & v ) const
 	{
-		return std::move(v2( x - v.x, y - v.y ));
+		return v2( x - v.x, y - v.y );
 	}
 
 	v2 operator+() const
@@ -27,23 +27,23 @@ public:
 
 	v2 operator-() const
 	{
-		return std::move(v2( -x, -y ));
+		return v2( -x, -y );
 	}
 
 	v2 operator*( float s ) const
 	{
-		return std::move(v2( x * s, y * s ));
+		return v2( x * s, y * s );
 	}
 
 	inline friend v2 operator*( float s, const v2 & v )
 	{
-		return std::move(v2( v.x * s, v.y * s ));
+		return v2( v.x * s, v.y * s );
 	}
 
 	v2 operator/( float s ) const
 	{
 		float r( 1.0f / s );
-		return std::move(v2( x * r, y * r ));
+		return v2( x * r, y * r );
 	}
 
 	const v2 & operator+=( const v2 & rhs )
@@ -62,12 +62,12 @@ public:
 
 	float Length() const
 	{
-		return std::move(sqrtf( (x*x)+(y*y) ));
+		return sqrtf( (x*x)+(y*y) );
 	}
 
 	float LengthSq() const
 	{
-		return std::move((x*x)+(y*y));
+		return (x*x)+(y*y);
 	}
 
 	float x, y;
