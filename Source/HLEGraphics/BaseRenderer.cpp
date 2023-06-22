@@ -1672,8 +1672,8 @@ void BaseRenderer::UpdateTileSnapshots( u32 tile_idx )
 }
 
 #ifdef DAEDALUS_PSP
-static void T1Hack(const TextureInfo & ti0, CNativeTexture * texture0,
-				   const TextureInfo & ti1, CNativeTexture * texture1)
+static void T1Hack(const TextureInfo & ti0, std::shared_ptr<CNativeTexture> texture0,
+				   const TextureInfo & ti1, std::shared_ptr<CNativeTexture> texture1)
 {
 	if((ti0.GetFormat() == G_IM_FMT_RGBA) &&
 	   (ti1.GetFormat() == G_IM_FMT_I) &&
@@ -1749,7 +1749,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 		}
 		else
 		{
-			CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+			std::shared_ptr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
 
 			if( texture != NULL && texture != mBoundTexture[ index ] )
 			{
@@ -1896,9 +1896,9 @@ void BaseRenderer::PrepareTexRectUVs(TexCoord * puv0, TexCoord * puv1)
 //*****************************************************************************
 //
 //*****************************************************************************
-CRefPtr<CNativeTexture> BaseRenderer::LoadTextureDirectly( const TextureInfo & ti )
+std::shared_ptr<CNativeTexture> BaseRenderer::LoadTextureDirectly( const TextureInfo & ti )
 {
-	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+	std::shared_ptr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
 	if (texture)
 	{
 		texture->InstallTexture();

@@ -385,7 +385,7 @@ void RendererCTR::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 				// NOTE: Rinnegatamante 15/04/20
 				// Technically we calculate this on DrawTriangles, is it enough?
 				
-				/*const CNativeTexture * texture1 = mBoundTexture[ 1 ];
+				/*const std::shared_ptr<texture>1 = mBoundTexture[ 1 ];
 
 				if( install_texture1 && texture1 && mTnL.Flags.Texture && (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 				{
@@ -792,7 +792,7 @@ void RendererCTR::FillRect(const v2 & xy0, const v2 & xy1, u32 color)
 
 void RendererCTR::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 								f32 u0, f32 v0, f32 u1, f32 v1,
-								const CNativeTexture * texture)
+								const std::shared_ptr<texture>)
 {
 	texture->InstallTexture();
 
@@ -843,7 +843,7 @@ void RendererCTR::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 
 void RendererCTR::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2,
 								 f32 y2, f32 x3, f32 y3, f32 s, f32 t,
-								 const CNativeTexture * texture)
+								 const std::shared_ptr<texture>)
 {	
 	texture->InstallTexture();
 	

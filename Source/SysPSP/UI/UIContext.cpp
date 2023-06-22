@@ -104,8 +104,8 @@ class IUIContext : public CUIContext
 
 		virtual void				Update( float elapsed_time );
 
-		virtual void				RenderTexture( const CNativeTexture * texture, const v2 & tl, const v2 & wh, c32 colour );
-		virtual void				RenderTexture( const CNativeTexture * texture, s32 x, s32 y, c32 colour );
+		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh, c32 colour );
+		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, s32 x, s32 y, c32 colour );
 		virtual void				ClearBackground( c32 colour );
 		virtual void				DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour );
 		virtual void				DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour );
@@ -164,7 +164,7 @@ void	IUIContext::Update( float elapsed_time )
 }
 
 
-void	IUIContext::RenderTexture( const CNativeTexture * texture, s32 x, s32 y, c32 colour )
+void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, s32 x, s32 y, c32 colour )
 {
 	if(texture == NULL)
 		return;
@@ -175,7 +175,7 @@ void	IUIContext::RenderTexture( const CNativeTexture * texture, s32 x, s32 y, c3
 	RenderTexture( texture, tl, wh, colour );
 }
 
-void	IUIContext::RenderTexture( const CNativeTexture * texture, const v2 & tl, const v2 & wh, c32 colour )
+void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh, c32 colour )
 {
 	if(texture == NULL)
 		return;

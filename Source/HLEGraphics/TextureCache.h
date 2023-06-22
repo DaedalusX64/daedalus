@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/CachedTexture.h"
 
 #include "Base/Singleton.h"
-#include "Utility/RefCounted.h"
+
 #include "System/Mutex.h"
 
 #include <vector>
@@ -37,7 +37,7 @@ public:
 	CTextureCache();
 	virtual ~CTextureCache();
 
-	CRefPtr<CNativeTexture>	GetOrCreateTexture(const TextureInfo & ti);
+	std::shared_ptr<CNativeTexture>	GetOrCreateTexture(const TextureInfo & ti);
 
 	void		PurgeOldTextures();
 	void		DropTextures();
@@ -47,13 +47,13 @@ public:
 	Mutex * 	GetDebugMutex()		{ return &mDebugMutex; }
 	struct STextureInfoSnapshot
 	{
-		STextureInfoSnapshot( const TextureInfo & info, CNativeTexture * texture )
+		STextureInfoSnapshot( const TextureInfo & info, std::shared_ptr<CNativeTexture> texture )
 		: Info( info ), Texture( texture )
 		{
 		}
 
 		TextureInfo					Info;
-		CRefPtr<CNativeTexture>		Texture;
+		std::shared_ptr<CNativeTexture>		Texture;
 	};
 
 	// You must have a valid lock to call Snapshot.

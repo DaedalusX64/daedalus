@@ -198,7 +198,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		bool						mDisplayFilenames;
 	//	bool						mDisplayInfo;
 
-		CRefPtr<CNativeTexture>		mpPreviewTexture;
+		std::shared_ptr<CNativeTexture>		mpPreviewTexture;
 		u32							mPreviewIdx;
 		float						mPreviewLoadedTime;		// How long the preview has been loaded (so we can fade in)
 		float						mTimeSinceScroll;		//

@@ -21,11 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef GRAPHICS_NATIVETEXTURE_H_
 #define GRAPHICS_NATIVETEXTURE_H_
 
-#include "Utility/RefCounted.h"
-
 #include "TextureFormat.h"
 
 #include "Math/Vector2.h"
+#include <memory>
 
 #ifdef DAEDALUS_GL
 #include "SysGL/GL.h"
@@ -33,16 +32,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 class c32;
 
-class CNativeTexture : public CRefCounted
+class CNativeTexture 
 {
-	friend class CRefPtr<CNativeTexture>::_NoAddRefRelease<CNativeTexture>;
 
+		public:
 		CNativeTexture( u32 w, u32 h, ETextureFormat texture_format );
 		~CNativeTexture();
 
 	public:
-		static	CRefPtr<CNativeTexture>		Create( u32 width, u32 height, ETextureFormat texture_format );
-		static	CRefPtr<CNativeTexture>		CreateFromPng( const char * p_filename, ETextureFormat texture_format );
+		static	std::shared_ptr<CNativeTexture>		Create( u32 width, u32 height, ETextureFormat texture_format );
+		static	std::shared_ptr<CNativeTexture>		CreateFromPng( const char * p_filename, ETextureFormat texture_format );
 
 		void							InstallTexture() const;
 

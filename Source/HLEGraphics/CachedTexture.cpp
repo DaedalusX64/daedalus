@@ -153,7 +153,7 @@ static bool GenerateTexels(void ** p_texels,
 	return false;
 }
 
-static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
+static void UpdateTexture( const TextureInfo & ti, std::shared_ptr<CNativeTexture> texture )
 {
 	#ifdef DAEDALUS_PROFILE
 	DAEDALUS_PROFILE( "Texture Conversion" );
@@ -339,7 +339,7 @@ bool CachedTexture::HasExpired() const
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void CachedTexture::DumpTexture( const TextureInfo & ti, const CNativeTexture * texture )
+void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptrstd::shared_ptr<CNativeTexture> texture  )
 {
 	DAEDALUS_ASSERT(texture != nullptr, "Should have a texture");
 

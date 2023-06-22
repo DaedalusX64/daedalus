@@ -78,7 +78,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		bool					mSlotEmpty[ NUM_SAVESTATE_SLOTS ];
 		IO::Filename			mPVFilename[ NUM_SAVESTATE_SLOTS ];
 		s8						mPVExists[ NUM_SAVESTATE_SLOTS ];	//0=skip, 1=file exists, -1=show no preview
-		CRefPtr<CNativeTexture>	mPreviewTexture;
+		std::shared_ptr<CNativeTexture>	mPreviewTexture;
 		u32						mLastPreviewLoad;
 
 };

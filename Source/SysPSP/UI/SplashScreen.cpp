@@ -58,7 +58,7 @@ class ISplashScreen : public CSplashScreen, public CUIScreen
 	private:
 		bool						mIsFinished;
 		float						mElapsedTime;
-		CRefPtr<CNativeTexture>		mpTexture;
+		std::shared_ptr<CNativeTexture>		mpTexture;
 };
 
 

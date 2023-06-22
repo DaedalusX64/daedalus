@@ -130,7 +130,7 @@ void DLDebugger_RequestDebug()
 }
 
 
-static void EncodeTexture(const CNativeTexture * texture, DataSink * sink)
+static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, DataSink * sink)
 {
 	u32 width  = texture->GetWidth();
 	u32 height = texture->GetHeight();
@@ -230,7 +230,7 @@ void DLDebugger_ProcessDebugTask()
 						tile_size.GetHeight() > 0)
 					{
 						const TextureInfo &  ti = gRDPStateManager.GetUpdatedTextureDescriptor(i);
-						CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture(ti);
+						std::Shared_ptr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture(ti);
 						if (texture)
 						{
 							connection->WriteString("\t\t\"texture\": {\n");

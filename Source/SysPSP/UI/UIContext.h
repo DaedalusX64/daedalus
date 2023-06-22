@@ -49,8 +49,8 @@ class CUIContext
 
 		virtual void				Update( float elapsed_time ) = 0;
 
-		virtual void				RenderTexture( const CNativeTexture * texture, const v2 & tl, const v2 & wh, c32 colour ) = 0;
-		virtual void				RenderTexture( const CNativeTexture * texture, s32 x, s32 y, c32 colour ) = 0;
+		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh, c32 colour ) = 0;
+		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, s32 x, s32 y, c32 colour ) = 0;
 				//void				ClearBackground()		{ ClearBackground( c32::Black ); }
 		virtual void				ClearBackground( c32 colour ) = 0;
 		virtual void				DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour ) = 0;

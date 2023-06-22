@@ -50,7 +50,7 @@ class IAboutComponent : public CAboutComponent
 		virtual void				Render();
 
 	private:
-		CRefPtr<CNativeTexture>		mpTexture;
+		std::shared_ptr<CNativeTexture>		mpTexture;
 };
 
 

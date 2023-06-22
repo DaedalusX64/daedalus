@@ -524,7 +524,7 @@ class CTextureExplorerDebugMenuOption : public CDebugMenuOption
 				u32				mScaleFactor;
 				v2				mTextureOffset;
 
-		CRefPtr<CNativeTexture> mCheckerTexture;
+		std::shared_ptr<CNativeTexture> mCheckerTexture;
 
 		std::vector<CTextureCache::STextureInfoSnapshot>	mSnapshot;
 };
@@ -604,7 +604,7 @@ bool CTextureExplorerDebugMenuOption::OverrideDisplay() const
 	if( !mDisplayTexture )
 		return false;
 
-	CRefPtr<CNativeTexture> texture;
+	std::shared_ptr<CNativeTexture> texture;
 	u32 texture_width  = 32;
 	u32 texture_height = 32;
 	if( mSelectedIdx < mSnapshot.size() )

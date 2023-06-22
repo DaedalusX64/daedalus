@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
 #include "Math/Matrix4x4.h"
-#include "Utility/RefCounted.h"
+
 #include "HLEGraphics/DaedalusVtx.h"
 #include "HLEGraphics/TextureInfo.h"
 #include "Graphics/ColourValue.h"
@@ -358,7 +358,7 @@ public:
 	inline float		N64ToScreenY(float y) const				{ return y * mN64ToScreenScale.y + mN64ToScreenTranslate.y; }
 
 
-	CRefPtr<CNativeTexture> LoadTextureDirectly( const TextureInfo & ti );
+	std::shared_ptr<CNativeTexture> LoadTextureDirectly( const TextureInfo & ti );
 
 protected:
 #ifdef DAEDALUS_PSP
@@ -439,7 +439,7 @@ protected:
 	static const u32 kNumBoundTextures = 2;
 
 	std::array<TextureInfo, kNumBoundTextures> mBoundTextureInfo;
-	CRefPtr<CNativeTexture>	mBoundTexture[ kNumBoundTextures ];
+	std::shared_ptr<CNativeTexture>	mBoundTexture[ kNumBoundTextures ];
 	std::array<TexCoord, kNumBoundTextures> mTileTopLeft;
 	std::array<TextureWrap, kNumBoundTextures> mTexWrap;
 

@@ -961,7 +961,7 @@ extern u32 gRDPFrame;
 		if (!install_textures[i])
 			continue;
 
-		CNativeTexture * texture = mBoundTexture[i];
+		std::shared_ptr<CNativeTexture> texture = mBoundTexture[i];
 
 		if (texture != NULL)
 		{
@@ -1024,7 +1024,7 @@ void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bo
 		// FIXME: this should be applied in SetNewVertexInfo, and use TextureScaleX/Y to set the scale
 		if (mTnL.Flags.Light && mTnL.Flags.TexGen)
 		{
-			if (CNativeTexture * texture = mBoundTexture[0])
+			if (std::shared_ptr<CNativeTexture> texture = mBoundTexture[0])
 			{
 				// FIXME(strmnnrmn): I don't understand why the tile t/l is used here,
 				// but without it the Goldeneye Rareware logo looks off.

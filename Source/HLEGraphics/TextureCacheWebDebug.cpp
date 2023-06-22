@@ -31,7 +31,7 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 	// If we delete textures on this thread, we'll crash OpenGL.
 	{
 		MutexLock lock(CTextureCache::Get()->GetDebugMutex());
-		CRefPtr<CNativeTexture> texture;
+		std::shared_ptr<CNativeTexture> texture;
 		{
 			std::vector<CTextureCache::STextureInfoSnapshot> textures;
 			CTextureCache::Get()->Snapshot(lock, textures);
