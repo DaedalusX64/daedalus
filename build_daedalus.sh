@@ -19,14 +19,16 @@ if [[ $1 = "DEBUG" ]] || [[ $2 = "DEBUG" ]]; then
 fi
 
 
-# Add any custom console toolchains here
+# Add any custom console toolchains
 case "$1" in
     PSP)
     psp_plugins
-    TOOLCHAIN+="-DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake"  
+    CMAKE=psp-cmake
     ;;
+    *)
+    CMAKE=cmake
 esac
-
-    cmake $TOOLCHAIN $CMAKEDEFINES -S . -B build 
+    # Use the custom define to do initial build then parse cmake after
+    $CMAKE $CMAKEDEFINES -S . -B build 
     cmake --build build -j${PROC_NR}
     cmake --install build --prefix $PWD

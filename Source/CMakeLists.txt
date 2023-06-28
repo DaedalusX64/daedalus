@@ -2,7 +2,7 @@
 # Created and Maintained by Wally 
 # Yes right now this is a mess, hoping to simplify things further in future but please deal with it for now :)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
 
 # Below is related to Macros within the project, a lot of these could be deprecated and deleted.
@@ -17,7 +17,7 @@ list(APPEND plat_main )
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 		option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
 		option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
-		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
+		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
 		option(DAEDALUS_LOG "Enable various logging" ON)
 		add_definitions("-g")
 		add_compile_options("-Wall")
@@ -28,7 +28,7 @@ list(APPEND plat_main )
 	endif(NOT APPLE)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 		add_compile_definitions("O3")
-		add_compile_definitions("flto")
+		# add_compile_definitions("flto")
 	endif()
 
 	#Determine Dynarec compatibility and link in appropriate Dynarec
@@ -61,8 +61,6 @@ list(APPEND plat_main )
 		message(STATUS "Little Endian Detected")
 		option(DAEDALUS_ENDIAN_LITTLE "Litle Endian Processor" ON)
 	endif()
-	# Options below are general macros found within the project, as per earlier, a lot of these may
-	# disappear in future as we progress and strip them from the binary if not needed.
 
 	# General options
 
@@ -219,7 +217,7 @@ if(WIN32)
 	# ---  Build ---- 
 
 	add_executable(daedalus ${plat_main})
-	list(APPEND default_libraries png z m pthread) ## Required Libraries 
+	list(APPEND default_libraries png z) ## Required Libraries 
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
 	target_link_libraries(daedalus LINK_PUBLIC ${daed_libs} ${sys_libraries} ${plat_libraries} ${default_libraries}  )
 
