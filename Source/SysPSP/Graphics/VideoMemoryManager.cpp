@@ -77,7 +77,7 @@ IVideoMemoryManager::~IVideoMemoryManager()
 //*****************************************************************************
 bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 {
-	void * mem;
+	void *mem = nullptr;
 
 	// Ensure that all memory is 16-byte aligned
 	size = AlignPow2( size, 16 );
