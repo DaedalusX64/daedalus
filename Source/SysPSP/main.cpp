@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspdebug.h>
 #include <stdlib.h>
-#include <stdio.h>
+
 
 #include <pspctrl.h>
 #include <psprtc.h>
@@ -57,7 +57,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/UI/PauseScreen.h"
 #include "SysPSP/UI/SplashScreen.h"
 #include "SysPSP/UI/UIContext.h"
-
+#include <iostream>
 
 #include "System/SystemInit.h"
 #include "Test/BatchTest.h"
@@ -83,7 +83,6 @@ PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 
 extern "C"
 {
-
 	/* Video Manager functions */
 	int pspDveMgrCheckVideoOut();
 	int pspDveMgrSetVideoOut(int, int, int, int, int, int, int);
@@ -108,14 +107,15 @@ bool PSP_IS_SLIM = false;
 
 PSP_HEAP_SIZE_KB(-256);
 
-
-
 static bool	Initialize()
 {
-	//  strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
-
 	scePowerSetClockFrequency(333, 333, 166);
-	// InitHomeButton();
+	pspFpuSetEnable(0); // Disable FPU Exceptions
+	VolatileMemInit();
+	pspDebugScreenInit();
+	sceCtrlSetSamplingCycle(0);
+    sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
+
 	#ifdef DAEDALUS_SDL
 		if( SDL_Init( SDL_INIT_AUDIO ) < 0 )
 	{
@@ -123,20 +123,11 @@ static bool	Initialize()
 		return false;
 	}
 	#endif
-// This Breaks gdb, better disable it in debug build
-//
-#ifdef DAEDALUS_DEBUG_CONSOLE
-extern void initExceptionHandler();
-	initExceptionHandler();
-#endif
-
-	pspFpuSetEnable(0); // Disable PFU Exceptions
-	VolatileMemInit();
-
 
 	// Detect PSP greater than PSP 1000
 	if ( kuKernelGetModel() > 0 )
 	{
+		std::cout << "PSP is Slim or higher" << std::endl;
 		// Can't use extra memory if ME isn't available
 		PSP_IS_SLIM = true;
 		g32bitColorMode = true;
@@ -150,20 +141,17 @@ extern void initExceptionHandler();
 			CModule::Unload( HAVE_DVE );	// Stop and unload dvemgr.prx since if no video cable is connected
 	}
 
-
-	//Set the debug output to default
-	if( g32bitColorMode ) pspDebugScreenInit();
-	else pspDebugScreenInitEx( NULL , GU_PSM_5650, 1); //Sets debug output to 16bit mode
+// This Breaks gdb, better disable it in debug build
+#ifdef DAEDALUS_DEBUG_CONSOLE
+extern void initExceptionHandler();
+	initExceptionHandler();
+#endif
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
-
-    sceCtrlSetSamplingCycle(0);
-    sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
 
 	if (!System_Init())
 		return false;
-
 	return true;
 }
 
@@ -179,8 +167,6 @@ void HandleEndOfFrame()
 		return;
 			DPF( DEBUG_FRAME, "********************************************" );
 #endif
-
-
 
 // How long did the last frame take?
 #ifdef DAEDALUS_PROFILE_EXECUTION
@@ -268,8 +254,8 @@ int main(int argc, char* argv[])
 			DisplayRomsAndChoose( show_splash );
 			show_splash = false;
 
-			// CRomDB::Get()->Commit();
-			// CPreferences::Get()->Commit();
+			CRomDB::Get()->Commit();
+			CPreferences::Get()->Commit();
 
 			CPU_Run();
 			System_Close();
