@@ -43,7 +43,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Thread.h"
 #include "System/Timing.h"
 
+#include <pthread.h>
+
 EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
+
+pthread_t Asyncthread;
+int  Asyncthreadreturn;
+
+void* Audio_UcodeEntry(void* arg) {
+    Audio_Ucode();
+    return nullptr;
+}
 
 #define DEBUG_AUDIO  0
 
@@ -162,9 +172,9 @@ EProcessResult AudioPluginOSX::ProcessAList()
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_ASYNC:
-			DAEDALUS_ERROR("Async audio is unimplemented");
-			Audio_Ucode();
-			result = PR_COMPLETED;
+			Asyncthreadreturn = pthread_create(&Asyncthread, NULL, &Audio_UcodeEntry, (void*)nullptr);
+            result = PR_COMPLETED;
+            break;
 			break;
 		case APM_ENABLED_SYNC:
 			Audio_Ucode();
@@ -323,6 +333,7 @@ void AudioPluginOSX::StopAudio()
 
 	if (mAudioThread != kInvalidThreadHandle)
 	{
+		pthread_join(Asyncthread, NULL);
 		JoinThread(mAudioThread, -1);
 		mAudioThread = kInvalidThreadHandle;
 	}

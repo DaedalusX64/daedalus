@@ -59,6 +59,10 @@ static void PollKeyboard(void * arg)
 		if (event.type == SDL_QUIT)
 		{
 			CPU_Halt("Window Closed");	// SDL window was closed
+            // Optionally, you can also call SDL_Quit() to terminate SDL subsystems
+            SDL_Quit();
+            // Exit the application
+            exit(0);
 		}
 		else if(event.type == SDL_KEYDOWN)
 		{

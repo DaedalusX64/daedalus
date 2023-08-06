@@ -140,7 +140,7 @@ int main(int argc, char **argv)
 		std::cout << "Select a Game: " << std::endl;
 		std::cin >> game;
 		// 
-		if(game < RomList.size())
+		if(game > RomList.size())
 		{
 			std::cout << "Invalid Entry" << std::endl;
 		}
