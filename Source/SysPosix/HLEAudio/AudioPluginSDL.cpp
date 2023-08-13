@@ -10,8 +10,17 @@
 #include "HLEAudio/AudioPlugin.h"
 #include "HLEAudio/HLEAudioInternal.h"
 #include "System/Timing.h"
+#include <pthread.h>
 
-EAudioPluginMode gAudioPluginEnabled = APM_ENABLED_SYNC;
+EAudioPluginMode gAudioPluginEnabled = APM_ENABLED_ASYNC;
+
+pthread_t Asyncthread;
+int  Asyncthreadreturn;
+
+void* Audio_UcodeEntry(void* arg) {
+    Audio_Ucode();
+    return nullptr;
+}
 
 SDL_AudioDeviceID audio_device;
 
@@ -98,9 +107,8 @@ EProcessResult AudioPluginSDL::ProcessAList()
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_ASYNC:
-			DAEDALUS_ERROR("Async audio is unimplemented");
-			Audio_Ucode();
-			result = PR_COMPLETED;
+			Asyncthreadreturn = pthread_create(&Asyncthread, NULL, &Audio_UcodeEntry, (void*)nullptr);
+            result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_SYNC:
 			Audio_Ucode();
