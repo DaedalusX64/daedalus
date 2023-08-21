@@ -27,8 +27,8 @@ list(APPEND plat_main )
 		 set(CMAKE_BUILD_TYPE Release)
 	endif(NOT APPLE)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
-		add_compile_definitions("O3")
-		# add_compile_definitions("flto")
+		add_compile_definitions("O2")
+		 add_compile_definitions("flto")
 	endif()
 
 	#Determine Dynarec compatibility and link in appropriate Dynarec
@@ -70,6 +70,7 @@ list(APPEND plat_main )
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
 
 	# Additional Debug Options
+	option(SHOW_MEM "Show memory usage" OFF)
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
 	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" OFF)
 	option(DAEDALUS_DEBUG_DYNAREC "Enable Various Debugging options for the Dynarec" OFF)
@@ -93,6 +94,7 @@ list(APPEND plat_main )
 		option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
 		option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
 		option(DAEDALUS_SIM_DOUBLES "Simulate Doubles" ON)
+		option(DAEDALUS_SDL "Enable SDL" ON)
 	elseif(UNIX)
 		option(DAEDALUS_SDL "SDL Build" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
@@ -219,7 +221,7 @@ if(WIN32)
 	add_executable(daedalus ${plat_main})
 	list(APPEND default_libraries png z) ## Required Libraries 
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
-	target_link_libraries(daedalus LINK_PUBLIC ${daed_libs} ${sys_libraries} ${plat_libraries} ${default_libraries}  )
+	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries}  )
 
 	# --- Post Build ---
 	if(PSP)
@@ -229,7 +231,6 @@ if(WIN32)
 			BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png
 			PREVIEW_PATH NULL
 			TITLE DaedalusX64
-			BUILD_PRX
 			)
 	endif(PSP)
 	
