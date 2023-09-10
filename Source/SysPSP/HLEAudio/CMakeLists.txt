@@ -1,5 +1,5 @@
 add_library(HLEAudio_PSP OBJECT 
-                            AudioPluginPSP.cpp
+                            ${PROJECT_SOURCE_DIR}/Source/SysPosix/HLEAudio/AudioPluginSDL.cpp
              )
 
 list(APPEND daed_libs "HLEAudio_PSP")
