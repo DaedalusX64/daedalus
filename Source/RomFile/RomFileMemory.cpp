@@ -78,7 +78,7 @@ IROMFileMemory::IROMFileMemory()
 	//
 	if( PSP_IS_SLIM )
 	{
-		mRomMemoryHeap = CMemoryHeap::Create( 32 * 1024 * 1024 );
+		mRomMemoryHeap = CMemoryHeap::Create( 16 * 1024 * 1024 );
 	}
 	else
 	{

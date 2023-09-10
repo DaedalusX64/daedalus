@@ -68,11 +68,11 @@ ROMFileCache::ROMFileCache()
 ,	mMRUIdx( 0 )
 {
 #ifdef DAEDALUS_PSP
-	CHUNK_SIZE = 16 * 1024;
+	CHUNK_SIZE = 8 * 1024;
 	if( PSP_IS_SLIM )
 	{
 		//32MB cache(SLIM)
-		CACHE_SIZE = 2048;
+		CACHE_SIZE = 1024;
 	}
 	else
 	{
