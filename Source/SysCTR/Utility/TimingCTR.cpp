@@ -40,7 +40,8 @@ bool GetPreciseTime( u64 * p_time )
 
 u64 ToMilliseconds( u64 ticks )
 {
-	return ticks / TICKS_PER_SEC;
+	//?
+	return (ticks * 1000 * 1000) / TICKS_PER_SEC;
 }
 
 } // NTiming

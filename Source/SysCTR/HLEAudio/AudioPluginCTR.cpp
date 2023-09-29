@@ -87,8 +87,6 @@ CAudioPluginCTR::CAudioPluginCTR()
 //*****************************************************************************
 CAudioPluginCTR::~CAudioPluginCTR()
 {
-	delete mAudioOutput;
-
 	if(isN3DS)
 	{
 		_runThread = false;
@@ -96,6 +94,8 @@ CAudioPluginCTR::~CAudioPluginCTR()
 		svcSignalEvent(audioRequest);
 		threadJoin(asyncThread, U64_MAX);
 	}
+
+	delete mAudioOutput;
 }
 
 //*****************************************************************************
@@ -135,9 +135,9 @@ void	CAudioPluginCTR::StopEmulation()
 void	CAudioPluginCTR::DacrateChanged( int SystemType )
 {
 //	printf( "DacrateChanged( %s )\n", (SystemType == ST_NTSC) ? "NTSC" : "PAL" );
-	u32 type {(u32)((SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK)};
-	u32 dacrate {Memory_AI_GetRegister(AI_DACRATE_REG)};
-	u32	frequency {type / (dacrate + 1)};
+	u32 type = (u32)((SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK);
+	u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
+	u32	frequency = type / (dacrate + 1);
 
 	mAudioOutput->SetFrequency( frequency );
 }
@@ -186,11 +186,17 @@ EProcessResult	CAudioPluginCTR::ProcessAList()
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_ASYNC:
-			if(isN3DS)
+			if(isN3DS) {
 				svcSignalEvent(audioRequest);
+
+				CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
+				result = PR_STARTED;
+			}
 			else
+			{
 				Audio_Ucode();
-			result = PR_COMPLETED;
+				result = PR_COMPLETED;
+			}
 			break;
 		case APM_ENABLED_SYNC:
 			Audio_Ucode();
@@ -204,12 +210,7 @@ EProcessResult	CAudioPluginCTR::ProcessAList()
 //*****************************************************************************
 //
 //*****************************************************************************
-
-std::shared_ptr<CAudioPlugin> CreateAudioPlugin()
+CAudioPlugin *		CreateAudioPlugin()
 {
-	return std::make_unique<CAudioPluginCTR>();
+	return CAudioPluginCTR::Create();
 }
-// CAudioPlugin *		CreateAudioPlugin()
-// {
-// 	return CAudioPluginCTR::Create();
-// }

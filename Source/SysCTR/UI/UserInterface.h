@@ -1,8 +1,8 @@
 #pragma once
 #include <stdint.h>
-#include "third_party/imgui/imgui.h"
-#include "third_party/imgui/backends/imgui_impl_3ds.h"
-#include "third_party/imgui/backends/imgui_impl_opengl2.h"
+#include <imgui.h>
+#include <imgui_impl_3ds.h>
+#include <imgui_impl_opengl2.h>
 
 namespace UI
 {

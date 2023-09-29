@@ -22,17 +22,14 @@ extern void HandleEndOfFrame();
 #define SCR_WIDTH 400
 #define SCR_HEIGHT 240
 
-#define MAX_INDEXES 0xFFFF
-
-#define RATIO_4_3 0
-#define RATIO_5_3 1
-
-uint8_t aspectRatio = RATIO_5_3;
+static bool newFrame = true;
 
 uint32_t  gVertexCount = 0;
+
 float    *gVertexBuffer;
 uint32_t *gColorBuffer;
 float    *gTexCoordBuffer;
+
 float    *gVertexBufferPtr;
 uint32_t *gColorBufferPtr;
 float    *gTexCoordBufferPtr;
@@ -56,6 +53,8 @@ public:
 	void				ClearZBuffer();
 	void				ClearColBuffer(const c32 &colour);
 	void				ClearColBufferAndDepth(const c32 &colour);
+
+	void				ResetVertexBuffer();
 
 	void				BeginFrame();
 	void				EndFrame();
@@ -85,7 +84,7 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 #endif
-	mpInstance = std::make_shared<IGraphicsContext>();
+	mpInstance = new IGraphicsContext();
 	return mpInstance->Initialise();
 }
 
@@ -93,16 +92,16 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-IGraphicsContext::IGraphicsContext()
-	:	mInitialised(false)
-	,	mDumpNextScreen(false)
-{	
-	gVertexBufferPtr = (float*)linearAlloc(0x600000);
-	gColorBufferPtr = (uint32_t*)linearAlloc(0x200000);
-	gTexCoordBufferPtr = (float*)linearAlloc(0x600000);
+uint32_t gMaxVertices = 30000;
 
-	gVertexBuffer = gVertexBufferPtr;
-	gColorBuffer = gColorBufferPtr;
+IGraphicsContext::IGraphicsContext() : mInitialised(false), mDumpNextScreen(false)
+{	
+	gVertexBufferPtr   =    (float*)linearAlloc(gMaxVertices * sizeof(float) * 3);
+	gTexCoordBufferPtr =    (float*)linearAlloc(gMaxVertices * sizeof(float) * 2);
+	gColorBufferPtr    = (uint32_t*)linearAlloc(gMaxVertices * sizeof(uint32_t) );
+	
+	gVertexBuffer   = gVertexBufferPtr;
+	gColorBuffer    = gColorBufferPtr;
 	gTexCoordBuffer = gTexCoordBufferPtr;
 }
 
@@ -163,12 +162,20 @@ void IGraphicsContext::ClearColBufferAndDepth(const c32 & colour)
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
-static bool newFrame = true;
+void IGraphicsContext::ResetVertexBuffer()
+{
+	gVertexBuffer   = gVertexBufferPtr;
+	gColorBuffer    = gColorBufferPtr;
+	gTexCoordBuffer = gTexCoordBufferPtr;
+
+	gVertexCount      = 0;
+}
 
 void IGraphicsContext::BeginFrame()
 {
 	if(newFrame)
 	{
+		UI::DrawInGameMenu();
 		ClearToBlack();
 		newFrame = false;
 	}
@@ -191,45 +198,22 @@ void IGraphicsContext::UpdateFrame(bool wait_for_vbl)
 {
 	pglSwapBuffers();
 
-	gVertexBuffer = gVertexBufferPtr;
-	gColorBuffer = gColorBufferPtr;
-	gTexCoordBuffer = gTexCoordBufferPtr;
-	gVertexCount = 0;
 	newFrame = true;
-
-	UI::DrawInGameMenu();
-}
-
-void IGraphicsContext::SetDebugScreenTarget(ETargetSurface buffer)
-{
-
 }
 
 void IGraphicsContext::ViewportType(u32 *d_width, u32 *d_height) const
 {
-	switch(aspectRatio)
+	switch ( gGlobalPreferences.ViewportType )
 	{
-		case RATIO_5_3:
-			*d_width = SCR_WIDTH;
-			*d_height = SCR_HEIGHT;
-			break;
-		default:
+		case VT_UNSCALED_4_3:
 			*d_width = 320;
 			*d_height = 240;
 			break;
+		default:
+			*d_width = SCR_WIDTH;
+			*d_height = SCR_HEIGHT;
+			break;
 	}
-}
-
-void IGraphicsContext::SaveScreenshot(const char* filename, s32 x, s32 y, u32 width, u32 height)
-{
-}
-
-void IGraphicsContext::DumpScreenShot()
-{
-}
-
-void IGraphicsContext::StoreSaveScreenData()
-{
 }
 
 void IGraphicsContext::GetScreenSize(u32 * p_width, u32 * p_height) const
@@ -237,3 +221,11 @@ void IGraphicsContext::GetScreenSize(u32 * p_width, u32 * p_height) const
 	*p_width = SCR_WIDTH;
 	*p_height = SCR_HEIGHT;
 }
+
+void IGraphicsContext::SetDebugScreenTarget(ETargetSurface buffer){}
+
+void IGraphicsContext::SaveScreenshot(const char* filename, s32 x, s32 y, u32 width, u32 height){}
+
+void IGraphicsContext::DumpScreenShot(){}
+
+void IGraphicsContext::StoreSaveScreenData(){}

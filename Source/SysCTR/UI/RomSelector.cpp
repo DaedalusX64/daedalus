@@ -101,8 +101,12 @@ static std::vector<SRomInfo> PopulateRomList()
 
 static bool GetRomNameForList(void* data, int idx, const char** out_text)
 {
-	std::vector<SRomInfo> *roms = (std::vector<SRomInfo>*)data;
-	*out_text = roms->at(idx).mSettings.GameName.c_str();
+	std::vector<SRomInfo> *roms = (std::vector<SRomInfo>*) data;
+
+	if(hidKeysHeld() & KEY_L)
+		*out_text = roms->at(idx).mFilename.c_str();
+	else
+		*out_text = roms->at(idx).mSettings.GameName.c_str();
 
 	return true;
 }
@@ -116,11 +120,19 @@ std::string UI::DrawRomSelector()
 
 	std::vector<SRomInfo> roms = PopulateRomList();
 
+	UI::RestoreRenderState();
+	
 	if(roms.empty())
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		pglExit();
+		gfxExit();
 
-		
+		gfxInitDefault();
+		consoleInit(GFX_BOTTOM, NULL);
+
+		printf("No ROMs found!\n\n");
+		printf("Add ROMs to sdmc:/3ds/DaedalusX64/Roms\n\n\n");
+		printf("Press START to exit\n");
 
 		while(aptMainLoop())
 		{
@@ -143,6 +155,8 @@ std::string UI::DrawRomSelector()
 
 		glDisable(GL_SCISSOR_TEST);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		ImGui_Impl3DS_EnableGamepad(true);
 		ImGui_Impl3DS_NewFrame(GFX_BOTTOM);
 		
 		ImGui::SetNextWindowPos(  ImVec2(0, 0) );
@@ -152,18 +166,16 @@ std::string UI::DrawRomSelector()
 		ImGui::SetNextItemWidth(-1);
 		if(ImGui::ListBox("Roms", &currentItem, GetRomNameForList, (void*)&roms, roms.size(), 10)) selection_changed = true;
 
-		if( ImGui::Button("Configure", ImVec2(150, 32)) ) configure = true;
-		ImGui::SameLine(0, 4);
-
-		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor(0xff60ae27));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor(0xff71cc2e));
-		if( ImGui::Button("Launch", ImVec2(150, 32)) ) selected = true;
-		ImGui::PopStyleColor(2);
+		int buttonWidth = (ImGui::GetContentRegionAvail().x - 6) / 2;
+		if( ImGui::ColoredButton("Configure", 0.55f, ImVec2(buttonWidth, 32)) ) configure = true;
+		ImGui::SameLine();
+		if( ImGui::ColoredButton("Launch",    0.40f, ImVec2(buttonWidth, 32)) ) selected = true;
 
 		ImGui::End();
 		ImGui::Render();
 		ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
+		glFinish();
 		pglSwapBuffers();
 
 		//Draw top screen
@@ -187,24 +199,34 @@ std::string UI::DrawRomSelector()
 			ImGui::Begin("Rom Selection", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse );
 
 			ImGui::Text("Game Name: %s", roms.at(currentItem).mSettings.GameName.c_str());
+			ImGui::Text( "Country: %s", ROM_GetCountryNameFromID( roms.at(currentItem).mRomID.CountryID ) );
+			
 			if(previewTexture)
-				ImGui::Image((void*)(intptr_t)previewTexture->GetTextureId(), ImVec2(previewTexture->GetWidth(),previewTexture->GetHeight()), ImVec2(0,0), ImVec2(previewTexture->GetWidth() * previewTexture->GetScaleX(), previewTexture->GetHeight() * previewTexture->GetScaleY()));
+			{
+				ImVec2 imageSize( previewTexture->GetWidth(), previewTexture->GetHeight() );
+				ImVec2 uv0( 0, 0 );
+				ImVec2 uv1( imageSize.x *previewTexture->GetScaleX(), imageSize.y *previewTexture->GetScaleY() );
+
+				ImGui::Image( (void*)previewTexture->GetTextureId(), imageSize, uv0, uv1 );
+			}
+
+			if( !roms.at(currentItem).mSettings.Comment.empty() )
+				ImGui::Text("Comment: %s", roms.at(currentItem).mSettings.Comment.c_str());
 
 			ImGui::End();
 			ImGui::Render();
 			ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
-			pglSwapBuffers();
-
 			selection_changed = false;
 		}
-
+		
 		if(configure)
 		{
 			UI::LoadRomPreferences( roms.at(currentItem).mRomID );
 
 			while( UI::DrawOptionsPage(roms.at(currentItem).mRomID) )
 			{
+				aptMainLoop();
 				gspWaitForVBlank();
 				pglSwapBuffers();
 				hidScanInput();
@@ -214,6 +236,8 @@ std::string UI::DrawRomSelector()
 		}
 		
 	}
+
+	ImGui_Impl3DS_EnableGamepad(false);
 
 	return roms.at(currentItem).mFilename;
 }

@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "Utility/Thread.h"
+#include "Utility/Timing.h"
 
 #include <3ds.h>
 
@@ -86,7 +87,7 @@ void ThreadSleepMs( u32 ms )
 
 void ThreadSleepTicks( u32 ticks )
 {
-	svcSleepThread( ticks );		// Delay is specified in ticks
+	svcSleepThread( NTiming::ToMilliseconds(ticks) * 1000 );		// Delay is specified in ticks
 }
 
 void ThreadYield()

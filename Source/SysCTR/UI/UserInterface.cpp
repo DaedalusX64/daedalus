@@ -8,7 +8,6 @@
 void UI::Initialize()
 {
 	// Setup Dear ImGui context
-	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
 
@@ -16,9 +15,8 @@ void UI::Initialize()
 	// Setup Platform/Renderer bindings
 	ImGui_Impl3DS_Init();
 	ImGui_ImplOpenGL2_Init();
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
+	
+	ImGui::StyleCustomDark();
 
 	ImGui::GetStyle().WindowRounding = 0.0f;
 }
@@ -27,17 +25,19 @@ void UI::RestoreRenderState()
 {
 	pglSelectScreen(GFX_BOTTOM, GFX_LEFT);
 
-	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	glViewport(0,0,320,240);
+	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_FOG);
 
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);

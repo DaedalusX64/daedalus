@@ -58,30 +58,63 @@ void log2file(const char *format, ...) {
 }
 #endif
 
+static void CheckDSPFirmware()
+{
+	FILE *firmware = fopen("sdmc:/3ds/dspfirm.cdc", "rb");
+
+	if(firmware != NULL)
+	{
+		fclose(firmware);
+		return;
+	}
+
+	gfxInitDefault();
+	consoleInit(GFX_BOTTOM, NULL);
+
+	printf("DSP Firmware not found!\n\n");
+	printf("Press START to exit\n");
+
+	while(aptMainLoop())
+	{
+		hidScanInput();
+
+		if(hidKeysDown() == KEY_START)
+			exit(1);
+	}
+}
+
 static void Initialize()
 {
+	CheckDSPFirmware();
+	
 	_InitializeSvcHack();
+
 	romfsInit();
 	
 	APT_CheckNew3DS(&isN3DS);
 	osSetSpeedupEnable(true);
-
+	
 	gfxInit(GSP_BGR8_OES, GSP_BGR8_OES, true);
-	//gfxSet3D(true);
 
-	pglInit();
+	if(isN3DS)
+		gfxSetWide(true);
+	
+	pglInitEx(0x080000, 0x040000);
 
 	strcpy(gDaedalusExePath, DAEDALUS_CTR_PATH(""));
 	strcpy(g_DaedalusConfig.mSaveDir, DAEDALUS_CTR_PATH("SaveGames/"));
 
+	IO::Directory::EnsureExists( DAEDALUS_CTR_PATH("SaveStates/") );
 	UI::Initialize();
 
 	System_Init();
 }
 
+
 void HandleEndOfFrame()
 {
 	shouldQuit = !aptMainLoop();
+	
 	if (shouldQuit)
 	{
 		CPU_Halt("Exiting");
