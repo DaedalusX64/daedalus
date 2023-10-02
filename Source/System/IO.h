@@ -82,13 +82,11 @@ namespace IO
 		Filename	Name;
 	};
 
-#if defined( DAEDALUS_PSP) || (DAEDALUS_POSIX)
+// This is also pretty redundant, as the IO file is pretty much deprecated
+#if defined( DAEDALUS_W32)
 	using FindHandleT = void *;
-#elif defined( DAEDALUS_W32 )
-	using FindHandleT = intptr_t;
-
 #else
-#error Need to define FindHandleT for this platform
+	using FindHandleT = intptr_t;
 #endif
 
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data );

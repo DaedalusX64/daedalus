@@ -757,7 +757,7 @@ void	CAssemblyWriterARM::MOV32(EArmReg reg, u32 imm)
 
 CJumpLocation CAssemblyWriterARM::BX_IMM( CCodeLabel target, EArmCond cond )
 {
-	auto address = target.GetTargetU8P();
+	auto address = reinterpret_cast<uintptr_t>(target.GetTargetU8P());
 
 	CJumpLocation jump_location( mpAssemblyBuffer->GetJumpLocation() );
 

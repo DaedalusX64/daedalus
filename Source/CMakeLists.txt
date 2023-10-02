@@ -45,7 +45,6 @@ list(APPEND plat_main )
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
 		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
-		add_subdirectory(DynaRec/ARM)
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
@@ -87,7 +86,12 @@ list(APPEND plat_main )
 	# PSP / Vita / CTR options are required as non-linux embedded platforms are not able to be reliably detected.
 	# Windows, Linux and macOS builds are auto detected.
 
+
+	option(DAEDALUS_CTR "3DS Specific Options" ON)
+	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
+	option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
 	if(PSP) 
+	message("PSP")
 		option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_PSP "PSP specific Options" ON)
@@ -113,7 +117,6 @@ list(APPEND plat_main )
 		option(DAEDALUS_CTR "3DS Specific Options" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
 		option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
-
 	endif()
 
 	if(DAEDALUS_SDL)
@@ -201,7 +204,6 @@ if(WIN32)
 		add_subdirectory(Test)
 		add_subdirectory(Utility)
 
-
 	if(UNIX)
 		add_subdirectory(SysPosix)
 		add_subdirectory(SysGL)
@@ -210,16 +212,21 @@ if(WIN32)
 		add_subdirectory(SysGL)
 		add_subdirectory(SysW32)
 	elseif(CTR)
-		add_subdirectory(SysCTR)
-	else(PSP)
+		# add_subdirectory(SysCTR)
+		# add_subdirectory(DynaRec/ARM)
+
+	elseif(PSP)
 		add_subdirectory(SysPSP)
 	endif()
 
  
 	# ---  Build ---- 
-
+	add_subdirectory(SysCTR)
+	include_directories()
+	add_subdirectory(DynaRec/ARM)
+	add_definitions("-DDAEDALUS_CTR")
 	add_executable(daedalus ${plat_main})
-	list(APPEND default_libraries png z) ## Required Libraries 
+	list(APPEND default_libraries imgui png z picaGL DynaRec ctru) ## Required Libraries 
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries}  )
 

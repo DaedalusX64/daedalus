@@ -80,19 +80,21 @@ inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
 	return new_value;
 }
 
-#elif defined( DAEDALUS_POSIX)
+// POSIX Atomics, Probably can just set this as default for platforms that don't need custom atomics for now. 
+// This eventually will be replaced with a more modern set.
+#else
 
-inline u32 AtomicIncrement( volatile u32 * ptr )
-{
-	DAEDALUS_ASSERT(false, "FIXME");
-	return *ptr++;
-}
+// inline u32 AtomicIncrement( volatile u32 * ptr )
+// {
+// 	DAEDALUS_ASSERT(false, "FIXME");
+// 	return *ptr++;
+// }
 
-inline u32 AtomicDecrement( volatile u32 * ptr )
-{
-	DAEDALUS_ASSERT(false, "FIXME");
-	return *ptr--;
-}
+// inline u32 AtomicDecrement( volatile u32 * ptr )
+// {
+// 	DAEDALUS_ASSERT(false, "FIXME");
+// 	return *ptr--;
+// }
 
 inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
 {
@@ -102,11 +104,6 @@ inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
 	*ptr = r;
 	return r;
 }
-
-
-#else
-
-#error Unhandled platform
 
 #endif
 

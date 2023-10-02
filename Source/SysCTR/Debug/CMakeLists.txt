@@ -1,2 +1,8 @@
-add_library(Debug_Plat OBJECT DaedalusAssertCTR.cpp DBGConsoleCTR.cpp)
+add_library(Debug_CTR OBJECT 
+                    DaedalusAssertCTR.cpp
+                    DBGConsoleCTR.cpp
+            )
 
+            
+list(APPEND daed_libs "Debug_CTR")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

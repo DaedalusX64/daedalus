@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "stdafx.h"
+
 #include "Input/InputManager.h"
 
 #include <stack>
@@ -30,9 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Math.h"
 #include "Math/MathUtil.h"
 #include "Utility/IniFile.h"
-#include "Utility/IO.h"
+#include "System/IO.h"
 #include "Utility/Macros.h"
-#include "Utility/Preferences.h"
+#include "Interface/Preferences.h"
 #include "Utility/Stream.h"
 #include "Utility/Synchroniser.h"
 

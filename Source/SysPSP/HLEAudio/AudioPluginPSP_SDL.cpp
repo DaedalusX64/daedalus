@@ -272,7 +272,7 @@ u32 AudioPluginSDL::AudioThread(void * arg)
 	audio_spec.format = AUDIO_S16SYS;
 	audio_spec.channels = 2;
 	audio_spec.samples = 4096;
-	audio_spec.callback = &AudioCallback;
+	audio_spec.callback = NULL;
 	audio_spec.userdata = plugin;
 
 	audio_device = SDL_OpenAudioDevice(

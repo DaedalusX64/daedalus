@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSCTR_HLEAUDIO_AUDIOOUTPUT_H_
 #define SYSCTR_HLEAUDIO_AUDIOOUTPUT_H_
 
-#include "Utility/DaedalusTypes.h"
+#include "Base/Types.h"
 
 struct Sample;
 class CAudioBuffer;

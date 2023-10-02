@@ -11,6 +11,7 @@
 #include "HLEAudio/HLEAudioInternal.h"
 #include "System/Timing.h"
 #include <pthread.h>
+#include <iostream>
 
 EAudioPluginMode gAudioPluginEnabled = APM_ENABLED_ASYNC;
 
@@ -141,8 +142,7 @@ int AudioPluginSDL::AudioThread(void * arg)
 	AudioPluginSDL * plugin = static_cast<	AudioPluginSDL *>(arg);
 
 	SDL_AudioSpec audio_spec;
-	SDL_zero(audio_spec);
-	audio_spec.freq = 44100;
+	audio_spec.freq = plugin->mFrequency;
 	audio_spec.format = AUDIO_S16SYS;
 	audio_spec.channels = 2;
 	audio_spec.samples = 4096;
@@ -161,6 +161,7 @@ int AudioPluginSDL::AudioThread(void * arg)
 
 void AudioPluginSDL::StartAudio()
 {
+
 	mAudioThread = SDL_CreateThread(&AudioThread, "Audio", this);
 	
 	if (mAudioThread == nullptr)

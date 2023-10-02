@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "stdafx.h"
+
 #include "AudioOutput.h"
 
 #include <stdio.h>
@@ -26,11 +26,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <3ds.h>
 
+#include "Core/FramerateLimiter.h"
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioBuffer.h"
-#include "Utility/FramerateLimiter.h"
-#include "Utility/Thread.h"
+
+#include "System/Thread.h"
 
 extern u32 gSoundSync;
 

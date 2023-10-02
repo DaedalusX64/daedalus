@@ -7,5 +7,9 @@ add_library(DynaRec OBJECT
                                 StaticAnalysis.cpp 
                                 TraceRecorder.cpp)
 
+if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
+add_subdirectory(ARM)
+endif()
+
 list(APPEND daed_libs "DynaRec")
 set(daed_libs ${daed_libs} PARENT_SCOPE)

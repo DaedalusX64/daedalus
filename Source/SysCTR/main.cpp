@@ -27,10 +27,10 @@
 #include "UI/UserInterface.h"
 #include "UI/RomSelector.h"
 
-#include "Utility/IO.h"
-#include "Utility/Preferences.h"
+#include "System/IO.h"
+#include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
-#include "Utility/Thread.h"
+#include "System/Thread.h"
 #include "Utility/Translate.h"
 #include "Utility/Timer.h"
 #include "Utility/ROMFile.h"

@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 #include <malloc.h>
+#include <memory> 
 
 #ifdef DAEDALUS_CTR
 #include "SysCTR/Utility/MemoryCTR.h"
@@ -30,6 +31,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "CodeGeneratorARM.h"
 
 #define CODE_BUFFER_SIZE (8 * 1024 * 1024)
+
+class ConcreteCodeGeneratorARM : public CCodeGeneratorARM {
+public:
+    ConcreteCodeGeneratorARM(CAssemblyBuffer* primaryBuffer, CAssemblyBuffer* secondaryBuffer)
+        : CCodeGeneratorARM(primaryBuffer, secondaryBuffer) {
+        // Additional constructor logic if needed
+    }
+
+    // Implement the pure virtual function from CCodeGenerator
+    virtual void Finalise(ExceptionHandlerFn p_exception_handler_fn, const std::vector<CJumpLocation>& exception_handler_jumps) override {
+        // Implementation for Finalise
+    }
+};
+
+
 
 class CCodeBufferManagerARM : public CCodeBufferManager
 {
@@ -48,7 +64,7 @@ public:
 	virtual void			Reset();
 	virtual void			Finalise();
 
-	virtual CCodeGenerator *StartNewBlock();
+	virtual std::shared_ptr<CCodeGenerator> StartNewBlock();
 	virtual u32				FinaliseCurrentBlock();
 
 private:
@@ -69,10 +85,11 @@ private:
 //*****************************************************************************
 //
 //*****************************************************************************
-CCodeBufferManager *	CCodeBufferManager::Create()
+std::shared_ptr<CCodeBufferManager> CCodeBufferManager::Create()
 {
-	return new CCodeBufferManagerARM;
+	return std::make_shared<CCodeBufferManagerARM>();
 }
+
 
 //*****************************************************************************
 //
@@ -132,7 +149,7 @@ void	CCodeBufferManagerARM::Finalise()
 //*****************************************************************************
 //
 //*****************************************************************************
-CCodeGenerator * CCodeBufferManagerARM::StartNewBlock()
+std::shared_ptr<CCodeGenerator> CCodeBufferManagerARM::StartNewBlock()
 {
 	// Round up to 16 byte boundry
 	u32 aligned_ptr( (mBufferPtr + 15) & (~15) );
@@ -145,7 +162,9 @@ CCodeGenerator * CCodeBufferManagerARM::StartNewBlock()
 	mPrimaryBuffer.SetBuffer( mpBuffer + mBufferPtr );
 	mSecondaryBuffer.SetBuffer( mpSecondBuffer + mSecondBufferPtr );
 
-	return new CCodeGeneratorARM( &mPrimaryBuffer, &mSecondaryBuffer );
+		// Now you can use std::make_shared with ConcreteCodeGeneratorARM
+std::shared_ptr<ConcreteCodeGeneratorARM> codeGenerator = std::make_shared<ConcreteCodeGeneratorARM>(&mPrimaryBuffer, &mSecondaryBuffer);
+
 }
 
 //*****************************************************************************

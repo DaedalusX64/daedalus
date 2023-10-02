@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP
 #include <pspgu.h>
+#elif defined(DAEDALUS_CTR)
+#include <GL/picaGL.h>
 #else
 #include "SysGL/GL.h"
 #endif
@@ -469,7 +471,7 @@ protected:
 	float				mScreenWidth;
 	float				mScreenHeight;
 
-#if defined(DAEDALUS_GL)
+#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
 	Matrix4x4			mScreenToDevice;					// Used by OSX renderer - scales screen coords (0..640 etc) to device coords (-1..+1)
 #endif
 

@@ -25,8 +25,12 @@ case "$1" in
     psp_plugins
     CMAKE=psp-cmake
     ;;
+    CTR)
+    CMAKE="cmake -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/3DS.cmake""
+    ;;
     *)
-    CMAKE=cmake
+    CMAKE=
+    ;;
 esac
     # Use the custom define to do initial build then parse cmake after
     $CMAKE $CMAKEDEFINES -S . -B build 

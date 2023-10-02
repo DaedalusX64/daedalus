@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "RendererCTR.h"
 
 #include <GL/picaGL.h>
@@ -16,7 +16,7 @@
 #include "HLEGraphics/TextureCache.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
-#include "Utility/IO.h"
+#include "System/IO.h"
 #include "Utility/Profiler.h"
 
 BaseRenderer *gRenderer    = nullptr;

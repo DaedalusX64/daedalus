@@ -18,8 +18,8 @@
 #include "Interface/RomDB.h"
 #include "System/Paths.h"
 #include "System/System.h"
-#include "Utility/IO.h"
-#include "Utility/Preferences.h"
+#include "System/IO.h"
+#include "Interface/Preferences.h"
 #include "Utility/ROMFile.h"
 
 #include "Graphics/NativeTexture.h"

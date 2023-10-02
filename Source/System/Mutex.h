@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_MUTEX_H_
 #define UTILITY_MUTEX_H_
 
-#if defined(DAEDALUS_POSIX) || defined(DAEDALUS_PSP)
+#if defined(DAEDALUS_POSIX) || defined(DAEDALUS_PSP) || defined(DAEDALUS_CTR)
 #include <pthread.h>
 #include <mutex>
 #endif
@@ -62,8 +62,7 @@ public:
 	CRITICAL_SECTION cs;
  };
 
-#elif defined(DAEDALUS_POSIX) || defined(DAEDALUS_PSP)
-
+#else
 class Mutex
 {
 public:
@@ -101,10 +100,6 @@ public:
 	std::mutex  mMutex;
 };
 
-
-#else
-
-#error Unhandled platform
 
 #endif
 

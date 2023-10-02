@@ -72,16 +72,15 @@ endif()
 if(DAEDALUS_DIALOGS)
     add_compile_definitions(DAEDALUS_DIALOGS)
 endif(DAEDALUS_DIALOGS)
-
-
 if(DAEDALUS_POSIX)
     add_compile_definitions(DAEDALUS_POSIX)
 endif()
-
+if(DAEDALUS_CTR)
+    add_compile_definitions(DAEDALUS_CTR)
+endif()
 if(DAEDALUS_COMPRESSED_ROM_SUPPORT)
     add_compile_definitions(DAEDALUS_COMPRESSED_ROM_SUPPORT)
 endif()
-
 if(DAEDALUS_ACCURATE_TMEM)
     add_compile_definitions(DAEDALUS_ACCURATE_TMEM)
 endif()

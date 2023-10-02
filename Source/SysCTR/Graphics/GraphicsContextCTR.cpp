@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "Graphics/GraphicsContext.h"
 
 #include <3ds.h>
@@ -10,10 +10,10 @@
 #include "Debug/Dump.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/PngUtil.h"
-#include "Utility/IO.h"
-#include "Utility/Preferences.h"
+#include "System/IO.h"
+#include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
-#include "Utility/VolatileMem.h"
+
 
 #include "SysCTR/UI/InGameMenu.h"
 
@@ -81,10 +81,10 @@ private:
 //*************************************************************************************
 template<> bool CSingleton< CGraphicsContext >::Create()
 {
-#ifdef DAEDALUS_ENABLE_ASSERTS
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 #endif
-	mpInstance = new IGraphicsContext();
+	 mpInstance = std::make_shared<IGraphicsContext>();
 	return mpInstance->Initialise();
 }
 

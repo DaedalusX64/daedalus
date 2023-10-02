@@ -116,13 +116,11 @@ static bool	Initialize()
 	sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
-	#ifdef DAEDALUS_SDL
 		if( SDL_Init( SDL_INIT_AUDIO ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
-	#endif
 
 	// Detect PSP greater than PSP 1000
 	if ( kuKernelGetModel() > 0 )
@@ -131,7 +129,7 @@ static bool	Initialize()
 		// Can't use extra memory if ME isn't available
 		PSP_IS_SLIM = true;
 		g32bitColorMode = true;
-		sceGeEdramSetSize(4*1024*1024);
+		// sceGeEdramSetSize(4*1024*1024);
 		HAVE_DVE = CModule::Load("Plugins/dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();

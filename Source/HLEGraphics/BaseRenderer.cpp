@@ -40,7 +40,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 #include <random> 
+#ifdef DAEDALUS_CTR
+struct ScePspFMatrix4
+{
+	float m[16];
+};
 
+extern void sceGuSetMatrix(int type, const ScePspFMatrix4 * mtx);
+#define GU_PROJECTION GL_PROJECTION
+#endif
 // Vertex allocation.
 // AllocVerts/FreeVerts:
 //   Allocate vertices whose lifetime must extend beyond the current scope.
@@ -56,7 +64,7 @@ struct TempVerts
 
 	~TempVerts()
 	{
-#ifdef DAEDALUS_GL
+#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
 		free(Verts);
 #endif
 	}
@@ -67,7 +75,7 @@ struct TempVerts
 #ifdef DAEDALUS_PSP
 		Verts = static_cast<DaedalusVtx*>(sceGuGetMemory(bytes));
 #endif
-#ifdef DAEDALUS_GL
+#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
 		Verts = static_cast<DaedalusVtx*>(malloc(bytes));
 #endif
 
@@ -323,7 +331,7 @@ void BaseRenderer::InitViewport()
 		mN64ToScreenTranslate.y += (FastRand() & 3);
 	}
 
-#if defined(DAEDALUS_GL)
+#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
 	f32 w = mScreenWidth;
 	f32 h = mScreenHeight;
 
@@ -384,7 +392,7 @@ void BaseRenderer::UpdateViewport()
 
 	sceGuOffset(vx - (vp_w/2),vy - (vp_h/2));
 	sceGuViewport(vx + vp_x, vy + vp_y, vp_w, vp_h);
-#elif defined(DAEDALUS_GL)
+#elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
 	glViewport(vp_x, (s32)mScreenHeight - (vp_h + vp_y), vp_w, vp_h);
 #ifdef DAEDALUS_ENABLE_ASSERTS
 #else
@@ -1641,7 +1649,7 @@ void BaseRenderer::UpdateTileSnapshots( u32 tile_idx )
 		// LOD is disabled - use two textures
 		UpdateTileSnapshot( 1, tile_idx + 1 );
 	}
-#elif defined(DAEDALUS_GL) || defined(RDP_USE_TEXEL1)
+#elif defined(DAEDALUS_GL) || defined(RDP_USE_TEXEL1) || defined(DAEDALUS_CTR)
 // FIXME(strmnnrmn): What's RDP_USE_TEXEL1? Can we remove it?
 
 	if (gRDPOtherMode.cycle_type == CYCLE_2CYCLE)
@@ -1770,9 +1778,13 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 
 	// Initialise the clamping state. When the mask is 0, it forces clamp mode.
 	//
-	u32 mode_u = (rdp_tile.clamp_s | (rdp_tile.mask_s == 0)) ? GU_CLAMP : GU_REPEAT;
-	u32 mode_v = (rdp_tile.clamp_t | (rdp_tile.mask_t == 0)) ? GU_CLAMP : GU_REPEAT;
-
+#ifdef DAEDALUS_PSP
+	u32 mode_u = (u32)((rdp_tile.clamp_s || (rdp_tile.mask_s == 0)) ? GU_CLAMP : GU_REPEAT);
+	u32 mode_v = (u32)((rdp_tile.clamp_t || (rdp_tile.mask_t == 0)) ? GU_CLAMP : GU_REPEAT);
+#else
+	u32 mode_u = (u32)((rdp_tile.clamp_s || (rdp_tile.mask_s == 0)) ? GL_CLAMP : GL_REPEAT);
+	u32 mode_v = (u32)((rdp_tile.clamp_t || (rdp_tile.mask_t == 0)) ? GL_CLAMP : GL_REPEAT);
+#endif
 	//	In CRDPStateManager::GetTextureDescriptor, we limit the maximum dimension of a
 	//	texture to that define by the mask_s/mask_t value.
 	//	It this happens, the tile size can be larger than the truncated width/height
@@ -1789,12 +1801,19 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 		// ToDo : Find a proper workaround for this, if this disabled the castle in Link's stage in SSB is broken :/
 		// Do a hack just for Zelda for now..
 		//
+#ifdef DAEDALUS_PSP
 		mode_u = g_ROM.ZELDA_HACK ? GU_CLAMP : GU_REPEAT;
+#else
+		mode_u = g_ROM.ZELDA_HACK ? GL_CLAMP : (rdp_tile.mirror_s ? GL_MIRRORED_REPEAT : GL_REPEAT);
+#endif
 	}
 
 	if( tile_size.GetHeight() > ti.GetHeight() )
+#ifdef DAEDALUS_PSP
 		mode_v = GU_REPEAT;
-
+#else
+		mode_v = rdp_tile.mirror_t ? GL_MIRRORED_REPEAT : GL_REPEAT;
+#endif
 	mTexWrap[ index ].u = mode_u;
 	mTexWrap[ index ].v = mode_v;
 
@@ -1837,7 +1856,11 @@ inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, u32 size)
 	s16 c1 = *c1_ - offset_10_5;
 
 	// Many texrects already have GU_CLAMP set, so avoid some work.
+#ifdef DAEDALUS_PSP
 	if (*wrap != GU_CLAMP && size > 0)
+#else
+	if (*wrap != GL_CLAMP && size > 0)
+#endif
 	{
 		// Check if the coord is negative - if so, offset to the range [0,size]
 		if (c0 < 0)
@@ -1857,7 +1880,11 @@ inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, u32 size)
 		if ((u16)c0 <= size &&
 			(u16)c1 <= size)
 		{
+#ifdef DAEDALUS_PSP
 			*wrap = GU_CLAMP;
+#else
+			*wrap = GL_CLAMP;
+#endif
 		}
 	}
 
