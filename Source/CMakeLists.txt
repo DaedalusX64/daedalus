@@ -10,7 +10,6 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 #TODO: Separate SDL Options
 list(APPEND plat_main )
-
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 	if(DEBUG)
 		set(CMAKE_BUILD_TYPE Debug)
@@ -162,6 +161,10 @@ list(APPEND plat_main )
 			link_directories(/usr/local/lib)
 		endif()
 	endif (APPLE)
+	if(CTR)
+	include_directories($ENV{DEVKITPRO}/portlibs/3ds/include)
+	include_directories($ENV{DEVKITPRO}/PicaGL/include)
+	endif(CTR)
 
 if(WIN32)
 	set(CMAKE_TOOLCHAIN_FILE ${VCPKG_TOOLCHAIN})
@@ -212,19 +215,14 @@ if(WIN32)
 		add_subdirectory(SysGL)
 		add_subdirectory(SysW32)
 	elseif(CTR)
-		# add_subdirectory(SysCTR)
-		# add_subdirectory(DynaRec/ARM)
-
+		add_subdirectory(SysCTR)
+		add_subdirectory(DynaRec/ARM)
 	elseif(PSP)
 		add_subdirectory(SysPSP)
 	endif()
 
  
 	# ---  Build ---- 
-	add_subdirectory(SysCTR)
-	include_directories()
-	add_subdirectory(DynaRec/ARM)
-	add_definitions("-DDAEDALUS_CTR")
 	add_executable(daedalus ${plat_main})
 	list(APPEND default_libraries imgui png z picaGL DynaRec ctru) ## Required Libraries 
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
