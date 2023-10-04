@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/types.h>
 #include <dirent.h>
 #include <stdio.h>
+#include <filesystem> 
 
 namespace IO
 {
@@ -203,23 +204,22 @@ namespace IO
 
 		return false;
 	}
+bool FindFileNext(FindHandleT handle, FindDataT& data)
+{
+    DAEDALUS_ASSERT(handle != nullptr, "Cannot search with an invalid directory handle");
 
-	bool	FindFileNext( FindHandleT handle, FindDataT & data )
-	{
-		DAEDALUS_ASSERT( handle != NULL, "Cannot search with invalid directory handle" );
+    while (fs::directory_entry entry = fs::directory_iterator(static_cast<fs::path*>(handle)->path()))
+    {
+        // Ignore hidden files (and '.' and '..')
+        if (entry.path().filename().string()[0] == '.')
+            continue;
 
-		while (dirent * ep = readdir( static_cast< DIR * >( handle ) ) )
-		{
-			// Ignore hidden files (and '.' and '..')
-			if (ep->d_name[0] == '.')
-				continue;
+        data.Name = entry.path().filename().string();
+        return true;
+    }
 
-			IO::Path::Assign( data.Name, ep->d_name );
-			return true;
-		}
-
-		return false;
-	}
+    return false;
+}
 
 	bool	FindFileClose( FindHandleT handle )
 	{

@@ -387,6 +387,13 @@ protected:
 		answ.y = roundf( N64ToScreenY( roundf( n64_coords.y ) ) );
 	}
 
+	inline void ScaleN64ToScreen( const v2 & n64_coords, v2 & answ ) const
+	{
+		answ.x = roundf( roundf( n64_coords.x ) * mN64ToScreenScale.x );
+		answ.y = roundf( roundf( n64_coords.y ) * mN64ToScreenScale.y );
+	}
+
+
 	virtual void		RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer ) = 0;
 
 	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );

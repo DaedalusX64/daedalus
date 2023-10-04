@@ -86,9 +86,6 @@ list(APPEND plat_main )
 	# Windows, Linux and macOS builds are auto detected.
 
 
-	option(DAEDALUS_CTR "3DS Specific Options" ON)
-	option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
-	option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
 	if(PSP) 
 	message("PSP")
 		option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)

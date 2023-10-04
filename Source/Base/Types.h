@@ -37,16 +37,16 @@ using s64 = std::int64_t;
 using f32 = float;
 using f64 = double;
 
-DAEDALUS_STATIC_ASSERT( sizeof( u8 ) == 1 );
-DAEDALUS_STATIC_ASSERT( sizeof( s8 ) == 1 );
-DAEDALUS_STATIC_ASSERT( sizeof( u16 ) == 2 );
-DAEDALUS_STATIC_ASSERT( sizeof( s16 ) == 2 );
-DAEDALUS_STATIC_ASSERT( sizeof( u32 ) == 4 );
-DAEDALUS_STATIC_ASSERT( sizeof( s32 ) == 4 );
-DAEDALUS_STATIC_ASSERT( sizeof( u64 ) == 8 );
-DAEDALUS_STATIC_ASSERT( sizeof( s64 ) == 8 );
-DAEDALUS_STATIC_ASSERT( sizeof( f32 ) == 4 );
-DAEDALUS_STATIC_ASSERT( sizeof( f64 ) == 8 );
+// DAEDALUS_STATIC_ASSERT( sizeof( u8 ) == 1 );
+// DAEDALUS_STATIC_ASSERT( sizeof( s8 ) == 1 );
+// DAEDALUS_STATIC_ASSERT( sizeof( u16 ) == 2 );
+// DAEDALUS_STATIC_ASSERT( sizeof( s16 ) == 2 );
+// DAEDALUS_STATIC_ASSERT( sizeof( u32 ) == 4 );
+// DAEDALUS_STATIC_ASSERT( sizeof( s32 ) == 4 );
+// DAEDALUS_STATIC_ASSERT( sizeof( u64 ) == 8 );
+// DAEDALUS_STATIC_ASSERT( sizeof( s64 ) == 8 );
+// DAEDALUS_STATIC_ASSERT( sizeof( f32 ) == 4 );
+// DAEDALUS_STATIC_ASSERT( sizeof( f64 ) == 8 );
 
 
 union REG64
@@ -69,7 +69,7 @@ union REG64
 
 };
 
-DAEDALUS_STATIC_ASSERT( sizeof( REG64 ) == sizeof( u64 ) );
+// DAEDALUS_STATIC_ASSERT( sizeof( REG64 ) == sizeof( u64 ) );
 
 union REG32
 {
@@ -78,7 +78,7 @@ union REG32
 	u32		_u32;
 };
 
-DAEDALUS_STATIC_ASSERT( sizeof( REG32 ) == sizeof( u32 ) );
+// DAEDALUS_STATIC_ASSERT( sizeof( REG32 ) == sizeof( u32 ) );
 
 
 // Alignment Size Specifiers

@@ -14,8 +14,8 @@
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/TextureCache.h"
-#include "Math/MathUtil.h"
-#include "OSHLE/ultra_gbi.h"
+#include "Base/MathUtil.h"
+#include "Ultra/ultra_gbi.h"
 #include "System/IO.h"
 #include "Utility/Profiler.h"
 
@@ -409,7 +409,7 @@ void RendererCTR::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 				texture_idx = install_texture0 ? 0 : 1;
 			}
 
-			CRefPtr<CNativeTexture> texture;
+			std::shared_ptr<CNativeTexture> texture;
 
 			if(out.MakeTextureWhite)
 			{
@@ -609,7 +609,7 @@ void RendererCTR::RenderTriangles(DaedalusVtx *p_vertices, u32 num_vertices, boo
 		glEnable(GL_TEXTURE_2D);
 		
 		UpdateTileSnapshots( mTextureTile );
-		CNativeTexture *texture = mBoundTexture[0];
+		auto texture = mBoundTexture[0];
 		
 		if( texture && (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 		{
@@ -665,7 +665,7 @@ void RendererCTR::TexRect(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
-	CNativeTexture *texture = mBoundTexture[0];
+	auto texture = mBoundTexture[0];
 
 	float scale_x = texture->GetScaleX();
 	float scale_y = texture->GetScaleY();
@@ -723,7 +723,7 @@ void RendererCTR::TexRectFlip(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexC
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
 
-	CNativeTexture *texture = mBoundTexture[0];
+	auto texture = mBoundTexture[0];
 
 	float scale_x = texture->GetScaleX();
 	float scale_y = texture->GetScaleY();

@@ -27,9 +27,10 @@ class AudioOutput;
 class CAudioPluginCTR : public CAudioPlugin
 {
 private:
-	CAudioPluginCTR();
+
 public:
-	static CAudioPluginCTR *		Create();
+	CAudioPluginCTR();
+	static std::unique_ptr<CAudioPluginCTR> 		Create();
 
 
 	virtual ~CAudioPluginCTR();

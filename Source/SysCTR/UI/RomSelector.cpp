@@ -16,11 +16,10 @@
 #include "Core/RomSettings.h"
 #include "Core/Save.h"
 #include "Interface/RomDB.h"
-#include "System/Paths.h"
-#include "System/System.h"
+#include "System/SystemInit.h"
 #include "System/IO.h"
 #include "Interface/Preferences.h"
-#include "Utility/ROMFile.h"
+#include "ROMFile/ROMFile.h"
 
 #include "Graphics/NativeTexture.h"
 
@@ -181,7 +180,7 @@ std::string UI::DrawRomSelector()
 		//Draw top screen
 		if(selection_changed)
 		{
-			CRefPtr<CNativeTexture>	previewTexture = NULL;
+			std::shared_ptr<CNativeTexture>	previewTexture = NULL;
 
 			IO::Filename preview_filename;
 			IO::Path::Combine(preview_filename, DAEDALUS_CTR_PATH("Resources/Preview/"), roms.at(currentItem).mSettings.Preview.c_str() );

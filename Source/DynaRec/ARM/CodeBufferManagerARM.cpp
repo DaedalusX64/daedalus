@@ -31,6 +31,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define CODE_BUFFER_SIZE (8 * 1024 * 1024)
 
+class ConcreteCodeGeneratorARM : public CCodeGeneratorARM {
+public:
+    ConcreteCodeGeneratorARM(CAssemblyBuffer* primaryBuffer, CAssemblyBuffer* secondaryBuffer)
+        : CCodeGeneratorARM(primaryBuffer, secondaryBuffer) {
+    }
+
+    // Implement the pure virtual function from CCodeGenerator
+    virtual void Finalise(ExceptionHandlerFn p_exception_handler_fn, const std::vector<CJumpLocation>& exception_handler_jumps) override {
+
+    }
+};
+
 class CCodeBufferManagerARM : public CCodeBufferManager
 {
 public:
@@ -48,7 +60,7 @@ public:
 	virtual void			Reset();
 	virtual void			Finalise();
 
-	virtual CCodeGenerator *StartNewBlock();
+	virtual std::shared_ptr<CCodeGenerator> StartNewBlock();
 	virtual u32				FinaliseCurrentBlock();
 
 private:
@@ -66,17 +78,13 @@ private:
 	CAssemblyBuffer			mSecondaryBuffer;
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
-CCodeBufferManager *	CCodeBufferManager::Create()
+
+std::shared_ptr<CCodeBufferManager>	CCodeBufferManager::Create()
 {
-	return new CCodeBufferManagerARM;
+	return std::make_shared<CCodeBufferManagerARM>();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool	CCodeBufferManagerARM::Initialise()
 {
 	// mpSecondBuffer is currently unused
@@ -100,18 +108,14 @@ bool	CCodeBufferManagerARM::Initialise()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	CCodeBufferManagerARM::Reset()
 {
 	mBufferPtr = 0;
 	mSecondBufferPtr = 0;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	CCodeBufferManagerARM::Finalise()
 {
 	if (mpBuffer != NULL && mpSecondBuffer != NULL)
@@ -129,28 +133,24 @@ void	CCodeBufferManagerARM::Finalise()
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-CCodeGenerator * CCodeBufferManagerARM::StartNewBlock()
+
+std::shared_ptr<CCodeGenerator> CCodeBufferManagerARM::StartNewBlock()
 {
 	// Round up to 16 byte boundry
-	u32 aligned_ptr( (mBufferPtr + 15) & (~15) );
+	u32 aligned_ptr = (mBufferPtr + 15) & (~15);
 
 	mBufferPtr = aligned_ptr;
 
-	u32 aligned_ptr2((mSecondBufferPtr + 15) & (~15));
+	u32 aligned_ptr2 = (mSecondBufferPtr + 15) & (~15);
 	mSecondBufferPtr = aligned_ptr2;
 
 	mPrimaryBuffer.SetBuffer( mpBuffer + mBufferPtr );
 	mSecondaryBuffer.SetBuffer( mpSecondBuffer + mSecondBufferPtr );
 
-	return new CCodeGeneratorARM( &mPrimaryBuffer, &mSecondaryBuffer );
+	return std::make_shared<ConcreteCodeGeneratorARM>( &mPrimaryBuffer, &mSecondaryBuffer );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 u32 CCodeBufferManagerARM::FinaliseCurrentBlock()
 {
 	u32		main_block_size( mPrimaryBuffer.GetSize() );

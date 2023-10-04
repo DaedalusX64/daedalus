@@ -19,15 +19,13 @@
 #include "HLEGraphics/TextureCache.h"
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
-#include "System/Paths.h"
-#include "System/System.h"
+#include "System/SystemInit.h"
 #include "Test/BatchTest.h"
 #include "System/IO.h"
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
-#include "Utility/Translate.h"
-#include "Utility/ROMFile.h"
+#include "RomFile/ROMFile.h"
 #include "Utility/Timer.h"
 
 extern float gCurrentFramerate;
@@ -39,7 +37,7 @@ static uint8_t currentPage = 0;
 static void ExecSaveState(int slot)
 {
 	IO::Filename full_path;
-	sprintf(full_path, "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+	sprintf(full_path, "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	CPU_RequestSaveState(full_path);
 }
@@ -47,7 +45,9 @@ static void ExecSaveState(int slot)
 static void LoadSaveState(int slot)
 {
 	IO::Filename full_path;
-	sprintf(full_path, "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+	// sprintf(full_path, "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+
+	sprintf(full_path, "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	CPU_RequestLoadState(full_path);
 }
@@ -55,7 +55,9 @@ static void LoadSaveState(int slot)
 static bool SaveStateExists(int slot)
 {
 	IO::Filename full_path;
-	sprintf(full_path, "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+	// sprintf(full_path, "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+
+	sprintf(full_path, "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	return IO::File::Exists(full_path);
 }

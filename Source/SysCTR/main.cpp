@@ -20,8 +20,7 @@
 #include "HLEGraphics/TextureCache.h"
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
-#include "System/Paths.h"
-#include "System/System.h"
+#include "System/SystemInit.h"
 #include "Test/BatchTest.h"
 
 #include "UI/UserInterface.h"
@@ -101,10 +100,10 @@ static void Initialize()
 	
 	pglInitEx(0x080000, 0x040000);
 
-	strcpy(gDaedalusExePath, DAEDALUS_CTR_PATH(""));
-	strcpy(g_DaedalusConfig.mSaveDir, DAEDALUS_CTR_PATH("SaveGames/"));
+	// strcpy(gDaedalusExePath, DAEDALUS_CTR_PATH(""));
+	// strcpy(g_DaedalusConfig.mSaveDir, DAEDALUS_CTR_PATH("SaveGames/"));
 
-	IO::Directory::EnsureExists( DAEDALUS_CTR_PATH("SaveStates/") );
+	// IO::Directory::EnsureExists( DAEDALUS_CTR_PATH("SaveStates/") );
 	UI::Initialize();
 
 	System_Init();
@@ -132,9 +131,10 @@ int main(int argc, char* argv[])
 	while(shouldQuit == false)
 	{
 		std::string rom = UI::DrawRomSelector();
-		sprintf(fullpath, "%s%s", DAEDALUS_CTR_PATH("Roms/"), rom.c_str());
+		std::filesystem::path fullpath = "Roms";
+		// sprintf(fullpath, "%s%s", DAEDALUS_CTR_PATH("Roms/"), rom.c_str());
 
-		System_Open(fullpath);
+		System_Open(fullpath.c_str());
 		CPU_Run();
 		System_Close();
 	}

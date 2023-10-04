@@ -24,17 +24,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string>
 #include <vector>
 #include <3ds.h>
+#include <filesystem>
 
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Math/Math.h"
-#include "Math/MathUtil.h"
+#include "Base/MathUtil.h"
 #include "Utility/IniFile.h"
 #include "System/IO.h"
-#include "Utility/Macros.h"
+#include "Base/Macros.h"
 #include "Interface/Preferences.h"
 #include "Utility/Stream.h"
-#include "Utility/Synchroniser.h"
+#include "Debug/Synchroniser.h"
 
 extern bool isN3DS;
 
@@ -314,7 +315,9 @@ bool IInputManager::Initialise()
 		mControllerConfigs.push_back( p_default_z_config );
 	}
 
-	LoadControllerConfigs( DAEDALUS_CTR_PATH( "ControllerConfigs/" ) );
+	std::filesystem::path ControllerConfigs = "ControllerConfigs/";
+	// LoadControllerConfigs( DAEDALUS_CTR_PATH( "ControllerConfigs/" ) );
+	LoadControllerConfigs(ControllerConfigs.c_str());
 
 	SetConfiguration(0);
 
@@ -351,16 +354,14 @@ void IInputManager::GetState( OSContPad pPad[4] )
 template<> bool	CSingleton< CInputManager >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-
-	IInputManager * manager = new IInputManager();
+	std::shared_ptr<IInputManager> manager = std::make_shared<IInputManager>();
+	// IInputManager * manager = new IInputManager();
 
 	if(manager->Initialise())
 	{
 		mpInstance = manager;
 		return true;
 	}
-
-	delete manager;
 	return false;
 }
 
@@ -401,7 +402,7 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 {
 	for( u32 i = 0; i < mControllerConfigs.size(); ++i )
 	{
-		if( _strcmpi( mControllerConfigs[ i ]->GetName(), name ) == 0 )
+		if( strcmp( mControllerConfigs[ i ]->GetName(), name ) == 0 )
 		{
 			return i;
 		}
@@ -423,7 +424,7 @@ void	IInputManager::LoadControllerConfigs( const char * p_dir )
 			const char * last_period( strrchr( filename, '.' ) );
 			if(last_period != NULL)
 			{
-				if( _strcmpi(last_period, ".ini") == 0 )
+				if( strcmp(last_period, ".ini") == 0 )
 				{
 					std::string		full_path;
 
@@ -800,7 +801,7 @@ CControllerConfig *	IInputManager::BuildDefaultConfig(bool zSwap)
 
 CControllerConfig *	IInputManager::BuildControllerConfig( const char * filename )
 {
-	CIniFile * p_ini_file( CIniFile::Create( filename ) );
+	auto p_ini_file = CIniFile::Create( filename );
 	if( p_ini_file == NULL )
 	{
 		return NULL;
@@ -851,8 +852,6 @@ CControllerConfig *	IInputManager::BuildControllerConfig( const char * filename 
 	{
 		//printf( "Couldn't find buttons section\n" );
 	}
-
-	delete p_ini_file;
 
 	return p_config;
 }

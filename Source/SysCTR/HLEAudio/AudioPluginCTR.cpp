@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "AudioPluginCTR.h"
 #include "AudioOutput.h"
 #include "HLEAudio/AudioPlugin.h"
+#include "HLEAudio/HLEAudioInternal.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -101,9 +102,9 @@ CAudioPluginCTR::~CAudioPluginCTR()
 //*****************************************************************************
 //
 //*****************************************************************************
-CAudioPluginCTR *	CAudioPluginCTR::Create()
+std::unique_ptr<CAudioPluginCTR>	CAudioPluginCTR::Create()
 {
-	return new CAudioPluginCTR();
+	return std::make_unique<CAudioPluginCTR>();
 }
 
 //*****************************************************************************
@@ -210,7 +211,7 @@ EProcessResult	CAudioPluginCTR::ProcessAList()
 //*****************************************************************************
 //
 //*****************************************************************************
-CAudioPlugin *		CreateAudioPlugin()
+std::unique_ptr<CAudioPlugin>		CreateAudioPlugin()
 {
 	return CAudioPluginCTR::Create();
 }

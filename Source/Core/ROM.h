@@ -92,7 +92,7 @@ struct SRomPreferences;
 //*****************************************************************************
 //	Hacks for games etc.
 //*****************************************************************************
-enum EGameHacks
+enum EGameHacks : uint16_t
 {
 	NO_GAME_HACK = 0,
 	GOLDEN_EYE,

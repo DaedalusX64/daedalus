@@ -30,6 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysGL/GL.h"
 #endif
 
+#ifdef DAEDALUS_CTR
+#include <GL/picaGL.h>
+#endif
 class c32;
 
 class CNativeTexture 
@@ -59,7 +62,12 @@ class CNativeTexture
 		inline const void *				GetData() const					{ return mpData; }
 		inline void *					GetData()						{ return mpData; }
 
-#ifdef DAEDALUS_PSP
+#if defined(DAEDALUS_CTR)
+		inline GLuint					GetTextureId() const				{ return mTextureId; }
+
+#endif
+
+#if defined(DAEDALUS_PSP) || defined(DAEDALUS_CTR)
 		inline f32						GetScaleX() const				{ return mScale.x; }
 		inline f32						GetScaleY() const				{ return mScale.y; }
 #endif
@@ -78,11 +86,11 @@ class CNativeTexture
 		void *				mpData;
 		void *				mpPalette;
 
-#ifdef DAEDALUS_GL
+#if defined(DAEDALUS_GL) || (DAEDALUS_CTR)
 		GLuint				mTextureId;
 #endif
 
-#ifdef DAEDALUS_PSP
+#if defined(DAEDALUS_PSP) || defined(DAEDALUS_CTR)
 		v2					mScale;
 		bool				mIsDataVidMem;
 		bool				mIsPaletteVidMem;
