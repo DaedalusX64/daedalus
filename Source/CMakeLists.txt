@@ -161,6 +161,8 @@ list(APPEND plat_main )
 	if(CTR)
 	include_directories($ENV{DEVKITPRO}/portlibs/3ds/include)
 	include_directories($ENV{DEVKITPRO}/PicaGL/include)
+	link_directories($ENV{DEVKITPRO}/PicaGL/lib)
+	include_directories($ENV{DEVKITPRO}/portlibs/3ds/lib)
 	endif(CTR)
 
 if(WIN32)
@@ -221,7 +223,7 @@ if(WIN32)
  
 	# ---  Build ---- 
 	add_executable(daedalus ${plat_main})
-	list(APPEND default_libraries imgui png z picaGL DynaRec ctru) ## Required Libraries 
+	list(APPEND default_libraries png z DynaRec) ## Required Libraries 
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries}  )
 
@@ -235,6 +237,47 @@ if(WIN32)
 			TITLE DaedalusX64
 			)
 	endif(PSP)
+
+	if(CTR)
+	set(APP_TITLE "DaedalusX64")
+	set(APP_DESCRIPTION "DaedalusX64 port for 3DS")
+	set(APP_AUTHOR "MasterFeizz / DaedalusX64 Team")
+
+	set(APP_SMDH "${PROJECT_SOURCE_DIR}/SysCTR/Resources/daedalus.smdh")
+	set(APP_BANNER "${PROJECT_SOURCE_DIR}/SysCTR/Resources/banner.bnr")
+	set(APP_AUDIO "${PROJECT_SOURCE_DIR}/SysCTR/Resources/audio_silent.wav")
+	set(APP_RSF "${PROJECT_SOURCE_DIR}/SysCTR/Resources/template.rsf")
+	set(APP_ROMFS_DIR "${PROJECT_SOURCE_DIR}/SysCTR/Resources/RomFS")
+	set(APP_ROMFS_BIN "${PROJECT_SOURCE_DIR}/SysCTR/Resources/romfs.bin")
+
+	add_custom_command(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.3dsx
+		COMMAND 3dsxtool daedalus.elf DaedalusX64.3dsx --romfs=${APP_ROMFS_DIR} --smdh=${APP_SMDH}
+		DEPENDS daedalus.elf
+	)
+	
+	add_custom_command(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.cia
+		COMMAND makerom -f cia
+			-target t
+			-exefslogo
+			-o ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.cia
+			-elf daedalus.elf
+			-rsf ${APP_RSF}
+			-banner ${APP_BANNER}
+			-icon ${APP_SMDH}
+			-romfs ${APP_ROMFS_BIN}
+		DEPENDS daedalus.elf ${APP_RSF}
+	)
+	
+	#  add_custom_target(N3DS ALL
+	#  	DEPENDS Daedalus.elf
+	# 			DaedalusX64.3dsx
+	#  			DaedalusX64.cia
+	#  )
+	
+	
+	endif(CTR)
 	
 	## Install and setup basic directories
 	install(DIRECTORY DESTINATION DaedalusX64)

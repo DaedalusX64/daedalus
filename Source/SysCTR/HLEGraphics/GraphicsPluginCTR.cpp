@@ -124,6 +124,7 @@ class CGraphicsPluginImpl : public CGraphicsPlugin
 		bool		Initialise();
 		
 		virtual bool		StartEmulation()		{ return true; }
+
 		virtual void		ViStatusChanged()		{}
 		virtual void		ViWidthChanged()		{}
 		virtual void		ProcessDList();
@@ -134,6 +135,11 @@ class CGraphicsPluginImpl : public CGraphicsPlugin
 private:
 		u32					LastOrigin;
 };
+
+CGraphicsPlugin::~CGraphicsPlugin()
+{
+}
+
 
 CGraphicsPluginImpl::CGraphicsPluginImpl():	LastOrigin( 0 )
 {

@@ -59,7 +59,7 @@ static bool SaveStateExists(int slot)
 
 	sprintf(full_path, "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
-	return IO::File::Exists(full_path);
+	return std::filesystem::exists(full_path);
 }
 
 static void DrawSaveStatePage()

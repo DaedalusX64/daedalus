@@ -30,9 +30,9 @@
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
-#include "Utility/Translate.h"
+
 #include "Utility/Timer.h"
-#include "Utility/ROMFile.h"
+#include "ROMFile/ROMFile.h"
 #include "Utility/MemoryCTR.h"
 
 bool isN3DS = false;

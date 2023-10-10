@@ -83,7 +83,7 @@ namespace IO
 	};
 
 // This is also pretty redundant, as the IO file is pretty much deprecated
-#if defined( DAEDALUS_W32)
+#if defined( DAEDALUS_W32) || defined(DAEDALUS_CTR)
 	using FindHandleT = void *;
 #else
 	using FindHandleT = intptr_t;

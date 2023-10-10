@@ -186,6 +186,7 @@ namespace IO
 
 
 
+
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data )
 	{
 		DIR * d = opendir( path );
@@ -204,22 +205,32 @@ namespace IO
 
 		return false;
 	}
+	
 bool FindFileNext(FindHandleT handle, FindDataT& data)
 {
     DAEDALUS_ASSERT(handle != nullptr, "Cannot search with an invalid directory handle");
 
-    while (fs::directory_entry entry = fs::directory_iterator(static_cast<fs::path*>(handle)->path()))
+    std::filesystem::directory_iterator end; // Create the end iterator
+
+    while (handle != end)
     {
+        std::filesystem::directory_entry entry = *handle;
+
         // Ignore hidden files (and '.' and '..')
         if (entry.path().filename().string()[0] == '.')
+        {
+            ++handle; // Move to the next entry
             continue;
+        }
 
         data.Name = entry.path().filename().string();
+        ++handle; // Move to the next entry
         return true;
     }
 
     return false;
 }
+
 
 	bool	FindFileClose( FindHandleT handle )
 	{

@@ -246,7 +246,7 @@ static void Load_BgSprite( const uObjScaleBg *objBg )
 //*****************************************************************************
 //
 //*****************************************************************************
-static void Load_ObjSprite( const uObjSprite *sprite, const uObjTxtr *txtr )
+static inline std::shared_ptr<CNativeTexture> Load_ObjSprite( const uObjSprite *sprite, const uObjTxtr *txtr )
 {
 	TextureInfo ti;
 
@@ -287,7 +287,7 @@ static void Load_ObjSprite( const uObjSprite *sprite, const uObjTxtr *txtr )
 		default:
 			// This should not happen!
 			DAEDALUS_ERROR("Unhandled Obj texture");
-			return;
+			return nullptr;
 		}
 	}
 
@@ -298,7 +298,7 @@ static void Load_ObjSprite( const uObjSprite *sprite, const uObjTxtr *txtr )
 //
 //*****************************************************************************
 template< ESpriteMode mode > 
-static void Draw_ObjSprite( const uObjSprite *sprite )
+static void Draw_ObjSprite( const uObjSprite *sprite, const std::shared_ptr<CNativeTexture> texture )
 {
 	f32 imageW = sprite->imageW / 32.0f;
 	f32 imageH = sprite->imageH / 32.0f;
@@ -334,8 +334,11 @@ static void Draw_ObjSprite( const uObjSprite *sprite )
 		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPT)
 		std::swap(y0,y1);
 			//Swap< f32 >( y0, y1 );
-
-		gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
+#ifdef DAEDALUS_CTR
+gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH, texture);
+#else
+gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
+#endif
 		break;
 
 	case PARTIAL_ROTATION:
@@ -345,7 +348,11 @@ static void Draw_ObjSprite( const uObjSprite *sprite )
 		y1 = mat2D.Y + objH / mat2D.BaseScaleY;
 
 		// Partial rotation doesn't flip sprites
+		#ifdef DAEDALUS_CTR
+		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH, texture);
+		#else
 		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+		#endif
 		break;
 
 	case NO_ROTATION:
@@ -362,8 +369,11 @@ static void Draw_ObjSprite( const uObjSprite *sprite )
 		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPT)
 		std::swap(y0,y1);
 		//	Swap< f32 >( y0, y1 );
-
+		#ifdef DAEDALUS_CTR
+		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH, texture);
+		#else
 		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+		#endif
 		break;
 	}
 }
@@ -485,16 +495,13 @@ static void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-// Bomberman : Second Atatck uses this
+//*******************************************
 void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 {
-	const uObjSprite *sprite = (const uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( sprite, NULL );
-	Draw_ObjSprite< FULL_ROTATION >( sprite );
+	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( sprite, NULL );
+	Draw_ObjSprite< FULL_ROTATION >( sprite, texture );
 }
 
 //*****************************************************************************
@@ -504,10 +511,11 @@ void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 // Note : This cmd loads textures from both ObjTxtr and LoadBlock/LoadTile!!
 void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 {
-	const uObjSprite *sprite = (const uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( sprite, gObjTxtr );
-	Draw_ObjSprite< NO_ROTATION >( sprite );
+	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( sprite, gObjTxtr );
+	// Draw_ObjSprite( sprite, NO_ROTATION, texture );
+	Draw_ObjSprite< NO_ROTATION >(sprite, texture);
 }
 
 //*****************************************************************************
@@ -515,7 +523,7 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 {
-	const uObjSprite *sprite = (const uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 	if (sprite->imageFmt == G_IM_FMT_YUV)
 	{
 		DLParser_OB_YUV(sprite);
@@ -526,8 +534,9 @@ void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 	// Would like to find a game that uses this though
 	DAEDALUS_ERROR("S2DEX_ObjRectangleR: Check me");
 
-	Load_ObjSprite( sprite, gObjTxtr );
-	Draw_ObjSprite< PARTIAL_ROTATION >( sprite );
+	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( sprite, gObjTxtr );
+	// Draw_ObjSprite( sprite, PARTIAL_ROTATION, texture );
+	Draw_ObjSprite< PARTIAL_ROTATION >(sprite, texture);
 }
 
 //*****************************************************************************
@@ -536,10 +545,11 @@ void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 // Nintendo logo, shade, items, enemies & foes, sun, and pretty much everything in Yoshi
 void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 {
-	const uObjTxSprite *sprite = (const uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
-	Draw_ObjSprite< FULL_ROTATION >( &sprite->sprite );
+	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
+	// Draw_ObjSprite( &sprite->sprite, FULL_ROTATION, texture );
+	Draw_ObjSprite< FULL_ROTATION >(&sprite->sprite, texture);
 }
 
 //*****************************************************************************
@@ -548,10 +558,11 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 // No Rotation. Intro logo, Awesome command screens and HUD in game :)
 void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 {
-	const uObjTxSprite *sprite = (const uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
-	Draw_ObjSprite< NO_ROTATION >( &sprite->sprite );
+	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
+	// Draw_ObjSprite( &sprite->sprite, NO_ROTATION, texture );
+		Draw_ObjSprite< NO_ROTATION >(&sprite->sprite, texture);
 }
 
 //*****************************************************************************
@@ -560,10 +571,10 @@ void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 // With Rotation. Text, smoke, and items in Yoshi
 void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 {
-	const uObjTxSprite *sprite = (const uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
-	Draw_ObjSprite< PARTIAL_ROTATION >( &sprite->sprite );
+	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
+		Draw_ObjSprite< PARTIAL_ROTATION >(&sprite->sprite, texture);
 }
 
 //*****************************************************************************
@@ -671,8 +682,32 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	u16 frameW = (objBg->frameW >> 2) + frameX;
 	u16 frameH = (objBg->frameH >> 2) + frameY;
 
+	TextureInfo ti;
+
+	ti.SetFormat(objBg->imageFmt);
+	ti.SetSize(objBg->imageSiz);
+
+	ti.SetLoadAddress(RDPSegAddr(objBg->imagePtr));
+	ti.SetWidth(imageW);
+	ti.SetHeight(imageH);
+	ti.SetPitch((((imageW << objBg->imageSiz) >> 1)>>3)<<3); //force 8-bit alignment
+
+	ti.SetSwapped(false);
+
+	ti.SetPalette(objBg->imagePal);
+	ti.SetTlutAddress(gTlutLoadAddresses[0]);
+	ti.SetTLutFormat(kTT_RGBA16);
+
+
+	std::shared_ptr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
+	
+	#ifdef DAEDALUS_CTR
+	gRenderer->Draw2DTexture( (f32)frameX, (f32)frameY, (f32)frameW, (f32)frameH,
+							  (f32)imageX, (f32)imageY, (f32)imageW, (f32)imageH, texture);
+	#else
 	gRenderer->Draw2DTexture( (f32)frameX, (f32)frameY, (f32)frameW, (f32)frameH,
 							  (f32)imageX, (f32)imageY, (f32)imageW, (f32)imageH );
+	#endif
 }
 
 //*****************************************************************************
@@ -701,12 +736,38 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	f32 imageW = objBg->imageW/4.0f;
 	f32 imageH = objBg->imageH/4.0f;
 
+	TextureInfo ti;
+
+	ti.SetFormat(objBg->imageFmt);
+	ti.SetSize(objBg->imageSiz);
+
+	ti.SetLoadAddress(RDPSegAddr(objBg->imagePtr));
+	ti.SetWidth(objBg->imageW/4);
+	ti.SetHeight(objBg->imageH/4);
+	ti.SetPitch((((objBg->imageW/4 << ti.GetSize()) >> 1)>>3)<<3); //force 8-bit alignment, this what sets our correct viewport.
+
+	ti.SetSwapped(false);
+
+	ti.SetPalette(objBg->imagePal);
+	ti.SetTlutAddress(gTlutLoadAddresses[0]);
+	ti.SetTLutFormat(kTT_RGBA16);
+
+	std::shared_ptr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
+
+
 	if (g_ROM.GameHacks != YOSHI)
 	{
 		f32 s1 = (frameW-frameX)*scaleX + imageX;
 		f32 t1 = (frameH-frameY)*scaleY + imageY;
 
+
+
+		std::shared_ptr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
+		#ifdef DAEDALUS_CTR
+		gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1,texture );
+		#else
 		gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1 );
+		#endif
 	}
 	else
 	{
@@ -715,11 +776,17 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 		f32 u1 = (frameW-x2)*scaleX;
 		f32 v1 = (frameH-y2)*scaleY;
-
+		#ifdef DAEDALUS_CTR
+		gRenderer->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH, texture);
+		gRenderer->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH, texture);
+		gRenderer->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1, texture);
+		gRenderer->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1, texture);
+		#else
 		gRenderer->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH);
 		gRenderer->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH);
 		gRenderer->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1);
 		gRenderer->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1);
+		#endif
 	}
 }
 

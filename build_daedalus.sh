@@ -30,7 +30,8 @@ case "$1" in
     CMAKEDEFINES+="-DCTR=1"
     ;;
     *)
-    CMAKE=
+    CMAKE=cmake
+    CMAKEDEFINES=""
     ;;
 esac
     # Use the custom define to do initial build then parse cmake after

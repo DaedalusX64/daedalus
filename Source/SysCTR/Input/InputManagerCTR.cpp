@@ -281,7 +281,7 @@ class IInputManager : public CInputManager
 		virtual u32					GetConfigurationFromName( const char * name ) const;
 
 	private:
-		void								LoadControllerConfigs( const char * p_dir );
+		void								LoadControllerConfigs( const std::filesystem::path p_dir );
 		CControllerConfig *					BuildDefaultConfig(bool ZSwap = false);
 		CControllerConfig *					BuildControllerConfig( const char * filename );
 
@@ -412,16 +412,16 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 	return 0;
 }
 
-void	IInputManager::LoadControllerConfigs( const char * p_dir )
+void	IInputManager::LoadControllerConfigs( const std::filesystem::path p_dir )
 {
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
-	if(IO::FindFileOpen( p_dir, &find_handle, find_data ))
+	if(IO::FindFileOpen( p_dir.c_str(), &find_handle, find_data ))
 	{
 		do
 		{
-			const char * filename( find_data.Name );
-			const char * last_period( strrchr( filename, '.' ) );
+			const std::filesystem::path filename( find_data.Name );
+			const char * last_period( strrchr( filename.c_str(), '.' ) );
 			if(last_period != NULL)
 			{
 				if( strcmp(last_period, ".ini") == 0 )

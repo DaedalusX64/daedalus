@@ -54,7 +54,12 @@ enum ETVType
 
 struct SGlobalPreferences
 {
-	u32							DisplayFramerate;
+	// This will need to be changed globally as it makes a lot more sense
+	#if defined(DAEDALUS_CTR)
+	bool							DisplayFramerate;
+	#else
+	u32 DisplayFramerate;
+	#endif 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	bool						HighlightInexactBlendModes;
 	bool						CustomBlendModes;

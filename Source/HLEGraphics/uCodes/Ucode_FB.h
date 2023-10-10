@@ -21,19 +21,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HLEGRAPHICS_UCODES_UCODE_FB_H_
 
 #ifndef DAEDALUS_PSP
-static bool LoadFrameBuffer(u32 origin)
+static inline std::shared_ptr<CNativeTexture> LoadFrameBuffer(u32 origin)
 {
 	u32 width  = Memory_VI_GetRegister( VI_WIDTH_REG );
 	if( width == 0 )
 	{
 		//DAEDALUS_ERROR("Loading 0 size frame buffer?");
-		return false;
+		return nullptr;
 	}
 
 	if( origin <= width*2 )
 	{
 		//DAEDALUS_ERROR("Loading small frame buffer not supported");
-		return false;
+		return nullptr;
 	}
 	//ToDO: We should use uViWidth and uViHeight?
 #define FB_WIDTH  320
@@ -58,11 +58,10 @@ static bool LoadFrameBuffer(u32 origin)
 	ti.SetPitch				(width << 2 >> 1);
 
 	gRenderer->LoadTextureDirectly(ti);
-	return true;
 }
 
 //Borrowed from StrmnNrmn's N64js
-static inline void DrawFrameBuffer(u32 origin)
+static inline void DrawFrameBuffer(u32 origin, const std::shared_ptr<CNativeTexture> texture)
 {
 
 	u16 * pixels = (u16*)malloc(FB_WIDTH*FB_HEIGHT * sizeof(u16));	// TODO: should cache this, but at some point we'll need to deal with variable framebuffer size, so do this later.
@@ -86,8 +85,7 @@ static inline void DrawFrameBuffer(u32 origin)
 	//Doesn't work
 	//sceGuTexMode( GU_PSM_5551, 0, 0, 1 );		// maxmips/a2/swizzle = 0
 	//sceGuTexImage(0, texture->GetCorrectedWidth(), texture->GetCorrectedHeight(), texture->GetBlockWidth(), pixels);
-
-	gRenderer->Draw2DTexture(0, 0, FB_WIDTH, FB_HEIGHT, 0, 0, FB_WIDTH, FB_HEIGHT);
+	gRenderer->Draw2DTexture(0, 0, FB_WIDTH, FB_HEIGHT, 0, 0, FB_WIDTH, FB_HEIGHT, texture);
 
 	free(pixels);
 }
@@ -98,8 +96,9 @@ void RenderFrameBuffer(u32 origin)
 	gRenderer->SetVIScales();
 	gRenderer->BeginScene();
 
-	if (LoadFrameBuffer(origin))
-		DrawFrameBuffer(origin);
+	std::shared_ptr<CNativeTexture> texture = LoadFrameBuffer(origin);
+	if(texture != NULL)
+		DrawFrameBuffer(origin, texture);
 
 	gRenderer->EndScene();
 	gGraphicsPlugin->UpdateScreen();

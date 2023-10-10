@@ -4,7 +4,6 @@ add_library(HLEGraphics_CTR OBJECT
                     ColourAdjuster.cpp
                     GraphicsPluginCTR.cpp
                     RendererCTR.cpp
-
                     )
 
                     add_subdirectory(Combiner)

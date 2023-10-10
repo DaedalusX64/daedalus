@@ -39,7 +39,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysGL/GL.h"
 #endif
 
+#ifdef DAEDALUS_CTR
+#define HD_SCALE 0.8f
+#else
 #define HD_SCALE 0.754166f
+#endif
 
 class CNativeTexture;
 struct TempVerts;
@@ -254,14 +258,23 @@ public:
 		mTnL.TextureScaleY = fScaleY == 0 ? 1/32.0f : fScaleY; 
 	}
 	inline u32			GetTextureTile() const					{ return mTextureTile; }
+
+#ifdef DAEDALUS_CTR
+	inline void			SetCullMode(bool enable, bool mode)		{ enable ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE); mode ? glCullFace(GL_BACK) : glCullFace(GL_FRONT); }
+#else
 	inline void			SetCullMode(bool enable, bool mode)		{ mTnL.Flags.TriCull = enable; mTnL.Flags.CullBack = mode; }
+#endif
 
 	// Fog stuff
 	inline void			SetFogMultOffs(f32 Mult, f32 Offs)		{ mTnL.FogMult=Mult/255.0f; mTnL.FogOffs=Offs/255.0f;}
-	#ifdef DAEDALUS_PSP
-	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(-fog_near /2000, +fog_far /2000 , mFogColour.GetColour()); }
-	#endif
+#ifdef DAEDALUS_PSP
+	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(fog_near, fog_far, mFogColour.GetColour()); }
 	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
+#elif defined(DAEDALUS_VITA) || defined (DAEDALUS_CTR)
+	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ glFogf(GL_FOG_START, fog_near); glFogf(GL_FOG_END, fog_far); }
+	inline void			SetFogColour( c32 colour )				{ float fog_clr[4] = {colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf()}; glFogfv(GL_FOG_COLOR, &fog_clr[0]); }
+#endif
+
 
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
 #ifdef DAEDALUS_PSP
@@ -292,8 +305,8 @@ public:
 	virtual void		FillRect( const v2 & xy0, const v2 & xy1, u32 color ) = 0;
 
 	// Texture stuff
-	virtual void		Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1, f32 u0, f32 v0, f32 u1, f32 v1) = 0;
-	virtual void		Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t) = 0;
+	virtual void		Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1, f32 u0, f32 v0, f32 u1, f32 v1, const std::shared_ptr<CNativeTexture> texture) = 0;
+	virtual void		Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t, const std::shared_ptr <CNativeTexture> texture) = 0;
 
 	// Viewport stuff
 	void				SetN64Viewport( const v2 & scale, const v2 & trans );
@@ -355,10 +368,13 @@ public:
 
 	virtual void 		ResetDebugState()						{}
 #endif
-
+#ifdef DAEDALUS_CTR
+	inline float		N64ToScreenX(float x) const				{ return x * mN64ToScreenScale.x; }
+	inline float		N64ToScreenY(float y) const				{ return y * mN64ToScreenScale.y; }
+#else
 	inline float		N64ToScreenX(float x) const				{ return x * mN64ToScreenScale.x + mN64ToScreenTranslate.x; }
 	inline float		N64ToScreenY(float y) const				{ return y * mN64ToScreenScale.y + mN64ToScreenTranslate.y; }
-
+#endif
 
 	std::shared_ptr<CNativeTexture> LoadTextureDirectly( const TextureInfo & ti );
 
