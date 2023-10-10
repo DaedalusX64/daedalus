@@ -315,7 +315,7 @@ bool IInputManager::Initialise()
 		mControllerConfigs.push_back( p_default_z_config );
 	}
 
-	std::filesystem::path ControllerConfigs = "ControllerConfigs/";
+	std::filesystem::path ControllerConfigs = "3ds/DaedalusX64/ControllerConfigs/";
 	// LoadControllerConfigs( DAEDALUS_CTR_PATH( "ControllerConfigs/" ) );
 	LoadControllerConfigs(ControllerConfigs.c_str());
 

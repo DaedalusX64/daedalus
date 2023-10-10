@@ -82,12 +82,17 @@ std::filesystem::exists(rootdir);
 // Fetch the filename, extension, create the output file.
 std::filesystem::path Save_As(const std::filesystem::path filename, const std::filesystem::path extension, std::filesystem::path dest)
 {
-	std::filesystem::create_directories("SaveGames/Cache"); // Create the Save Directories if not already done
+	std::filesystem::create_directories("SaveGames/Cache/"); // Create the Save Directories if not already done
 	std::filesystem::path tmp;
 	std::filesystem::path gSaveFileName;
 	tmp = filename.filename();
 	tmp.replace_extension(extension);	
-	gSaveFileName = dest /= tmp;
+	// #ifdef DAEDALUS_CTR
+	// std::filesystem::path extra = std::filesystem::path("3ds") /= "DaedalusX64";
+	// gSaveFileName = extra /= dest /= tmp;
+	// #else
+	 gSaveFileName = dest /= tmp;
+	//  #endif
 	return gSaveFileName;
 
 }

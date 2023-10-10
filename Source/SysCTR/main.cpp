@@ -30,6 +30,7 @@
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
+#include "Base/Path.h"
 
 #include "Utility/Timer.h"
 #include "ROMFile/ROMFile.h"
@@ -84,7 +85,7 @@ static void CheckDSPFirmware()
 
 static void Initialize()
 {
-	CheckDSPFirmware();
+	// CheckDSPFirmware();
 	
 	_InitializeSvcHack();
 
@@ -100,6 +101,8 @@ static void Initialize()
 	
 	pglInitEx(0x080000, 0x040000);
 
+	// std::filesystem::path BaseDir = std::filesystem::current_path() / "3ds"/ "DaedalusX64"/ 
+	// std::filesystem::path Save
 	// strcpy(gDaedalusExePath, DAEDALUS_CTR_PATH(""));
 	// strcpy(g_DaedalusConfig.mSaveDir, DAEDALUS_CTR_PATH("SaveGames/"));
 
@@ -130,13 +133,12 @@ int main(int argc, char* argv[])
 	
 	while(shouldQuit == false)
 	{
-		std::string rom = UI::DrawRomSelector();
-		std::filesystem::path fullpath = "Roms";
-		// sprintf(fullpath, "%s%s", DAEDALUS_CTR_PATH("Roms/"), rom.c_str());
+	std::string rom = UI::DrawRomSelector();
+	std::filesystem::path RomPath = std::filesystem::current_path() / "3ds"/ "DaedalusX64"/ "Roms" / rom;
 
-		System_Open(fullpath.c_str());
-		CPU_Run();
-		System_Close();
+	System_Open(RomPath.string().c_str());
+	CPU_Run();
+	System_Close();
 	}
 	
 	System_Finalize();

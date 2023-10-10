@@ -947,8 +947,11 @@ fail_find:
 
 static void Patch_FlushCache()
 {
+	#ifdef DAEDALUS_CTR
+	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "3ds/DaedalusX64/SaveGames/Cache");
+	#else
 	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "SaveGames/Cache");
-
+	#endif
 
 	FILE *fp = fopen(name.c_str(), "wb");
 
@@ -1001,7 +1004,11 @@ static void Patch_FlushCache()
 
 static bool Patch_GetCache()
 {
+		#ifdef DAEDALUS_CTR
+	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "3ds/DaedalusX64/SaveGames/Cache");
+	#else
 	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "SaveGames/Cache");
+	#endif
 	FILE *fp = fopen(name.c_str(), "rb");
 
 	if (fp != nullptr)

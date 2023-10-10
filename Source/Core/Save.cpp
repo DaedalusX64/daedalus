@@ -69,8 +69,11 @@ bool Save_Reset()
 	gSaveDirty = false;
 	if (gSaveSize > 0)
 	{
+		#if defined(DAEDALUS_CTR)
+		gSaveFileName = Save_As(g_ROM.mFileName, ext, "3ds/DaedalusX64/SaveGames/");
+		#else
 		gSaveFileName = Save_As(g_ROM.mFileName, ext, "SaveGames/");
-
+		#endif
 		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{
@@ -98,7 +101,11 @@ bool Save_Reset()
 
 	// init mempack, we always assume the presence of the mempack for simplicity 
 	{	
+		#if defined(DAEDALUS_CTR)
+		gSaveFileName = Save_As(g_ROM.mFileName, ".mpk", "3ds/DaedalusX64/SaveGames/");
+		#else
 		gSaveFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
+		#endif
 		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{
