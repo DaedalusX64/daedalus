@@ -25,7 +25,7 @@
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
-#include "RomFile/ROMFile.h"
+#include "RomFile/RomFile.h"
 #include "Utility/Timer.h"
 
 extern float gCurrentFramerate;

@@ -20,7 +20,7 @@
 #include "Base/Path.h"
 #include "System/IO.h"
 #include "Interface/Preferences.h"
-#include "ROMFile/ROMFile.h"
+#include "RomFile/RomFile.h"
 
 #include "Graphics/NativeTexture.h"
 

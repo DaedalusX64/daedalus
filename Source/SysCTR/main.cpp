@@ -33,7 +33,7 @@
 #include "Base/Path.h"
 
 #include "Utility/Timer.h"
-#include "ROMFile/ROMFile.h"
+#include "RomFile/RomFile.h"
 #include "Utility/MemoryCTR.h"
 
 bool isN3DS = false;
