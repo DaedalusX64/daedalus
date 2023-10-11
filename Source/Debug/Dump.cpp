@@ -38,10 +38,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_R4300.h"
 #include "System/IO.h"
 #include "Core/PrintOpCode.h"
-
+#include "Base/Path.h"
 
 static IO::Filename gDumpDir = "";
-
 
 // Initialise the directory where files are dumped
 // Appends subdir to the global dump base. Stores in rootdir)
@@ -82,17 +81,14 @@ std::filesystem::exists(rootdir);
 // Fetch the filename, extension, create the output file.
 std::filesystem::path Save_As(const std::filesystem::path filename, const std::filesystem::path extension, std::filesystem::path dest)
 {
-	std::filesystem::create_directories("SaveGames/Cache/"); // Create the Save Directories if not already done
-	std::filesystem::path tmp;
-	std::filesystem::path gSaveFileName;
-	tmp = filename.filename();
-	tmp.replace_extension(extension);	
-	// #ifdef DAEDALUS_CTR
-	// std::filesystem::path extra = std::filesystem::path("3ds") /= "DaedalusX64";
-	// gSaveFileName = extra /= dest /= tmp;
-	// #else
-	 gSaveFileName = dest /= tmp;
-	//  #endif
+	std::filesystem::create_directories(baseDir/"SaveGames/Cache/"); // Create the Save Directories if not already done
+
+	std::filesystem::path path = baseDir;
+	
+	std::filesystem::path file = filename.filename();
+	file.replace_extension(extension);	
+	path /= dest;
+	std::filesystem::path gSaveFileName = path /= file;
 	return gSaveFileName;
 
 }
@@ -133,7 +129,7 @@ void Dump_DisassembleMIPSRange(FILE * fh, u32 address_offset, const OpCode * b, 
 
 void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 {
-	std::filesystem::path file_path;
+	std::filesystem::path file_path = baseDir;
 
 	// Cute hack - if the end of the range is less than the start,
 	// assume it is a length to disassemble

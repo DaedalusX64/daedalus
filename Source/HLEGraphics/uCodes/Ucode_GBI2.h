@@ -90,104 +90,67 @@ void DLParser_GBI2_PopMtx( MicroCodeCommand command )
 //001889F0: DB020000 00000030 CMD Zelda_MOVEWORD  Mem[2][00]=00000030 Lightnum=2
 void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 {
-
+	static f32 old_fog_mult;
+	static f32 old_fog_offs;
+	
+	u32 value  = command.mw2.value;
+	u32 offset = command.mw2.offset;
+	
 	switch (command.mw2.type)
 	{
 	case G_MW_MATRIX:
 		{
-			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			DL_PF("    G_MW_MATRIX(2)");
-			#endif
 			gRenderer->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		}
 		break;
 
 	case G_MW_NUMLIGHT:
 		{
-			// Lightnum
-			// command->cmd1:
-			// 0x18 = 24 = 0 lights
-			// 0x30 = 48 = 2 lights
-
-			u32 num_lights = command.mw2.value / 24;
-			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
-			#endif
+			u32 num_lights = value / 24;
 			gRenderer->SetNumLights(num_lights);
 		}
 		break;
-/*
-	case G_MW_CLIP:	// Seems to be unused?
-		{
-			DL_PF("     G_MW_CLIP");
-		}
-		break;
-*/
 	case G_MW_SEGMENT:
 		{
-			u32 segment = command.mw2.offset >> 2;
-			u32 address	= command.mw2.value & 0x00FFFFFF;
-
-			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
+			u32 segment = offset >> 2;
+			u32 address	= value;
 			gSegments[segment] = address;
 		}
 		break;
-
-	case G_MW_FOG: // WIP, only works for the PSP
+	case G_MW_FOG:
 		{
-#ifdef DAEDALUS_PSP
-			f32 mul = (f32)(s16)(command.mw2.value >> 16);	//Fog mult
-			f32 offs = (f32)(s16)(command.mw2.value & 0xFFFF);	//Fog Offset
-
-			gRenderer->SetFogMultOffs(mul, offs);
-
-			// HW fog, only works for a few games
-#if 0
-			f32 a = (f32)(command.mw2.value >> 16);
-			f32 b = (f32)(command.mw2.value & 0xFFFF);
-
-			f32 fog_near = a / 256.0f;
-			f32 fog_far = b / 6.0f;
-
-			gRenderer->SetFogMinMax(fog_near, fog_far);
+			f32 mul = (f32)(s16)(value >> 16);	//Fog mult
+			f32 offs = (f32)(s16)(value & 0xFFFF);	//Fog Offset
+			if ((old_fog_mult != mul) || (old_fog_offs != offs)) {
+				old_fog_mult = mul;
+				old_fog_offs = offs;
+#ifndef DAEDALUS_CTR
+				gRenderer->SetFogMultOffs(mul, offs);
+#else
+				f32 rng = 128000.0f / mul;
+			
+				f32 fog_near = 500 - (offs * rng / 256.0f);
+				f32 fog_far = rng + fog_near;
+				gRenderer->SetFogMinMax(fog_near, fog_far);
 #endif
-			//DL_PF(" G_MW_FOG. Mult = 0x%04x (%f), Off = 0x%04x (%f)", wMult, 255.0f * fMult, wOff, 255.0f * fOff );
-			//printf("1Fog %.0f | %.0f || %.0f | %.0f\n", min, max, a, b);
-#endif
+			}
 		}
 		break;
 
 	case G_MW_LIGHTCOL:
 		{
-			u32 light_idx = command.mw2.offset / 0x18;
-			u32 field_offset = (command.mw2.offset & 0x7);
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", command.mw2.offset, command.mw2.value);
-#endif
+			u32 light_idx = offset / 0x18;
+			u32 field_offset = (offset & 0x7);
 			if (field_offset == 0)
 			{
-				u8 r = ((command.mw2.value>>24)&0xFF);
-				u8 g = ((command.mw2.value>>16)&0xFF);
-				u8 b = ((command.mw2.value>>8)&0xFF);
+				u8 r = ((value>>24)&0xFF);
+				u8 g = ((value>>16)&0xFF);
+				u8 b = ((value>>8)&0xFF);
 				gRenderer->SetLightCol(light_idx, r, g, b);
 			}
 		}
 		break;
-/*
-	case G_MW_PERSPNORM:
-		DL_PF("     G_MW_PERSPNORM 0x%04x", (s16)command.inst.cmd1);
-		break;
-
-	case G_MW_POINTS:
-		DL_PF("     G_MW_POINTS : Ignored");
-		break;
-*/
 	default:
-		{
-			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			DL_PF("    Ignored!!");
-			#endif
-		}
 		break;
 	}
 }
@@ -365,7 +328,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	TnL.Light		= gGeometryMode.GBI2_Lighting;
 	TnL.TexGen		= gGeometryMode.GBI2_TexGen;
 	TnL.TexGenLin	= gGeometryMode.GBI2_TexGenLin;
-	TnL.Fog			= gGeometryMode.GBI2_Fog & gFogEnabled;// && (gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3);
+	TnL.Fog			= gGeometryMode.GBI2_Fog;// && (gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3);
 	TnL.Shade		= !(gGeometryMode.GBI2_TexGenLin/* & (g_ROM.GameHacks != TIGERS_HONEY_HUNT)*/);
 	TnL.Zbuffer		= gGeometryMode.GBI2_Zbuffer;
 	TnL.TriCull		= gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;

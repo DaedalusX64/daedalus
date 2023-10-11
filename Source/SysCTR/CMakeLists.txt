@@ -13,4 +13,5 @@ set(sys_libraries ${sys_libraries} PARENT_SCOPE)
 
 set(daed_libs ${daed_libs} PARENT_SCOPE)
 set(sys_libraries ${sys_libraries} PARENT_SCOPE)
+
 set(plat_main SysCTR/main.cpp PARENT_SCOPE)

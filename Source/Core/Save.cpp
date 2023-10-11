@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "BuildOptions.h"
 #include "Base/Types.h"
-
+#include "Base/Path.h"
 #include "Core/ROM.h"
 #include "Core/Memory.h"
 #include "Core/Save.h"
@@ -69,11 +69,7 @@ bool Save_Reset()
 	gSaveDirty = false;
 	if (gSaveSize > 0)
 	{
-		#if defined(DAEDALUS_CTR)
-		gSaveFileName = Save_As(g_ROM.mFileName, ext, "3ds/DaedalusX64/SaveGames/");
-		#else
 		gSaveFileName = Save_As(g_ROM.mFileName, ext, "SaveGames/");
-		#endif
 		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{
@@ -101,11 +97,7 @@ bool Save_Reset()
 
 	// init mempack, we always assume the presence of the mempack for simplicity 
 	{	
-		#if defined(DAEDALUS_CTR)
-		gSaveFileName = Save_As(g_ROM.mFileName, ".mpk", "3ds/DaedalusX64/SaveGames/");
-		#else
 		gSaveFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
-		#endif
 		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{

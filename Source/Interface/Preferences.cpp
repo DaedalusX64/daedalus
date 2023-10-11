@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
 #include "System/IO.h"
+#include "Base/Path.h"
 
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Utility/Translate.h"
@@ -104,7 +105,9 @@ CPreferences::~CPreferences()
 IPreferences::IPreferences()
 :	mDirty( false )
 {
-	 std::filesystem::path p("preferences.ini");
+
+	std::filesystem::path p = baseDir;
+	p /= "preferences.ini";
 	 const char *ini_filename = p.c_str();
 	OpenPreferencesFile( ini_filename );
 }

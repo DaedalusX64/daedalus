@@ -28,6 +28,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <filesystem>
 
 
+#ifdef DAEDALUS_CTR
+const std::filesystem::path baseDir = std::filesystem::current_path() / "3ds" / "DaedalusX64";
+#else
+const std::filesystem::path baseDir = std::filesystem::current_path();
+#endif
+
+
 namespace IO
 {
 	const char kPathSeparator = '/';

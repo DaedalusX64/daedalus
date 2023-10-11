@@ -153,11 +153,8 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	#endif
 	mpInstance = std::make_shared<IRomSettingsDB>();
-	#ifdef DAEDALUS_CTR
-	 std::filesystem::path p("3ds/DaedalusX64/roms.ini");
-	#else
-	 std::filesystem::path p("roms.ini");
-	 #endif
+	std::filesystem::path p = baseDir;
+	p /= "roms.ini";
 	 const char *ini_filename = p.c_str();
 
 	mpInstance->OpenSettingsFile( ini_filename );
@@ -226,7 +223,8 @@ static RomID	RomIDFromString( const char * str )
 
 bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 {
-	std::filesystem::path mFilename = filename;
+	std::filesystem::path mFilename = baseDir;
+	mFilename /= filename;
 
 	auto p_ini_file = CIniFile::Create(filename);
 	// CIniFile * p_ini_file( CIniFile::Create( filename ) );

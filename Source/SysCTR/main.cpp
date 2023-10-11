@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <iostream> 
 
 #include <3ds.h>
 #include <GL/picaGL.h>
@@ -133,8 +134,11 @@ int main(int argc, char* argv[])
 	
 	while(shouldQuit == false)
 	{
+	
+	// Set the default path
+
 	std::string rom = UI::DrawRomSelector();
-	std::filesystem::path RomPath = std::filesystem::current_path() / "3ds"/ "DaedalusX64"/ "Roms" / rom;
+	std::filesystem::path RomPath = baseDir / "Roms" / std::string(rom);
 
 	System_Open(RomPath.string().c_str());
 	CPU_Run();

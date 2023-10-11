@@ -7,7 +7,7 @@ add_library(DynaRec OBJECT
                                 StaticAnalysis.cpp 
                                 TraceRecorder.cpp)
 
-if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
 add_subdirectory(ARM)
 endif()
 

@@ -41,9 +41,10 @@ list(APPEND plat_main )
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 		## X86 Dynarec Code needs to be moved from W32 emulator
-	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
+	elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+		message("ARM Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
-		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
+		# set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
@@ -215,7 +216,6 @@ if(WIN32)
 		add_subdirectory(SysW32)
 	elseif(CTR)
 		add_subdirectory(SysCTR)
-		add_subdirectory(DynaRec/ARM)
 	elseif(PSP)
 		add_subdirectory(SysPSP)
 	endif()
@@ -223,7 +223,7 @@ if(WIN32)
  
 	# ---  Build ---- 
 	add_executable(daedalus ${plat_main})
-	list(APPEND default_libraries png z DynaRec) ## Required Libraries 
+	list(APPEND default_libraries png z) ## Required Libraries 
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries}  )
 

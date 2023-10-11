@@ -331,6 +331,15 @@ void BaseRenderer::InitViewport()
 		mN64ToScreenTranslate.y += (FastRand() & 3);
 	}
 
+#ifndef DAEDALUS_CTR
+		if (gRumblePakActive)
+		{
+			mN64ToScreenTranslate.x += (FastRand() & 3);
+			mN64ToScreenTranslate.y += (FastRand() & 3);
+		}
+#endif
+
+
 #if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
 	f32 w = mScreenWidth;
 	f32 h = mScreenHeight;
@@ -1967,7 +1976,7 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	// N.B. Think the arguments are x0,y0,x1,y1, and not x,y,w,h as the docs describe
 	//printf("%d %d %d %d\n", s32(screen_tl.x),s32(screen_tl.y),s32(screen_br.x),s32(screen_br.y));
 	sceGuScissor( l, t, r, b );
-#elif defined(DAEDALUS_GL)
+#elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
 	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
 	s32 w = std::max<s32>( r - l, 0 );
 	s32 h = std::max<s32>( b - t, 0 );

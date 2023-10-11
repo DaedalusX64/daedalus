@@ -27,22 +27,23 @@ static inline std::shared_ptr<CNativeTexture> LoadFrameBuffer(u32 origin)
 	if( width == 0 )
 	{
 		//DAEDALUS_ERROR("Loading 0 size frame buffer?");
-		return nullptr;
+		return NULL;
 	}
 
 	if( origin <= width*2 )
 	{
 		//DAEDALUS_ERROR("Loading small frame buffer not supported");
-		return nullptr;
+		return NULL;
 	}
-	//ToDO: We should use uViWidth and uViHeight?
+	//ToDO: We should use uViWidth+1 and uViHeight+1
 #define FB_WIDTH  320
 #define FB_HEIGHT 240
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(g_CI.Size == G_IM_SIZ_16b,"32b frame buffer is not supported");
 	//DAEDALUS_ASSERT((uViWidth+1) == FB_WIDTH,"Variable width is not handled");
 	//DAEDALUS_ASSERT((uViHeight+1) == FB_HEIGHT,"Variable height is not handled");
-
+	#endif
 	TextureInfo ti;
 
 	ti.SetSwapped			(0);
@@ -57,7 +58,7 @@ static inline std::shared_ptr<CNativeTexture> LoadFrameBuffer(u32 origin)
 	ti.SetHeight			(FB_HEIGHT);
 	ti.SetPitch				(width << 2 >> 1);
 
-	gRenderer->LoadTextureDirectly(ti);
+	return gRenderer->LoadTextureDirectly(ti);
 }
 
 //Borrowed from StrmnNrmn's N64js
@@ -85,6 +86,7 @@ static inline void DrawFrameBuffer(u32 origin, const std::shared_ptr<CNativeText
 	//Doesn't work
 	//sceGuTexMode( GU_PSM_5551, 0, 0, 1 );		// maxmips/a2/swizzle = 0
 	//sceGuTexImage(0, texture->GetCorrectedWidth(), texture->GetCorrectedHeight(), texture->GetBlockWidth(), pixels);
+
 	gRenderer->Draw2DTexture(0, 0, FB_WIDTH, FB_HEIGHT, 0, 0, FB_WIDTH, FB_HEIGHT, texture);
 
 	free(pixels);

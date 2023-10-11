@@ -176,6 +176,9 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 {
+	static f32 old_fog_mult;
+	static f32 old_fog_offs;
+	
 	// Type of movement is in low 8bits of cmd0.
 	u32 value  = command.mw1.value;
 	u32 offset = command.mw1.offset;
@@ -184,68 +187,46 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	{
 	case G_MW_MATRIX:
 		{
-			DL_PF("    G_MW_MATRIX(1)");
 			gRenderer->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		}
 		break;
-
 	case G_MW_NUMLIGHT:
 		{
 			u32 num_lights = ((value - 0x80000000) >> 5) - 1;
-			DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
 			gRenderer->SetNumLights(num_lights);
 
 		}
 		break;
-
-	case G_MW_CLIP:	// Seems to be unused?
-		{
-			DL_PF("    G_MW_CLIP: 0x%08x", value);
-		}
-		break;
-
 	case G_MW_SEGMENT:
 		{
 			u32 segment = (offset >> 2) & 0xF;
-			u32 address	= value & 0x00FFFFFF;
-			
-			DL_PF("    G_MW_SEGMENT Seg[%d] = 0x%08x", segment, address);
-			gSegments[segment] = address;
+			gSegments[segment] = value & 0x00FFFFFF;
 		}
 		break;
 
 	case G_MW_FOG:	// WIP, only works for the PSP
 		{
-#ifdef DAEDALUS_PSP
 			f32 mul = (f32)(s16)(value >> 16);	//Fog mult
 			f32 offs = (f32)(s16)(value & 0xFFFF);	//Fog Offset
-
-			gRenderer->SetFogMultOffs(mul, offs);
-
-			// HW fog, only works for a few games
-#if 0
-			f32 a = f32(value >> 16);
-			f32 b = f32(value & 0xFFFF);
-
-			f32 fog_near = a / 256.0f;
-			f32 fog_far = b / 6.0f;
-
-			gRenderer->SetFogMinMax(fog_near, fog_far);
+			if ((old_fog_mult != mul) || (old_fog_offs != offs)) {
+				old_fog_mult = mul;
+				old_fog_offs = offs;
+#ifndef DAEDALUS_CTR
+				gRenderer->SetFogMultOffs(mul, offs);
+#else
+				f32 rng = 128000.0f / mul;
+			
+				f32 fog_near = 500 - (offs * rng / 256.0f);
+				f32 fog_far = rng + fog_near;
+				gRenderer->SetFogMinMax(fog_near, fog_far);
 #endif
-			//DL_PF(" G_MW_FOG. Mult = 0x%04x (%f), Off = 0x%04x (%f)", wMult, 255.0f * fMult, wOff, 255.0f * fOff );
-			//printf("1Fog %.0f | %.0f || %.0f | %.0f\n", min, max, a, b);
-#endif
+			}
 		}
 		break;
-
 	case G_MW_LIGHTCOL:
 		{
-
-
 			u32 field_offset = (offset & 0x7);
 			u32 light_idx = offset >> 5;
-			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", offset, value);
-			
 			if (field_offset == 0)
 			{
 				// Light col
@@ -257,25 +238,14 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 			}
 		}
 		break;
-
 	case G_MW_POINTS:	// Used in FIFA 98
 		{
-			u32 where = offset % 40;
-			u32 vert  = offset / 40;
-			DL_PF("		G_MW_POINTS (%d, %d, 0x%08x);", vert, where, value);
-			gRenderer->ModifyVertexInfo(where, vert, value);
+			gRenderer->ModifyVertexInfo( (offset % 40), (offset / 40), value);
 		}
 		break;
-
-	case G_MW_PERSPNORM:
-		{
-			DL_PF("    G_MW_PERSPNORM");
-		}
-		break;
-
 	default:
-		DL_PF("Unknown GBI1 MoveWord: (type: %d, offset: %d, value: 0x%08x)", command.mw1.type, offset, value);
 		break;
+
 	}
 }
 
@@ -414,7 +384,7 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	TnL.Light		= gGeometryMode.GBI1_Lighting;
 	TnL.TexGen		= gGeometryMode.GBI1_TexGen;
 	TnL.TexGenLin   = gGeometryMode.GBI1_TexGenLin;
-	TnL.Fog			= gGeometryMode.GBI1_Fog & gFogEnabled;// && (gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3);
+	TnL.Fog			= gGeometryMode.GBI1_Fog;// && (gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3);
 	TnL.Shade		= gGeometryMode.GBI1_Shade/* & gGeometryMode.GBI1_ShadingSmooth*/;
 	TnL.Zbuffer		= gGeometryMode.GBI1_Zbuffer;
 

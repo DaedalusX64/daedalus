@@ -17,8 +17,12 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#pragma once
+#ifndef PATH_PATHBASE_H_
+#define PATH_PATHBASE_H_
+
 #include <filesystem>
 
 // This file is just for setting the BaseDir as extern.
-extern std::filesystem::path baseDir; 
+extern const std::filesystem::path baseDir; 
+
+#endif // PATH_PATHBASE_H_
