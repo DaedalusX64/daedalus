@@ -25,5 +25,5 @@ Source/tmp
 *build
 *build_*
 .vs/
-.*cia
+*.cia
 *.3dsx
