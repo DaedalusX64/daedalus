@@ -44,7 +44,7 @@ list(APPEND plat_main )
 	elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
 		message("ARM Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
-		# set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
+		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
@@ -114,6 +114,8 @@ list(APPEND plat_main )
 		option(DAEDALUS_CTR "3DS Specific Options" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
 		option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
+		option(DAEDALUS_DEBUG_CONSOLE "Debug Console" ON)
+		option(DAEDALUS_SILENT "Nah" OFF)
 	endif()
 
 	if(DAEDALUS_SDL)

@@ -1,0 +1,3517 @@
+Only in Source/DynaRec/: ARM
+diff Source/DynaRec/AssemblyBuffer.h ../DaedalusX64-3DS/Source/DynaRec/AssemblyBuffer.h
+27c27
+< #include "DynaRec/AssemblyUtils.h"
+---
+> #include "AssemblyUtils.h"
+79c79
+< 			mpWritePointer = (u8*)make_uncached_ptr(mpCodeBuffer);
+---
+> 			mpWritePointer = (u8*)MAKE_UNCACHED_PTR(mpCodeBuffer);
+diff Source/DynaRec/AssemblyUtils.h ../DaedalusX64-3DS/Source/DynaRec/AssemblyUtils.h
+27,28c27
+< #include "Base/Types.h"
+< #include "BuildOptions.h"
+---
+> #include "Utility/DaedalusTypes.h"
+41a41,42
+> 	u32				GetTargetU32() const		{ return reinterpret_cast< u32 >( mpLocation ); }
+> 
+53,56c54
+< 	explicit CJumpLocation( void * p_location )
+< 		:	mpLocation( p_location )
+< 	{
+< 	}
+---
+> 	explicit CJumpLocation( void * p_location ) : mpLocation( p_location ) {}
+64c62,63
+< 		return reinterpret_cast< u8 * >( make_uncached_ptr(mpLocation) );
+---
+> 		//Todo: PSP
+> 		return reinterpret_cast< u8 * >( MAKE_UNCACHED_PTR(mpLocation) );
+diff Source/DynaRec/BranchType.cpp ../DaedalusX64-3DS/Source/DynaRec/BranchType.cpp
+20,22c20,21
+< #include "BuildOptions.h"
+< #include "Base/Types.h"
+< 
+---
+> #include "stdafx.h"
+> #include "BranchType.h"
+27,28c26
+< #include "DynaRec/BranchType.h"
+< #include "Base/Macros.h"
+---
+> #include "Utility/Macros.h"
+diff Source/DynaRec/BranchType.h ../DaedalusX64-3DS/Source/DynaRec/BranchType.h
+23c23
+< #include "Base/Types.h"
+---
+> #include "Utility/DaedalusTypes.h"
+Only in Source/DynaRec/: CMakeLists.txt
+diff Source/DynaRec/CodeBufferManager.h ../DaedalusX64-3DS/Source/DynaRec/CodeBufferManager.h
+23,24c23
+< #include "Base/Types.h"
+< #include <memory> 
+---
+> #include "Utility/DaedalusTypes.h"
+36c35
+< 	virtual	std::shared_ptr<CCodeGenerator>		StartNewBlock() = 0;
+---
+> 	virtual	CCodeGenerator *		StartNewBlock() = 0;
+40c39
+< 	static	std::shared_ptr<CCodeBufferManager>	Create();
+---
+> 	static	CCodeBufferManager *	Create();
+diff Source/DynaRec/CodeGenerator.h ../DaedalusX64-3DS/Source/DynaRec/CodeGenerator.h
+30,31c30,31
+< #include "DynaRec/AssemblyUtils.h"
+< #include "DynaRec/RegisterSpan.h"
+---
+> #include "AssemblyUtils.h"
+> #include "RegisterSpan.h"
+47c47
+< 	using ExceptionHandlerFn = void (*)();
+---
+> 		typedef void (*ExceptionHandlerFn)();
+53a54
+> 
+diff Source/DynaRec/DynaRecProfile.cpp ../DaedalusX64-3DS/Source/DynaRec/DynaRecProfile.cpp
+1,115c1,113
+< /*
+< Copyright (C) 2007 StrmnNrmn
+< 
+< This program is free software; you can redistribute it and/or
+< modify it under the terms of the GNU General Public License
+< as published by the Free Software Foundation; either version 2
+< of the License, or (at your option) any later version.
+< 
+< This program is distributed in the hope that it will be useful,
+< but WITHOUT ANY WARRANTY; without even the implied warranty of
+< MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+< GNU General Public License for more details.
+< 
+< You should have received a copy of the GNU General Public License
+< along with this program; if not, write to the Free Software
+< Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+< 
+< */
+< 
+< #include "BuildOptions.h"
+< #include "Base/Types.h"
+< 
+< 
+< #include "Core/ROM.h"
+< #include "Debug/DebugLog.h"
+< #include "DynaRec/DynaRecProfile.h"
+< 
+< 
+< #include <map>
+< #include <vector>
+< #include <algorithm>
+< 
+< #ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
+< 
+< namespace DynarecProfile
+< {
+< 
+< //*************************************************************************************
+< //
+< //*************************************************************************************
+< static std::map<u32,u32>		gFrameLookups;
+< static u32						gLastFrame;
+< 
+< extern std::map< u32, u32 >		gHotTraceCountMap;
+< 
+< 
+< namespace
+< {
+< 	struct SFragmentCount
+< 	{
+< 		SFragmentCount( u32 count, u32 address )
+< 			:	Count( count )
+< 			,	Address( address )
+< 		{
+< 		}
+< 
+< 		u32			Count;
+< 		u32			Address;
+< 	};
+< 
+< 	struct SortDecreasingSize
+< 	{
+< 		bool	operator()( const SFragmentCount & a, const SFragmentCount & b ) const
+< 		{
+< 			return a.Count > b.Count;
+< 		}
+< 	};
+< }
+< 
+< void	CheckForNewFrame()
+< {
+< 	if( gLastFrame != g_dwNumFrames )
+< 	{
+< 		std::vector< SFragmentCount >		LookupList;
+< 		for(std::map<u32, u32>::const_iterator it = gFrameLookups.begin(); it != gFrameLookups.end(); ++it)
+< 		{
+< 			LookupList.push_back( SFragmentCount( it->second, it->first ) );
+< 		}
+< 
+< 		std::sort( LookupList.begin(), LookupList.end(), SortDecreasingSize() );
+< 
+< 
+< 
+< 		for(int i = 0; i < LookupList.size(); ++i)
+< 		{
+< 				DAED_LOG( DEBUG_DYNAREC_PROF, "%08x: %d lookups", LookupList[ i ].Address, LookupList[ i ].Count );
+< 		}
+< 		gFrameLookups.clear();
+< 		gLastFrame = g_dwNumFrames;
+< 	}
+< 
+< }
+< 
+< void	LogLookup( u32 address, CFragment * fragment )
+< {
+< 	CheckForNewFrame();
+< 
+< 	DAED_LOG( DEBUG_DYNAREC_CACHE, "LookupFragment( %08x ) -> %s", address, fragment ? "found" : "-----" );
+< 	gFrameLookups[ address ]++;
+< 
+< }
+< 
+< 
+< void	LogEnterExit( u32 enter_address, u32 exit_address, u32 instruction_count )
+< {
+< 	CheckForNewFrame();
+< 
+< 	DAED_LOG( DEBUG_DYNAREC_CACHE, "Enter/Exit: %08x -> %08x (executed %d instructions)", enter_address, exit_address, instruction_count );
+< }
+< 
+< 
+< 
+< }
+< 
+< #endif
+---
+> /*
+> Copyright (C) 2007 StrmnNrmn
+> 
+> This program is free software; you can redistribute it and/or
+> modify it under the terms of the GNU General Public License
+> as published by the Free Software Foundation; either version 2
+> of the License, or (at your option) any later version.
+> 
+> This program is distributed in the hope that it will be useful,
+> but WITHOUT ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> GNU General Public License for more details.
+> 
+> You should have received a copy of the GNU General Public License
+> along with this program; if not, write to the Free Software
+> Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+> 
+> */
+> 
+> #include "stdafx.h"
+> #include "DynaRecProfile.h"
+> 
+> #include "Debug/DebugLog.h"
+> 
+> #include "Core/ROM.h"
+> 
+> #include <map>
+> #include <vector>
+> #include <algorithm>
+> 
+> #ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
+> 
+> namespace DynarecProfile
+> {
+> 
+> //*************************************************************************************
+> //
+> //*************************************************************************************
+> static std::map<u32,u32>		gFrameLookups;
+> static u32						gLastFrame;
+> 
+> extern std::map< u32, u32 >		gHotTraceCountMap;
+> 
+> 
+> namespace
+> {
+> 	struct SFragmentCount
+> 	{
+> 		SFragmentCount( u32 count, u32 address )
+> 			:	Count( count )
+> 			,	Address( address )
+> 		{
+> 		}
+> 
+> 		u32			Count;
+> 		u32			Address;
+> 	};
+> 
+> 	struct SortDecreasingSize
+> 	{
+> 		bool	operator()( const SFragmentCount & a, const SFragmentCount & b ) const
+> 		{
+> 			return a.Count > b.Count;
+> 		}
+> 	};
+> }
+> 
+> void	CheckForNewFrame()
+> {
+> 	if( gLastFrame != g_dwNumFrames )
+> 	{
+> 		std::vector< SFragmentCount >		LookupList;
+> 		for(std::map<u32, u32>::const_iterator it = gFrameLookups.begin(); it != gFrameLookups.end(); ++it)
+> 		{
+> 			LookupList.push_back( SFragmentCount( it->second, it->first ) );
+> 		}
+> 
+> 		std::sort( LookupList.begin(), LookupList.end(), SortDecreasingSize() );
+> 
+> 
+> 
+> 		for(int i {}; i < LookupList.size(); ++i)
+> 		{
+> 				DAED_LOG( DEBUG_DYNAREC_PROF, "%08x: %d lookups", LookupList[ i ].Address, LookupList[ i ].Count );
+> 		}
+> 		gFrameLookups.clear();
+> 		gLastFrame = g_dwNumFrames;
+> 	}
+> 
+> }
+> 
+> void	LogLookup( u32 address, CFragment * fragment )
+> {
+> 	CheckForNewFrame();
+> 
+> 	DAED_LOG( DEBUG_DYNAREC_CACHE, "LookupFragment( %08x ) -> %s", address, fragment ? "found" : "-----" );
+> 	gFrameLookups[ address ]++;
+> 
+> }
+> 
+> 
+> void	LogEnterExit( u32 enter_address, u32 exit_address, u32 instruction_count )
+> {
+> 	CheckForNewFrame();
+> 
+> 	DAED_LOG( DEBUG_DYNAREC_CACHE, "Enter/Exit: %08x -> %08x (executed %d instructions)", enter_address, exit_address, instruction_count );
+> }
+> 
+> 
+> 
+> }
+> 
+> #endif
+diff Source/DynaRec/DynaRecProfile.h ../DaedalusX64-3DS/Source/DynaRec/DynaRecProfile.h
+1,44c1,44
+< /*
+< Copyright (C) 2007 StrmnNrmn
+< 
+< This program is free software; you can redistribute it and/or
+< modify it under the terms of the GNU General Public License
+< as published by the Free Software Foundation; either version 2
+< of the License, or (at your option) any later version.
+< 
+< This program is distributed in the hope that it will be useful,
+< but WITHOUT ANY WARRANTY; without even the implied warranty of
+< MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+< GNU General Public License for more details.
+< 
+< You should have received a copy of the GNU General Public License
+< along with this program; if not, write to the Free Software
+< Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+< 
+< */
+< 
+< #ifndef DYNAREC_DYNARECPROFILE_H_
+< #define DYNAREC_DYNARECPROFILE_H_
+< 
+< //#define DAEDALUS_ENABLE_DYNAREC_PROFILE
+< 
+< class CFragment;
+< 
+< #ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
+< namespace DynarecProfile
+< {
+< 	void LogLookup( u32 address, CFragment * fragment );
+< 	void LogEnterExit( u32 enter_address, u32 exit_address, u32 instruction_count );
+< }
+< 
+< #define DYNAREC_PROFILE_LOGLOOKUP( a, f )					DynarecProfile::LogLookup( a, f )
+< #define DYNAREC_PROFILE_ENTEREXIT( enter, exit, cnt )		DynarecProfile::LogEnterExit( enter, exit, cnt )
+< 
+< #else
+< 
+< #define DYNAREC_PROFILE_LOGLOOKUP( a, f )
+< #define DYNAREC_PROFILE_ENTEREXIT( enter, exit, cnt )
+< 
+< #endif
+< 
+< #endif // DYNAREC_DYNARECPROFILE_H_
+---
+> /*
+> Copyright (C) 2007 StrmnNrmn
+> 
+> This program is free software; you can redistribute it and/or
+> modify it under the terms of the GNU General Public License
+> as published by the Free Software Foundation; either version 2
+> of the License, or (at your option) any later version.
+> 
+> This program is distributed in the hope that it will be useful,
+> but WITHOUT ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> GNU General Public License for more details.
+> 
+> You should have received a copy of the GNU General Public License
+> along with this program; if not, write to the Free Software
+> Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+> 
+> */
+> 
+> #ifndef DYNAREC_DYNARECPROFILE_H_
+> #define DYNAREC_DYNARECPROFILE_H_
+> 
+> //#define DAEDALUS_ENABLE_DYNAREC_PROFILE
+> 
+> class CFragment;
+> 
+> #ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
+> namespace DynarecProfile
+> {
+> 	void LogLookup( u32 address, CFragment * fragment );
+> 	void LogEnterExit( u32 enter_address, u32 exit_address, u32 instruction_count );
+> }
+> 
+> #define DYNAREC_PROFILE_LOGLOOKUP( a, f )					DynarecProfile::LogLookup( a, f )
+> #define DYNAREC_PROFILE_ENTEREXIT( enter, exit, cnt )		DynarecProfile::LogEnterExit( enter, exit, cnt )
+> 
+> #else
+> 
+> #define DYNAREC_PROFILE_LOGLOOKUP( a, f )
+> #define DYNAREC_PROFILE_ENTEREXIT( enter, exit, cnt )
+> 
+> #endif
+> 
+> #endif // DYNAREC_DYNARECPROFILE_H_
+diff Source/DynaRec/Fragment.cpp ../DaedalusX64-3DS/Source/DynaRec/Fragment.cpp
+20,22c20,21
+< #include "BuildOptions.h"
+< #include "Base/Types.h"
+< 
+---
+> #include "stdafx.h"
+> #include "Fragment.h"
+24a24
+> #include <cstring>
+27a28,32
+> #include "FragmentCache.h"
+> #include "BranchType.h"
+> #include "StaticAnalysis.h"
+> #include "IndirectExitMap.h"
+> 
+31a37
+> 
+32a39
+> 
+35,41c42,44
+< #include "DynaRec/BranchType.h"
+< #include "DynaRec/FragmentCache.h"
+< #include "DynaRec/Fragment.h"
+< #include "DynaRec/IndirectExitMap.h"
+< #include "DynaRec/StaticAnalysis.h"
+< #include "Base/Macros.h"
+< #include "Core/PrintOpCode.h"
+---
+> 
+> #include "Utility/Macros.h"
+> #include "Utility/PrintOpCode.h"
+43c46
+< #include "Debug/Synchroniser.h"
+---
+> #include "Utility/Synchroniser.h"
+45c48
+< #include "Ultra/ultra_R4300.h"
+---
+> #include "OSHLE/ultra_R4300.h"
+57c60,61
+< 	using TraceBuffer = std::vector<STraceEntry>;
+---
+> 
+> 	typedef std::vector<STraceEntry> TraceBuffer;
+76c80
+< CFragment::CFragment( std::shared_ptr<CCodeBufferManager> p_manager,
+---
+> CFragment::CFragment( CCodeBufferManager * p_manager,
+110c114
+< CFragment::CFragment(std::shared_ptr<CCodeBufferManager> p_manager, u32 entry_address,
+---
+> CFragment::CFragment(CCodeBufferManager * p_manager, u32 entry_address,
+185d188
+< 
+276c279
+< 	for( auto i = 0; i < mTraceBuffer.size(); ++i)
+---
+> 	for( auto i {}; i < mTraceBuffer.size(); ++i)
+370,371c373,374
+< 	u32			exit_address = 0;
+< 	u32			exit_delay = 0;
+---
+> 	u32			exit_address {};
+> 	u32			exit_delay {};
+569c572
+< void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager,
+---
+> void CFragment::Assemble( CCodeBufferManager * p_manager,
+579c582
+< 	std::shared_ptr<CCodeGenerator>	p_generator = p_manager->StartNewBlock();
+---
+> 	CCodeGenerator *		p_generator( p_manager->StartNewBlock() );
+601c604
+< #ifdef DAEDALUS_DEBUG_DYNAREC
+---
+> #ifndef DAEDALUS_SILENT
+616c619
+< 	for( u32 i = 0; i < trace.size(); ++i )
+---
+> 	for( u32 i {}; i < trace.size(); ++i )
+641a645
+> 			#ifdef DAEDALUS_ENABLE_ASSERTS
+642a647
+> 			#endif
+644c649,650
+< #ifdef DAEDALUS_DEBUG_DYNAREC
+---
+> 
+> #ifndef DAEDALUS_SILENT
+649,652c655,656
+< 						printf("Speedhack event (skip busy loop)\n");
+< 						char opinfo[128];
+< 						SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
+< 						printf("0x%08x: <0x%08x> %s\n", trace[i].Address, trace[i].OpCode._u32, opinfo);
+---
+> 						#ifdef DAEDALUS_DEBUG_CONSOLE
+> 					printf("Speedhack event (skip busy loop)\n");
+654,657c658,665
+< 						SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
+< 						printf("0x%08x: <0x%08x> %s\n", trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+< 
+< 						p_generator->ExecuteNativeFunction( CCodeLabel( reinterpret_cast< const void * >( CPU_SkipToNextEvent ) ) );
+---
+> 					char opinfo[128] {};
+> 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
+> 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
+> 
+> 					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
+> 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+> 					#endif
+> 					p_generator->ExecuteNativeFunction( CCodeLabel( reinterpret_cast< const void * >( CPU_SkipToNextEvent ) ) );
+663,669c671,679
+< 						printf("Speedhack copyreg (not handled)\n");
+< 						char opinfo[128];
+< 						SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
+< 						printf("0x%08x: <0x%08x> %s\n", trace[i].Address, trace[i].OpCode._u32, opinfo);
+< 
+< 						SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
+< 						printf("0x%08x: <0x%08x> %s\n", trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+---
+> 						#ifdef DAEDALUS_DEBUG_CONSOLE
+> 					printf("Speedhack copyreg (not handled)\n");
+> 					char opinfo[128];
+> 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
+> 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
+> 
+> 					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
+> 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+> 					#endif
+675,681c685,693
+< 						printf("Speedhack unknown (not handled)\n");
+< 						char opinfo[128];
+< 						SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
+< 						printf("0x%08x: <0x%08x> %s\n", trace[i].Address, trace[i].OpCode._u32, opinfo);
+< 
+< 						SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
+< 						printf("0x%08x: <0x%08x> %s\n", trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+---
+> 						#ifdef DAEDALUS_DEBUG_CONSOLE
+> 					printf("Speedhack unknown (not handled)\n");
+> 					char opinfo[128];
+> 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
+> 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
+> 
+> 					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
+> 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+> 					#endif
+730c742
+< 	for( u32 i = 0; i < branch_details.size(); ++i )
+---
+> 	for( u32 i {}; i < branch_details.size(); ++i )
+779c791
+< 				exception_handler_jumps.push_back( exception_handler_jump );
+---
+> 				exception_handler_jumps.push_back(exception_handler_jump);
+789,790c801,802
+< 			u32				exit_address = 0;
+< 			CJumpLocation	jump_location;
+---
+> 			u32				exit_address {};
+> 			CJumpLocation	jump_location {};
+836a849
+> 	delete p_generator;
+843c856
+< void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager, CCodeLabel function_ptr)
+---
+> void CFragment::Assemble( CCodeBufferManager * p_manager, CCodeLabel function_ptr)
+849c862
+< 	std::shared_ptr<CCodeGenerator> p_generator = p_manager->StartNewBlock();
+---
+> 	CCodeGenerator *p_generator = p_manager->StartNewBlock();
+867a881
+> 	delete p_generator;
+920c934
+< 	int pos  = 0;             /* current position in buffer */
+---
+> 	int pos  {};             /* current position in buffer */
+922c936
+< 	int len = 0;
+---
+> 	int len {};
+938c952
+< 	const int	STRBUF_LEN = 1024;
+---
+> 	const int	STRBUF_LEN {1024};
+diff Source/DynaRec/Fragment.h ../DaedalusX64-3DS/Source/DynaRec/Fragment.h
+23c23,24
+< 
+---
+> #include "Trace.h"
+> #include "RegisterSpan.h"
+27,29c28
+< #include "DynaRec/AssemblyUtils.h"
+< #include "DynaRec/Trace.h"
+< #include "DynaRec/RegisterSpan.h"
+---
+> #include "AssemblyUtils.h"
+30a30
+> #include <cstdio>
+32c32
+< #include <memory>
+---
+> 
+58c58
+< using FragmentPatchList = std::vector<SFragmentPatchDetails>;
+---
+> typedef std::vector<SFragmentPatchDetails>	FragmentPatchList;
+65,66c65,66
+< 	using TraceBuffer = std::vector<STraceEntry>;
+< 	using BranchBuffer = std::vector<SBranchDetails>;
+---
+> 	typedef std::vector<STraceEntry>		TraceBuffer;
+> 	typedef std::vector<SBranchDetails>		BranchBuffer;
+68c68
+< 		CFragment( std::shared_ptr<CCodeBufferManager> p_manager, u32 entry_address, u32 exit_address,
+---
+> 		CFragment( CCodeBufferManager * p_manager, u32 entry_address, u32 exit_address,
+71,72c71,72
+< 		CFragment(std::shared_ptr<CCodeBufferManager> p_manager, u32 entry_address, u32 input_length, void* function_Ptr);
+< 		void		Assemble( std::shared_ptr<CCodeBufferManager> p_manager, CCodeLabel native_function);
+---
+> 		CFragment(CCodeBufferManager * p_manager, u32 entry_address, u32 input_length, void* function_Ptr);
+> 		void		Assemble( CCodeBufferManager * p_manager, CCodeLabel native_function);
+103c103
+< 		void		Assemble( std::shared_ptr<CCodeBufferManager> p_manager, u32 exit_address, const std::vector< STraceEntry > & trace, const std::vector<SBranchDetails> & branch_details, const SRegisterUsageInfo & register_usage );
+---
+> 		void		Assemble( CCodeBufferManager * p_manager, u32 exit_address, const std::vector< STraceEntry > & trace, const std::vector<SBranchDetails> & branch_details, const SRegisterUsageInfo & register_usage );
+diff Source/DynaRec/FragmentCache.cpp ../DaedalusX64-3DS/Source/DynaRec/FragmentCache.cpp
+20,22c20,21
+< #include "BuildOptions.h"
+< #include "Base/Types.h"
+< 
+---
+> #include "stdafx.h"
+> #include "FragmentCache.h"
+24a24
+> 
+26d25
+< #include <cstring>
+28,32c27,30
+< #include "DynaRec/AssemblyUtils.h"
+< #include "DynaRec/CodeBufferManager.h"
+< #include "DynaRec/DynaRecProfile.h"
+< #include "DynaRec/Fragment.h"
+< #include "DynaRec/FragmentCache.h"
+---
+> #include "Fragment.h"
+> #include "CodeBufferManager.h"
+> #include "DynaRecProfile.h"
+> 
+33a32
+> 
+35c34,37
+< #include "System/IO.h"
+---
+> #include "Utility/IO.h"
+> 
+> #include "AssemblyUtils.h"
+> 
+52c54
+< 	std::memset( mpCacheHashTable.data(), 0, mpCacheHashTable.size() * sizeof(mpCacheHashTable[0]));
+---
+> 	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
+70a73
+> 	delete mpCodeBufferManager;
+103c106
+< 			mpCacheHashTable[ix].ptr = mpCachedFragment;
+---
+> 			mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( mpCachedFragment );
+107c110
+< 			mpCachedFragment = mpCacheHashTable[ix].ptr;
+---
+> 			mpCachedFragment = reinterpret_cast< CFragment * >( mpCacheHashTable[ix].ptr );
+134c137
+< 		u32 ix = MakeHashIdx( address );
+---
+> 		u32 ix {MakeHashIdx( address )};
+154c157
+< 			mpCacheHashTable[ix].ptr = reinterpret_cast< uintptr_t >( mpCachedFragment );
+---
+> 			mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( mpCachedFragment );
+292c295
+< 	std::memset( mpCacheHashTable.data(), 0, mpCacheHashTable.size() * sizeof(mpCacheHashTable[0]));
+---
+> 	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
+308,359d310
+< 
+< 
+< 
+< //*************************************************************************************
+< //
+< //*************************************************************************************
+< #define AddressToIndex( addr ) ((addr - BASE_ADDRESS) >> MEM_USAGE_SHIFT)
+< 
+< //*************************************************************************************
+< //
+< //*************************************************************************************
+< void CFragmentCacheCoverage::ExtendCoverage( u32 address, u32 len )
+< {
+< 	u32 first_entry = AddressToIndex( address );
+< 	u32 last_entry = AddressToIndex( address + len );
+< 
+< 	// Mark all entries as true
+< 	for( u32 i = first_entry; i <= last_entry && i < NUM_MEM_USAGE_ENTRIES; ++i )
+< 	{
+< 		mCacheCoverage[ i ] = true;
+< 	}
+< }
+< 
+< //*************************************************************************************
+< //
+< //*************************************************************************************
+< bool CFragmentCacheCoverage::IsCovered( u32 address, u32 len ) const
+< {
+< 	#ifdef DAEDALUS_DEBUG_CONSOLE
+< 	if((address - BASE_ADDRESS) == 0)
+< 	{
+< 		DBGConsole_Msg( 0, "Cache coverage address is overlapping" );
+< 		return true;
+< 	}
+< #endif
+< 	u32 first_entry = AddressToIndex( address );
+< 	u32 last_entry = AddressToIndex( address + len );
+< 
+< 	// Mark all entries as true
+< 	for( u32 i = first_entry; i <= last_entry && i < NUM_MEM_USAGE_ENTRIES; ++i )
+< 	{
+< 		if( mCacheCoverage[ i ] )
+< 			return true;
+< 	}
+< 
+< 	return false;
+< }
+< 
+< //*************************************************************************************
+< //
+< //*************************************************************************************
+< 
+375c326
+< void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
+---
+> void CFragmentCache::DumpStats( const char * outputdir ) const
+377,379c328
+< 
+< 	using FragmentList = std::vector< CFragment *>;
+< 	
+---
+> 	typedef std::vector< CFragment * >		FragmentList;
+395,398d343
+< 	std::filesystem::path filename "fragments.html";
+< 	std::filesystem::path fragments_dir = "fragments"
+< 	std::filesystem::exists(fragments_dir);
+< 	fragments_dir /= filename;
+400c345,354
+< 	FILE * fh( fopen( filename.c_str(), "w" ) );
+---
+> 	IO::Filename	filename;
+> 	IO::Filename	fragments_dir;
+> 
+> 	IO::Path::Assign( fragments_dir, outputdir );
+> 	IO::Path::Append( fragments_dir, "fragments" );
+> 	IO::Directory::EnsureExists( fragments_dir );
+> 
+> 	IO::Path::Combine( filename, outputdir, "fragments.html" );
+> 
+> 	FILE * fh( fopen( filename, "w" ) );
+452a407,455
+> 
+> //*************************************************************************************
+> //
+> //*************************************************************************************
+> #define AddressToIndex( addr ) ((addr - BASE_ADDRESS) >> MEM_USAGE_SHIFT)
+> 
+> //*************************************************************************************
+> //
+> //*************************************************************************************
+> void CFragmentCacheCoverage::ExtendCoverage( u32 address, u32 len )
+> {
+> 	u32 first_entry( AddressToIndex( address ) );
+> 	u32 last_entry( AddressToIndex( address + len ) );
+> 
+> 	// Mark all entries as true
+> 	for( u32 i = first_entry; i <= last_entry && i < NUM_MEM_USAGE_ENTRIES; ++i )
+> 	{
+> 		mCacheCoverage[ i ] = true;
+> 	}
+> }
+> 
+> //*************************************************************************************
+> //
+> //*************************************************************************************
+> bool CFragmentCacheCoverage::IsCovered( u32 address, u32 len ) const
+> {
+> 	#ifdef DAEDALUS_DEBUG_CONSOLE
+> 	if((address - BASE_ADDRESS) == 0)
+> 	{
+> 		DBGConsole_Msg( 0, "Cache coverage address is overlapping" );
+> 		return true;
+> 	}
+> #endif
+> 	u32 first_entry( AddressToIndex( address ) );
+> 	u32 last_entry( AddressToIndex( address + len ) );
+> 
+> 	// Mark all entries as true
+> 	for( u32 i = first_entry; i <= last_entry && i < NUM_MEM_USAGE_ENTRIES; ++i )
+> 	{
+> 		if( mCacheCoverage[ i ] )
+> 			return true;
+> 	}
+> 
+> 	return false;
+> }
+> 
+> //*************************************************************************************
+> //
+> //*************************************************************************************
+455,456c458
+< 	std::fill(std::begin(mCacheCoverage), std::end(mCacheCoverage), 0);
+< 		// std::memset( mCacheCoverage.data(), false, mCacheCoverage.size() * sizeof( mCacheCoverage ) );
+---
+> 	memset( mCacheCoverage, 0, sizeof( mCacheCoverage ) );
+diff Source/DynaRec/FragmentCache.h ../DaedalusX64-3DS/Source/DynaRec/FragmentCache.h
+23,24c23
+< #include "Base/Types.h"
+< 
+---
+> #include "Utility/DaedalusTypes.h"
+32,33d30
+< #include <array>
+< #include <memory>
+64,65c61
+< 	std::array<bool, NUM_MEM_USAGE_ENTRIES> mCacheCoverage;
+< 
+---
+> 	bool			mCacheCoverage[ NUM_MEM_USAGE_ENTRIES ];
+87c83
+< 	void					DumpStats( const std::fiilesystem::path outputdir ) const;
+---
+> 	void					DumpStats( const char * outputdir ) const;
+92c88
+< 	std::shared_ptr<CCodeBufferManager>	GetCodeBufferManager() const			{ return mpCodeBufferManager; }
+---
+> 	CCodeBufferManager *	GetCodeBufferManager() const			{ return mpCodeBufferManager; }
+113d108
+< 	using FragmentVec = std::vector<SFragmentEntry>;
+114a110
+> 	typedef std::vector< SFragmentEntry >	FragmentVec;
+120,121c116,118
+< 	using JumpList = std::vector< CJumpLocation >;
+< 	using JumpMap = std::map< u32, JumpList >;
+---
+> 
+> 	typedef std::vector< CJumpLocation >	JumpList;
+> 	typedef std::map< u32, JumpList >		JumpMap;
+134,135c131
+< 	mutable std::array<FHashT, HASH_TABLE_SIZE> mpCacheHashTable;
+< 	// mutable FHashT			mpCacheHashTable[HASH_TABLE_SIZE];
+---
+> 	mutable FHashT			mpCacheHashTable[HASH_TABLE_SIZE];
+137c133
+< 	std::shared_ptr<CCodeBufferManager>	mpCodeBufferManager;
+---
+> 	CCodeBufferManager *	mpCodeBufferManager;
+diff Source/DynaRec/IndirectExitMap.cpp ../DaedalusX64-3DS/Source/DynaRec/IndirectExitMap.cpp
+1,77c1,76
+< /*
+< Copyright (C) 2006 StrmnNrmn
+< 
+< This program is free software; you can redistribute it and/or
+< modify it under the terms of the GNU General Public License
+< as published by the Free Software Foundation; either version 2
+< of the License, or (at your option) any later version.
+< 
+< This program is distributed in the hope that it will be useful,
+< but WITHOUT ANY WARRANTY; without even the implied warranty of
+< MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+< GNU General Public License for more details.
+< 
+< You should have received a copy of the GNU General Public License
+< along with this program; if not, write to the Free Software
+< Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+< 
+< */
+< 
+< #include "BuildOptions.h"
+< #include "Base/Types.h"
+< 
+< 
+< #include "DynaRec/DynaRecProfile.h"
+< #include "DynaRec/FragmentCache.h"
+< #include "DynaRec/Fragment.h"
+< #include "DynaRec/IndirectExitMap.h"
+< #include "Debug/DBGConsole.h"
+< 
+< 
+< //
+< 
+< CIndirectExitMap::CIndirectExitMap()
+< :	mpCache( nullptr )
+< {
+< }
+< 
+< 
+< //
+< 
+< CIndirectExitMap::~CIndirectExitMap()
+< {
+< }
+< 
+< 
+< //
+< 
+< CFragment *	CIndirectExitMap::LookupIndirectExit( u32 exit_address )
+< {
+< 	#ifdef DAEDALUS_DEBUG_CONSOLE
+< 	DAEDALUS_ASSERT( mpCache != nullptr, "Why do we have no cache?" );
+< 	#endif
+< 	CFragment * p( mpCache->LookupFragmentQ( exit_address ) );
+< 
+< 	DYNAREC_PROFILE_LOGLOOKUP( exit_address, p );
+< 
+< 	return p;
+< }
+< 
+< 
+< //
+< 
+< extern "C"
+< {
+< 
+< const void *	R4300_CALL_TYPE IndirectExitMap_Lookup( CIndirectExitMap * p_map, u32 exit_address )
+< {
+< 	CFragment *	p_fragment( p_map->LookupIndirectExit( exit_address ) );
+< 	if( p_fragment != nullptr )
+< 	{
+< 		return p_fragment->GetEntryTarget().GetTarget();
+< 	}
+< 
+< 	return nullptr;
+< }
+< 
+< }
+---
+> /*
+> Copyright (C) 2006 StrmnNrmn
+> 
+> This program is free software; you can redistribute it and/or
+> modify it under the terms of the GNU General Public License
+> as published by the Free Software Foundation; either version 2
+> of the License, or (at your option) any later version.
+> 
+> This program is distributed in the hope that it will be useful,
+> but WITHOUT ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> GNU General Public License for more details.
+> 
+> You should have received a copy of the GNU General Public License
+> along with this program; if not, write to the Free Software
+> Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+> 
+> */
+> 
+> #include "stdafx.h"
+> #include "IndirectExitMap.h"
+> 
+> #include "DynaRecProfile.h"
+> #include "FragmentCache.h"
+> #include "Fragment.h"
+> 
+> #include "Debug/DBGConsole.h"
+> 
+> 
+> //
+> 
+> CIndirectExitMap::CIndirectExitMap()
+> :	mpCache( nullptr )
+> {
+> }
+> 
+> 
+> //
+> 
+> CIndirectExitMap::~CIndirectExitMap()
+> {
+> }
+> 
+> 
+> //
+> 
+> CFragment *	CIndirectExitMap::LookupIndirectExit( u32 exit_address )
+> {
+> 	#ifdef DAEDALUS_DEBUG_CONSOLE
+> 	DAEDALUS_ASSERT( mpCache != nullptr, "Why do we have no cache?" );
+> 	#endif
+> 	CFragment * p( mpCache->LookupFragmentQ( exit_address ) );
+> 
+> 	DYNAREC_PROFILE_LOGLOOKUP( exit_address, p );
+> 
+> 	return p;
+> }
+> 
+> 
+> //
+> 
+> extern "C"
+> {
+> 
+> const void *	R4300_CALL_TYPE IndirectExitMap_Lookup( CIndirectExitMap * p_map, u32 exit_address )
+> {
+> 	CFragment *	p_fragment( p_map->LookupIndirectExit( exit_address ) );
+> 	if( p_fragment != nullptr )
+> 	{
+> 		return p_fragment->GetEntryTarget().GetTarget();
+> 	}
+> 
+> 	return nullptr;
+> }
+> 
+> }
+diff Source/DynaRec/IndirectExitMap.h ../DaedalusX64-3DS/Source/DynaRec/IndirectExitMap.h
+1,46c1,46
+< /*
+< Copyright (C) 2006 StrmnNrmn
+< 
+< This program is free software; you can redistribute it and/or
+< modify it under the terms of the GNU General Public License
+< as published by the Free Software Foundation; either version 2
+< of the License, or (at your option) any later version.
+< 
+< This program is distributed in the hope that it will be useful,
+< but WITHOUT ANY WARRANTY; without even the implied warranty of
+< MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+< GNU General Public License for more details.
+< 
+< You should have received a copy of the GNU General Public License
+< along with this program; if not, write to the Free Software
+< Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+< 
+< */
+< 
+< #ifndef DYNAREC_INDIRECTEXITMAP_H_
+< #define DYNAREC_INDIRECTEXITMAP_H_
+< 
+< #include "Base/Types.h"
+< 
+< class CFragment;
+< class CFragmentCache;
+< 
+< class CIndirectExitMap
+< {
+< 	public:
+< 		CIndirectExitMap();
+< 		~CIndirectExitMap();
+< 
+< 		CFragment *				LookupIndirectExit( u32 exit_address );
+< 		void					SetCache( const CFragmentCache * p_cache )				{ mpCache = p_cache; }
+< 
+< 	private:
+< 		const CFragmentCache *	mpCache;
+< };
+< 
+< //
+< //	C-stub to allow easy access from dynarec code
+< //
+< extern "C" { const void *	R4300_CALL_TYPE IndirectExitMap_Lookup( CIndirectExitMap * p_map, u32 exit_address ); }
+< 
+< #endif // DYNAREC_INDIRECTEXITMAP_H_
+---
+> /*
+> Copyright (C) 2006 StrmnNrmn
+> 
+> This program is free software; you can redistribute it and/or
+> modify it under the terms of the GNU General Public License
+> as published by the Free Software Foundation; either version 2
+> of the License, or (at your option) any later version.
+> 
+> This program is distributed in the hope that it will be useful,
+> but WITHOUT ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> GNU General Public License for more details.
+> 
+> You should have received a copy of the GNU General Public License
+> along with this program; if not, write to the Free Software
+> Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+> 
+> */
+> 
+> #ifndef DYNAREC_INDIRECTEXITMAP_H_
+> #define DYNAREC_INDIRECTEXITMAP_H_
+> 
+> #include "Utility/DaedalusTypes.h"
+> 
+> class CFragment;
+> class CFragmentCache;
+> 
+> class CIndirectExitMap
+> {
+> 	public:
+> 		CIndirectExitMap();
+> 		~CIndirectExitMap();
+> 
+> 		CFragment *				LookupIndirectExit( u32 exit_address );
+> 		void					SetCache( const CFragmentCache * p_cache )				{ mpCache = p_cache; }
+> 
+> 	private:
+> 		const CFragmentCache *	mpCache;
+> };
+> 
+> //
+> //	C-stub to allow easy access from dynarec code
+> //
+> extern "C" { const void *	R4300_CALL_TYPE IndirectExitMap_Lookup( CIndirectExitMap * p_map, u32 exit_address ); }
+> 
+> #endif // DYNAREC_INDIRECTEXITMAP_H_
+diff Source/DynaRec/RegisterSpan.h ../DaedalusX64-3DS/Source/DynaRec/RegisterSpan.h
+44c44,45
+< using RegisterSpanList = std::vector<SRegisterSpan>;
+---
+> typedef std::vector<SRegisterSpan>		RegisterSpanList;
+> 
+diff Source/DynaRec/StaticAnalysis.cpp ../DaedalusX64-3DS/Source/DynaRec/StaticAnalysis.cpp
+1,1166c1,1165
+< /*
+< Copyright (C) 2006 StrmnNrmn
+< 
+< This program is free software; you can redistribute it and/or
+< modify it under the terms of the GNU General Public License
+< as published by the Free Software Foundation; either version 2
+< of the License, or (at your option) any later version.
+< 
+< This program is distributed in the hope that it will be useful,
+< but WITHOUT ANY WARRANTY; without even the implied warranty of
+< MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+< GNU General Public License for more details.
+< 
+< You should have received a copy of the GNU General Public License
+< along with this program; if not, write to the Free Software
+< Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+< 
+< */
+< 
+< #include "BuildOptions.h"
+< #include "Base/Types.h"
+< 
+< #include "DynaRec/StaticAnalysis.h"
+< 
+< #include "Core/R4300OpCode.h"
+< #include "Core/CPU.h"
+< #include "Core/ROM.h"
+< 
+< using namespace StaticAnalysis;
+< 
+< namespace
+< {
+< 
+< void RegFPRRead( u32 r ) {}
+< void RegFPRWrite( u32 r ) {}
+< 
+< using StaticAnalysisFunction = void (*const) ( OpCode op_code, RegisterUsage & recorder );
+< 
+< 
+< 
+< // Forward declarations
+< void StaticAnalysis_Special( OpCode op_code, RegisterUsage & recorder );
+< void StaticAnalysis_RegImm( OpCode op_code, RegisterUsage & recorder );
+< void StaticAnalysis_CoPro0( OpCode op_code, RegisterUsage & recorder );
+< void StaticAnalysis_CoPro1( OpCode op_code, RegisterUsage & recorder );
+< void StaticAnalysis_Cop0_TLB( OpCode op_code, RegisterUsage & recorder );
+< void StaticAnalysis_Cop1_BCInstr( OpCode op_code, RegisterUsage & recorder );
+< void StaticAnalysis_Cop1_SInstr( OpCode op_code, RegisterUsage & recorder );
+< void StaticAnalysis_Cop1_DInstr( OpCode op_code, RegisterUsage & recorder );
+< 
+< void StaticAnalysis_Unk( OpCode op_code, RegisterUsage & recorder )
+< {
+< }
+< 
+< // These are the only unimplemented R4300 instructions now:
+< void StaticAnalysis_LL( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_LLD( OpCode op_code, RegisterUsage & recorder ) {}
+< 
+< void StaticAnalysis_SC( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_SCD( OpCode op_code, RegisterUsage & recorder ) {}
+< 
+< void StaticAnalysis_LDC2( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_SDC2( OpCode op_code, RegisterUsage & recorder ) {}
+< 
+< void StaticAnalysis_RegImm_TGEI( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_RegImm_TGEIU( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_RegImm_TLTI( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_RegImm_TLTIU( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_RegImm_TEQI( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_RegImm_TNEI( OpCode op_code, RegisterUsage & recorder ) {}
+< 
+< void StaticAnalysis_RegImm_BLTZALL( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_RegImm_BGEZALL( OpCode op_code, RegisterUsage & recorder ) {}
+< 
+< void StaticAnalysis_Special_TGE( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_Special_TGEU( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_Special_TLT( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_Special_TLTU( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_Special_TEQ( OpCode op_code, RegisterUsage & recorder ) {}
+< void StaticAnalysis_Special_TNE( OpCode op_code, RegisterUsage & recorder ) {}
+< 
+< 
+< void StaticAnalysis_J( OpCode op_code, RegisterUsage & recorder ) 				// Jump
+< {
+< 	// No registers used
+< 	recorder.BranchOP( BT_J );
+< }
+< 
+< void StaticAnalysis_JAL( OpCode op_code, RegisterUsage & recorder ) 				// Jump And Link
+< {
+< 	recorder.BranchOP( BT_JAL );
+< 	recorder.Record( RegDstUse( N64Reg_RA ) );
+< }
+< 
+< void StaticAnalysis_BEQ( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Equal
+< {
+< 	recorder.BranchOP( BT_BEQ );
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_BNE( OpCode op_code, RegisterUsage & recorder )             // Branch on Not Equal
+< {
+< 	recorder.BranchOP( BT_BNE );
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_BLEZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than of Equal to Zero
+< {
+< 	recorder.BranchOP( BT_BLEZ );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_BGTZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than Zero
+< {
+< 	recorder.BranchOP( BT_BGTZ );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_DADDI( OpCode op_code, RegisterUsage & recorder ) 			// Doubleword ADD Immediate
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_DADDIU( OpCode op_code, RegisterUsage & recorder ) 			// Doubleword ADD Immediate Unsigned
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_ADDI( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_ADDIU( OpCode op_code, RegisterUsage & recorder ) 		// Add Immediate Unsigned
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_SLTI( OpCode op_code, RegisterUsage & recorder ) 			// Set on Less Than Immediate
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_SLTIU( OpCode op_code, RegisterUsage & recorder ) 		// Set on Less Than Immediate Unsigned
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_ANDI( OpCode op_code, RegisterUsage & recorder ) 				// AND Immediate
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_ORI( OpCode op_code, RegisterUsage & recorder ) 				// OR Immediate
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_XORI( OpCode op_code, RegisterUsage & recorder ) 				// XOR Immediate
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_LUI( OpCode op_code, RegisterUsage & recorder ) 				// Load Upper Immediate
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_BEQL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Equal Likely
+< {
+< 	recorder.BranchOP( BT_BEQL );
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_BNEL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Not Equal Likely
+< {
+< 	recorder.BranchOP( BT_BNEL );
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_BLEZL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Less than or Equal to Zero Likely
+< {
+< 	recorder.BranchOP( BT_BLEZL );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_BGTZL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Greater than Zero Likely
+< {
+< 	recorder.BranchOP( BT_BGTZL );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_LB( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+< }
+< 
+< void StaticAnalysis_LBU( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte Unsigned -- Zero extend byte...
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+< 	if( !g_ROM.DISABLE_LBU_OPT ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	//PD and Banjo dont like this
+< }
+< 
+< void StaticAnalysis_LH( OpCode op_code, RegisterUsage & recorder ) 		// Load Halfword
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_LHU( OpCode op_code, RegisterUsage & recorder )			// Load Halfword Unsigned -- Zero extend word
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_LWL( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Left
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_LDL( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_LWR( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Right
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_LDR( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Word
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 
+< 	// Causes P Mario to BSOD in intro, doesn't happen anymore //Salvy
+< 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+< 	if( g_ROM.GameHacks != PMARIO )	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	// Breaks Paper Mario
+< }
+< 
+< void StaticAnalysis_LWU( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Unsigned
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_LD( OpCode op_code, RegisterUsage & recorder ) 				// Load Doubleword
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SW( OpCode op_code, RegisterUsage & recorder ) 			// Store Word
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+< 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SH( OpCode op_code, RegisterUsage & recorder ) 			// Store Halfword
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+< 
+< 	// Causes Zelda MM to BSOD when you enter clock town
+< 	if( g_ROM.GameHacks != ZELDA_MM ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SB( OpCode op_code, RegisterUsage & recorder ) 			// Store Byte
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SWL( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Left
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SWR( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Right
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SD( OpCode op_code, RegisterUsage & recorder )			// Store Doubleword
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SDL( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SDR( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_CACHE( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegBaseUse( op_code.base ) );
+< }
+< 
+< void StaticAnalysis_LWC1( OpCode op_code, RegisterUsage & recorder ) 				// Load Word to Copro 1 (FPU)
+< {
+< 	RegFPRWrite( op_code.ft );
+< 	recorder.Record( RegBaseUse( op_code.base ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_LDC1( OpCode op_code, RegisterUsage & recorder )				// Load Doubleword to Copro 1 (FPU)
+< {
+< 	RegFPRWrite( op_code.ft );
+< 	recorder.Record( RegBaseUse( op_code.base ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SWC1( OpCode op_code, RegisterUsage & recorder ) 			// Store Word From Copro 1
+< {
+< 	RegFPRRead( op_code.ft );
+< 	recorder.Record( RegBaseUse( op_code.base ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_SDC1( OpCode op_code, RegisterUsage & recorder )		// Store Doubleword From Copro 1
+< {
+< 	RegFPRRead( op_code.ft );
+< 	recorder.Record( RegBaseUse( op_code.base ) );
+< 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+< }
+< 
+< void StaticAnalysis_Special_Unk( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	// Just ignore
+< }
+< 
+< void StaticAnalysis_Special_SLL( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Left Logical
+< {
+< 	if (op_code._u32 == 0)
+< 		return;
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_SRL( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Right Logical
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_SRA( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Right Arithmetic
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_SLLV( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Left Logical Variable
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_SRLV( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Right Logical Variable
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_SRAV( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Right Arithmetic Variable
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_JR( OpCode op_code, RegisterUsage & recorder ) 			// Jump Register
+< {
+< 	recorder.BranchOP( BT_JR );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_Special_JALR( OpCode op_code, RegisterUsage & recorder ) 		// Jump and Link register
+< {
+< 	recorder.BranchOP( BT_JALR );
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_Special_SYSCALL( OpCode op_code, RegisterUsage & recorder )
+< {
+< }
+< 
+< void StaticAnalysis_Special_BREAK( OpCode op_code, RegisterUsage & recorder ) 	// BREAK
+< {
+< }
+< 
+< void StaticAnalysis_Special_SYNC( OpCode op_code, RegisterUsage & recorder )
+< {
+< }
+< 
+< void StaticAnalysis_Special_MFHI( OpCode op_code, RegisterUsage & recorder ) 			// Move From MultHI
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ) );
+< }
+< 
+< void StaticAnalysis_Special_MTHI( OpCode op_code, RegisterUsage & recorder ) 			// Move To MultHI
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_Special_MFLO( OpCode op_code, RegisterUsage & recorder ) 			// Move From MultLO
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ) );
+< }
+< 
+< void StaticAnalysis_Special_MTLO( OpCode op_code, RegisterUsage & recorder ) 			// Move To MultLO
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_Special_DSLLV( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSRLV( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSRAV( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_MULT( OpCode op_code, RegisterUsage & recorder ) 			// MULTiply Signed
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_MULTU( OpCode op_code, RegisterUsage & recorder ) 		// MULTiply Unsigned
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DIV( OpCode op_code, RegisterUsage & recorder ) 			//DIVide
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DIVU( OpCode op_code, RegisterUsage & recorder ) 			// DIVide Unsigned
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DMULT( OpCode op_code, RegisterUsage & recorder ) 		// Double Multiply
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DMULTU( OpCode op_code, RegisterUsage & recorder ) 			// Double Multiply Unsigned
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DDIV( OpCode op_code, RegisterUsage & recorder ) 				// Double Divide
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DDIVU( OpCode op_code, RegisterUsage & recorder ) 			// Double Divide Unsigned
+< {
+< 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_ADD( OpCode op_code, RegisterUsage & recorder ) 			// ADD signed - may throw exception
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_ADDU( OpCode op_code, RegisterUsage & recorder ) 			// ADD Unsigned - doesn't throw exception
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_SUB( OpCode op_code, RegisterUsage & recorder ) 			// SUB Signed - may throw exception
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_SUBU( OpCode op_code, RegisterUsage & recorder ) 			// SUB Unsigned - doesn't throw exception
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_AND( OpCode op_code, RegisterUsage & recorder ) 				// logical AND
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_OR( OpCode op_code, RegisterUsage & recorder ) 				// logical OR
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_XOR( OpCode op_code, RegisterUsage & recorder ) 				// logical XOR
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_NOR( OpCode op_code, RegisterUsage & recorder ) 				// logical Not OR
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_SLT( OpCode op_code, RegisterUsage & recorder ) 				// Set on Less Than
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_SLTU( OpCode op_code, RegisterUsage & recorder ) 				// Set on Less Than Unsigned
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DADD( OpCode op_code, RegisterUsage & recorder )//CYRUS64
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DADDU( OpCode op_code, RegisterUsage & recorder )//CYRUS64
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSUB( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSUBU( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSLL( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSRL( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSRA( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSLL32( OpCode op_code, RegisterUsage & recorder ) 			// Double Shift Left Logical 32
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSRL32( OpCode op_code, RegisterUsage & recorder ) 			// Double Shift Right Logical 32
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Special_DSRA32( OpCode op_code, RegisterUsage & recorder ) 			// Double Shift Right Arithmetic 32
+< {
+< 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_RegImm_BLTZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than Zero
+< {
+< 	recorder.BranchOP( BT_BLTZ );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_RegImm_BLTZL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than Zero Likely
+< {
+< 	recorder.BranchOP( BT_BLTZL );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_RegImm_BLTZAL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Less than Zero And Link
+< {
+< 	recorder.BranchOP( BT_BLTZAL );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_RegImm_BGEZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than or Equal to Zero
+< {
+< 	recorder.BranchOP( BT_BGEZ );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_RegImm_BGEZL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than or Equal to Zero Likely
+< {
+< 	recorder.BranchOP( BT_BGEZL );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_RegImm_BGEZAL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Greater than or Equal to Zero And Link
+< {
+< 	recorder.BranchOP( BT_BGEZAL );
+< 	recorder.Record( RegSrcUse( op_code.rs ) );
+< }
+< 
+< void StaticAnalysis_Cop0_MFC0( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ) );
+< }
+< 
+< // Move Word To CopReg
+< void StaticAnalysis_Cop0_MTC0( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.Record( RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_TLB_TLBR( OpCode op_code, RegisterUsage & recorder ) 				// TLB Read
+< {
+< }
+< 
+< void StaticAnalysis_TLB_TLBWI( OpCode op_code, RegisterUsage & recorder )			// TLB Write Index
+< {
+< }
+< 
+< void StaticAnalysis_TLB_TLBWR( OpCode op_code, RegisterUsage & recorder )
+< {
+< }
+< 
+< void StaticAnalysis_TLB_TLBP( OpCode op_code, RegisterUsage & recorder ) 				// TLB Probe
+< {
+< }
+< 
+< void StaticAnalysis_TLB_ERET( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	recorder.BranchOP( BT_ERET );
+< }
+< 
+< void StaticAnalysis_Cop1_MTC1( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fs );
+< 	recorder.Record( RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Cop1_DMTC1( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fs );
+< 	recorder.Record( RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Cop1_MFC1( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRRead( op_code.fs );
+< 	recorder.Record( RegDstUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Cop1_DMFC1( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRRead( op_code.fs );
+< 	recorder.Record( RegDstUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Cop1_CFC1( OpCode op_code, RegisterUsage & recorder ) 		// move Control word From Copro 1
+< {
+< 	recorder.Record( RegDstUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_Cop1_CTC1( OpCode op_code, RegisterUsage & recorder ) 		// move Control word To Copro 1
+< {
+< 	recorder.Record( RegSrcUse( op_code.rt ) );
+< }
+< 
+< void StaticAnalysis_BC1_BC1F( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU False
+< {
+< 	recorder.BranchOP( BT_BC1F );
+< }
+< 
+< void StaticAnalysis_BC1_BC1T( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU True
+< {
+< 	recorder.BranchOP( BT_BC1T );
+< }
+< 
+< void StaticAnalysis_BC1_BC1FL( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU False Likely
+< {
+< 	recorder.BranchOP( BT_BC1FL );
+< }
+< 
+< void StaticAnalysis_BC1_BC1TL( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU True Likely
+< {
+< 	recorder.BranchOP( BT_BC1TL );
+< }
+< 
+< void StaticAnalysis_Cop1_W_CVT_S( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_W_CVT_D( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_WInstr( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	switch ( op_code.cop1_funct )
+< 	{
+< 		case Cop1OpFunc_CVT_S:
+< 			StaticAnalysis_Cop1_W_CVT_S( op_code, recorder );
+< 			return;
+< 		case Cop1OpFunc_CVT_D:
+< 			StaticAnalysis_Cop1_W_CVT_D( op_code, recorder );
+< 			return;
+< 	}
+< }
+< 
+< void StaticAnalysis_Cop1_L_CVT_S( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_L_CVT_D( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_LInstr( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	switch ( op_code.cop1_funct )
+< 	{
+< 		case Cop1OpFunc_CVT_S:
+< 			StaticAnalysis_Cop1_L_CVT_S( op_code, recorder );
+< 			return;
+< 		case Cop1OpFunc_CVT_D:
+< 			StaticAnalysis_Cop1_L_CVT_D( op_code, recorder );
+< 			return;
+< 	}
+< }
+< 
+< void StaticAnalysis_Cop1_S_ADD( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< void StaticAnalysis_Cop1_S_SUB( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< void StaticAnalysis_Cop1_S_MUL( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< void StaticAnalysis_Cop1_S_DIV( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< void StaticAnalysis_Cop1_S_SQRT( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_NEG( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_MOV( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_ABS( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_TRUNC_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_TRUNC_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_ROUND_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_ROUND_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_CEIL_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_CEIL_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_FLOOR_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_FLOOR_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_CVT_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_CVT_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_S_CVT_D( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< // FIXME: this is not referenced anywhere
+< //void StaticAnalysis_Cop1_S_EQ( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
+< //{
+< //	RegFPRRead( op_code.fs );
+< //	RegFPRRead( op_code.ft );
+< //}
+< 
+< // FIXME: this is not referenced anywhere
+< //void StaticAnalysis_Cop1_S_LT( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
+< //{
+< //	RegFPRRead( op_code.fs );
+< //	RegFPRRead( op_code.ft );
+< //}
+< 
+< void StaticAnalysis_Cop1_Compare_S( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< void StaticAnalysis_Cop1_D_ADD( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< void StaticAnalysis_Cop1_D_SUB( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< void StaticAnalysis_Cop1_D_MUL( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< void StaticAnalysis_Cop1_D_DIV( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< void StaticAnalysis_Cop1_D_ABS( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_SQRT( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_NEG( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_MOV( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_TRUNC_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_TRUNC_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_ROUND_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_ROUND_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_CEIL_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_CEIL_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_FLOOR_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_FLOOR_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_CVT_S( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_CVT_W( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_D_CVT_L( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRWrite( op_code.fd );
+< 	RegFPRRead( op_code.fs );
+< }
+< 
+< void StaticAnalysis_Cop1_Compare_D( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	RegFPRRead( op_code.fs );
+< 	RegFPRRead( op_code.ft );
+< }
+< 
+< // Opcode Jump Table
+< const StaticAnalysisFunction gStaticAnalysisInstruction[64] =
+< {
+< 	StaticAnalysis_Special, StaticAnalysis_RegImm, StaticAnalysis_J,    StaticAnalysis_JAL,   StaticAnalysis_BEQ,  StaticAnalysis_BNE,  StaticAnalysis_BLEZ,  StaticAnalysis_BGTZ,
+< 	StaticAnalysis_ADDI,    StaticAnalysis_ADDIU,  StaticAnalysis_SLTI, StaticAnalysis_SLTIU, StaticAnalysis_ANDI, StaticAnalysis_ORI,  StaticAnalysis_XORI,  StaticAnalysis_LUI,
+< 	StaticAnalysis_CoPro0,  StaticAnalysis_CoPro1, StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_BEQL, StaticAnalysis_BNEL, StaticAnalysis_BLEZL, StaticAnalysis_BGTZL,
+< 	StaticAnalysis_DADDI,   StaticAnalysis_DADDIU, StaticAnalysis_LDL,  StaticAnalysis_LDR,   StaticAnalysis_Unk,  StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_Unk,
+< 	StaticAnalysis_LB,      StaticAnalysis_LH,     StaticAnalysis_LWL,  StaticAnalysis_LW,    StaticAnalysis_LBU,  StaticAnalysis_LHU,  StaticAnalysis_LWR,   StaticAnalysis_LWU,
+< 	StaticAnalysis_SB,      StaticAnalysis_SH,     StaticAnalysis_SWL,  StaticAnalysis_SW,    StaticAnalysis_SDL,  StaticAnalysis_SDR,  StaticAnalysis_SWR,   StaticAnalysis_CACHE,
+< 	StaticAnalysis_LL,      StaticAnalysis_LWC1,   StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_LLD,  StaticAnalysis_LDC1, StaticAnalysis_LDC2,  StaticAnalysis_LD,
+< 	StaticAnalysis_SC,      StaticAnalysis_SWC1,   StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_SCD,  StaticAnalysis_SDC1, StaticAnalysis_SDC2,  StaticAnalysis_SD
+< };
+< 
+< // SpecialOpCode Jump Table
+< const StaticAnalysisFunction gStaticAnalysisSpecialInstruction[64] =
+< {
+< 	StaticAnalysis_Special_SLL,  StaticAnalysis_Special_Unk,   StaticAnalysis_Special_SRL,  StaticAnalysis_Special_SRA,  StaticAnalysis_Special_SLLV,    StaticAnalysis_Special_Unk,    StaticAnalysis_Special_SRLV,   StaticAnalysis_Special_SRAV,
+< 	StaticAnalysis_Special_JR,   StaticAnalysis_Special_JALR,  StaticAnalysis_Special_Unk,  StaticAnalysis_Special_Unk,  StaticAnalysis_Special_SYSCALL, StaticAnalysis_Special_BREAK,  StaticAnalysis_Special_Unk,    StaticAnalysis_Special_SYNC,
+< 	StaticAnalysis_Special_MFHI, StaticAnalysis_Special_MTHI,  StaticAnalysis_Special_MFLO, StaticAnalysis_Special_MTLO, StaticAnalysis_Special_DSLLV,   StaticAnalysis_Special_Unk,    StaticAnalysis_Special_DSRLV,  StaticAnalysis_Special_DSRAV,
+< 	StaticAnalysis_Special_MULT, StaticAnalysis_Special_MULTU, StaticAnalysis_Special_DIV,  StaticAnalysis_Special_DIVU, StaticAnalysis_Special_DMULT,   StaticAnalysis_Special_DMULTU, StaticAnalysis_Special_DDIV,   StaticAnalysis_Special_DDIVU,
+< 	StaticAnalysis_Special_ADD,  StaticAnalysis_Special_ADDU,  StaticAnalysis_Special_SUB,  StaticAnalysis_Special_SUBU, StaticAnalysis_Special_AND,     StaticAnalysis_Special_OR,     StaticAnalysis_Special_XOR,    StaticAnalysis_Special_NOR,
+< 	StaticAnalysis_Special_Unk,  StaticAnalysis_Special_Unk,   StaticAnalysis_Special_SLT,  StaticAnalysis_Special_SLTU, StaticAnalysis_Special_DADD,    StaticAnalysis_Special_DADDU,  StaticAnalysis_Special_DSUB,   StaticAnalysis_Special_DSUBU,
+< 	StaticAnalysis_Special_TGE,  StaticAnalysis_Special_TGEU,  StaticAnalysis_Special_TLT,  StaticAnalysis_Special_TLTU, StaticAnalysis_Special_TEQ,     StaticAnalysis_Special_Unk,    StaticAnalysis_Special_TNE,    StaticAnalysis_Special_Unk,
+< 	StaticAnalysis_Special_DSLL, StaticAnalysis_Special_Unk,   StaticAnalysis_Special_DSRL, StaticAnalysis_Special_DSRA, StaticAnalysis_Special_DSLL32,  StaticAnalysis_Special_Unk,    StaticAnalysis_Special_DSRL32, StaticAnalysis_Special_DSRA32
+< };
+< 
+< void StaticAnalysis_Special( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	gStaticAnalysisSpecialInstruction[ op_code.spec_op ]( op_code, recorder );
+< }
+< 
+< const StaticAnalysisFunction gStaticAnalysisRegImmInstruction[32] =
+< {
+< 	StaticAnalysis_RegImm_BLTZ,   StaticAnalysis_RegImm_BGEZ,   StaticAnalysis_RegImm_BLTZL,   StaticAnalysis_RegImm_BGEZL,   StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,
+< 	StaticAnalysis_RegImm_TGEI,   StaticAnalysis_RegImm_TGEIU,  StaticAnalysis_RegImm_TLTI,    StaticAnalysis_RegImm_TLTIU,   StaticAnalysis_RegImm_TEQI, StaticAnalysis_Unk, StaticAnalysis_RegImm_TNEI, StaticAnalysis_Unk,
+< 	StaticAnalysis_RegImm_BLTZAL, StaticAnalysis_RegImm_BGEZAL, StaticAnalysis_RegImm_BLTZALL, StaticAnalysis_RegImm_BGEZALL, StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,           StaticAnalysis_Unk,           StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk
+< };
+< 
+< void StaticAnalysis_RegImm( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	gStaticAnalysisRegImmInstruction[ op_code.regimm_op ]( op_code, recorder );
+< }
+< 
+< // COP0 Jump Table
+< const StaticAnalysisFunction gStaticAnalysisCop0Instruction[32] =
+< {
+< 	StaticAnalysis_Cop0_MFC0, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Cop0_MTC0, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+< 	StaticAnalysis_Cop0_TLB,  StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+< };
+< 
+< void StaticAnalysis_CoPro0( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	gStaticAnalysisCop0Instruction[ op_code.cop0_op ]( op_code, recorder );
+< }
+< 
+< // TLBOpCode Jump Table
+< const StaticAnalysisFunction gStaticAnalysisTLBInstruction[64] =
+< {
+< 	StaticAnalysis_Unk,      StaticAnalysis_TLB_TLBR, StaticAnalysis_TLB_TLBWI, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_TLB_TLBWR, StaticAnalysis_Unk,
+< 	StaticAnalysis_TLB_TLBP, StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+< 	StaticAnalysis_TLB_ERET, StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+< };
+< 
+< void StaticAnalysis_Cop0_TLB( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	gStaticAnalysisTLBInstruction[ op_code.cop0tlb_funct ]( op_code, recorder );
+< }
+< 
+< // COP1 Jump Table
+< const StaticAnalysisFunction gStaticAnalysisCop1Instruction[32] =
+< {
+< 	StaticAnalysis_Cop1_MFC1,    StaticAnalysis_Cop1_DMFC1,  StaticAnalysis_Cop1_CFC1, StaticAnalysis_Unk, StaticAnalysis_Cop1_MTC1,   StaticAnalysis_Cop1_DMTC1,  StaticAnalysis_Cop1_CTC1, StaticAnalysis_Unk,
+< 	StaticAnalysis_Cop1_BCInstr, StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk,
+< 	StaticAnalysis_Cop1_SInstr,  StaticAnalysis_Cop1_DInstr, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Cop1_WInstr, StaticAnalysis_Cop1_LInstr, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,          StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk
+< };
+< 
+< void StaticAnalysis_CoPro1( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	gStaticAnalysisCop1Instruction[ op_code.cop1_op ]( op_code, recorder );
+< }
+< 
+< const StaticAnalysisFunction gStaticAnalysisCop1BC1Instruction[4] =
+< {
+< 	StaticAnalysis_BC1_BC1F, StaticAnalysis_BC1_BC1T, StaticAnalysis_BC1_BC1FL, StaticAnalysis_BC1_BC1TL
+< };
+< 
+< void StaticAnalysis_Cop1_BCInstr( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	gStaticAnalysisCop1BC1Instruction[ op_code.cop1_bc ]( op_code, recorder );
+< }
+< 
+< // Single Jump Table
+< const StaticAnalysisFunction gStaticAnalysisCop1SInstruction[64] =
+< {
+< 	StaticAnalysis_Cop1_S_ADD,      StaticAnalysis_Cop1_S_SUB,     StaticAnalysis_Cop1_S_MUL,     StaticAnalysis_Cop1_S_DIV,     StaticAnalysis_Cop1_S_SQRT,    StaticAnalysis_Cop1_S_ABS,     StaticAnalysis_Cop1_S_MOV,     StaticAnalysis_Cop1_S_NEG,
+< 	StaticAnalysis_Cop1_S_ROUND_L,  StaticAnalysis_Cop1_S_TRUNC_L, StaticAnalysis_Cop1_S_CEIL_L,  StaticAnalysis_Cop1_S_FLOOR_L, StaticAnalysis_Cop1_S_ROUND_W, StaticAnalysis_Cop1_S_TRUNC_W, StaticAnalysis_Cop1_S_CEIL_W,  StaticAnalysis_Cop1_S_FLOOR_W,
+< 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,             StaticAnalysis_Cop1_S_CVT_D,   StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Cop1_S_CVT_W,   StaticAnalysis_Cop1_S_CVT_L,   StaticAnalysis_Unk,            StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+< 	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,
+< 	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,
+< };
+< 
+< void StaticAnalysis_Cop1_SInstr( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	gStaticAnalysisCop1SInstruction[ op_code.cop1_funct ]( op_code, recorder );
+< }
+< 
+< // Double Jump Table
+< const StaticAnalysisFunction gStaticAnalysisCop1DInstruction[64] =
+< {
+< 	StaticAnalysis_Cop1_D_ADD,      StaticAnalysis_Cop1_D_SUB,     StaticAnalysis_Cop1_D_MUL,     StaticAnalysis_Cop1_D_DIV,     StaticAnalysis_Cop1_D_SQRT,    StaticAnalysis_Cop1_D_ABS,     StaticAnalysis_Cop1_D_MOV,     StaticAnalysis_Cop1_D_NEG,
+< 	StaticAnalysis_Cop1_D_ROUND_L,  StaticAnalysis_Cop1_D_TRUNC_L, StaticAnalysis_Cop1_D_CEIL_L,  StaticAnalysis_Cop1_D_FLOOR_L, StaticAnalysis_Cop1_D_ROUND_W, StaticAnalysis_Cop1_D_TRUNC_W, StaticAnalysis_Cop1_D_CEIL_W,  StaticAnalysis_Cop1_D_FLOOR_W,
+< 	StaticAnalysis_Unk,		        StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+< 	StaticAnalysis_Cop1_D_CVT_S,    StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Cop1_D_CVT_W,   StaticAnalysis_Cop1_D_CVT_L,   StaticAnalysis_Unk,            StaticAnalysis_Unk,
+< 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+< 	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,
+< 	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,
+< };
+< 
+< void StaticAnalysis_Cop1_DInstr( OpCode op_code, RegisterUsage & recorder )
+< {
+< 	gStaticAnalysisCop1DInstruction[ op_code.cop1_funct ]( op_code, recorder );
+< }
+< 
+< }
+< 
+< namespace StaticAnalysis
+< {
+< 
+< void Analyse( OpCode op_code, RegisterUsage & reg_usage )
+< {
+< 	reg_usage.BranchOP( BT_NOT_BRANCH );
+< 	gStaticAnalysisInstruction[ op_code.op ]( op_code, reg_usage );
+< }
+< 
+< }
+---
+> /*
+> Copyright (C) 2006 StrmnNrmn
+> 
+> This program is free software; you can redistribute it and/or
+> modify it under the terms of the GNU General Public License
+> as published by the Free Software Foundation; either version 2
+> of the License, or (at your option) any later version.
+> 
+> This program is distributed in the hope that it will be useful,
+> but WITHOUT ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> GNU General Public License for more details.
+> 
+> You should have received a copy of the GNU General Public License
+> along with this program; if not, write to the Free Software
+> Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+> 
+> */
+> 
+> #include "stdafx.h"
+> 
+> #include "StaticAnalysis.h"
+> 
+> #include "Core/R4300OpCode.h"
+> #include "Core/CPU.h"
+> #include "Core/ROM.h"
+> 
+> using namespace StaticAnalysis;
+> 
+> namespace
+> {
+> 
+> void RegFPRRead( u32 r ) {}
+> void RegFPRWrite( u32 r ) {}
+> 
+> 
+> typedef void (*const StaticAnalysisFunction )( OpCode op_code, RegisterUsage & recorder );
+> 
+> 
+> // Forward declarations
+> void StaticAnalysis_Special( OpCode op_code, RegisterUsage & recorder );
+> void StaticAnalysis_RegImm( OpCode op_code, RegisterUsage & recorder );
+> void StaticAnalysis_CoPro0( OpCode op_code, RegisterUsage & recorder );
+> void StaticAnalysis_CoPro1( OpCode op_code, RegisterUsage & recorder );
+> void StaticAnalysis_Cop0_TLB( OpCode op_code, RegisterUsage & recorder );
+> void StaticAnalysis_Cop1_BCInstr( OpCode op_code, RegisterUsage & recorder );
+> void StaticAnalysis_Cop1_SInstr( OpCode op_code, RegisterUsage & recorder );
+> void StaticAnalysis_Cop1_DInstr( OpCode op_code, RegisterUsage & recorder );
+> 
+> void StaticAnalysis_Unk( OpCode op_code, RegisterUsage & recorder )
+> {
+> }
+> 
+> // These are the only unimplemented R4300 instructions now:
+> void StaticAnalysis_LL( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_LLD( OpCode op_code, RegisterUsage & recorder ) {}
+> 
+> void StaticAnalysis_SC( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_SCD( OpCode op_code, RegisterUsage & recorder ) {}
+> 
+> void StaticAnalysis_LDC2( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_SDC2( OpCode op_code, RegisterUsage & recorder ) {}
+> 
+> void StaticAnalysis_RegImm_TGEI( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_RegImm_TGEIU( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_RegImm_TLTI( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_RegImm_TLTIU( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_RegImm_TEQI( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_RegImm_TNEI( OpCode op_code, RegisterUsage & recorder ) {}
+> 
+> void StaticAnalysis_RegImm_BLTZALL( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_RegImm_BGEZALL( OpCode op_code, RegisterUsage & recorder ) {}
+> 
+> void StaticAnalysis_Special_TGE( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_Special_TGEU( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_Special_TLT( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_Special_TLTU( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_Special_TEQ( OpCode op_code, RegisterUsage & recorder ) {}
+> void StaticAnalysis_Special_TNE( OpCode op_code, RegisterUsage & recorder ) {}
+> 
+> 
+> void StaticAnalysis_J( OpCode op_code, RegisterUsage & recorder ) 				// Jump
+> {
+> 	// No registers used
+> 	recorder.BranchOP( BT_J );
+> }
+> 
+> void StaticAnalysis_JAL( OpCode op_code, RegisterUsage & recorder ) 				// Jump And Link
+> {
+> 	recorder.BranchOP( BT_JAL );
+> 	recorder.Record( RegDstUse( N64Reg_RA ) );
+> }
+> 
+> void StaticAnalysis_BEQ( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Equal
+> {
+> 	recorder.BranchOP( BT_BEQ );
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_BNE( OpCode op_code, RegisterUsage & recorder )             // Branch on Not Equal
+> {
+> 	recorder.BranchOP( BT_BNE );
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_BLEZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than of Equal to Zero
+> {
+> 	recorder.BranchOP( BT_BLEZ );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_BGTZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than Zero
+> {
+> 	recorder.BranchOP( BT_BGTZ );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_DADDI( OpCode op_code, RegisterUsage & recorder ) 			// Doubleword ADD Immediate
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_DADDIU( OpCode op_code, RegisterUsage & recorder ) 			// Doubleword ADD Immediate Unsigned
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_ADDI( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_ADDIU( OpCode op_code, RegisterUsage & recorder ) 		// Add Immediate Unsigned
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_SLTI( OpCode op_code, RegisterUsage & recorder ) 			// Set on Less Than Immediate
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_SLTIU( OpCode op_code, RegisterUsage & recorder ) 		// Set on Less Than Immediate Unsigned
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_ANDI( OpCode op_code, RegisterUsage & recorder ) 				// AND Immediate
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_ORI( OpCode op_code, RegisterUsage & recorder ) 				// OR Immediate
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_XORI( OpCode op_code, RegisterUsage & recorder ) 				// XOR Immediate
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_LUI( OpCode op_code, RegisterUsage & recorder ) 				// Load Upper Immediate
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_BEQL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Equal Likely
+> {
+> 	recorder.BranchOP( BT_BEQL );
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_BNEL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Not Equal Likely
+> {
+> 	recorder.BranchOP( BT_BNEL );
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_BLEZL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Less than or Equal to Zero Likely
+> {
+> 	recorder.BranchOP( BT_BLEZL );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_BGTZL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Greater than Zero Likely
+> {
+> 	recorder.BranchOP( BT_BGTZL );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_LB( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+> }
+> 
+> void StaticAnalysis_LBU( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte Unsigned -- Zero extend byte...
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+> 	if( !g_ROM.DISABLE_LBU_OPT ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	//PD and Banjo dont like this
+> }
+> 
+> void StaticAnalysis_LH( OpCode op_code, RegisterUsage & recorder ) 		// Load Halfword
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_LHU( OpCode op_code, RegisterUsage & recorder )			// Load Halfword Unsigned -- Zero extend word
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_LWL( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Left
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_LDL( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_LWR( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Right
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_LDR( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Word
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 
+> 	// Causes P Mario to BSOD in intro, doesn't happen anymore //Salvy
+> 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+> 	if( g_ROM.GameHacks != PMARIO )	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	// Breaks Paper Mario
+> }
+> 
+> void StaticAnalysis_LWU( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Unsigned
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_LD( OpCode op_code, RegisterUsage & recorder ) 				// Load Doubleword
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SW( OpCode op_code, RegisterUsage & recorder ) 			// Store Word
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+> 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SH( OpCode op_code, RegisterUsage & recorder ) 			// Store Halfword
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+> 
+> 	// Causes Zelda MM to BSOD when you enter clock town
+> 	if( g_ROM.GameHacks != ZELDA_MM ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SB( OpCode op_code, RegisterUsage & recorder ) 			// Store Byte
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SWL( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Left
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SWR( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Right
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SD( OpCode op_code, RegisterUsage & recorder )			// Store Doubleword
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SDL( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SDR( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_CACHE( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegBaseUse( op_code.base ) );
+> }
+> 
+> void StaticAnalysis_LWC1( OpCode op_code, RegisterUsage & recorder ) 				// Load Word to Copro 1 (FPU)
+> {
+> 	RegFPRWrite( op_code.ft );
+> 	recorder.Record( RegBaseUse( op_code.base ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_LDC1( OpCode op_code, RegisterUsage & recorder )				// Load Doubleword to Copro 1 (FPU)
+> {
+> 	RegFPRWrite( op_code.ft );
+> 	recorder.Record( RegBaseUse( op_code.base ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SWC1( OpCode op_code, RegisterUsage & recorder ) 			// Store Word From Copro 1
+> {
+> 	RegFPRRead( op_code.ft );
+> 	recorder.Record( RegBaseUse( op_code.base ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_SDC1( OpCode op_code, RegisterUsage & recorder )		// Store Doubleword From Copro 1
+> {
+> 	RegFPRRead( op_code.ft );
+> 	recorder.Record( RegBaseUse( op_code.base ) );
+> 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+> }
+> 
+> void StaticAnalysis_Special_Unk( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	// Just ignore
+> }
+> 
+> void StaticAnalysis_Special_SLL( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Left Logical
+> {
+> 	if (op_code._u32 == 0)
+> 		return;
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_SRL( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Right Logical
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_SRA( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Right Arithmetic
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_SLLV( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Left Logical Variable
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_SRLV( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Right Logical Variable
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_SRAV( OpCode op_code, RegisterUsage & recorder ) 		// Shift word Right Arithmetic Variable
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_JR( OpCode op_code, RegisterUsage & recorder ) 			// Jump Register
+> {
+> 	recorder.BranchOP( BT_JR );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_Special_JALR( OpCode op_code, RegisterUsage & recorder ) 		// Jump and Link register
+> {
+> 	recorder.BranchOP( BT_JALR );
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_Special_SYSCALL( OpCode op_code, RegisterUsage & recorder )
+> {
+> }
+> 
+> void StaticAnalysis_Special_BREAK( OpCode op_code, RegisterUsage & recorder ) 	// BREAK
+> {
+> }
+> 
+> void StaticAnalysis_Special_SYNC( OpCode op_code, RegisterUsage & recorder )
+> {
+> }
+> 
+> void StaticAnalysis_Special_MFHI( OpCode op_code, RegisterUsage & recorder ) 			// Move From MultHI
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ) );
+> }
+> 
+> void StaticAnalysis_Special_MTHI( OpCode op_code, RegisterUsage & recorder ) 			// Move To MultHI
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_Special_MFLO( OpCode op_code, RegisterUsage & recorder ) 			// Move From MultLO
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ) );
+> }
+> 
+> void StaticAnalysis_Special_MTLO( OpCode op_code, RegisterUsage & recorder ) 			// Move To MultLO
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_Special_DSLLV( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSRLV( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSRAV( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_MULT( OpCode op_code, RegisterUsage & recorder ) 			// MULTiply Signed
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_MULTU( OpCode op_code, RegisterUsage & recorder ) 		// MULTiply Unsigned
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DIV( OpCode op_code, RegisterUsage & recorder ) 			//DIVide
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DIVU( OpCode op_code, RegisterUsage & recorder ) 			// DIVide Unsigned
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DMULT( OpCode op_code, RegisterUsage & recorder ) 		// Double Multiply
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DMULTU( OpCode op_code, RegisterUsage & recorder ) 			// Double Multiply Unsigned
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DDIV( OpCode op_code, RegisterUsage & recorder ) 				// Double Divide
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DDIVU( OpCode op_code, RegisterUsage & recorder ) 			// Double Divide Unsigned
+> {
+> 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_ADD( OpCode op_code, RegisterUsage & recorder ) 			// ADD signed - may throw exception
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_ADDU( OpCode op_code, RegisterUsage & recorder ) 			// ADD Unsigned - doesn't throw exception
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_SUB( OpCode op_code, RegisterUsage & recorder ) 			// SUB Signed - may throw exception
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_SUBU( OpCode op_code, RegisterUsage & recorder ) 			// SUB Unsigned - doesn't throw exception
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_AND( OpCode op_code, RegisterUsage & recorder ) 				// logical AND
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_OR( OpCode op_code, RegisterUsage & recorder ) 				// logical OR
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_XOR( OpCode op_code, RegisterUsage & recorder ) 				// logical XOR
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_NOR( OpCode op_code, RegisterUsage & recorder ) 				// logical Not OR
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_SLT( OpCode op_code, RegisterUsage & recorder ) 				// Set on Less Than
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_SLTU( OpCode op_code, RegisterUsage & recorder ) 				// Set on Less Than Unsigned
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DADD( OpCode op_code, RegisterUsage & recorder )//CYRUS64
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DADDU( OpCode op_code, RegisterUsage & recorder )//CYRUS64
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSUB( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSUBU( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSLL( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSRL( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSRA( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSLL32( OpCode op_code, RegisterUsage & recorder ) 			// Double Shift Left Logical 32
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSRL32( OpCode op_code, RegisterUsage & recorder ) 			// Double Shift Right Logical 32
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Special_DSRA32( OpCode op_code, RegisterUsage & recorder ) 			// Double Shift Right Arithmetic 32
+> {
+> 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_RegImm_BLTZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than Zero
+> {
+> 	recorder.BranchOP( BT_BLTZ );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_RegImm_BLTZL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than Zero Likely
+> {
+> 	recorder.BranchOP( BT_BLTZL );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_RegImm_BLTZAL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Less than Zero And Link
+> {
+> 	recorder.BranchOP( BT_BLTZAL );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_RegImm_BGEZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than or Equal to Zero
+> {
+> 	recorder.BranchOP( BT_BGEZ );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_RegImm_BGEZL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than or Equal to Zero Likely
+> {
+> 	recorder.BranchOP( BT_BGEZL );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_RegImm_BGEZAL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Greater than or Equal to Zero And Link
+> {
+> 	recorder.BranchOP( BT_BGEZAL );
+> 	recorder.Record( RegSrcUse( op_code.rs ) );
+> }
+> 
+> void StaticAnalysis_Cop0_MFC0( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ) );
+> }
+> 
+> // Move Word To CopReg
+> void StaticAnalysis_Cop0_MTC0( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.Record( RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_TLB_TLBR( OpCode op_code, RegisterUsage & recorder ) 				// TLB Read
+> {
+> }
+> 
+> void StaticAnalysis_TLB_TLBWI( OpCode op_code, RegisterUsage & recorder )			// TLB Write Index
+> {
+> }
+> 
+> void StaticAnalysis_TLB_TLBWR( OpCode op_code, RegisterUsage & recorder )
+> {
+> }
+> 
+> void StaticAnalysis_TLB_TLBP( OpCode op_code, RegisterUsage & recorder ) 				// TLB Probe
+> {
+> }
+> 
+> void StaticAnalysis_TLB_ERET( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	recorder.BranchOP( BT_ERET );
+> }
+> 
+> void StaticAnalysis_Cop1_MTC1( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fs );
+> 	recorder.Record( RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Cop1_DMTC1( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fs );
+> 	recorder.Record( RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Cop1_MFC1( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRRead( op_code.fs );
+> 	recorder.Record( RegDstUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Cop1_DMFC1( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRRead( op_code.fs );
+> 	recorder.Record( RegDstUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Cop1_CFC1( OpCode op_code, RegisterUsage & recorder ) 		// move Control word From Copro 1
+> {
+> 	recorder.Record( RegDstUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_Cop1_CTC1( OpCode op_code, RegisterUsage & recorder ) 		// move Control word To Copro 1
+> {
+> 	recorder.Record( RegSrcUse( op_code.rt ) );
+> }
+> 
+> void StaticAnalysis_BC1_BC1F( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU False
+> {
+> 	recorder.BranchOP( BT_BC1F );
+> }
+> 
+> void StaticAnalysis_BC1_BC1T( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU True
+> {
+> 	recorder.BranchOP( BT_BC1T );
+> }
+> 
+> void StaticAnalysis_BC1_BC1FL( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU False Likely
+> {
+> 	recorder.BranchOP( BT_BC1FL );
+> }
+> 
+> void StaticAnalysis_BC1_BC1TL( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU True Likely
+> {
+> 	recorder.BranchOP( BT_BC1TL );
+> }
+> 
+> void StaticAnalysis_Cop1_W_CVT_S( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_W_CVT_D( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_WInstr( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	switch ( op_code.cop1_funct )
+> 	{
+> 		case Cop1OpFunc_CVT_S:
+> 			StaticAnalysis_Cop1_W_CVT_S( op_code, recorder );
+> 			return;
+> 		case Cop1OpFunc_CVT_D:
+> 			StaticAnalysis_Cop1_W_CVT_D( op_code, recorder );
+> 			return;
+> 	}
+> }
+> 
+> void StaticAnalysis_Cop1_L_CVT_S( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_L_CVT_D( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_LInstr( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	switch ( op_code.cop1_funct )
+> 	{
+> 		case Cop1OpFunc_CVT_S:
+> 			StaticAnalysis_Cop1_L_CVT_S( op_code, recorder );
+> 			return;
+> 		case Cop1OpFunc_CVT_D:
+> 			StaticAnalysis_Cop1_L_CVT_D( op_code, recorder );
+> 			return;
+> 	}
+> }
+> 
+> void StaticAnalysis_Cop1_S_ADD( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> void StaticAnalysis_Cop1_S_SUB( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> void StaticAnalysis_Cop1_S_MUL( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> void StaticAnalysis_Cop1_S_DIV( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> void StaticAnalysis_Cop1_S_SQRT( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_NEG( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_MOV( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_ABS( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_TRUNC_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_TRUNC_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_ROUND_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_ROUND_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_CEIL_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_CEIL_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_FLOOR_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_FLOOR_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_CVT_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_CVT_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_S_CVT_D( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> // FIXME: this is not referenced anywhere
+> //void StaticAnalysis_Cop1_S_EQ( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
+> //{
+> //	RegFPRRead( op_code.fs );
+> //	RegFPRRead( op_code.ft );
+> //}
+> 
+> // FIXME: this is not referenced anywhere
+> //void StaticAnalysis_Cop1_S_LT( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
+> //{
+> //	RegFPRRead( op_code.fs );
+> //	RegFPRRead( op_code.ft );
+> //}
+> 
+> void StaticAnalysis_Cop1_Compare_S( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> void StaticAnalysis_Cop1_D_ADD( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> void StaticAnalysis_Cop1_D_SUB( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> void StaticAnalysis_Cop1_D_MUL( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> void StaticAnalysis_Cop1_D_DIV( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> void StaticAnalysis_Cop1_D_ABS( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_SQRT( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_NEG( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_MOV( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_TRUNC_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_TRUNC_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_ROUND_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_ROUND_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_CEIL_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_CEIL_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_FLOOR_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_FLOOR_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_CVT_S( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_CVT_W( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_D_CVT_L( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRWrite( op_code.fd );
+> 	RegFPRRead( op_code.fs );
+> }
+> 
+> void StaticAnalysis_Cop1_Compare_D( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	RegFPRRead( op_code.fs );
+> 	RegFPRRead( op_code.ft );
+> }
+> 
+> // Opcode Jump Table
+> const StaticAnalysisFunction gStaticAnalysisInstruction[64] =
+> {
+> 	StaticAnalysis_Special, StaticAnalysis_RegImm, StaticAnalysis_J,    StaticAnalysis_JAL,   StaticAnalysis_BEQ,  StaticAnalysis_BNE,  StaticAnalysis_BLEZ,  StaticAnalysis_BGTZ,
+> 	StaticAnalysis_ADDI,    StaticAnalysis_ADDIU,  StaticAnalysis_SLTI, StaticAnalysis_SLTIU, StaticAnalysis_ANDI, StaticAnalysis_ORI,  StaticAnalysis_XORI,  StaticAnalysis_LUI,
+> 	StaticAnalysis_CoPro0,  StaticAnalysis_CoPro1, StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_BEQL, StaticAnalysis_BNEL, StaticAnalysis_BLEZL, StaticAnalysis_BGTZL,
+> 	StaticAnalysis_DADDI,   StaticAnalysis_DADDIU, StaticAnalysis_LDL,  StaticAnalysis_LDR,   StaticAnalysis_Unk,  StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_Unk,
+> 	StaticAnalysis_LB,      StaticAnalysis_LH,     StaticAnalysis_LWL,  StaticAnalysis_LW,    StaticAnalysis_LBU,  StaticAnalysis_LHU,  StaticAnalysis_LWR,   StaticAnalysis_LWU,
+> 	StaticAnalysis_SB,      StaticAnalysis_SH,     StaticAnalysis_SWL,  StaticAnalysis_SW,    StaticAnalysis_SDL,  StaticAnalysis_SDR,  StaticAnalysis_SWR,   StaticAnalysis_CACHE,
+> 	StaticAnalysis_LL,      StaticAnalysis_LWC1,   StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_LLD,  StaticAnalysis_LDC1, StaticAnalysis_LDC2,  StaticAnalysis_LD,
+> 	StaticAnalysis_SC,      StaticAnalysis_SWC1,   StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_SCD,  StaticAnalysis_SDC1, StaticAnalysis_SDC2,  StaticAnalysis_SD
+> };
+> 
+> // SpecialOpCode Jump Table
+> const StaticAnalysisFunction gStaticAnalysisSpecialInstruction[64] =
+> {
+> 	StaticAnalysis_Special_SLL,  StaticAnalysis_Special_Unk,   StaticAnalysis_Special_SRL,  StaticAnalysis_Special_SRA,  StaticAnalysis_Special_SLLV,    StaticAnalysis_Special_Unk,    StaticAnalysis_Special_SRLV,   StaticAnalysis_Special_SRAV,
+> 	StaticAnalysis_Special_JR,   StaticAnalysis_Special_JALR,  StaticAnalysis_Special_Unk,  StaticAnalysis_Special_Unk,  StaticAnalysis_Special_SYSCALL, StaticAnalysis_Special_BREAK,  StaticAnalysis_Special_Unk,    StaticAnalysis_Special_SYNC,
+> 	StaticAnalysis_Special_MFHI, StaticAnalysis_Special_MTHI,  StaticAnalysis_Special_MFLO, StaticAnalysis_Special_MTLO, StaticAnalysis_Special_DSLLV,   StaticAnalysis_Special_Unk,    StaticAnalysis_Special_DSRLV,  StaticAnalysis_Special_DSRAV,
+> 	StaticAnalysis_Special_MULT, StaticAnalysis_Special_MULTU, StaticAnalysis_Special_DIV,  StaticAnalysis_Special_DIVU, StaticAnalysis_Special_DMULT,   StaticAnalysis_Special_DMULTU, StaticAnalysis_Special_DDIV,   StaticAnalysis_Special_DDIVU,
+> 	StaticAnalysis_Special_ADD,  StaticAnalysis_Special_ADDU,  StaticAnalysis_Special_SUB,  StaticAnalysis_Special_SUBU, StaticAnalysis_Special_AND,     StaticAnalysis_Special_OR,     StaticAnalysis_Special_XOR,    StaticAnalysis_Special_NOR,
+> 	StaticAnalysis_Special_Unk,  StaticAnalysis_Special_Unk,   StaticAnalysis_Special_SLT,  StaticAnalysis_Special_SLTU, StaticAnalysis_Special_DADD,    StaticAnalysis_Special_DADDU,  StaticAnalysis_Special_DSUB,   StaticAnalysis_Special_DSUBU,
+> 	StaticAnalysis_Special_TGE,  StaticAnalysis_Special_TGEU,  StaticAnalysis_Special_TLT,  StaticAnalysis_Special_TLTU, StaticAnalysis_Special_TEQ,     StaticAnalysis_Special_Unk,    StaticAnalysis_Special_TNE,    StaticAnalysis_Special_Unk,
+> 	StaticAnalysis_Special_DSLL, StaticAnalysis_Special_Unk,   StaticAnalysis_Special_DSRL, StaticAnalysis_Special_DSRA, StaticAnalysis_Special_DSLL32,  StaticAnalysis_Special_Unk,    StaticAnalysis_Special_DSRL32, StaticAnalysis_Special_DSRA32
+> };
+> 
+> void StaticAnalysis_Special( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	gStaticAnalysisSpecialInstruction[ op_code.spec_op ]( op_code, recorder );
+> }
+> 
+> const StaticAnalysisFunction gStaticAnalysisRegImmInstruction[32] =
+> {
+> 	StaticAnalysis_RegImm_BLTZ,   StaticAnalysis_RegImm_BGEZ,   StaticAnalysis_RegImm_BLTZL,   StaticAnalysis_RegImm_BGEZL,   StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,
+> 	StaticAnalysis_RegImm_TGEI,   StaticAnalysis_RegImm_TGEIU,  StaticAnalysis_RegImm_TLTI,    StaticAnalysis_RegImm_TLTIU,   StaticAnalysis_RegImm_TEQI, StaticAnalysis_Unk, StaticAnalysis_RegImm_TNEI, StaticAnalysis_Unk,
+> 	StaticAnalysis_RegImm_BLTZAL, StaticAnalysis_RegImm_BGEZAL, StaticAnalysis_RegImm_BLTZALL, StaticAnalysis_RegImm_BGEZALL, StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,           StaticAnalysis_Unk,           StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk
+> };
+> 
+> void StaticAnalysis_RegImm( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	gStaticAnalysisRegImmInstruction[ op_code.regimm_op ]( op_code, recorder );
+> }
+> 
+> // COP0 Jump Table
+> const StaticAnalysisFunction gStaticAnalysisCop0Instruction[32] =
+> {
+> 	StaticAnalysis_Cop0_MFC0, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Cop0_MTC0, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+> 	StaticAnalysis_Cop0_TLB,  StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+> };
+> 
+> void StaticAnalysis_CoPro0( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	gStaticAnalysisCop0Instruction[ op_code.cop0_op ]( op_code, recorder );
+> }
+> 
+> // TLBOpCode Jump Table
+> const StaticAnalysisFunction gStaticAnalysisTLBInstruction[64] =
+> {
+> 	StaticAnalysis_Unk,      StaticAnalysis_TLB_TLBR, StaticAnalysis_TLB_TLBWI, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_TLB_TLBWR, StaticAnalysis_Unk,
+> 	StaticAnalysis_TLB_TLBP, StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+> 	StaticAnalysis_TLB_ERET, StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+> };
+> 
+> void StaticAnalysis_Cop0_TLB( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	gStaticAnalysisTLBInstruction[ op_code.cop0tlb_funct ]( op_code, recorder );
+> }
+> 
+> // COP1 Jump Table
+> const StaticAnalysisFunction gStaticAnalysisCop1Instruction[32] =
+> {
+> 	StaticAnalysis_Cop1_MFC1,    StaticAnalysis_Cop1_DMFC1,  StaticAnalysis_Cop1_CFC1, StaticAnalysis_Unk, StaticAnalysis_Cop1_MTC1,   StaticAnalysis_Cop1_DMTC1,  StaticAnalysis_Cop1_CTC1, StaticAnalysis_Unk,
+> 	StaticAnalysis_Cop1_BCInstr, StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk,
+> 	StaticAnalysis_Cop1_SInstr,  StaticAnalysis_Cop1_DInstr, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Cop1_WInstr, StaticAnalysis_Cop1_LInstr, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,          StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk
+> };
+> 
+> void StaticAnalysis_CoPro1( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	gStaticAnalysisCop1Instruction[ op_code.cop1_op ]( op_code, recorder );
+> }
+> 
+> const StaticAnalysisFunction gStaticAnalysisCop1BC1Instruction[4] =
+> {
+> 	StaticAnalysis_BC1_BC1F, StaticAnalysis_BC1_BC1T, StaticAnalysis_BC1_BC1FL, StaticAnalysis_BC1_BC1TL
+> };
+> 
+> void StaticAnalysis_Cop1_BCInstr( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	gStaticAnalysisCop1BC1Instruction[ op_code.cop1_bc ]( op_code, recorder );
+> }
+> 
+> // Single Jump Table
+> const StaticAnalysisFunction gStaticAnalysisCop1SInstruction[64] =
+> {
+> 	StaticAnalysis_Cop1_S_ADD,      StaticAnalysis_Cop1_S_SUB,     StaticAnalysis_Cop1_S_MUL,     StaticAnalysis_Cop1_S_DIV,     StaticAnalysis_Cop1_S_SQRT,    StaticAnalysis_Cop1_S_ABS,     StaticAnalysis_Cop1_S_MOV,     StaticAnalysis_Cop1_S_NEG,
+> 	StaticAnalysis_Cop1_S_ROUND_L,  StaticAnalysis_Cop1_S_TRUNC_L, StaticAnalysis_Cop1_S_CEIL_L,  StaticAnalysis_Cop1_S_FLOOR_L, StaticAnalysis_Cop1_S_ROUND_W, StaticAnalysis_Cop1_S_TRUNC_W, StaticAnalysis_Cop1_S_CEIL_W,  StaticAnalysis_Cop1_S_FLOOR_W,
+> 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,             StaticAnalysis_Cop1_S_CVT_D,   StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Cop1_S_CVT_W,   StaticAnalysis_Cop1_S_CVT_L,   StaticAnalysis_Unk,            StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+> 	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,
+> 	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,
+> };
+> 
+> void StaticAnalysis_Cop1_SInstr( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	gStaticAnalysisCop1SInstruction[ op_code.cop1_funct ]( op_code, recorder );
+> }
+> 
+> // Double Jump Table
+> const StaticAnalysisFunction gStaticAnalysisCop1DInstruction[64] =
+> {
+> 	StaticAnalysis_Cop1_D_ADD,      StaticAnalysis_Cop1_D_SUB,     StaticAnalysis_Cop1_D_MUL,     StaticAnalysis_Cop1_D_DIV,     StaticAnalysis_Cop1_D_SQRT,    StaticAnalysis_Cop1_D_ABS,     StaticAnalysis_Cop1_D_MOV,     StaticAnalysis_Cop1_D_NEG,
+> 	StaticAnalysis_Cop1_D_ROUND_L,  StaticAnalysis_Cop1_D_TRUNC_L, StaticAnalysis_Cop1_D_CEIL_L,  StaticAnalysis_Cop1_D_FLOOR_L, StaticAnalysis_Cop1_D_ROUND_W, StaticAnalysis_Cop1_D_TRUNC_W, StaticAnalysis_Cop1_D_CEIL_W,  StaticAnalysis_Cop1_D_FLOOR_W,
+> 	StaticAnalysis_Unk,		        StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+> 	StaticAnalysis_Cop1_D_CVT_S,    StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Cop1_D_CVT_W,   StaticAnalysis_Cop1_D_CVT_L,   StaticAnalysis_Unk,            StaticAnalysis_Unk,
+> 	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+> 	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,
+> 	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,
+> };
+> 
+> void StaticAnalysis_Cop1_DInstr( OpCode op_code, RegisterUsage & recorder )
+> {
+> 	gStaticAnalysisCop1DInstruction[ op_code.cop1_funct ]( op_code, recorder );
+> }
+> 
+> }
+> 
+> namespace StaticAnalysis
+> {
+> 
+> void Analyse( OpCode op_code, RegisterUsage & reg_usage )
+> {
+> 	reg_usage.BranchOP( BT_NOT_BRANCH );
+> 	gStaticAnalysisInstruction[ op_code.op ]( op_code, reg_usage );
+> }
+> 
+> }
+diff Source/DynaRec/StaticAnalysis.h ../DaedalusX64-3DS/Source/DynaRec/StaticAnalysis.h
+23a24
+> #include "BranchType.h"
+25,26d25
+< #include "DynaRec/BranchType.h"
+< 
+diff Source/DynaRec/Trace.h ../DaedalusX64-3DS/Source/DynaRec/Trace.h
+24c24
+< #include "DynaRec/StaticAnalysis.h"
+---
+> #include "StaticAnalysis.h"
+diff Source/DynaRec/TraceRecorder.cpp ../DaedalusX64-3DS/Source/DynaRec/TraceRecorder.cpp
+20,22c20,23
+< #include "BuildOptions.h"
+< #include "Base/Types.h"
+< 
+---
+> #include "stdafx.h"
+> #include "TraceRecorder.h"
+> #include "Fragment.h"
+> #include "BranchType.h"
+25a27
+> 
+27,29c29
+< #include "DynaRec/BranchType.h"
+< #include "DynaRec/Fragment.h"
+< #include "DynaRec/TraceRecorder.h"
+---
+> 
+31c31
+< #include "Core/PrintOpCode.h"
+---
+> #include "Utility/PrintOpCode.h"
+233c233
+< 			u32		target_address = 0;
+---
+> 			u32		target_address {};
+295c295
+< CFragment *		CTraceRecorder::CreateFragment( std::shared_ptr<CCodeBufferManager> p_manager )
+---
+> CFragment *		CTraceRecorder::CreateFragment( CCodeBufferManager * p_manager )
+399c399
+< 	for( u32 i  = 0; i < mTraceBuffer.size(); ++i )
+---
+> 	for( u32 i {}; i < mTraceBuffer.size(); ++i )
+425c425
+< 	for( u32 i = 0; i < NUM_N64_REGS; ++i )
+---
+> 	for( u32 i {}; i < NUM_N64_REGS; ++i )
+diff Source/DynaRec/TraceRecorder.h ../DaedalusX64-3DS/Source/DynaRec/TraceRecorder.h
+26d25
+< #include <memory> 
+28,29c27,28
+< #include "DynaRec/Trace.h"
+< #include "DynaRec/RegisterSpan.h"
+---
+> #include "Trace.h"
+> #include "RegisterSpan.h"
+51c50
+< 	CFragment *			CreateFragment( std::shared_ptr<CCodeBufferManager> p_manager );
+---
+> 	CFragment *			CreateFragment( CCodeBufferManager * p_manager );
+Only in Source/DynaRec/: x86

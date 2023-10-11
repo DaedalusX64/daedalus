@@ -1,9 +1,8 @@
 add_library(DynaRec_ARM OBJECT 
-                CodeGeneratorARM.cpp  
                 AssemblyUtilsARM.cpp
                 AssemblyWriterARM.cpp
                 CodeBufferManagerARM.cpp
-                              
+                CodeGeneratorARM.cpp  
                 DynarecStubARM.S
                 N64RegisterCacheARM.cpp
 )

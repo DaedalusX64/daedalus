@@ -86,7 +86,7 @@ static void CheckDSPFirmware()
 
 static void Initialize()
 {
-	// CheckDSPFirmware();
+	CheckDSPFirmware();
 	
 	_InitializeSvcHack();
 
@@ -102,12 +102,6 @@ static void Initialize()
 	
 	pglInitEx(0x080000, 0x040000);
 
-	// std::filesystem::path BaseDir = std::filesystem::current_path() / "3ds"/ "DaedalusX64"/ 
-	// std::filesystem::path Save
-	// strcpy(gDaedalusExePath, DAEDALUS_CTR_PATH(""));
-	// strcpy(g_DaedalusConfig.mSaveDir, DAEDALUS_CTR_PATH("SaveGames/"));
-
-	// IO::Directory::EnsureExists( DAEDALUS_CTR_PATH("SaveStates/") );
 	UI::Initialize();
 
 	System_Init();

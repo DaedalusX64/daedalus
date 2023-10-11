@@ -39,6 +39,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern bool PSP_IS_SLIM;
 #endif
 
+#ifdef DAEDALUS_CTR
+extern bool isN3DS;
+#endif
+
 namespace
 {
 	bool			sRomLoaded	= false;
@@ -58,11 +62,16 @@ namespace
 
 	bool		ShouldLoadAsFixed( u32 rom_size )
 	{
-#ifdef DAEDALUS_PSP
+#if	defined(DAEDALUS_PSP)
 		if (PSP_IS_SLIM && !gGlobalPreferences.LargeROMBuffer)
 			return rom_size <= 32 * 1024 * 1024;
 		else
 			return rom_size <= 2 * 1024 * 1024;
+#elif defined(DAEDALUS_CTR)
+		if(isN3DS)
+			return rom_size < 32 * 1024 * 1024;
+		else
+			return rom_size <  8 * 1024 * 1024;
 #else
 		return true;
 #endif

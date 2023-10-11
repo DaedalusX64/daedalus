@@ -609,6 +609,7 @@ void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager,
 	//	Keep executing ops until we take a branch
 	//
 	std::vector< CJumpLocation >		exception_handler_jumps;
+	std::vector< RegisterSnapshotHandle >   exception_handler_snapshots;
 	std::vector< SBranchHandlerInfo >	branch_handler_info( branch_details.size() );
 //	bool								checked_cop1_usable( false );
 
@@ -702,6 +703,7 @@ void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager,
 		if( exception_handler_jump.IsSet() )
 		{
 			exception_handler_jumps.push_back( exception_handler_jump );
+			exception_handler_snapshots.push_back(p_generator->GetRegisterSnapshot());
 		}
 #endif
 
@@ -775,6 +777,7 @@ void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager,
 			if( exception_handler_jump.IsSet() )
 			{
 				exception_handler_jumps.push_back( exception_handler_jump );
+				exception_handler_snapshots.push_back(p_generator->GetRegisterSnapshot());
 			}
 #endif
 			num_instructions_executed++;
@@ -826,7 +829,7 @@ void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager,
 		}
 	}
 
-	p_generator->Finalise( HandleException, exception_handler_jumps );
+	p_generator->Finalise( HandleException, exception_handler_jumps, exception_handler_snapshots );
 
 	mFragmentFunctionLength = p_manager->FinaliseCurrentBlock();
 	mOutputLength = mFragmentFunctionLength - ADDITIONAL_OUTPUT_BYTES;
@@ -840,6 +843,7 @@ void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager,
 void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager, CCodeLabel function_ptr)
 {
 	std::vector< CJumpLocation >		exception_handler_jumps;
+	std::vector< RegisterSnapshotHandle> exception_handler_snapshots;
 	SRegisterUsageInfo register_usage;
 
 	std::shared_ptr<CCodeGenerator> p_generator = p_manager->StartNewBlock();
@@ -857,7 +861,7 @@ void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager, CCodeLa
 	AssemblyUtils::PatchJumpLong(jump, p_generator->GetCurrentLocation());
 	p_generator->GenerateEretExitCode(100, mpIndirectExitMap);
 
-	p_generator->Finalise( HandleException, exception_handler_jumps );
+	p_generator->Finalise( HandleException, exception_handler_jumps, exception_handler_snapshots );
 	mFragmentFunctionLength = p_manager->FinaliseCurrentBlock();
 	mOutputLength = mFragmentFunctionLength - ADDITIONAL_OUTPUT_BYTES;
 

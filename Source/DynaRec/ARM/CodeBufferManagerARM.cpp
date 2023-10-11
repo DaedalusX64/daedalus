@@ -31,18 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define CODE_BUFFER_SIZE (8 * 1024 * 1024)
 
-class ConcreteCodeGeneratorARM : public CCodeGeneratorARM {
-public:
-    ConcreteCodeGeneratorARM(CAssemblyBuffer* primaryBuffer, CAssemblyBuffer* secondaryBuffer)
-        : CCodeGeneratorARM(primaryBuffer, secondaryBuffer) {
-    }
-
-    // Implement the pure virtual function from CCodeGenerator
-    virtual void Finalise(ExceptionHandlerFn p_exception_handler_fn, const std::vector<CJumpLocation>& exception_handler_jumps) override {
-
-    }
-};
-
 class CCodeBufferManagerARM : public CCodeBufferManager
 {
 public:
@@ -147,7 +135,7 @@ std::shared_ptr<CCodeGenerator> CCodeBufferManagerARM::StartNewBlock()
 	mPrimaryBuffer.SetBuffer( mpBuffer + mBufferPtr );
 	mSecondaryBuffer.SetBuffer( mpSecondBuffer + mSecondBufferPtr );
 
-	return std::make_shared<ConcreteCodeGeneratorARM>( &mPrimaryBuffer, &mSecondaryBuffer );
+	return std::make_shared<CCodeGeneratorARM>( &mPrimaryBuffer, &mSecondaryBuffer );
 }
 
 

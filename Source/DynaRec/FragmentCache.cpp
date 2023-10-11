@@ -191,9 +191,9 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 	mFragments.insert( it, entry );
 
 	// Update the hash table (it stores failed lookups now, so we need to be sure to purge any stale entries in there
-	u32 ix = MakeHashIdx( fragment_address );
+	u32 ix {MakeHashIdx( fragment_address )};
 	mpCacheHashTable[ix].addr = fragment_address;
-	mpCacheHashTable[ix].ptr = reinterpret_cast< uintptr_t >( p_fragment );
+	mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( p_fragment );
 
 	// Process any jumps for this before inserting new ones
 	JumpMap::iterator	jump_it( mJumpMap.find( fragment_address ) );
@@ -356,11 +356,6 @@ bool CFragmentCacheCoverage::IsCovered( u32 address, u32 len ) const
 //*************************************************************************************
 //
 //*************************************************************************************
-void CFragmentCacheCoverage::Reset( )
-{
-	std::fill(std::begin(mCacheCoverage), std::end(mCacheCoverage), 0);
-		// std::memset( mCacheCoverage.data(), false, mCacheCoverage.size() * sizeof( mCacheCoverage ) );
-}
 
 #ifdef DAEDALUS_DEBUG_DYNAREC
 //*************************************************************************************
@@ -454,3 +449,9 @@ void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 	}
 }
 #endif // DAEDALUS_DEBUG_DYNAREC
+
+void CFragmentCacheCoverage::Reset( )
+{
+	std::fill(std::begin(mCacheCoverage), std::end(mCacheCoverage), 0);
+		// std::memset( mCacheCoverage.data(), false, mCacheCoverage.size() * sizeof( mCacheCoverage ) );
+}

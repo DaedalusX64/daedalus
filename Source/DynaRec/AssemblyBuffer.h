@@ -76,11 +76,7 @@ class CAssemblyBuffer
 			mpCodeBuffer = pbuffer;
 
 			// For the PSP we don't want to cache our writes, ToDo:why?
-			#ifdef DAEDALUS_PSP
 			mpWritePointer = (u8*)make_uncached_ptr(mpCodeBuffer);
-			#else
-			mpWritePointer = (u8*)(mpCodeBuffer);
-			#endif
 			//ToDo: Test this
 			//mpWritePointer = mpCodeBuffer;
 			mCurrentPos = 0;

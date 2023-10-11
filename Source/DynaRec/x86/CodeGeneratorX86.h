@@ -39,7 +39,7 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 		CCodeGeneratorX86( CAssemblyBuffer * p_primary, CAssemblyBuffer * p_secondary );
 
 		virtual void				Initialise( u32 entry_address, u32 exit_address, u32 * hit_counter, const void * p_base, const SRegisterUsageInfo & register_usage );
-		virtual void				Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps );
+		virtual void				Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps, const std::vector<RegisterSnapshotHandle>& exception_handler_snapshots );
 
 		virtual void				UpdateRegisterCaching( u32 instruction_idx );
 
@@ -73,7 +73,7 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 
 				void				GenerateGenericR4300( OpCode op_code, CPU_Instruction p_instruction );
 
-				void				GenerateExceptionHander( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps );
+				void				GenerateExceptionHander( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps, const std::vector<RegisterSnapshotHandle>& exception_handler_snapshots );
 	private:
 				bool				mSpCachedInESI;		// Is sp cached in ESI?
 				u32					mSetSpPostUpdate;	// Set Sp base counter after this update
