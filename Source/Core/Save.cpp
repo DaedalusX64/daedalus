@@ -70,6 +70,7 @@ bool Save_Reset()
 	if (gSaveSize > 0)
 	{
 		gSaveFileName = Save_As(g_ROM.mFileName, ext, "SaveGames/");
+		
 		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
 		if (fp != nullptr)
 		{

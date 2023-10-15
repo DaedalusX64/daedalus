@@ -84,11 +84,11 @@ namespace IO
 	};
 
 // This is also pretty redundant, as the IO file is pretty much deprecated
-#if defined( DAEDALUS_W32) || defined(DAEDALUS_CTR)
+// #if defined( DAEDALUS_W32) || defined(DAEDALUS_CTR) || defined(DAEDALUS_POSIX)
 	using FindHandleT = void *;
-#else
-	using FindHandleT = intptr_t;
-#endif
+// #else
+// 	using FindHandleT = intptr_t;
+// #endif
 
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data );
 	bool	FindFileNext( FindHandleT handle, FindDataT & data );

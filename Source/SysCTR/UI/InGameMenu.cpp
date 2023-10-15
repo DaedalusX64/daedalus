@@ -55,7 +55,7 @@ static void LoadSaveState(int slot)
 static bool SaveStateExists(int slot)
 {
 	IO::Filename full_path;
-	// sprintf(full_path, "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+	sprintf(full_path, "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
 
 	sprintf(full_path, "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 

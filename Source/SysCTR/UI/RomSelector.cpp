@@ -181,7 +181,7 @@ std::string UI::DrawRomSelector()
 		//Draw top screen
 		if(selection_changed)
 		{
-			std::shared_ptr<CNativeTexture>	previewTexture = NULL;
+			std::shared_ptr<CNativeTexture>	previewTexture = nullptr;
 
 			IO::Filename preview_filename;
 			IO::Path::Combine(preview_filename, DAEDALUS_CTR_PATH("Resources/Preview/"), roms.at(currentItem).mSettings.Preview.c_str() );

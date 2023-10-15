@@ -334,11 +334,11 @@ static void Draw_ObjSprite( const uObjSprite *sprite, const std::shared_ptr<CNat
 		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPT)
 		std::swap(y0,y1);
 			//Swap< f32 >( y0, y1 );
-#ifdef DAEDALUS_CTR
+// #ifdef DAEDALUS_CTR
 gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH, texture);
-#else
-gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
-#endif
+// #else
+// gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
+// #endif
 		break;
 
 	case PARTIAL_ROTATION:
@@ -348,11 +348,11 @@ gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 		y1 = mat2D.Y + objH / mat2D.BaseScaleY;
 
 		// Partial rotation doesn't flip sprites
-		#ifdef DAEDALUS_CTR
+		// #ifdef DAEDALUS_CTR
 		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH, texture);
-		#else
-		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
-		#endif
+		// #else
+		// gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+		// #endif
 		break;
 
 	case NO_ROTATION:
@@ -369,11 +369,11 @@ gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 		if (sprite->imageFlags & S2DEX_BG_FLAG_FLIPT)
 		std::swap(y0,y1);
 		//	Swap< f32 >( y0, y1 );
-		#ifdef DAEDALUS_CTR
+		// #ifdef DAEDALUS_CTR
 		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH, texture);
-		#else
-		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
-		#endif
+		// #else
+		// gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+		// #endif
 		break;
 	}
 }
@@ -701,13 +701,13 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 
 	std::shared_ptr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
 	
-	#ifdef DAEDALUS_CTR
+	// #ifdef DAEDALUS_CTR
 	gRenderer->Draw2DTexture( (f32)frameX, (f32)frameY, (f32)frameW, (f32)frameH,
 							  (f32)imageX, (f32)imageY, (f32)imageW, (f32)imageH, texture);
-	#else
-	gRenderer->Draw2DTexture( (f32)frameX, (f32)frameY, (f32)frameW, (f32)frameH,
-							  (f32)imageX, (f32)imageY, (f32)imageW, (f32)imageH );
-	#endif
+	// #else
+	// gRenderer->Draw2DTexture( (f32)frameX, (f32)frameY, (f32)frameW, (f32)frameH,
+	// 						  (f32)imageX, (f32)imageY, (f32)imageW, (f32)imageH );
+	// #endif
 }
 
 //*****************************************************************************
@@ -763,11 +763,11 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 
 		std::shared_ptr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
-		#ifdef DAEDALUS_CTR
+		// #ifdef DAEDALUS_CTR
 		gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1,texture );
-		#else
-		gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1 );
-		#endif
+		// #else
+		// gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1 );
+		// #endif
 	}
 	else
 	{
@@ -776,17 +776,17 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 		f32 u1 = (frameW-x2)*scaleX;
 		f32 v1 = (frameH-y2)*scaleY;
-		#ifdef DAEDALUS_CTR
+		// #ifdef DAEDALUS_CTR
 		gRenderer->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH, texture);
 		gRenderer->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH, texture);
 		gRenderer->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1, texture);
 		gRenderer->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1, texture);
-		#else
-		gRenderer->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH);
-		gRenderer->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH);
-		gRenderer->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1);
-		gRenderer->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1);
-		#endif
+		// #else
+		// gRenderer->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH);
+		// gRenderer->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH);
+		// gRenderer->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1);
+		// gRenderer->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1);
+		// #endif
 	}
 }
 

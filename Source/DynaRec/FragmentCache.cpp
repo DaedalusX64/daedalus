@@ -193,7 +193,7 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 	// Update the hash table (it stores failed lookups now, so we need to be sure to purge any stale entries in there
 	u32 ix {MakeHashIdx( fragment_address )};
 	mpCacheHashTable[ix].addr = fragment_address;
-	mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( p_fragment );
+	mpCacheHashTable[ix].ptr = reinterpret_cast< uintptr_t >( p_fragment );
 
 	// Process any jumps for this before inserting new ones
 	JumpMap::iterator	jump_it( mJumpMap.find( fragment_address ) );

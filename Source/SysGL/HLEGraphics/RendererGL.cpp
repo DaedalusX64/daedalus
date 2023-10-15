@@ -1188,10 +1188,10 @@ void RendererGL::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 }
 
 void RendererGL::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-							   f32 u0, f32 v0, f32 u1, f32 v1)
+							   f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture)
 {
 	DAEDALUS_PROFILE( "RendererGL::Draw2DTexture" );
-
+	texture->InstallTexture();
 	// FIXME(strmnnrmn): is this right? Gross anyway.
 	gRDPOtherMode.cycle_type = CYCLE_COPY;
 
@@ -1239,8 +1239,9 @@ void RendererGL::Draw2DTextureR(f32 x0, f32 y0,
 								f32 x1, f32 y1,
 								f32 x2, f32 y2,
 								f32 x3, f32 y3,
-								f32 s, f32 t)	// With Rotation
+								f32 s, f32 t, std::shared_ptr<CNativeTexture> texture)	// With Rotation
 {
+		texture->InstallTexture();
 	DAEDALUS_PROFILE( "RendererGL::Draw2DTextureR" );
 
 	// FIXME(strmnnrmn): is this right? Gross anyway.
