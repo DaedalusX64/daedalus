@@ -673,7 +673,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			//   interrupt the dynamo tracer for instance)
 			// TODO(strmnnrmn): should register this with CPU_RegisterVblCallback.
 			if ((gVerticalInterrupts & 0x3F) == 0) // once every 60 VBLs
-				Save_Flush();
+				// Save_Flush();
 
 				//TESTING
 			for (size_t i = 0; i < gVblCallbacks.size(); ++i)
@@ -859,32 +859,30 @@ bool CPU_CheckStuffToDo()
     }
 
     // Process Interrupts/Exceptions on a priority basis using a switch statement
-    switch (stuff_to_do) {
-        case CPU_CHECK_INTERRUPTS:
-            R4300_Handle_Interrupt();
-            gCPUState.ClearJob(CPU_CHECK_INTERRUPTS);
-            break;
-        case CPU_CHECK_EXCEPTIONS:
-            R4300_Handle_Exception();
-            gCPUState.ClearJob(CPU_CHECK_EXCEPTIONS);
-            break;
-        case CPU_CHANGE_CORE:
-            gCPUState.ClearJob(CPU_CHANGE_CORE);
-            return true;
-        case CPU_STOP_RUNNING:
-            gCPUState.ClearJob(CPU_STOP_RUNNING);
-            gCPURunning = false;
-            return true;
-        default:
-            break;
-    }
+		if( gCPUState.GetStuffToDo() & CPU_CHECK_INTERRUPTS )
+		{
+			R4300_Handle_Interrupt();
+			gCPUState.ClearJob( CPU_CHECK_INTERRUPTS );
+		}
+		else if( gCPUState.GetStuffToDo() & CPU_CHECK_EXCEPTIONS )
+		{
+			R4300_Handle_Exception();
+			gCPUState.ClearJob( CPU_CHECK_EXCEPTIONS );
+		}
+		else if( gCPUState.GetStuffToDo() & CPU_CHANGE_CORE )
+		{
+			gCPUState.ClearJob( CPU_CHANGE_CORE );
+			return true;
+		}
+		else if( gCPUState.GetStuffToDo() & CPU_STOP_RUNNING )
+		{
+			gCPUState.ClearJob( CPU_STOP_RUNNING );
+			gCPURunning = false;
+			return true;
+		}
+		// Clear stuff_to_do?
 
-    // Clear stuff_to_do if necessary
-    if (stuff_to_do & ~(CPU_CHECK_INTERRUPTS | CPU_CHECK_EXCEPTIONS)) {
-        gCPUState.ClearJob(stuff_to_do);
-    }
-
-    return false;
+	return false;
 }
 
 // FIX ME: This gets called alot

@@ -26,7 +26,7 @@ list(APPEND plat_main )
 		 set(CMAKE_BUILD_TYPE Release)
 	endif(NOT APPLE)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
-		add_compile_definitions("O2")
+		add_compile_definitions("O3")
 		 add_compile_definitions("flto")
 	endif()
 
@@ -66,7 +66,8 @@ list(APPEND plat_main )
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM `Support" OFF) ## Probably should be a default option. 
-	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
+	option(DAEDALUS_LOG "Log stuff " ON) ## NEeds to be off on the PSP unless debugging
 
 	# Additional Debug Options
 	option(SHOW_MEM "Show memory usage" OFF)
@@ -114,8 +115,6 @@ list(APPEND plat_main )
 		option(DAEDALUS_CTR "3DS Specific Options" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
 		option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
-		option(DAEDALUS_DEBUG_CONSOLE "Debug Console" ON)
-		option(DAEDALUS_SILENT "Nah" OFF)
 	endif()
 
 	if(DAEDALUS_SDL)
@@ -222,10 +221,11 @@ if(WIN32)
 		add_subdirectory(SysPSP)
 	endif()
 
- 
+
 	# ---  Build ---- 
 	add_executable(daedalus ${plat_main})
 	list(APPEND default_libraries png z) ## Required Libraries 
+	
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries}  )
 
