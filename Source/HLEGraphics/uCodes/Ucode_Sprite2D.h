@@ -172,7 +172,7 @@ void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, 
 
 	u32 address = RDPSegAddr(sprite->address);
 
-	SImageDescriptor	desc = { sprite->format, sprite->size, sprite->stride, address };
+	SImageDescriptor	desc = { static_cast<u32>(sprite->format), static_cast<u32>(sprite->size), static_cast<u32>(sprite->stride), static_cast<u32>(address) };
 
 	ti.SetFormat(sprite->format);
 	ti.SetSize(sprite->size);
