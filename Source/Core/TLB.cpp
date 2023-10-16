@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_R4300.h"
 
 // ALIGNED_GLOBAL(TLBEntry, g_TLBs[32], CACHE_ALIGN);
-std::array<TLBEntry, 32> g_TLBs;
+alignas(CACHE_ALIGN) std::array<TLBEntry, 32> g_TLBs;
 
 void TLBEntry::UpdateValue(u32 _pagemask, u32 _hi, u32 _pfno, u32 _pfne)
 {

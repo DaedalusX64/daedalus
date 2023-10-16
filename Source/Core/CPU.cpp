@@ -97,7 +97,7 @@ static u32			VI_INTR_CYCLES(kInitialVIInterruptCycles);
 #ifdef USE_SCRATCH_PAD
 SCPUState *gPtrCPUState = (SCPUState*)0x10000;
 #else
-struct SCPUState gCPUState;
+ alignas(CACHE_ALIGN) SCPUState gCPUState;
 #endif
 
 static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
@@ -283,7 +283,7 @@ void SCPUState::ClearStuffToDo()
 
 void SCPUState::AddJob( u32 job )
 {
-	u32 stuff( AtomicBitSet( &StuffToDo, 0xffffffff, job ) );
+	u32 stuff =  AtomicBitSet( &StuffToDo, 0xffffffff, job );
 	if( stuff != 0 )
 	{
 		Dynarec_SetCPUStuffToDo();

@@ -33,6 +33,8 @@ extern EFrameskipValue gFrameskipValue;
 extern RomInfo g_ROM;
 
 static uint8_t currentPage = 0;
+#define DAEDALUS_CTR_PATH(p)	"sdmc:/3ds/DaedalusX64/" p
+
 
 static void ExecSaveState(int slot)
 {
