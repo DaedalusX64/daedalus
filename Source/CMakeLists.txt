@@ -41,7 +41,7 @@ list(APPEND plat_main )
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 		## X86 Dynarec Code needs to be moved from W32 emulator
-	elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm" AND NOT "arm64")
+	elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv")
 		message("ARM Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
 		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
