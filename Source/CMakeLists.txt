@@ -144,9 +144,6 @@ list(APPEND plat_main )
 		add_compile_definitions(DAEDALUS_ZLIB_CALL_TYPE=${})
 	endif()
 
-	# Include the base directory first as BuildOptions.h contains some function Macros
-	# As of writing CMake does not yet support function Macros
-
 	
 	if (APPLE)
 		list(APPEND sys_libraries "-framework OpenGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")

@@ -86,8 +86,6 @@ extern "C" {
 			case NO_DELAY:
 				gCPUState.CurrentPC += 4;
 				break;
-			default:
-				NODEFAULT;
 		}
 	}
 }

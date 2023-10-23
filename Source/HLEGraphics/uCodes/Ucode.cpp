@@ -17,7 +17,7 @@
 
 */
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 
 #include "HLEGraphics/uCodes/Ucode.h"

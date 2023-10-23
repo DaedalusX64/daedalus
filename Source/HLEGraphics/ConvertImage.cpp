@@ -17,7 +17,7 @@ Copyright (C) 2001 StrmnNrmn
 
 */
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 
 #include "DLDebug.h"

@@ -232,7 +232,7 @@ extern	void (* g_pCPUCore)();
 //
 #define CPU_FETCH_INSTRUCTION(ptr, pc)								\
 	const MemFuncRead & m( g_MemoryLookupTableRead[ pc >> 18 ] );	\
-	if( DAEDALUS_EXPECT_LIKELY(m.pRead != nullptr) )					\
+	if((m.pRead != nullptr) )					\
 	{																\
 /* Access through pointer with no function calls at all (Fast) */	\
 		ptr = ( m.pRead + pc );										\

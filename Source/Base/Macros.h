@@ -9,25 +9,21 @@
 #define DAEDALUS_FORCEINLINE inline
 #endif
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
-
-#ifdef DAEDALUS_DEBUG_CONSOLE
-#define NODEFAULT		DAEDALUS_ERROR( "No default - we shouldn't be here" )
-#endif
-#else
-
-#ifdef _MSC_VER
-#define NODEFAULT		__assume( 0 )
-#else
-#define NODEFAULT		//DAEDALUS_EXPECT_LIKELY(1)?
-#endif
-
-#endif
 
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(arr)  std::size(arr)
 #endif
 
 #define DAEDALUS_USE(...)	do { (void)sizeof(__VA_ARGS__, 0); } while(0)
+
+
+#ifdef DAEDALUS_PSP
+    template <typename T>
+    T make_uncached_ptr(T ptr) {
+        return reinterpret_cast<T>(reinterpret_cast<uint32_t>(ptr) | 0x40000000);
+    }
+#else
+#define make_uncached_ptr(x)	(x)
+#endif
 
 #endif // UTILITY_MACROS_H_

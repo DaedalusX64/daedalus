@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Various stuff to map an address onto the correct memory region
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 
 #include "Core/DMA.h"

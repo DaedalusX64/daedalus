@@ -1,6 +1,6 @@
 #include <SDL2/SDL.h>
 
-#include "BuildOptions.h"
+
 
 #include "Base/Types.h"
 #include "Config/ConfigOptions.h"

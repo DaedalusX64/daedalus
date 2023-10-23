@@ -5,7 +5,7 @@
 #include "UserInterface.h"
 #include "InGameMenu.h"
 
-#include "BuildOptions.h"
+
 #include "Config/ConfigOptions.h"
 #include "Core/Cheats.h"
 #include "Core/CPU.h"

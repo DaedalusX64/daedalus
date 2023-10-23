@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //Define to to calculate the CRC table on the fly
 //#define CALC_CRC_TABLE
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 #include "Utility/CRC.h"
 

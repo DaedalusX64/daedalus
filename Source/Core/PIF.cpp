@@ -87,7 +87,7 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 
 #include <time.h>
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 
 #include "Core/PIF.h"
@@ -159,7 +159,7 @@ class	IController : public CController
 		void			CommandWriteRumblePack(u32 channel, u8 *cmd);
 		void			CommandReadRTC(u8 *cmd);
 
-		u8				CalculateDataCrc(const u8 * pBuf) DAEDALUS_ATTRIBUTE_CONST;
+		const u8				CalculateDataCrc(const u8 * pBuf);
 		bool			IsEepromPresent() const						{ return mpEepromData != nullptr; }
 
 		void			n64_cic_nus_6105();
@@ -614,7 +614,7 @@ void	IController::CommandWriteEeprom(u8* cmd)
 }
 
 
-u8 IController::CalculateDataCrc(const u8 * data)
+const u8 IController::CalculateDataCrc(const u8 * data)
 {
 	size_t i;
     uint8_t crc = 0;

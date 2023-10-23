@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 
 
@@ -217,8 +217,6 @@ namespace
 			case NO_DELAY:
 				gCPUState.CurrentPC += 4;
 				break;
-			default:
-				NODEFAULT;
 		}
 	}
 #ifdef FRAGMENT_SIMULATE_EXECUTION

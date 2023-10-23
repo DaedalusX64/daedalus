@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 #include "ROM.h"
 
@@ -636,7 +636,7 @@ const char * ROM_GetCountryNameFromID( u8 country_id )
 	return "?";
 }
 
-u32 ROM_GetTvTypeFromID( u8 country_id )
+const u32 ROM_GetTvTypeFromID( u8 country_id )
 {
 	for (u32 i = 0; i < g_CountryCodeInfo.size(); i++)
 	{

@@ -1,6 +1,6 @@
 // Taken from http://svn.ps2dev.org/filedetails.php?repname=psp&path=%2Ftrunk%2Fpspgl%2Fpspgl_vidmem.c&rev=0&sc=0
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 
 #include <stdio.h>

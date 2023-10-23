@@ -29,7 +29,7 @@
 //	and modified by Rinnegatamante to work with Daedalus X64.
 //
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 
 #include <stdlib.h>

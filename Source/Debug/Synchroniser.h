@@ -90,7 +90,6 @@ class CSynchroniser
 					case SR_OUT_OF_STORAGE:		HandleOutOfStorage(); return;
 					case SR_OUT_OF_INPUT:		HandleOutOfInput(); return;
 					case SR_OUT_OF_SYNCH:		DAEDALUS_ERROR( "Shouldn't ever be out of synch?" );	return;
-					default:					NODEFAULT;
 				}
 			}
 		}
@@ -106,7 +105,6 @@ class CSynchroniser
 					case SR_OUT_OF_STORAGE:		HandleOutOfStorage(); return;
 					case SR_OUT_OF_INPUT:		HandleOutOfInput(); return;
 					case SR_OUT_OF_SYNCH:		HandleOutOfSynch( msg );	return;
-					default:					NODEFAULT;
 				}
 			}
 		}

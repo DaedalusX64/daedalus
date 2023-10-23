@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "BuildOptions.h"
+
 #include "Config/ConfigOptions.h"
 #include "Core/Cheats.h"
 #include "Core/CPU.h"

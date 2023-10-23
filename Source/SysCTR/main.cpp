@@ -6,7 +6,7 @@
 #include <3ds.h>
 #include <GL/picaGL.h>
 
-#include "BuildOptions.h"
+
 #include "Config/ConfigOptions.h"
 #include "Core/Cheats.h"
 #include "Core/CPU.h"

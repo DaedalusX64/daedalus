@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 // Stuff to handle Processor
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 
 #include "Core/CPU.h"
@@ -124,8 +124,6 @@ template< bool TranslateOp > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 		// Normal operation - just increment the PC
 		INCREMENT_PC();
 		break;
-	default:
-		NODEFAULT;
 	}
 }
 

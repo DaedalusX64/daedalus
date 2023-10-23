@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // This file should not be compiled using precompiled headers.
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 #include "CompressedStream.h"
 

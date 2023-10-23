@@ -24,7 +24,7 @@
 #define DEBUG_DAEDALUSASSERT_H_
 
 #include "Base/Macros.h"
-#include "BuildOptions.h"
+
 
 #define DAEDALUS_STATIC_ASSERT( x ) static_assert((x), "Static Assert")
 

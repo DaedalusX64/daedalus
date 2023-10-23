@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 // Stuff to handle Processor
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 #include "Core/CPU.h"
 
@@ -100,7 +100,7 @@ SCPUState *gPtrCPUState = (SCPUState*)0x10000;
  alignas(CACHE_ALIGN) SCPUState gCPUState;
 #endif
 
-static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
+const static bool	CPU_IsStateSimple();
 void (* g_pCPUCore)();
 
 using VblCallbackFn = void (*)(void * arg);
@@ -395,7 +395,7 @@ bool CPU_RomOpen()
 }
 
 
-static bool	CPU_IsStateSimple()
+static const bool	CPU_IsStateSimple()
 {
 	bool rsp_halted = !RSP_IsRunning();
 
@@ -702,8 +702,6 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP);
 		R4300_Interrupt_UpdateCause3();
 		break;
-	default:
-		NODEFAULT;
 	}
 
 	#ifdef DAEDALUS_ENABLE_ASSERTS

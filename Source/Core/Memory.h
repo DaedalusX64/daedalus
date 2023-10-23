@@ -103,7 +103,7 @@ extern MemFuncRead  				g_MemoryLookupTableRead[0x4000];
 // extern MemFuncWrite 				g_MemoryLookupTableWrite[0x4000];
 
 // Fast memory access
-inline void* DAEDALUS_ATTRIBUTE_CONST ReadAddress( u32 address )
+inline void* const ReadAddress( u32 address )
 {
 	const MemFuncRead & m( g_MemoryLookupTableRead[ address >> 18 ] );
 

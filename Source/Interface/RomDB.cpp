@@ -18,7 +18,7 @@
 
 */
 
-#include "BuildOptions.h"
+
 #include "Base/Types.h"
 
 #include <algorithm>
