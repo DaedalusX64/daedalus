@@ -53,10 +53,8 @@ EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression,
     #define _CRT_SECURE_NO_DEPRECATE
     #define _DO_NOT_DECLARE_INTERLOCKED_INTRINSICS_IN_MEMORY
 
-    #define R4300_CALL_TYPE						__fastcall
     #define DAEDALUS_THREAD_CALL_TYPE			__stdcall // Thread functions need to be __stdcall to work with the W32 api
     #define DAEDALUS_VARARG_CALL_TYPE			__cdecl // Vararg functions need to be __cdecl
-    #define	DAEDALUS_ZLIB_CALL_TYPE				__cdecl // Zlib is compiled as __cdecl
     #define DAEDALUS_HALT					__asm { int 3 }
 #else
 #error Unknown Platforn DAEDALUS_HALT should be defined in Base/Assert.h

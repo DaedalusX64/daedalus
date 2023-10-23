@@ -72,7 +72,7 @@ class CCodeGenerator
 
 extern "C"
 {
-	void R4300_CALL_TYPE _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit );
+	void  _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit );
 }
 
 #endif // DYNAREC_CODEGENERATOR_H_

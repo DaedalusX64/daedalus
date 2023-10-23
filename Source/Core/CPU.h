@@ -167,8 +167,8 @@ void	CPU_SelectCore();
 u32		CPU_GetVideoInterruptEventCount();
 void	CPU_SetVideoInterruptEventCount( u32 count );
 void	CPU_DynarecEnable();
-void	R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length );
-void	R4300_CALL_TYPE CPU_InvalidateICache();
+void	 CPU_InvalidateICacheRange( u32 address, u32 length );
+void	 CPU_InvalidateICache();
 void	CPU_SetCompare(u32 value);
 #ifdef DAEDALUS_BREAKPOINTS_ENABLED
 void	CPU_AddBreakPoint( u32 address );						// Add a break point at address dwAddress
@@ -215,7 +215,7 @@ void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p
 // Needs to be callable from assembly
 extern "C"
 {
-	void	R4300_CALL_TYPE CPU_UpdateCounter( u32 ops_executed );
+	void	 CPU_UpdateCounter( u32 ops_executed );
 #ifdef FRAGMENT_SIMULATE_EXECUTION
 	void	CPU_UpdateCounterNoInterrupt( u32 ops_exexuted );
 #endif

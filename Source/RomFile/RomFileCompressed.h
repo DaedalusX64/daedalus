@@ -24,9 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 
-// This is required so that the linker doesn't expect __fastcall unzXYZ functions.
-#define ZEXPORT DAEDALUS_ZLIB_CALL_TYPE
-
 //This should be pulled from the system's include directory..
 #include <minizip/unzip.h>
 

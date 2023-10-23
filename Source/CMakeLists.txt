@@ -138,10 +138,8 @@ list(APPEND plat_main )
 
 	## Generic defines for certain things that Windows requires.
 	if(NOT WIN32)
-		add_compile_definitions(R4300_CALL_TYPE=${})
 		add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
 		add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
-		add_compile_definitions(DAEDALUS_ZLIB_CALL_TYPE=${})
 	endif()
 
 	

@@ -796,7 +796,7 @@ void CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p
 
 extern "C"
 {
-void R4300_CALL_TYPE CPU_UpdateCounter( u32 ops_executed )
+void  CPU_UpdateCounter( u32 ops_executed )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( ops_executed > 0, "Expecting at least one op" );

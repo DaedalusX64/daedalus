@@ -85,13 +85,13 @@ static void WritePngRowPal8( u8 * line, const void * src, u32 width, const Nativ
 	}
 }
 
-static void DAEDALUS_ZLIB_CALL_TYPE PngWrite(png_structp png_ptr, png_bytep data, png_size_t len)
+static void PngWrite(png_structp png_ptr, png_bytep data, png_size_t len)
 {
 	DataSink * sink = static_cast<DataSink*>(png_get_io_ptr(png_ptr));
 	sink->Write(data, len);
 }
 
-static void DAEDALUS_ZLIB_CALL_TYPE PngFlush(png_structp png_ptr)
+static void PngFlush(png_structp png_ptr)
 {
 	DataSink * sink = static_cast<DataSink*>(png_get_io_ptr(png_ptr));
 	sink->Flush();

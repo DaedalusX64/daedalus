@@ -93,7 +93,7 @@ u32 gFragmentLookupSuccess {};
 //	(we have to dump the dynarec contents and start over, but this is
 //	better than crashing :) )
 //*****************************************************************************
-void R4300_CALL_TYPE CPU_InvalidateICache()
+void  CPU_InvalidateICache()
 {
 	CPU_ResetFragmentCache();
 }
@@ -110,7 +110,7 @@ void CPU_DynarecEnable()
 //*****************************************************************************
 // If fragments overlap dynarec has to start all over which is very costly
 //*****************************************************************************
-void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length )
+void  CPU_InvalidateICacheRange( u32 address, u32 length )
 {
 	if( gFragmentCache.ShouldInvalidateOnWrite( address, length ) )
 	{
@@ -595,6 +595,6 @@ void Dynamo_SelectCore()
 
 void CPU_ResetFragmentCache() {}
 void Dynamo_Reset() {}
-void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length ) {}
+void  CPU_InvalidateICacheRange( u32 address, u32 length ) {}
 
 #endif //DAEDALUS_ENABLE_DYNAREC
