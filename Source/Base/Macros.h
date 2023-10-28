@@ -1,7 +1,7 @@
-#pragma once
-
 #ifndef UTILITY_MACROS_H_
 #define UTILITY_MACROS_H_
+
+#include <cstdint>
 
 #ifdef _MSC_VER
 #define DAEDALUS_FORCEINLINE __forceinline

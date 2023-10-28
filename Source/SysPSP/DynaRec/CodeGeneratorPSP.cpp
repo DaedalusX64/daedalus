@@ -315,7 +315,7 @@ void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * h
 
 //
 
-void	CCodeGeneratorPSP::Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps )
+void	CCodeGeneratorPSP::Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps, const std::vector< RegisterSnapshotHandle>& exception_handler_snapshots )
 {
 	// We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo - we should never get here on the psp
 	#ifdef DAEDALUS_ENABLE_ASSERTS
