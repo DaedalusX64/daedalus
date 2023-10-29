@@ -890,8 +890,9 @@ void RendererPSP::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 }
 
 void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-								f32 u0, f32 v0, f32 u1, f32 v1)
+								f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture)
 {
+	texture->InstallTexture();
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 
@@ -958,8 +959,9 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 
 void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 								 f32 x2, f32 y2, f32 x3, f32 y3,
-								 f32 s, f32 t)	// With Rotation
+								 f32 s, f32 t, std::shared_ptr<CNativeTexture> texture)	// With Rotation
 {
+	texture->InstallTexture();
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTextureR" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 

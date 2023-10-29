@@ -66,8 +66,8 @@ list(APPEND plat_main )
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM `Support" OFF) ## Probably should be a default option. 
-	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
-	option(DAEDALUS_LOG "Log stuff " ON) ## NEeds to be off on the PSP unless debugging
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
+	option(DAEDALUS_LOG "Log stuff " OFF) ## NEeds to be off on the PSP unless debugging
 
 	# Additional Debug Options
 	option(SHOW_MEM "Show memory usage" OFF)
