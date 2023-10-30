@@ -547,7 +547,7 @@ void IGraphicsContext::DumpScreenShot()
 	{
 		IO::Filename test_name;
 
-		sprintf(test_name, gScreenDumpDumpPathFormat, count++);
+		snprintf(test_name, sizeof(test_name), gScreenDumpDumpPathFormat, count++);
 		IO::Path::Combine( unique_filename, filepath, test_name );
 
 	} while( std::filesystem::exists( unique_filename ) );
@@ -588,7 +588,7 @@ void IGraphicsContext::StoreSaveScreenData()
 	IO::Filename pngfile;
 
 	extern std::string	gSaveStateFilename;
-	sprintf( pngfile,"%s.png", gSaveStateFilename.c_str() );	//Add .png to filename
+	snprintf( pngfile, sizeof(pngfile), "%s.png", gSaveStateFilename.c_str() );	//Add .png to filename
 
 	u32		display_width = 0;
 	u32		display_height= 0;

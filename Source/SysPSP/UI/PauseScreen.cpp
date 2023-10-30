@@ -245,14 +245,14 @@ void	IPauseScreen::Render()
 
 	if(!scePowerIsBatteryCharging())
 	{
-			sprintf(info," [%s %d%% %s %2dh %2dm]",
+			snprintf(info, sizeof(info), " [%s %d%% %s %2dh %2dm]",
 			Translate_String("Battery / "), bat,
-			Translate_String("Time"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
+			Translate_String("Time"), batteryLifeTime / 60, batteryLifeTime % 60);
 
 	}
 	else
 	{
-			sprintf(info,"[%s]" ,
+			snprintf(info, sizeof(info), "[%s]" ,
 			Translate_String("Battery is Charging"));
 	}
 // Battery Info

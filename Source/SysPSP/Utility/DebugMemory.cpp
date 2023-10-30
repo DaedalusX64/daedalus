@@ -50,106 +50,106 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //*****************************************************************************
 //
-//*****************************************************************************
-namespace
-{
+// //*****************************************************************************
+// namespace
+// {
 
-FILE * GetMemLogFh()
-{
-	static FILE * gMemLogFh = nullptr;
-	if( gMemLogFh == nullptr )
-	{
-		gMemLogFh = fopen( "memorylog.txt", "w" );
-	}
+// FILE * GetMemLogFh()
+// {
+// 	static FILE * gMemLogFh = nullptr;
+// 	if( gMemLogFh == nullptr )
+// 	{
+// 		gMemLogFh = fopen( "memorylog.txt", "w" );
+// 	}
 
-	if( gMemLogFh != nullptr )
-	{
-		return gMemLogFh;
-	}
+// 	if( gMemLogFh != nullptr )
+// 	{
+// 		return gMemLogFh;
+// 	}
 
-	return stdout;
-}
+// 	return stdout;
+// }
 
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void * operator new( size_t count )
-{
-	SAVE_RA( ra );
-
-	void * p_mem( malloc( count ) );
-	if(p_mem == nullptr)
-	{
-		char msg[ 1024 ];
-		sprintf( msg, "Out of memory (operator new(%d)) - RA is %08x", count, ra );
-		DAEDALUS_ERROR( msg );
-		printf( "%s\n", msg );
-	}
-
-#ifdef DAEDALUS_LOG_ALLOCATIONS
-	fprintf( GetMemLogFh(), "Allocating   %8d bytes - %p - RA is %08x\n", count, p_mem, ra );
-#endif
-	return p_mem;
-}
+// }
 
 //*****************************************************************************
-//
-//*****************************************************************************
-void * operator new[]( size_t count )
-{
-	SAVE_RA( ra );
+// //
+// //*****************************************************************************
+// void * operator new( size_t count )
+// {
+// 	SAVE_RA( ra );
 
-	void * p_mem( malloc( count ) );
-	if(p_mem == nullptr)
-	{
-		char msg[ 1024 ];
-		sprintf( msg, "Out of memory (operator new[](%d) - RA is %08x", count, ra );
-		DAEDALUS_ERROR( msg );
-		printf( "%s\n", msg );
-	}
+// 	void * p_mem( malloc( count ) );
+// 	if(p_mem == nullptr)
+// 	{
+// 		char msg[ 1024 ];
+// 		sprintf( msg, "Out of memory (operator new(%d)) - RA is %08x", count, ra );
+// 		DAEDALUS_ERROR( msg );
+// 		printf( "%s\n", msg );
+// 	}
 
-#ifdef DAEDALUS_LOG_ALLOCATIONS
-	fprintf( GetMemLogFh(), "Allocating[] %8d bytes - %p - RA is %08x\n", count, p_mem, ra );
-#endif
-	return p_mem;
-}
+// #ifdef DAEDALUS_LOG_ALLOCATIONS
+// 	fprintf( GetMemLogFh(), "Allocating   %8d bytes - %p - RA is %08x\n", count, p_mem, ra );
+// #endif
+// 	return p_mem;
+// }
 
 //*****************************************************************************
 //
-//*****************************************************************************
-void operator delete[]( void * p_mem )
-{
-	#ifdef DAEDALUS_LOG_ALLOCATIONS
-	SAVE_RA( ra );
-	#endif
+// //*****************************************************************************
+// void * operator new[]( size_t count )
+// {
+// 	SAVE_RA( ra );
 
-	if( p_mem != nullptr )
-	{
-	#ifdef DAEDALUS_LOG_ALLOCATIONS
-		fprintf( GetMemLogFh(), "Freeing[] %p - RA is %08x\n", p_mem, ra );
-	#endif
-		free( p_mem );
-	}
-}
+// 	void * p_mem( malloc( count ) );
+// 	if(p_mem == nullptr)
+// 	{
+// 		char msg[ 1024 ];
+// 		sprintf( msg, "Out of memory (operator new[](%d) - RA is %08x", count, ra );
+// 		DAEDALUS_ERROR( msg );
+// 		printf( "%s\n", msg );
+// 	}
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void operator delete( void * p_mem )
-{
-	#ifdef DAEDALUS_LOG_ALLOCATIONS
-	SAVE_RA( ra );
-	#endif
+// #ifdef DAEDALUS_LOG_ALLOCATIONS
+// 	fprintf( GetMemLogFh(), "Allocating[] %8d bytes - %p - RA is %08x\n", count, p_mem, ra );
+// #endif
+// 	return p_mem;
+// }
 
-	if( p_mem != nullptr )
-	{
-	#ifdef DAEDALUS_LOG_ALLOCATIONS
-		fprintf( GetMemLogFh(), "Freeing   %p - RA is %08x\n", p_mem, ra );
-	#endif
-		free( p_mem );
-	}
-}
+// //*****************************************************************************
+// //
+// //*****************************************************************************
+// void operator delete[]( void * p_mem )
+// {
+// 	#ifdef DAEDALUS_LOG_ALLOCATIONS
+// 	SAVE_RA( ra );
+// 	#endif
+
+// 	if( p_mem != nullptr )
+// 	{
+// 	#ifdef DAEDALUS_LOG_ALLOCATIONS
+// 		fprintf( GetMemLogFh(), "Freeing[] %p - RA is %08x\n", p_mem, ra );
+// 	#endif
+// 		free( p_mem );
+// 	}
+// }
+
+// //*****************************************************************************
+// //
+// //*****************************************************************************
+// void operator delete( void * p_mem )
+// {
+// 	#ifdef DAEDALUS_LOG_ALLOCATIONS
+// 	SAVE_RA( ra );
+// 	#endif
+
+// 	if( p_mem != nullptr )
+// 	{
+// 	#ifdef DAEDALUS_LOG_ALLOCATIONS
+// 		fprintf( GetMemLogFh(), "Freeing   %p - RA is %08x\n", p_mem, ra );
+// 	#endif
+// 		free( p_mem );
+// 	}
+// }
 
 #endif //DAEDALUS_SILENT

@@ -542,15 +542,15 @@ SprintOpInstruction SprintOp_Cop1DInstruction[64] =
 #define BranchAddress(op, address) (    (address)+4 + (s16)(((op).immediate))*4)
 #define JumpTarget(op, address)    (   ((address) & 0xF0000000) | (((op).target)<<2)   )
 
-void SprintOp_Unk( char * str, u32 address, OpCode op ) { sprintf(str, "Op_Unk?"); }
+void SprintOp_Unk( char * str, u32 address, OpCode op ) { strcpy(str, "Op_Unk?"); }
 
 void SprintOp_Special( char * str, u32 address, OpCode op )		{ SprintOp_SpecialInstructions[op.spec_op]( str, address, op ); }
 void SprintOp_RegImm( char * str, u32 address, OpCode op )		{ SprintOp_RegImmInstructions[op.rt]( str, address, op ); }
 void SprintOp_CoPro0( char * str, u32 address, OpCode op )		{ SprintOp_Cop0Instructions[op.cop0_op]( str, address, op ); }
 void SprintOp_CoPro1( char * str, u32 address, OpCode op )		{ SprintOp_Cop1Instructions[op.cop1_op]( str, address, op ); }
 
-void SprintOp_UnOpt( char * str, u32 address, OpCode op )		{ sprintf(str, "SRHack UnOpt"); }
-void SprintOp_Opt( char * str, u32 address, OpCode op )			{ sprintf(str, "SRHack Opt"); }
+void SprintOp_UnOpt( char * str, u32 address, OpCode op )		{ strcpy(str, "SRHack UnOpt"); }
+void SprintOp_Opt( char * str, u32 address, OpCode op )			{ strcpy(str, "SRHack Opt"); }
 
 void SprintOp_NoOpt( char * str, u32 address, OpCode op )		{   if( op.spec_op == 0 )
 																	{
@@ -562,11 +562,11 @@ void SprintOp_NoOpt( char * str, u32 address, OpCode op )		{   if( op.spec_op ==
 																	}
 																	else
 																	{
-																		sprintf(str, "SRHack NoOpt");
+																		strcpy(str, "SRHack NoOpt");
 																	}
 																}
 
-void SprintOp_Patch( char * str, u32 address, OpCode op )		{ sprintf(str, "Patch");
+void SprintOp_Patch( char * str, u32 address, OpCode op )		{ strcpy(str, "Patch");
 
 
 //Patch_GetJumpAddressName(JumpTarget(op, address)) );

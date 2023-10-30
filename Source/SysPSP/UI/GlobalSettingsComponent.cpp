@@ -184,7 +184,7 @@ namespace
 			f32 max_deadzone( gGlobalPreferences.StickMaxDeadzone );
 
 			static char buffer[ 10+10+1 ];
-			sprintf( buffer, "%d/%d", s32( 100.0f * min_deadzone ), s32( 100.0f * max_deadzone ) );
+			snprintf( buffer, sizeof(buffer), "%d/%d", s32( 100.0f * min_deadzone ), s32( 100.0f * max_deadzone ) );
 			return buffer;
 		}
 

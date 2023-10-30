@@ -431,7 +431,7 @@ void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 
 			IO::Filename	fragment_path;
 			char			fragment_name[ 32+1 ];
-			sprintf( fragment_name, "%08x.html", fragment->GetEntryAddress() );
+			snprintf( fragment_name, sizeof(fragment_name), "%08x.html", fragment->GetEntryAddress() );
 			IO::Path::Combine( fragment_path, fragments_dir, fragment_name );
 
 			FILE * fragment_fh( fopen( fragment_path, "w" ) );

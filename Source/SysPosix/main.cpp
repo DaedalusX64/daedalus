@@ -109,54 +109,6 @@ int main(int argc, char **argv)
 			System_Close();
 		}
 	}
-	else
-	{
-		std::filesystem::path filename;
-		std::filesystem::path RomDir = "Roms";
-		std::vector<std::filesystem::path> RomList;
-		
-		// Build up a vector of Roms from RomList
-		for (auto const &dir_entry : std::filesystem::directory_iterator{RomDir})
-		{
-			RomList.push_back(dir_entry);
-		}
-
-		// Sort alphabetically. 
-		std::sort(RomList.begin(), RomList.end()); 
-		
-		// Iterate over RomList and add numbers to be able to select 
-		// This will eventually change to keyboard input / D-Pad control
-
-		int count = 0;
-		
-		for (auto n : RomList)
-		{
-			std::cout << count << "." << n << std::endl;
-			count++;
-		}
-		
-		int game = 0;
-		
-		// Select the game using the outputted numbers
-		std::cout << "Select a Game: " << std::endl;
-		std::cin >> game;
-		// 
-		if(game > RomList.size())
-		{
-			std::cout << "Invalid Entry" << std::endl;
-		}
-		else
-		{
-			std::cout << "You have Selected: " << RomList.at(game);
-			filename = RomList.at(game);
-			std::cout << "Filename is: " << filename << std::endl;
-			
-			System_Open(filename);
-			CRomDB::Get()->Commit();
-			CPU_Run();
-			System_Close();
-		}
-	}
 	System_Finalize();
 	return result;
 }

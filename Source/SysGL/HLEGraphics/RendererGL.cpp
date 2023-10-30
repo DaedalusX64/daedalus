@@ -432,7 +432,7 @@ static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & 
 		const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
 		const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
 
-		sprintf(body, "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
+		snprintf(body,sizeof(body),  "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
 					  "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
 					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
 					  "\tcol.a   = (%s - %s) * %s + %s;\n",
@@ -445,7 +445,7 @@ static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & 
 		const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
 		const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
 
-		sprintf(body, "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
+		snprintf(body,sizeof(body), "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
 					  "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
 					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
 					  "\tcol.a   = (%s - %s) * %s + %s;\n"
@@ -463,10 +463,10 @@ static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & 
 	if (config.AlphaThreshold > 0)
 	{
 		char * p = body + strlen(body);
-		sprintf(p, "\tif(col.a < %f) discard;\n", (float)config.AlphaThreshold / 255.f);
+		snprintf(p, sizeof(p), "\tif(col.a < %f) discard;\n", (float)config.AlphaThreshold / 255.f);
 	}
 
-	sprintf(frag_shader, default_fragment_shader_fmt, body);
+	snprintf(frag_shader, sizeof(body), default_fragment_shader_fmt, body);
 }
 
 static void InitShaderProgram(ShaderProgram * program, const ShaderConfiguration & config, GLuint shader_program)

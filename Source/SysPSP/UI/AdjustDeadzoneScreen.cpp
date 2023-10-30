@@ -232,7 +232,7 @@ void	IAdjustDeadzoneScreen::Render()
 	DrawStick( N64_CIRCLE_X, N64_CIRCLE_Y, DISPLAY_RADIUS, mN64Stick, -1.0f, -1.0f );
 
 	char str[ 128 ];
-	sprintf( str, "%s: %d, %s: %d", Translate_String("Min"), s32( 100.f * mStickMinDeadzone ), Translate_String("Max"), s32( 100.0f * mStickMaxDeadzone ) );
+	snprintf( str, sizeof(str), "%s: %d, %s: %d", Translate_String("Min"), s32( 100.f * mStickMinDeadzone ), Translate_String("Max"), s32( 100.0f * mStickMaxDeadzone ) );
 	mpContext->DrawText( PSP_CIRCLE_X - DISPLAY_RADIUS, PSP_CIRCLE_Y + DISPLAY_RADIUS + 10, str, DrawTextUtilities::TextWhite );
 
 	mpContext->DrawTextArea( LIST_TEXT_LEFT,
