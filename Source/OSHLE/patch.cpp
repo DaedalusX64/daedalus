@@ -372,23 +372,23 @@ void Patch_DumpOsQueueInfo()
 		}
 
 		if (dwFullQ == VAR_ADDRESS(osnullptrMsgQueue))
-			sprintf(fullqueue_buffer, "       -");
+			snprintf(fullqueue_buffer, sizeof(fullqueue_buffer), "       -");
 		else
-			sprintf(fullqueue_buffer, "%08x", dwFullQ);
+			snprintf(fullqueue_buffer,sizeof(fullqueue_buffer), "%08x", dwFullQ);
 
 		if (dwEmptyQ == VAR_ADDRESS(osnullptrMsgQueue))
-			sprintf(emptyqueue_buffer, "       -");
+			snprintf(emptyqueue_buffer,sizeof(emptyqueue_buffer),  "       -");
 		else
-			sprintf(emptyqueue_buffer, "%08x", dwEmptyQ);
+			snprintf(emptyqueue_buffer, sizeof(emptyqueue_buffer), "%08x", dwEmptyQ);
 
 		if (dwQueue == VAR_ADDRESS(osSiAccessQueue))
 		{
-			sprintf(type_buffer, "<- Si Access");
+			snprintf(type_buffer, sizeof(type_buffer),  "<- Si Access");
 
 		}
 		else if (dwQueue == VAR_ADDRESS(osPiAccessQueue))
 		{
-			sprintf(type_buffer, "<- Pi Access");
+			snprintf(type_buffer, sizeof(type_buffer),  "<- Pi Access");
 		}
 
 
@@ -399,7 +399,7 @@ void Patch_DumpOsQueueInfo()
 			{
 				if (dwQueue == Read32Bits(VAR_ADDRESS(osEventMesgArray) + (j * 8) + 0x0))
 				{
-					sprintf(type_buffer, "<- %s", gEventStrings[j]);
+					snprintf(type_buffer, sizeof(type_buffer), "<- %s", gEventStrings[j]);
 					break;
 				}
 			}

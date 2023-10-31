@@ -285,7 +285,7 @@ void CProfilerImpl::Update()
 		}
 
 		char line[ 1024 ];
-		sprintf( line, "\033[2K%x%*s%s" , depth, depth, "", callstack->GetBack()->GetName() );
+		snprintf( line, sizeof(line), "\033[2K%x%*s%s" , depth, depth, "", callstack->GetBack()->GetName() );
 		Pad( line, 54 );
 		printf( "%s %6.2f %6.1f%% %6.1f%% %5d%s\n", line, (f32)total_us / 1000.0f, percent_parent_time, percent_total_time, hit_count, TERMINAL_ERASE_TO_EOL );
 		//DBGConsole_Msg( 0, "%*s %s %d,%03dms (%d calls)", depth, "", p_item->GetName(), total_us / 1000, total_us % 1000, hit_count );

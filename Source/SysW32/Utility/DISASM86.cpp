@@ -811,7 +811,6 @@ static char *unasm(int segmentsize)
 
   memset(ubuf,0,100);
 
-  //sprintf(ubuf,"%04X:%08lX ",codeseg,codeoff);
   ubufp2=ubuf+COL_DUMP;
   ubufp2end=ubuf+COL_INST-2;
   ubufp=COL_INST+ubuf;
