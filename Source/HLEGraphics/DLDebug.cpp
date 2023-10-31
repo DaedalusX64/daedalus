@@ -485,7 +485,7 @@ DLDebugOutput * DLDebug_CreateFileOutput()
 	Dump_GetDumpDirectory(filepath, dumpdir);
 
 	char filename[64];
-	sprintf(filename, "dl%04d.txt", count++);
+	snprintf(filename, sizeof(filename), "dl%04d.txt", count++);
 
 	IO::Path::Append(filepath, filename);
 

@@ -353,7 +353,7 @@ void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptrst
 
 		Dump_GetDumpDirectory( filepath, dumpdir );
 
-		sprintf( filename, "%08x-%s_%dbpp-%dx%d-%dx%d.png",
+		snprintf( filename, sizeof(filename),  "%08x-%s_%dbpp-%dx%d-%dx%d.png",
 							ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(),
 							0, 0,		// Left/Top
 							ti.GetWidth(), ti.GetHeight() );
