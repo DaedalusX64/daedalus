@@ -2,7 +2,7 @@
 # Created and Maintained by Wally 
 # Yes right now this is a mess, hoping to simplify things further in future but please deal with it for now :)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
 
 # Below is related to Macros within the project, a lot of these could be deprecated and deleted.
@@ -21,13 +21,9 @@ list(APPEND plat_main )
 		add_definitions("-g")
 		add_compile_options("-Wall")
 	else()
-	# message(${CMAKE_CXX_FLAGS_RELEASE}) ## Need to investigate this further as it breaks macOS build.. See what the PSP has on it for example
-	if(NOT APPLE)
-		 set(CMAKE_BUILD_TYPE Release)
-	endif(NOT APPLE)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 		add_compile_definitions("O3")
-		 add_compile_definitions("flto")
+		add_compile_definitions("flto")
 	endif()
 
 	#Determine Dynarec compatibility and link in appropriate Dynarec

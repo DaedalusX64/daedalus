@@ -2,51 +2,51 @@
 #define MATH_VECTOR3_H_
 
 #include "Math/Math.h"	// VFPU Math
-
+#include <algorithm>
 class v3
 {
 public:
-	v3() {}
-	v3( float _x, float _y, float _z ) : x( _x ), y( _y ), z( _z ) {}
+	constexpr v3() {}
+	constexpr v3( float _x, float _y, float _z ) : x( _x ), y( _y ), z( _z ) {}
 
 
-	v3 operator+( const v3 & v ) const
+	constexpr v3 operator+( const v3 & v ) const
 	{
 		return v3( x + v.x, y + v.y, z + v.z );
 	}
 
-	v3 operator-( const v3 & v ) const
+	constexpr v3 operator-( const v3 & v ) const
 	{
 		return v3( x - v.x, y - v.y, z - v.z );
 	}
 
-	v3 operator+() const
+	constexpr v3 operator+() const
 	{
 		return *this;
 	}
 
-	v3 operator-() const
+	constexpr v3 operator-() const
 	{
 		return v3( -x, -y, -z );
 	}
 
-	v3 operator*( float s ) const
+	constexpr v3 operator*( float s ) const
 	{
-		return std::move(v3( x * s, y * s, z * s ));
+		return v3( x * s, y * s, z * s );
 	}
 
-	inline friend v3 operator*( float s, const v3 & v )
+	constexpr friend v3 operator*( float s, const v3 & v )
 	{
-		return std::move(v3( v.x * s, v.y * s, v.z * s ));
+		return v3( v.x * s, v.y * s, v.z * s );
 	}
 
-	v3 operator/( float s ) const
+	constexpr v3 operator/( float s ) const
 	{
 		float r( 1.0f / s );
 		return v3( x * r, y * r, z * r );
 	}
 
-	const v3 & operator+=( const v3 & rhs )
+	constexpr const v3 & operator+=( const v3 & rhs )
 	{
 		x += rhs.x;
 		y += rhs.y;
@@ -54,7 +54,7 @@ public:
 		return *this;
 	}
 
-	const v3 & operator*=( float s )
+	constexpr v3 & operator*=( float s )
 	{
 		x *= s;
 		y *= s;
@@ -81,33 +81,22 @@ public:
 	}
 #endif
 
-	float Length() const
+	constexpr float Length() const
 	{
 		return sqrtf( (x*x)+(y*y)+(z*z) );
 	}
 
-	float LengthSq() const
+	constexpr float LengthSq() const
 	{
-		return (x*x)+(y*y)+(z*z);
+		return ( x * x) + ( y * y ) + ( z * z );
 	}
 
-	float MinComponent() const
+	constexpr float MinComponent() const
 	{
-		if(x < y && x < z)
-		{
-			return x;
-		}
-		else if(y < z)
-		{
-			return y;
-		}
-		else
-		{
-			return z;
-		}
+		return std::min(std::min(x, y), z);
 	}
 
-	float Dot( const v3 & rhs ) const
+	constexpr float Dot( const v3 & rhs ) const
 	{
 		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z);
 	}
