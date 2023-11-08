@@ -415,7 +415,7 @@ void IRomSelectorComponent::RenderPreview()
 		u32				rom_size( p_rominfo->mRomSize );
 
 		char buffer[ 32 ];
-		sprintf( buffer, "%d MB", rom_size / (1024*1024) );
+		snprintf( buffer, sizeof(buffer), "%d MB", rom_size / (1024*1024) );
 
 		DrawInfoText( mpContext, y, "Boot:", cic_name );	y += line_height;
 		DrawInfoText( mpContext, y, "Country:", country );	y += line_height;
@@ -517,7 +517,7 @@ void IRomSelectorComponent::RenderCategoryList()
 		}
 
 		char str[ 16 ];
-		sprintf( str, "%c ", GetCategoryLetter( category ) );
+		snprintf( str, sizeof(str), "%c ", GetCategoryLetter( category ) );
 		x += mpContext->DrawText( x, y, str, colour );
 	}
 }

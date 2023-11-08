@@ -50,7 +50,7 @@ void log2file(const char *format, ...) {
 	char msg[512];
 	done = vsprintf(msg, format, arg);
 	va_end(arg);
-	sprintf(msg, "%s\n", msg);
+	snprintf(msg, sizeof(msg),  "%s\n", msg);
 	FILE *log = fopen("sdmc:/DaedalusX64.log", "a+");
 	if (log != NULL) {
 		fwrite(msg, 1, strlen(msg), log);

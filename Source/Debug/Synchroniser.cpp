@@ -120,7 +120,7 @@ void	CSynchroniser::HandleOutOfInput()
 void	CSynchroniser::HandleOutOfSynch( const char * msg )
 {
 	char			message[ 512 ];
-	sprintf( message, "Synchronisation Failed at 0x%08x: %s", gCPUState.CurrentPC, msg );
+	snprintf( message, sizeof(message), "Synchronisation Failed at 0x%08x: %s", gCPUState.CurrentPC, msg );
 	gCPUState.Dump();
 
 	CPU_Halt( message );

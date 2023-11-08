@@ -247,10 +247,10 @@ void CGraphicsPluginImpl::UpdateScreen()
 		UpdateFramerate();
 
 		// FIXME: safe printf
-		char string[22];
-		sprintf(string, "DaedalusX64");
+		std::string string = "DaedalusX64";
+		// strcpy(string, "DaedalusX64");
 
-	SDL_SetWindowTitle(gWindow, string);
+	SDL_SetWindowTitle(gWindow, string.c_str());
 
 //Start ImGui and Render MainMenu
 ImGui_ImplOpenGL3_NewFrame();

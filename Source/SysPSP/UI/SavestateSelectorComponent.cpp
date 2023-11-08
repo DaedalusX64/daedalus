@@ -106,9 +106,9 @@ namespace
 		IO::Filename	filename_ss;
 		IO::Filename    sub_path;
 		std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-		sprintf( filename_png, "saveslot%u.ss.png", slot_idx );
-		sprintf( filename_ss, "saveslot%u.ss", slot_idx );
-		sprintf( sub_path, "SaveStates/%s", slot_path);
+		snprintf( filename_png, sizeof(filename_png), "saveslot%u.ss.png", slot_idx );
+		snprintf( filename_ss, sizeof(filename_ss), "saveslot%u.ss", slot_idx );
+		snprintf( sub_path, sizeof(sub_path), "SaveStates/%s", slot_path);
 		if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
 		{
 			IO::Path::Combine( path, gDaedalusExePath.c_str(), sub_path );
@@ -234,7 +234,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 		{
 			// IO::File::Stat(filename_ss, &file_stat);
 			sceIoGetstat ( filename_ss, &file_stat );
-			sprintf(date_string, "%02d/%02d/%d %02d:%02d:%02d", file_stat.sce_st_ctime.month,  file_stat.sce_st_ctime.day, file_stat.sce_st_ctime.year, file_stat.sce_st_ctime.hour, file_stat.sce_st_ctime.minute, file_stat.sce_st_ctime.second); // settings.GameName.c_str();
+			snprintf(date_string, sizeof(date_string),  "%02d/%02d/%d %02d:%02d:%02d", file_stat.sce_st_ctime.month,  file_stat.sce_st_ctime.day, file_stat.sce_st_ctime.year, file_stat.sce_st_ctime.hour, file_stat.sce_st_ctime.minute, file_stat.sce_st_ctime.second); // settings.GameName.c_str();
 			str << date_string;
 			mSlotEmpty[ i ] = false;
 		}
@@ -360,9 +360,9 @@ void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
     IO::Filename	filename_ss;
     IO::Filename	filename_png;
     IO::Filename	sub_path;
-    sprintf( filename_ss, "saveslot%u.ss", id_ss );
-    sprintf( filename_png, "saveslot%u.png", id_ss );
-    sprintf( sub_path, "SaveStates/%s", current_slot_path);
+    snprintf( filename_ss, sizeof(filename_ss), "saveslot%u.ss", id_ss );
+    snprintf( filename_png, sizeof(filename_png), "saveslot%u.png", id_ss );
+    snprintf( sub_path, sizeof(sub_path), "SaveStates/%s", current_slot_path);
 			std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
 	if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
 	{

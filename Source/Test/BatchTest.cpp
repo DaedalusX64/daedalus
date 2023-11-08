@@ -104,7 +104,7 @@ static void MakeNewLogFilename( IO::Filename & filepath, const char * rundir )
 	do
 	{
 		char filename[64];
-		sprintf( filename, "log%04d.txt", count );
+		snprintf( filename, sizeof(filename), "log%04d.txt", count );
 		++count;
 
 		IO::Path::Combine(filepath, rundir, filename);
@@ -115,7 +115,7 @@ static void MakeNewLogFilename( IO::Filename & filepath, const char * rundir )
 static void SprintRunDirectory( IO::Filename & rundir, const char * batchdir, u32 run_id )
 {
 	char filename[64];
-	sprintf( filename, "run%04d", run_id );
+	snprintf( filename, sizeof(filename), "run%04d", run_id );
 	IO::Path::Combine(rundir, batchdir, filename);
 }
 

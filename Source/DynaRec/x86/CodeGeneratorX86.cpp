@@ -195,7 +195,7 @@ void LogFragmentEntry( u32 entry_address )
 	if(gNumFragmentsExecuted >= 0x99990)
 	{
 		char buffer[ 128 ]
-		sprintf( buffer, "Address %08x\n", entry_address );
+		snprintf( buffer, sizeof(buffer), "Address %08x\n", entry_address );
 		OutputDebugString( buffer );
 	}
 }

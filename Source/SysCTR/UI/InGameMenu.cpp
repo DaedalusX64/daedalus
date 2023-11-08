@@ -39,7 +39,7 @@ static uint8_t currentPage = 0;
 static void ExecSaveState(int slot)
 {
 	IO::Filename full_path;
-	sprintf(full_path, "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	snprintf(full_path, sizeof(full_path) "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	CPU_RequestSaveState(full_path);
 }
@@ -47,9 +47,7 @@ static void ExecSaveState(int slot)
 static void LoadSaveState(int slot)
 {
 	IO::Filename full_path;
-	// sprintf(full_path, "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
-
-	sprintf(full_path, "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	snprintf(full_path,sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	CPU_RequestLoadState(full_path);
 }
@@ -57,9 +55,9 @@ static void LoadSaveState(int slot)
 static bool SaveStateExists(int slot)
 {
 	IO::Filename full_path;
-	sprintf(full_path, "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+	snprintf(full_path, sizeof(full_path), "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
 
-	sprintf(full_path, "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	snprintf(full_path, sizeof(full_path),  "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	return std::filesystem::exists(full_path);
 }
@@ -78,7 +76,7 @@ static void DrawSaveStatePage()
 
 	for(int i = 0; i < 5; i++)
 	{
-		sprintf(buttonString, "Save slot: %i", i);
+		snprintf(buttonString, sizeof(buttonString),  "Save slot: %i", i);
 
 		if(ImGui::ColoredButton(buttonString, SaveStateExists(i) ? 0.16f : 0.40f, ImVec2(buttonWidth, 30)))
 		{
@@ -108,7 +106,7 @@ static void DrawLoadStatePage()
 	
 	for(int i = 0; i < 5; i++)
 	{
-		sprintf(buttonString, "Load slot: %i", i);
+		snprintf(buttonString, sizeof(buttonString),  "Load slot: %i", i);
 
 		if( SaveStateExists(i) )
 		{

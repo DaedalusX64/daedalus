@@ -82,7 +82,7 @@ COutputStream & COutputStringStream::operator<<( char val )
 COutputStream & COutputStringStream::operator<<( s32 val )
 {
 	char	buffer[ 32+1 ];
-	sprintf( buffer, "%d", val );
+	snprintf( buffer, sizeof(buffer), "%d", val );
 	mpImpl->mString += buffer;
 	return *this;
 }
@@ -93,7 +93,7 @@ COutputStream & COutputStringStream::operator<<( s32 val )
 COutputStream & COutputStringStream::operator<<( u32 val )
 {
 	char	buffer[ 32+1 ];
-	sprintf( buffer, "%d", val );
+	snprintf( buffer,sizeof(buffer),  "%d", val );
 	mpImpl->mString += buffer;
 	return *this;
 }

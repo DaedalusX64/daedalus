@@ -344,7 +344,7 @@ static word8 getbyte()
 {
   if(ubufp2<ubufp2end)
   {
-	sprintf(ubufp2, "%02X", *codepnt);
+	snprintf(ubufp2, sizeof(ubufp2), "%02X", *codepnt);
 	while(*ubufp2) ubufp2++;
   }
   else *ubufp2end='*';
@@ -811,7 +811,6 @@ static char *unasm(int segmentsize)
 
   memset(ubuf,0,100);
 
-  //sprintf(ubuf,"%04X:%08lX ",codeseg,codeoff);
   ubufp2=ubuf+COL_DUMP;
   ubufp2end=ubuf+COL_INST-2;
   ubufp=COL_INST+ubuf;

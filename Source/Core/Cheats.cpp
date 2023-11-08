@@ -275,7 +275,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 
 	// Add country ID to this ROM name, to avoid mixing cheat code of different region in the same entry
 	// Only the country id is important (first char)
-	sprintf( current_rom_name, "%s (%c)", rom_name, ROM_GetCountryNameFromID(countryID)[0]);
+	snprintf( current_rom_name,sizeof(current_rom_name), "%s (%c)", rom_name, ROM_GetCountryNameFromID(countryID)[0]);
 
 	// Do not parse again, if we already parsed for this ROM
 	// Should compare codegrouplist instead, but it'll use up quiet bit of memory
@@ -312,7 +312,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 
 	// Locate the entry for current rom by searching for g_ROM.rh.Name
 	//
-	sprintf(romname, "[%s]", current_rom_name);
+	snprintf(romname,sizeof(current_rom_name), "[%s]", current_rom_name);
 
 	bfound = false;
 
@@ -464,11 +464,6 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 				else
 				{
 					codegrouplist[codegroupcount].codecount=MAX_CHEATCODE_PER_ENTRY;
-					/*sprintf (errormessage,
-						     "Too many codes for cheat: %s (Max = %d)! Cheat will be truncated and won't work!",
-							 codegrouplist[codegroupcount].name,
-							 MAX_CHEATCODE_PER_ENTRY);
-					printf (errormessage);*/
 					break;
 				}
 			}

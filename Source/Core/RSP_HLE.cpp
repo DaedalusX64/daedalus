@@ -59,7 +59,7 @@ extern "C" {
 static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
 {
 	char filename[100];
-	sprintf(filename, "task_dump_%s_crc_0x%08x.txt", name, crc);
+	snprintf(filename, sizeof(filename), "task_dump_%s_crc_0x%08x.txt", name, crc);
 
 	std::filesystem::path filepath = "rsp_dumps/" /= filename;
 
@@ -88,7 +88,7 @@ static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u
 static void RDP_DumpRSPData(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
 {
 	char filename[100];
-	sprintf(filename, "task_data_dump_%s_crc_0x%08x.txt", name, crc);
+	snprintf(filename, sizeof(filename), "task_data_dump_%s_crc_0x%08x.txt", name, crc);
 
 
 	std::filesystem::path filepath = "rsp_dumps/" /= filename;
