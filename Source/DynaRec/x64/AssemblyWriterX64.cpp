@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-#include "DyanRec/x64/AssemblyWriterX64.h"
+#include "DynaRec/x64/AssemblyWriterX64.h"
 
 //*****************************************************************************
 //
@@ -67,11 +67,11 @@ void	CAssemblyWriterX64::SUB(EIntelReg reg1, EIntelReg reg2)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::MUL_EAX_MEM(void * mem)
+void	CAssemblyWriterX64::MUL_EAX_MEM(u32 * mem)
 {
 	EmitBYTE(0xf7);
 	EmitBYTE(0x25);
-	EmitDWORD((u32)mem);
+	EmitADDR(mem);
 }
 
 //*****************************************************************************
@@ -86,12 +86,12 @@ void	CAssemblyWriterX64::MUL(EIntelReg reg)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::ADD_REG_MEM_IDXx4( EIntelReg destreg, void * mem, EIntelReg idxreg )
+void	CAssemblyWriterX64::ADD_REG_MEM_IDXx4( EIntelReg destreg, u32 * mem, EIntelReg idxreg )
 {
 	EmitBYTE(0x03);
 	EmitBYTE(0x04 | (destreg << 3));
 	EmitBYTE(0x85 | (idxreg<<3));
-	EmitDWORD((u32)mem);
+	EmitADDR(mem);
 }
 
 //*****************************************************************************
@@ -321,22 +321,22 @@ void CAssemblyWriterX64::CMPI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //	cmp		dword ptr p_mem, data
 //*****************************************************************************
-void CAssemblyWriterX64::CMP_MEM32_I32(const void *p_mem, u32 data)
+void CAssemblyWriterX64::CMP_MEM32_I32(const u32 *p_mem, u32 data)
 {
 	EmitBYTE(0x81);
 	EmitBYTE(0x3d);
-	EmitDWORD(reinterpret_cast< u32 >( p_mem ));
+	EmitADDR(p_mem);
 	EmitDWORD(data);
 }
 
 //*****************************************************************************
 //	cmp		dword ptr p_mem, data
 //*****************************************************************************
-void CAssemblyWriterX64::CMP_MEM32_I8(const void *p_mem, u8 data)
+void CAssemblyWriterX64::CMP_MEM32_I8(const u32 *p_mem, u8 data)
 {
 	EmitBYTE(0x83);
 	EmitBYTE(0x3d);
-	EmitDWORD(reinterpret_cast< u32 >( p_mem ));
+	EmitADDR(p_mem);
 	EmitBYTE(data);
 }
 
@@ -537,7 +537,7 @@ void	CAssemblyWriterX64::CALL_MEM_PLUS_REGx4( void * mem, EIntelReg reg )
 	EmitBYTE(0xFF);
 	EmitBYTE(0x14);
 	EmitBYTE(0x85 | (reg<<3));
-	EmitDWORD((u32)mem);
+	EmitADDR(mem);
 }
 
 //*****************************************************************************
@@ -583,7 +583,7 @@ void	CAssemblyWriterX64::MOVZX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
 //*****************************************************************************
 // mov dword ptr[ mem ], reg
 //*****************************************************************************
-void	CAssemblyWriterX64::MOV_MEM_REG(void * mem, EIntelReg isrc)
+void	CAssemblyWriterX64::MOV_MEM_REG(u32 * mem, EIntelReg isrc)
 {
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0xa3);
@@ -592,13 +592,13 @@ void	CAssemblyWriterX64::MOV_MEM_REG(void * mem, EIntelReg isrc)
 		EmitBYTE(0x89);
 		EmitBYTE((isrc<<3) | 0x05);
 	}
-	EmitDWORD((u32)mem);
+	EmitADDR(mem);
 }
 
 //*****************************************************************************
 // mov reg, dword ptr[ mem ]
 //*****************************************************************************
-void	CAssemblyWriterX64::MOV_REG_MEM(EIntelReg reg, const void * mem)
+void	CAssemblyWriterX64::MOV_REG_MEM(EIntelReg reg, const u32 * mem)
 {
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0xa1);
@@ -608,7 +608,7 @@ void	CAssemblyWriterX64::MOV_REG_MEM(EIntelReg reg, const void * mem)
 		EmitBYTE((reg<<3) | 0x05);
 	}
 
-	EmitDWORD((u32)mem);
+	EmitADDR(mem);
 }
 
 //*****************************************************************************
@@ -760,22 +760,22 @@ void	CAssemblyWriterX64::MOVI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::MOVI_MEM(void * mem, u32 data)
+void	CAssemblyWriterX64::MOVI_MEM(u32 * mem, u32 data)
 {
 	EmitBYTE(0xc7);
 	EmitBYTE(0x05);
-	EmitDWORD((u32)mem);
+	EmitADDR(mem);
 	EmitDWORD(data);
 }
 
 //*****************************************************************************
 //	mov		byte ptr mem, data
 //*****************************************************************************
-void	CAssemblyWriterX64::MOVI_MEM8(void * mem, u8 data)
+void	CAssemblyWriterX64::MOVI_MEM8(u32 * mem, u8 data)
 {
 	EmitBYTE(0xc6);
 	EmitBYTE(0x05);
-	EmitDWORD((u32)mem);
+	EmitADDR(mem);
 	EmitBYTE(data);
 }
 
@@ -819,67 +819,67 @@ void	CAssemblyWriterX64::FCHS()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FILD_MEM( void * pmem )
+void	CAssemblyWriterX64::FILD_MEM( u32 * pmem )
 {
 	EmitWORD(0x05db);
-	EmitDWORD( u32(pmem) );
+	EmitADDR(pmem);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FLD_MEMp32( void * pmem )
+void	CAssemblyWriterX64::FLD_MEMp32( u32 * pmem )
 {
 	EmitWORD(0x05d9);
-	EmitDWORD( u32(pmem) );
+	EmitADDR(pmem);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FSTP_MEMp32( void * pmem )
+void	CAssemblyWriterX64::FSTP_MEMp32( u32 * pmem )
 {
 	EmitWORD( 0x1dd9);
-	EmitDWORD( u32(pmem) );
+	EmitADDR(pmem);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FLD_MEMp64( void * memlo, void * memhi )
+void	CAssemblyWriterX64::FLD_MEMp64( u32 * memlo, u32 * memhi )
 {
-	static s64 longtemp;
+	// static s64 longtemp;
 
-	MOV_REG_MEM(EAX_CODE, (u8*)(memlo) );
-	MOV_REG_MEM(EDX_CODE, (u8*)(memhi) );
-	MOV_MEM_REG(((u8*)&longtemp) + 0, EAX_CODE);
-	MOV_MEM_REG(((u8*)&longtemp) + 4, EDX_CODE);
-	EmitWORD(0x05dd);
-	EmitDWORD( u32(&longtemp) );
+	// MOV_REG_MEM(EAX_CODE, (u8*)(memlo) );
+	// MOV_REG_MEM(EDX_CODE, (u8*)(memhi) );
+	// MOV_MEM_REG(((u8*)&longtemp) + 0, EAX_CODE);
+	// MOV_MEM_REG(((u8*)&longtemp) + 4, EDX_CODE);
+	// EmitWORD(0x05dd);
+	// EmitDWORD( u32(&longtemp) );
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FSTP_MEMp64( void * memlo, void * memhi )
+void	CAssemblyWriterX64::FSTP_MEMp64( u32 * memlo, u32 * memhi )
 {
-	static s64 longtemp;
+	// static s64 longtemp;
 
-	EmitWORD(0x1ddd);
-	EmitDWORD( u32(&longtemp) );
-	MOV_REG_MEM(EAX_CODE, ((u8*)(&longtemp))+0);
-	MOV_REG_MEM(EDX_CODE, ((u8*)(&longtemp))+4);
-	MOV_MEM_REG(((u8*)(memlo)), EAX_CODE);
-	MOV_MEM_REG(((u8*)(memhi)), EDX_CODE);
+	// EmitWORD(0x1ddd);
+	// EmitDWORD( u32(&longtemp) );
+	// MOV_REG_MEM(EAX_CODE, ((u8*)(&longtemp))+0);
+	// MOV_REG_MEM(EDX_CODE, ((u8*)(&longtemp))+4);
+	// MOV_MEM_REG(((u8*)(memlo)), EAX_CODE);
+	// MOV_MEM_REG(((u8*)(memhi)), EDX_CODE);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FISTP_MEMp( void * pmem )
+void	CAssemblyWriterX64::FISTP_MEMp( u32 * pmem )
 {
 	EmitWORD( 0x1ddb );
-	EmitDWORD((u32)pmem);
+	EmitADDR(pmem);
 }
 
 //*****************************************************************************
@@ -981,4 +981,12 @@ void	CAssemblyWriterX64::FDIV( u32 i )
 void	CAssemblyWriterX64::CDQ()
 {
 	EmitBYTE(0x99);
+}
+
+void	CAssemblyWriterX64::LEA(EIntelReg reg, void* mem)
+{
+	EmitBYTE(0x48);
+	EmitBYTE(0x8d);
+	EmitBYTE(0x05 | (reg << 3));
+	EmitADDR(mem);
 }

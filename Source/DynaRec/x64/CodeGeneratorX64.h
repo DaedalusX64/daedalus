@@ -24,14 +24,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "DynaRec/CodeGenerator.h"
 #include "DynaRec/TraceRecorder.h"
-#include "DyanRec/x64/AssemblyWriterX64.h"
-#include "DyanRec/x64/DynarecTargetX64.h"
+#include "DynaRec/x64/AssemblyWriterX64.h"
+#include "DynaRec/x64/DynarecTargetX64.h"
 
 // XXXX For GenerateCompare_S/D
 #define FLAG_SWAP			0x100
 #define FLAG_C_LT		(0x41)					// jne-   le
 #define FLAG_C_LE		(FLAG_SWAP|0x41)		// je -   ! gt
 #define FLAG_C_EQ		(FLAG_SWAP|0x40)		// je -   ! eq
+
+#ifdef DAEDALUS_W32
+#define FIRST_PARAM_REG_CODE RCX_CODE
+#define SECOND_PARAM_REG_CODE RDX_CODE
+#else
+#define FIRST_PARAM_REG_CODE RDI_CODE
+#define SECOND_PARAM_REG_CODE RSI_CODE
+#endif
 
 class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
 {
@@ -82,7 +90,7 @@ class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
 				CAssemblyBuffer *	mpSecondary;
 
 	private:
-				void	GenerateLoad(u32 memBase, EN64Reg base, s16 offset, u8 twiddle, u8 bits);
+				void	GenerateLoad(u8* memBase, EN64Reg base, s16 offset, u8 twiddle, u8 bits);
 				void	GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );
 				bool	GenerateLW(EN64Reg rt, EN64Reg base, s16 offset );
 				bool	GenerateSW(EN64Reg rt, EN64Reg base, s16 offset );

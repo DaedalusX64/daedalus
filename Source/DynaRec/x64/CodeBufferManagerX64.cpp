@@ -22,7 +22,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 #include "DynaRec/CodeBufferManager.h"
-#include "DyanRec/x64/CodeGeneratorX64.h"
+#include "DynaRec/x64/CodeGeneratorX64.h"
+
+#ifndef DAEDALUS_W32
+#include <sys/mman.h>
+#endif
 
 /* Added by Lkb (24/8/2001)
 The second buffer is used to hold conditionally executed code pieces that will usually not be executed
@@ -90,9 +94,9 @@ private:
 //*****************************************************************************
 //
 //*****************************************************************************
-CCodeBufferManager *	CCodeBufferManager::Create()
+std::shared_ptr<CCodeBufferManager> 	CCodeBufferManager::Create()
 {
-	return new CCodeBufferManagerX64;
+	return std::make_shared<CCodeBufferManagerX64>();
 }
 
 //*****************************************************************************
@@ -105,7 +109,11 @@ bool	CCodeBufferManagerX64::Initialise()
 	// mess up all the existing function pointers and jumps etc).
 	// Note that this call does not actually allocate any storage - we're not
 	// actually asking Windows to allocate 256Mb!
+#ifdef DAEDALUS_W32
 	mpBuffer = (u8*)VirtualAlloc(NULL, 256 * 1024 * 1024, MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+#else
+	mpBuffer = (u8*)mmap(NULL, 256 * 1024 * 1024, PROT_NONE, MAP_ANON | MAP_PRIVATE, -1, 0);
+#endif
 	if (mpBuffer == NULL)
 		return false;
 
@@ -135,10 +143,17 @@ void	CCodeBufferManagerX64::Finalise()
 {
 	if (mpBuffer != NULL)
 	{
+#ifdef DAEDALUS_W32
 		// Decommit all the pages first
 		VirtualFree(mpBuffer, 256 * 1024 * 1024, MEM_DECOMMIT);
 		// Now release
 		VirtualFree(mpBuffer, 0, MEM_RELEASE);
+#else
+		// Decommit all the pages first
+		madvise(mpBuffer, 256 * 1024 * 1024, MADV_FREE);
+
+		munmap(mpBuffer, 256 * 1024 * 1024);
+#endif
 		mpBuffer = NULL;
 	}
 
@@ -167,10 +182,14 @@ std::shared_ptr<CCodeGenerator> CCodeBufferManagerX64::StartNewBlock()
 	if (mBufferPtr + 32768 > mBufferSize)
 	{
 		// Increase by 1MB
-		LPVOID pNewAddress;
+		void* pNewAddress;
 
 		mBufferSize += 1024 * 1024;
+#ifdef DAEDALUS_W32
 		pNewAddress = VirtualAlloc(mpBuffer, mBufferSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+#else
+		pNewAddress = mmap((char*)mpBuffer + mBufferSize - 1024 * 1024, 1024 * 1024, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_PRIVATE | MAP_ANON, -1, 0);
+#endif
 		if (pNewAddress == 0)
 		{
 			DBGConsole_Msg(0, "SR Buffer allocation failed"); // maybe this should be an abort?
@@ -185,10 +204,14 @@ std::shared_ptr<CCodeGenerator> CCodeBufferManagerX64::StartNewBlock()
 	if (mSecondBufferPtr + 32768 > mSecondBufferSize)
 	{
 		// Increase by 1MB
-		LPVOID pNewAddress;
+		void* pNewAddress;
 
 		mSecondBufferSize += 1024 * 1024;
+#ifdef DAEDALUS_W32
 		pNewAddress = VirtualAlloc(mpSecondBuffer, mSecondBufferSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+#else
+		pNewAddress = mmap((char*)mpSecondBuffer + mSecondBufferSize - 1024 * 1024, 1024 * 1024, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_PRIVATE | MAP_ANON, -1, 0);
+#endif
 		if (pNewAddress == 0)
 		{
 			DBGConsole_Msg(0, "SR Second Buffer allocation failed"); // maybe this should be an abort?
@@ -203,7 +226,7 @@ std::shared_ptr<CCodeGenerator> CCodeBufferManagerX64::StartNewBlock()
 	mPrimaryBuffer.SetBuffer( mpBuffer + mBufferPtr );
 	mSecondaryBuffer.SetBuffer( mpSecondBuffer + mSecondBufferPtr );
 
-	return new CCodeGeneratorX64( &mPrimaryBuffer, &mSecondaryBuffer );
+	return std::make_shared<CCodeGeneratorX64>( &mPrimaryBuffer, &mSecondaryBuffer );
 }
 
 //*****************************************************************************

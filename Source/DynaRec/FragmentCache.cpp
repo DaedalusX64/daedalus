@@ -393,7 +393,7 @@ void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 	std::sort( all_fragments.begin(), all_fragments.end(), SDescendingCyclesSort() );
 
 	std::filesystem::path filename "fragments.html";
-	std::filesystem::path fragments_dir = "fragments"
+	std::filesystem::path fragments_dir = "fragments";
 	std::filesystem::exists(fragments_dir);
 	fragments_dir /= filename;
 

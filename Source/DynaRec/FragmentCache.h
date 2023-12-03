@@ -35,7 +35,7 @@ class	CCodeBufferManager;
 struct FHashT
 {
 	u32	addr;
-	u32 ptr;
+	uintptr_t ptr;
 };
 
 //*************************************************************************************
@@ -84,7 +84,7 @@ public:
 	void					Clear();
 
 #ifdef DAEDALUS_DEBUG_DYNAREC
-	void					DumpStats( const std::fiilesystem::path outputdir ) const;
+	void					DumpStats( const std::filesystem::path outputdir ) const;
 #endif
 
 	u32						GetMemoryUsage() const					{ return mMemoryUsage; }
