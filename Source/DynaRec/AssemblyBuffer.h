@@ -60,6 +60,12 @@ class CAssemblyBuffer
 			mCurrentPos += 4;
 		}
 
+		inline void EmitQWORD(u64 qword)
+		{
+			*(u64 *)(&mpWritePointer[mCurrentPos]) = qword;
+			mCurrentPos += 8;
+		}
+
 		void EmitData( const void * pdata, u32 count )
 		{
 			memcpy( &mpWritePointer[ mCurrentPos ], pdata, count );
