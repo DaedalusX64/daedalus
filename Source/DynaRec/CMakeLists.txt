@@ -8,7 +8,13 @@ add_library(DynaRec OBJECT
                                 TraceRecorder.cpp)
 
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv")
-add_subdirectory(ARM)
+    add_subdirectory(ARM)
+elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+    add_subdirectory(x64)
+elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
+    add_subdirectory(x86)
+elseif()
+    add_subdirectory(dummy)
 endif()
 
 list(APPEND daed_libs "DynaRec")

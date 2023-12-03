@@ -112,20 +112,3 @@ int main(int argc, char **argv)
 	System_Finalize();
 	return result;
 }
-
-//FIXME: All this stuff needs tidying
-
-void Dynarec_ClearedCPUStuffToDo()
-{}
-
-void Dynarec_SetCPUStuffToDo()
-{
-}
-
-
-extern "C" {
-void _EnterDynaRec()
-{
-	DAEDALUS_ASSERT(false, "Unimplemented");
-}
-}
