@@ -116,8 +116,8 @@ CFragment::CFragment(std::shared_ptr<CCodeBufferManager> p_manager, u32 entry_ad
 	,	mpIndirectExitMap( new CIndirectExitMap )
 #ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 	,	mHitCount( 0 )
-	,	mTraceBuffer( nullptr )
-	,	mBranchBuffer( nullptr )
+	,	mTraceBuffer( TraceBuffer() )
+	,	mBranchBuffer( BranchBuffer() )
 	,	mExitAddress( 0 )
 #endif
 #ifdef FRAGMENT_SIMULATE_EXECUTION
@@ -910,7 +910,7 @@ const char * Sanitise( const char * str )
 	return out.c_str();
 }
 
-#if defined( DAEDALUS_W32 )
+#if defined( DAEDALUS_W32) || defined(DAEDALUS_POSIX)
 
 extern char *disasmx86(u8 *opcode1,int codeoff1,int *len);
 void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
@@ -919,7 +919,7 @@ void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 	char *strbuf;
 	int len = 0;
 
-	const u32	base_address( reinterpret_cast< u32 >( buf ) );
+	//const u32	base_address( reinterpret_cast< u32 >( buf ) );
 
 	while ( pos < buf_size )
 	{

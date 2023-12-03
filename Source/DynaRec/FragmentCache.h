@@ -31,6 +31,7 @@ class	CCodeBufferManager;
 #include <vector>
 #include <array>
 #include <memory>
+#include <filesystem>
 
 struct FHashT
 {
