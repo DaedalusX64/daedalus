@@ -128,8 +128,7 @@ class CAssemblyWriterX64
 
 				void				CDQ();
 
-				void				MOV(EIntelReg reg1, EIntelReg reg2);				// mov  reg1, reg2
-				void				MOV64(EIntelReg reg1, EIntelReg reg2);				// mov  reg1, reg2 (64bit)
+				void				MOV(EIntelReg reg1, EIntelReg reg2, bool is64 = false);				// mov  reg1, reg2
 				
 				void				MOVSX(EIntelReg reg1, EIntelReg reg2, bool _8bit);	// movsx reg1, reg2
 				void				MOVZX(EIntelReg reg1, EIntelReg reg2, bool _8bit);	// movzx reg1, reg2

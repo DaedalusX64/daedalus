@@ -648,30 +648,23 @@ void	CAssemblyWriterX64::RET()
 //*****************************************************************************
 // mov reg1, reg2
 //*****************************************************************************
-void	CAssemblyWriterX64::MOV(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::MOV(EIntelReg reg1, EIntelReg reg2, bool is64)
 {
 	if (reg1 != reg2)
 	{
-		EmitBYTE(0x8b);
-		EmitBYTE(0xc0 | (reg1<<3) | reg2);
-	}
-}
+		if (is64) {
+			u8 first_byte = 0x48;
+			if (reg2 >= R8_CODE) {
+				first_byte |= 0x1;
+				reg1 = EIntelReg(reg1 & 7);
+			}
+			if (reg1 >= R8_CODE) {
+				first_byte |= 0x4;
+				reg1 = EIntelReg(reg1 & 7);
+			}
 
-void	CAssemblyWriterX64::MOV64(EIntelReg reg1, EIntelReg reg2)
-{
-	if (reg1 != reg2)
-	{
-		u8 first_byte = 0x48;
-		if (reg2 >= R8_CODE) {
-			first_byte |= 0x1;
-			reg1 = EIntelReg(reg1 & 7);
-		}
-		if (reg1 >= R8_CODE) {
-			first_byte |= 0x4;
-			reg1 = EIntelReg(reg1 & 7);
-		}
-
-		EmitBYTE(first_byte);
+			EmitBYTE(first_byte);
+			}
 
 		EmitBYTE(0x8b);
 		EmitBYTE(0xc0 | (reg1<<3) | reg2);
