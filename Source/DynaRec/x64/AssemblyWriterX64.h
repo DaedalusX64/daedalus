@@ -153,7 +153,6 @@ class CAssemblyWriterX64
 				void				MOV_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase );							// mov dst, dword ptr [base]
 
 				void				MOVI(EIntelReg reg, u32 data);						// mov reg, data
-				void				MOVI_64(EIntelReg reg, u64 data);						// mov reg, data
 				void				MOVI_MEM(u32 * mem, u32 data);						// mov dword ptr[ mem ], data
 				void				MOVI_MEM8(u32 * mem, u8 data);						// mov byte ptr[ mem ], data
 
@@ -185,6 +184,11 @@ class CAssemblyWriterX64
 				void				FMUL( u32 i );
 				void				FDIV( u32 i );
 
+				// 64bit functions
+				void				LEA(EIntelReg reg, void* mem);
+				void				ADD_64(EIntelReg reg1, EIntelReg reg2);
+				void				MOVI_64(EIntelReg reg, u64 data);						// mov reg, data
+				
 	private:
 				CJumpLocation		JumpConditionalLong( CCodeLabel target, u8 jump_type );
 
@@ -211,10 +215,9 @@ class CAssemblyWriterX64
 
 		inline void EmitADDR(const void* ptr)
 		{
-			s64 diff = (uintptr_t)ptr - (intptr_t)&gCPUState;
-			if (diff > 0x80000000 || diff < -0x80000000)
-				printf("offset = %lld\n", diff);
-			mpAssemblyBuffer->EmitDWORD(diff);
+			s64 diff = (intptr_t)ptr - (intptr_t)&gCPUState;
+			DAEDALUS_ASSERT(diff < INT32_MAX && diff > -INT32_MAX, "address offset range is too big to fit");
+			mpAssemblyBuffer->EmitDWORD((s32)diff);
 		}
 
 	private:

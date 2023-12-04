@@ -1,6 +1,7 @@
 .globl __EnterDynaRec
 .text
 __EnterDynaRec:
+    pushq %rbp
     pushq %rbx
     pushq %r15
     pushq %r14
@@ -15,5 +16,6 @@ __EnterDynaRec:
     popq %r14
     popq %r15
     popq %rbx
+    popq %rbp
 
     ret

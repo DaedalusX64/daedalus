@@ -809,14 +809,11 @@ void CFragment::Assemble( std::shared_ptr<CCodeBufferManager> p_manager,
 		}
 		else
 		{
-			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( mpIndirectExitMap != nullptr, "There is no indirect exit map!" );
-			#endif
+
 			if( details.Eret )
 			{
-					#ifdef DAEDALUS_ENABLE_ASSERTS
 				DAEDALUS_ASSERT( details.DelaySlotTraceIndex == -1, "Why does this ERET have a return instruction?" );
-				#endif
 				p_generator->GenerateEretExitCode( num_instructions_executed, mpIndirectExitMap );
 
 			}

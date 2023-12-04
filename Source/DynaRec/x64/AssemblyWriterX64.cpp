@@ -29,7 +29,7 @@ void	CAssemblyWriterX64::PUSH(EIntelReg reg)
 	if (reg >= R8_CODE)
 	{
 		EmitBYTE(0x41);
-		EmitBYTE(0x50 | (reg - R8_CODE));
+		EmitBYTE(0x50 | (reg & 7));
 	}
 	else
 	{
@@ -69,6 +69,24 @@ void	CAssemblyWriterX64::ADD(EIntelReg reg1, EIntelReg reg2)
 {
 	EmitBYTE(0x03);
 	EmitBYTE(0xc0 | (reg1<<3) | reg2);
+}
+
+//*****************************************************************************
+//	add	reg1, reg2
+//*****************************************************************************
+void	CAssemblyWriterX64::ADD_64(EIntelReg reg1, EIntelReg reg2)
+{
+	u8 first_byte = 0x48;
+	if (reg2 >= R8_CODE) {
+		first_byte |= 0x1;
+	}
+	if (reg1 >= R8_CODE) {
+		first_byte |= 0x4;
+	}
+
+	EmitBYTE(first_byte);
+	EmitBYTE(0x03);
+	EmitBYTE(0xc0 | ((reg1 & 7)<<3) | (reg2 & 7));
 }
 
 //*****************************************************************************
@@ -1023,10 +1041,10 @@ void	CAssemblyWriterX64::CDQ()
 	EmitBYTE(0x99);
 }
 
-// void	CAssemblyWriterX64::LEA(EIntelReg reg, void* mem)
-// {
-// 	EmitBYTE(0x48);
-// 	EmitBYTE(0x8d);
-// 	EmitBYTE(0x83 | (reg << 3));
-// 	EmitADDR(mem); // 0:  48 8d 83 12 34 56 78    lea    rax,[rbx+0x78563412]
-// }
+void	CAssemblyWriterX64::LEA(EIntelReg reg, void* mem)
+{
+	EmitBYTE(0x48);
+	EmitBYTE(0x8d);
+	EmitBYTE(0x83 | (reg << 3));
+	EmitADDR(mem); // 0:  48 8d 83 12 34 56 78    lea    rax,[rbx+0x78563412]
+}

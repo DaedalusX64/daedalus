@@ -184,7 +184,7 @@ void	CCodeGeneratorX64::Finalise( ExceptionHandlerFn p_exception_handler_fn, con
 //*****************************************************************************
 //
 //*****************************************************************************
-#if 0
+#if DAEDALUS_DEBUG_DYNAREC
 u32 gNumFragmentsExecuted = 0;
 extern "C"
 {
@@ -194,9 +194,7 @@ void LogFragmentEntry( u32 entry_address )
 	gNumFragmentsExecuted++;
 	if(gNumFragmentsExecuted >= 0x99990)
 	{
-		char buffer[ 128 ]
-		snprintf( buffer, sizeof(buffer), "Address %08x\n", entry_address );
-		OutputDebugString( buffer );
+		printf("Address %08x\n", entry_address );
 	}
 }
 
@@ -208,9 +206,10 @@ void LogFragmentEntry( u32 entry_address )
 //*****************************************************************************
 void	CCodeGeneratorX64::Initialise( u32 entry_address, u32 exit_address, u32 * hit_counter, const void * p_base, const SRegisterUsageInfo & register_usage )
 {
-	//MOVI(ECX_CODE, entry_address);
-	// CALL( CCodeLabel( LogFragmentEntry ) );
-
+#if DAEDALUS_DEBUG_DYNAREC
+	MOVI(FIRST_PARAM_REG_CODE, entry_address);
+	CALL( CCodeLabel( (void*)LogFragmentEntry ) );
+#endif
 	// if( hit_counter != NULL )
 	// {
 	// 	MOV_REG_MEM( RAX_CODE, hit_counter );
@@ -359,9 +358,7 @@ void CCodeGeneratorX64::GenerateIndirectExitCode( u32 num_instructions, CIndirec
 	// gCPUState.StuffToDo == 0, try to jump to the indirect target
 	PatchJumpLong( jump_to_next_fragment, GetAssemblyBuffer()->GetLabel() );
 
-	MOVI( RAX_CODE, (s32)((intptr_t)p_map - (intptr_t)&gCPUState));
-	MOV64(FIRST_PARAM_REG_CODE, RBX_CODE);
-	ADD(FIRST_PARAM_REG_CODE, RAX_CODE);
+	MOVI_64(FIRST_PARAM_REG_CODE, (uintptr_t)p_map);
 	MOV_REG_MEM( SECOND_PARAM_REG_CODE, &gCPUState.TargetPC );
 	CALL( CCodeLabel( (void*)IndirectExitMap_Lookup ) );
 
@@ -526,16 +523,16 @@ CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool bra
 
 		// For LW, SW, SWC1, LB etc, only generate an exception handler if access wasn't done through the stack (handle = false)
 		// This will have to be reworked once we handle accesses other than the stack!
-		case OP_LW:
-			handled = GenerateLW(rt, base, s16(op_code.immediate));
-			exception = !handled;
-			break;
 		case OP_SW:
 			handled = GenerateSW(rt, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
 		case OP_SWC1:
 			handled = GenerateSWC1(ft, base, s16(op_code.immediate));
+			exception = !handled;
+			break;
+		case OP_LW:
+			handled = GenerateLW(rt, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
 		case OP_LB:
@@ -554,6 +551,7 @@ CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool bra
 			handled = GenerateLWC1(ft, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
+
 		case OP_ADDIU:
 		case OP_ADDI:
 			GenerateADDIU(rt, rs, s16(op_code.immediate)); handled = true; break;
@@ -690,14 +688,14 @@ void CCodeGeneratorX64::GenerateLoad(EN64Reg base, s16 offset, u8 twiddle, u8 bi
 	if (twiddle == 0)
 	{
 		DAEDALUS_ASSERT_Q(bits == 32);
-		ADD(RCX_CODE, R15_CODE);
+		ADD_64(RCX_CODE, R15_CODE);
 		MOV_REG_MEM_BASE_OFFSET(RAX_CODE, RCX_CODE, offset);
 	}
 	else
 	{
 		ADDI(RCX_CODE, offset);
 		XOR_I8(RCX_CODE, twiddle);
-		ADD(RCX_CODE, R15_CODE);
+		ADD_64(RCX_CODE, R15_CODE);
 		switch(bits)
 		{
 		case 32:
@@ -734,7 +732,7 @@ bool CCodeGeneratorX64::GenerateSWC1( u32 ft, EN64Reg base, s16 offset )
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
 		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
-		ADD(RCX_CODE, R15_CODE);
+		ADD_64(RCX_CODE, R15_CODE);
 
 		MOV_REG_MEM(RAX_CODE, &gCPUState.FPU[ft]._u32);
 		MOV_MEM_BASE_OFFSET_REG(RCX_CODE, offset, RAX_CODE);
@@ -749,7 +747,7 @@ bool CCodeGeneratorX64::GenerateSW( EN64Reg rt, EN64Reg base, s16 offset )
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
 		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
-		ADD(RCX_CODE, R15_CODE);
+		ADD_64(RCX_CODE, R15_CODE);
 		MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
 		MOV_MEM_BASE_OFFSET_REG(RCX_CODE, offset, RAX_CODE);
 		return true;
