@@ -100,11 +100,11 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 
 			// put in hash table
 			mpCacheHashTable[ix].addr = address;
-			mpCacheHashTable[ix].ptr = mpCachedFragment;
+			mpCacheHashTable[ix].ptr = (uintptr_t)mpCachedFragment;
 		}
 		else
 		{
-			mpCachedFragment = mpCacheHashTable[ix].ptr;
+			mpCachedFragment = (CFragment *)mpCacheHashTable[ix].ptr;
 		}
 	}
 
@@ -392,8 +392,8 @@ void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 
 	std::sort( all_fragments.begin(), all_fragments.end(), SDescendingCyclesSort() );
 
-	std::filesystem::path filename "fragments.html";
-	std::filesystem::path fragments_dir = "fragments"
+	std::filesystem::path filename = "fragments.html";
+	std::filesystem::path fragments_dir = "fragments";
 	std::filesystem::exists(fragments_dir);
 	fragments_dir /= filename;
 
@@ -432,7 +432,7 @@ void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 			IO::Filename	fragment_path;
 			char			fragment_name[ 32+1 ];
 			snprintf( fragment_name, sizeof(fragment_name), "%08x.html", fragment->GetEntryAddress() );
-			IO::Path::Combine( fragment_path, fragments_dir, fragment_name );
+			IO::Path::Combine( fragment_path, fragments_dir.string().c_str(), fragment_name );
 
 			FILE * fragment_fh( fopen( fragment_path, "w" ) );
 			if( fragment_fh != nullptr )

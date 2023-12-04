@@ -71,3 +71,19 @@ u32 CCodeBufferManagerOSX::FinaliseCurrentBlock()
 	DAEDALUS_ASSERT(false, "Unimplemented");
 	return 0;
 }
+
+
+void Dynarec_ClearedCPUStuffToDo()
+{}
+
+void Dynarec_SetCPUStuffToDo()
+{
+}
+
+
+extern "C" {
+void _EnterDynaRec()
+{
+	DAEDALUS_ASSERT(false, "Unimplemented");
+}
+}

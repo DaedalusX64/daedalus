@@ -3,7 +3,6 @@
 # Yes right now this is a mess, hoping to simplify things further in future but please deal with it for now :)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
 
 # Below is related to Macros within the project, a lot of these could be deprecated and deleted.
 # For now they will remain here so they're visible and can be switched on and off as desired.
@@ -13,17 +12,17 @@ list(APPEND plat_main )
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 	if(DEBUG)
 		set(CMAKE_BUILD_TYPE Debug)
+		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 		option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
 		option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 		option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
 		option(DAEDALUS_LOG "Enable various logging" ON)
-		add_definitions("-g")
 		add_compile_options("-Wall")
 	else()
+		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) 
 		add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
-		add_compile_definitions("O3")
-		add_compile_definitions("flto")
+		add_compile_options("-O3")
 	endif()
 
 	#Determine Dynarec compatibility and link in appropriate Dynarec
@@ -41,6 +40,9 @@ list(APPEND plat_main )
 		message("ARM Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
 		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+		message("x86_64 Dynarec Enabled")
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
@@ -85,7 +87,7 @@ list(APPEND plat_main )
 
 
 	if(PSP) 
-	message("PSP")
+		message("PSP")
 		option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_PSP "PSP specific Options" ON)
@@ -136,6 +138,7 @@ list(APPEND plat_main )
 	if(NOT WIN32)
 		add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
 		add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
+		add_compile_options("-g")
 	endif()
 
 	

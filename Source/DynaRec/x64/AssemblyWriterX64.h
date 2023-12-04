@@ -19,16 +19,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef SYSW32_DYNAREC_X86_ASSEMBLYWRITERX86_H_
-#define SYSW32_DYNAREC_X86_ASSEMBLYWRITERX86_H_
+#ifndef SYSW32_DYNAREC_X64_ASSEMBLYWRITERX64_H_
+#define SYSW32_DYNAREC_X64_ASSEMBLYWRITERX64_H_
 
+#include "Core/CPU.h"
 #include "DynaRec/AssemblyBuffer.h"
-#include "DynaRec/x86/DynarecTargetX86.h"
+#include "DynaRec/x64/DynarecTargetX64.h"
 
-class CAssemblyWriterX86
+class CAssemblyWriterX64
 {
 	public:
-		CAssemblyWriterX86( CAssemblyBuffer * p_buffer )
+		CAssemblyWriterX64( CAssemblyBuffer * p_buffer )
 			:	mpAssemblyBuffer( p_buffer )
 		{
 		}
@@ -62,19 +63,19 @@ class CAssemblyWriterX86
 				void				POP(EIntelReg reg);
 				void				PUSHI( u32 value );
 
-				void				ADD(EIntelReg reg1, EIntelReg reg2);				// add	reg1, reg2
-				void				SUB(EIntelReg reg1, EIntelReg reg2);
-				void				MUL_EAX_MEM(void * mem);							// mul	eax, dword ptr[ mem ]
+				void				ADD(EIntelReg reg1, EIntelReg reg2, bool is64 = false);				// add	reg1, reg2
+				void				SUB(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
+				void				MUL_EAX_MEM(u32 * mem);							// mul	eax, dword ptr[ mem ]
 				void				MUL(EIntelReg reg);									// mul	eax, reg
 
-				void				ADD_REG_MEM_IDXx4( EIntelReg destreg, void * mem, EIntelReg idxreg );	// add reg, dword ptr[ mem + idx*4 ]
+				void				ADD_REG_MEM_IDXx4( EIntelReg destreg, u32 * mem, EIntelReg idxreg );	// add reg, dword ptr[ mem + idx*4 ]
 
-				void				AND(EIntelReg reg1, EIntelReg reg2);
+				void				AND(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
 				void				AND_EAX( u32 mask );								// and		eax, 0x00FF	- Mask off top bits!
 
-				void				OR(EIntelReg reg1, EIntelReg reg2);
-				void				XOR(EIntelReg reg1, EIntelReg reg2);
-				void				NOT(EIntelReg reg1);
+				void				OR(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
+				void				XOR(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
+				void				NOT(EIntelReg reg1, bool is64 = false);
 
 				void				ADDI(EIntelReg reg, s32 data);
 				void				ADCI(EIntelReg reg, s32 data);
@@ -91,8 +92,8 @@ class CAssemblyWriterX86
 				void				TEST(EIntelReg reg1, EIntelReg reg2);
 				void				TEST_AH( u8 flags );
 				void				CMPI(EIntelReg reg, u32 data);
-				void				CMP_MEM32_I32(const void *p_mem, u32 data);			// cmp		dword ptr p_mem, data
-				void				CMP_MEM32_I8(const void *p_mem, u8 data);			// cmp		dword ptr p_mem, data
+				void				CMP_MEM32_I32(const u32 *p_mem, u32 data);			// cmp		dword ptr p_mem, data
+				void				CMP_MEM32_I8(const u32 *p_mem, u8 data);			// cmp		dword ptr p_mem, data
 
 				void				SETL(EIntelReg reg);
 				void				SETB(EIntelReg reg);
@@ -122,16 +123,17 @@ class CAssemblyWriterX86
 
 				static inline bool IsValidMov8Reg( EIntelReg isrc )
 				{
-					return isrc <= EBX_CODE;
+					return isrc <= RBX_CODE;
 				}
 
 				void				CDQ();
 
-				void				MOV(EIntelReg reg1, EIntelReg reg2);				// mov  reg1, reg2
+				void				MOV(EIntelReg reg1, EIntelReg reg2, bool is64 = false);				// mov  reg1, reg2
+				
 				void				MOVSX(EIntelReg reg1, EIntelReg reg2, bool _8bit);	// movsx reg1, reg2
 				void				MOVZX(EIntelReg reg1, EIntelReg reg2, bool _8bit);	// movzx reg1, reg2
-				void				MOV_MEM_REG(void * mem, EIntelReg isrc);			// mov dword ptr[ mem ], reg
-				void				MOV_REG_MEM(EIntelReg reg, const void * mem);		// mov reg, dword ptr[ mem ]
+				void				MOV_MEM_REG(u32 * mem, EIntelReg isrc);			// mov dword ptr[ mem ], reg
+				void				MOV_REG_MEM(EIntelReg reg, const u32 * mem);		// mov reg, dword ptr[ mem ]
 
 				void				MOV8_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc );		// mov byte ptr [base], src
 				void				MOV8_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase );		// mov dst, byte ptr [base]
@@ -150,8 +152,8 @@ class CAssemblyWriterX86
 				void				MOV_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase );							// mov dst, dword ptr [base]
 
 				void				MOVI(EIntelReg reg, u32 data);						// mov reg, data
-				void				MOVI_MEM(void * mem, u32 data);						// mov dword ptr[ mem ], data
-				void				MOVI_MEM8(void * mem, u8 data);						// mov byte ptr[ mem ], data
+				void				MOVI_MEM(u32 * mem, u32 data);						// mov dword ptr[ mem ], data
+				void				MOVI_MEM8(u32 * mem, u8 data);						// mov byte ptr[ mem ], data
 
 				void				MOVSX8( EIntelReg idst, EIntelReg isrc );			// movsx	dst, src		(e.g. movsx eax, al)
 				void				MOVSX16( EIntelReg idst, EIntelReg isrc );			// movsx	dst, src		(e.g. movsx eax, ax)
@@ -159,12 +161,12 @@ class CAssemblyWriterX86
 				void				FSQRT();
 				void				FCHS();
 
-				void				FILD_MEM( void * pmem );
-				void				FLD_MEMp32( void * pmem );
-				void				FSTP_MEMp32( void * pmem );
-				void				FLD_MEMp64( void * memlo, void * memhi );
-				void				FSTP_MEMp64( void * memlo, void * memhi );
-				void				FISTP_MEMp( void * pmem );
+				void				FILD_MEM( u32 * pmem );
+				void				FLD_MEMp32( u32 * pmem );
+				void				FSTP_MEMp32( u32 * pmem );
+				void				FLD_MEMp64( u32 * memlo, u32 * memhi );
+				void				FSTP_MEMp64( u32 * memlo, u32 * memhi );
+				void				FISTP_MEMp( u32 * pmem );
 
 				void				FLD( u32 i );
 				void				FXCH( u32 i );
@@ -181,6 +183,12 @@ class CAssemblyWriterX86
 				void				FMUL( u32 i );
 				void				FDIV( u32 i );
 
+				// 64bit functions
+				void				LEA(EIntelReg reg, void* mem);
+
+				void				MOVI_64(EIntelReg reg, u64 data);						// mov reg, data
+				void				MOV64_REG_MEM(EIntelReg reg, const u64 * mem);
+				void				MOV64_MEM_REG(u64 * mem, EIntelReg isrc);
 	private:
 				CJumpLocation		JumpConditionalLong( CCodeLabel target, u8 jump_type );
 
@@ -200,8 +208,20 @@ class CAssemblyWriterX86
 			mpAssemblyBuffer->EmitDWORD( dword );
 		}
 
+		inline void EmitQWORD(u64 qword)
+		{
+			mpAssemblyBuffer->EmitQWORD( qword );
+		}
+
+		inline void EmitADDR(const void* ptr)
+		{
+			s64 diff = (intptr_t)ptr - (intptr_t)&gCPUState;
+			DAEDALUS_ASSERT(diff < INT32_MAX && diff > -INT32_MAX, "address offset range is too big to fit");
+			mpAssemblyBuffer->EmitDWORD((s32)diff);
+		}
+
 	private:
 		CAssemblyBuffer *				mpAssemblyBuffer;
 };
 
-#endif // SYSW32_DYNAREC_X86_ASSEMBLYWRITERX86_H_
+#endif // SYSW32_DYNAREC_X64_ASSEMBLYWRITERX64_H_

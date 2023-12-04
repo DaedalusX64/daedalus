@@ -159,7 +159,7 @@ void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 	if (fp == NULL)
 		return;
 
-	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
+	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path.string().c_str());
 
 	const OpCode * op_start( reinterpret_cast< const OpCode * >( p_base ) );
 	const OpCode * op_end(   reinterpret_cast< const OpCode * >( p_base + (end-start) ) );
@@ -244,7 +244,7 @@ void Dump_RSPDisassemble(const char * p_file_name)
 		// IO::Path::Assign(file_path, p_file_name);
 	}
 
-	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
+	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path.string().c_str());
 
 	FILE * fp( fopen(file_path.c_str(), "w") );
 	if (fp == NULL)
@@ -288,7 +288,7 @@ void Dump_Strings( const char * p_file_name )
 		// IO::Path::Assign(file_path, p_file_name);
 	}
 
-	DBGConsole_Msg(0, "Dumping strings in rom ([C%s])", file_path);
+	DBGConsole_Msg(0, "Dumping strings in rom ([C%s])", file_path.string().c_str());
 
 	// Overwrite here
 	fp = fopen(file_path.c_str(), "w");

@@ -19,28 +19,44 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-#include "DynaRec/x86/AssemblyWriterX86.h"
+#include "DynaRec/x64/AssemblyWriterX64.h"
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::PUSH(EIntelReg reg)
+void	CAssemblyWriterX64::PUSH(EIntelReg reg)
 {
-	EmitBYTE(0x50 | reg);
+	if (reg >= R8_CODE)
+	{
+		EmitBYTE(0x41);
+		EmitBYTE(0x50 | (reg & 7));
+	}
+	else
+	{
+		EmitBYTE(0x50 | reg);
+	}
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::POP(EIntelReg reg)
+void	CAssemblyWriterX64::POP(EIntelReg reg)
 {
-	EmitBYTE(0x58 | reg);
+	if (reg >= R8_CODE)
+	{
+		EmitBYTE(0x41);
+		EmitBYTE(0x58 | (reg & 7));
+	}
+	else
+	{
+		EmitBYTE(0x58 | reg);
+	}
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::PUSHI( u32 value )
+void	CAssemblyWriterX64::PUSHI( u32 value )
 {
 	EmitBYTE( 0x68 );
 	EmitDWORD( value );
@@ -49,8 +65,22 @@ void	CAssemblyWriterX86::PUSHI( u32 value )
 //*****************************************************************************
 //	add	reg1, reg2
 //*****************************************************************************
-void	CAssemblyWriterX86::ADD(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::ADD(EIntelReg reg1, EIntelReg reg2, bool is64)
 {
+	if (is64)
+	{
+		u8 first_byte = 0x48;
+		if (reg2 >= R8_CODE) {
+			first_byte |= 0x1;
+			reg2 = EIntelReg(reg2 & 7);
+		}
+		if (reg1 >= R8_CODE) {
+			first_byte |= 0x4;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+		EmitBYTE(first_byte);
+	}
+
 	EmitBYTE(0x03);
 	EmitBYTE(0xc0 | (reg1<<3) | reg2);
 }
@@ -58,8 +88,22 @@ void	CAssemblyWriterX86::ADD(EIntelReg reg1, EIntelReg reg2)
 //*****************************************************************************
 //	sub	reg1, reg2
 //*****************************************************************************
-void	CAssemblyWriterX86::SUB(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::SUB(EIntelReg reg1, EIntelReg reg2, bool is64)
 {
+	if (is64)
+	{
+		u8 first_byte = 0x48;
+		if (reg2 >= R8_CODE) {
+			first_byte |= 0x1;
+			reg2 = EIntelReg(reg2 & 7);
+		}
+		if (reg1 >= R8_CODE) {
+			first_byte |= 0x4;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+		EmitBYTE(first_byte);
+	}
+
 	EmitBYTE(0x2b);
 	EmitBYTE(0xc0 | (reg1<<3) | reg2);
 }
@@ -67,17 +111,17 @@ void	CAssemblyWriterX86::SUB(EIntelReg reg1, EIntelReg reg2)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::MUL_EAX_MEM(void * mem)
+void	CAssemblyWriterX64::MUL_EAX_MEM(u32 * mem)
 {
 	EmitBYTE(0xf7);
-	EmitBYTE(0x25);
-	EmitDWORD((u32)mem);
+	EmitBYTE(0xa3);
+	EmitADDR(mem); // mul    DWORD PTR [rbx+0x78563412]
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::MUL(EIntelReg reg)
+void	CAssemblyWriterX64::MUL(EIntelReg reg)
 {
 	EmitBYTE(0xf7);
 	EmitBYTE(0xe0 | reg);
@@ -86,21 +130,35 @@ void	CAssemblyWriterX86::MUL(EIntelReg reg)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::ADD_REG_MEM_IDXx4( EIntelReg destreg, void * mem, EIntelReg idxreg )
+void	CAssemblyWriterX64::ADD_REG_MEM_IDXx4( EIntelReg destreg, u32 * mem, EIntelReg idxreg )
 {
 	EmitBYTE(0x03);
-	EmitBYTE(0x04 | (destreg << 3));
-	EmitBYTE(0x85 | (idxreg<<3));
-	EmitDWORD((u32)mem);
+	EmitBYTE(0x84 | (destreg << 3));
+	EmitBYTE(0x83 | (idxreg<<3));
+	EmitADDR(mem); //  03 84 83 12 34 56 79    add    eax,DWORD PTR [rbx+rax*4+0x79563412]
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::AND(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::AND(EIntelReg reg1, EIntelReg reg2, bool is64)
 {
 	if (reg1 != reg2)
 	{
+		if (is64)
+		{
+			u8 first_byte = 0x48;
+			if (reg2 >= R8_CODE) {
+				first_byte |= 0x1;
+				reg2 = EIntelReg(reg2 & 7);
+			}
+			if (reg1 >= R8_CODE) {
+				first_byte |= 0x4;
+				reg1 = EIntelReg(reg1 & 7);
+			}
+			EmitBYTE(first_byte);
+		}
+
 		EmitBYTE(0x23);
 		EmitBYTE(0xc0 | (reg1<<3) | reg2);
 	}
@@ -110,7 +168,7 @@ void	CAssemblyWriterX86::AND(EIntelReg reg1, EIntelReg reg2)
 // and		eax, 0x00FF	- Mask off top bits!
 // This is slightly more efficient than ANDI( EAX_CODE, data )
 //*****************************************************************************
-void	CAssemblyWriterX86::AND_EAX( u32 mask )
+void	CAssemblyWriterX64::AND_EAX( u32 mask )
 {
 	EmitBYTE(0x25);
 	EmitDWORD(mask);
@@ -119,10 +177,24 @@ void	CAssemblyWriterX86::AND_EAX( u32 mask )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::OR(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::OR(EIntelReg reg1, EIntelReg reg2, bool is64)
 {
 	if (reg1 != reg2)
 	{
+		if (is64)
+		{
+			u8 first_byte = 0x48;
+			if (reg2 >= R8_CODE) {
+				first_byte |= 0x1;
+				reg2 = EIntelReg(reg2 & 7);
+			}
+			if (reg1 >= R8_CODE) {
+				first_byte |= 0x4;
+				reg1 = EIntelReg(reg1 & 7);
+			}
+			EmitBYTE(first_byte);
+		}
+
 		EmitBYTE(0x0B);
 		EmitBYTE(0xc0 | (reg1<<3) | reg2);
 	}
@@ -131,8 +203,22 @@ void	CAssemblyWriterX86::OR(EIntelReg reg1, EIntelReg reg2)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::XOR(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::XOR(EIntelReg reg1, EIntelReg reg2, bool is64)
 {
+	if (is64)
+	{
+		u8 first_byte = 0x48;
+		if (reg2 >= R8_CODE) {
+			first_byte |= 0x1;
+			reg2 = EIntelReg(reg2 & 7);
+		}
+		if (reg1 >= R8_CODE) {
+			first_byte |= 0x4;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+		EmitBYTE(first_byte);
+	}
+	
 	EmitBYTE(0x33);
 	EmitBYTE(0xc0 | (reg1<<3) | reg2);
 }
@@ -140,8 +226,18 @@ void	CAssemblyWriterX86::XOR(EIntelReg reg1, EIntelReg reg2)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::NOT(EIntelReg reg1)
+void	CAssemblyWriterX64::NOT(EIntelReg reg1, bool is64)
 {
+	if (is64)
+	{
+		u8 first_byte = 0x48;
+		if (reg1 >= R8_CODE) {
+			first_byte |= 0x4;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+		EmitBYTE(first_byte);
+	}
+	
 	EmitBYTE(0xf7);
 	EmitBYTE(0xd0 | reg1);
 }
@@ -149,7 +245,7 @@ void	CAssemblyWriterX86::NOT(EIntelReg reg1)
 //*****************************************************************************
 // Use short form (0x83c0) if data is just one byte!
 //*****************************************************************************
-void CAssemblyWriterX86::ADDI(EIntelReg reg, s32 data)
+void CAssemblyWriterX64::ADDI(EIntelReg reg, s32 data)
 {
 	if (data == 0)
 		return;
@@ -172,7 +268,7 @@ void CAssemblyWriterX86::ADDI(EIntelReg reg, s32 data)
 //*****************************************************************************
 // Use short form (0x83d0) if data is just one byte!
 //*****************************************************************************
-void CAssemblyWriterX86::ADCI(EIntelReg reg, s32 data)
+void CAssemblyWriterX64::ADCI(EIntelReg reg, s32 data)
 {
 	/*if (reg == EAX_CODE)
 	{
@@ -197,7 +293,7 @@ void CAssemblyWriterX86::ADCI(EIntelReg reg, s32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::ANDI(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::ANDI(EIntelReg reg, u32 data)
 {
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0x25);
@@ -212,7 +308,7 @@ void CAssemblyWriterX86::ANDI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::ORI(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::ORI(EIntelReg reg, u32 data)
 {
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0x0D);
@@ -227,7 +323,7 @@ void CAssemblyWriterX86::ORI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::XOR_I32(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::XOR_I32(EIntelReg reg, u32 data)
 {
 
 	/*if (reg == EAX_CODE)
@@ -243,7 +339,7 @@ void CAssemblyWriterX86::XOR_I32(EIntelReg reg, u32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::XOR_I8(EIntelReg reg, u8 data)
+void CAssemblyWriterX64::XOR_I8(EIntelReg reg, u8 data)
 {
 	EmitBYTE(0x83);
 	EmitBYTE(0xf0 | reg);
@@ -253,7 +349,7 @@ void CAssemblyWriterX86::XOR_I8(EIntelReg reg, u8 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::SHLI(EIntelReg reg, u8 sa)
+void	CAssemblyWriterX64::SHLI(EIntelReg reg, u8 sa)
 {
 	EmitBYTE(0xc1);
 	EmitBYTE(0xe0 | reg);
@@ -263,7 +359,7 @@ void	CAssemblyWriterX86::SHLI(EIntelReg reg, u8 sa)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::SHRI(EIntelReg reg, u8 sa)
+void	CAssemblyWriterX64::SHRI(EIntelReg reg, u8 sa)
 {
 	EmitBYTE(0xc1);
 	EmitBYTE(0xe8 | reg);
@@ -273,7 +369,7 @@ void	CAssemblyWriterX86::SHRI(EIntelReg reg, u8 sa)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::SARI(EIntelReg reg, u8 sa)
+void	CAssemblyWriterX64::SARI(EIntelReg reg, u8 sa)
 {
 	EmitBYTE(0xc1);
 	EmitBYTE(0xf8 | reg);
@@ -283,7 +379,7 @@ void	CAssemblyWriterX86::SARI(EIntelReg reg, u8 sa)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::CMP(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::CMP(EIntelReg reg1, EIntelReg reg2)
 {
 	EmitBYTE(0x3b);
 	EmitBYTE(0xc0 | (reg1<<3) | reg2);
@@ -292,7 +388,7 @@ void	CAssemblyWriterX86::CMP(EIntelReg reg1, EIntelReg reg2)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::TEST(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::TEST(EIntelReg reg1, EIntelReg reg2)
 {
 	EmitBYTE(0x85);
 	EmitBYTE(0xc0 | (reg1<<3) | reg2);
@@ -301,7 +397,7 @@ void	CAssemblyWriterX86::TEST(EIntelReg reg1, EIntelReg reg2)
 //*****************************************************************************
 // test		ah, 41
 //*****************************************************************************
-void CAssemblyWriterX86::TEST_AH( u8 flags )
+void CAssemblyWriterX64::TEST_AH( u8 flags )
 {
 	EmitBYTE(0xf6);
 	EmitBYTE(0xc4);
@@ -311,7 +407,7 @@ void CAssemblyWriterX86::TEST_AH( u8 flags )
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::CMPI(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::CMPI(EIntelReg reg, u32 data)
 {
 	EmitBYTE(0x81);
 	EmitBYTE(0xf8 | reg);
@@ -321,29 +417,30 @@ void CAssemblyWriterX86::CMPI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //	cmp		dword ptr p_mem, data
 //*****************************************************************************
-void CAssemblyWriterX86::CMP_MEM32_I32(const void *p_mem, u32 data)
+void CAssemblyWriterX64::CMP_MEM32_I32(const u32 *p_mem, u32 data)
 {
 	EmitBYTE(0x81);
-	EmitBYTE(0x3d);
-	EmitDWORD(reinterpret_cast< u32 >( p_mem ));
+	EmitBYTE(0xbb);
+	EmitADDR(p_mem); // 0:  81 bb 12 34 56 78 12    cmp    DWORD PTR [rbx+0x78563412],0x78563412
+					 // 7:  34 56 78
 	EmitDWORD(data);
 }
 
 //*****************************************************************************
 //	cmp		dword ptr p_mem, data
 //*****************************************************************************
-void CAssemblyWriterX86::CMP_MEM32_I8(const void *p_mem, u8 data)
+void CAssemblyWriterX64::CMP_MEM32_I8(const u32 *p_mem, u8 data)
 {
 	EmitBYTE(0x83);
-	EmitBYTE(0x3d);
-	EmitDWORD(reinterpret_cast< u32 >( p_mem ));
+	EmitBYTE(0xbb);
+	EmitADDR(p_mem); // 83 bb 12 34 56 78 12    cmp    DWORD PTR [rbx+0x78563412],0x12
 	EmitBYTE(data);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::SETL(EIntelReg reg)
+void CAssemblyWriterX64::SETL(EIntelReg reg)
 {
 	EmitWORD(0x9c0f);
 	EmitBYTE(0xc0 | reg);
@@ -352,7 +449,7 @@ void CAssemblyWriterX86::SETL(EIntelReg reg)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::SETB(EIntelReg reg)
+void CAssemblyWriterX64::SETB(EIntelReg reg)
 {
 	EmitWORD(0x920f);
 	EmitBYTE(0xc0 | reg);
@@ -361,7 +458,7 @@ void CAssemblyWriterX86::SETB(EIntelReg reg)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JS(s32 off)
+void CAssemblyWriterX64::JS(s32 off)
 {
 	EmitBYTE(0x0f);
 	EmitBYTE(0x88);
@@ -371,7 +468,7 @@ void CAssemblyWriterX86::JS(s32 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JA(u8 off)
+void CAssemblyWriterX64::JA(u8 off)
 {
 	EmitWORD((off<<8) | 0x77);
 }
@@ -379,7 +476,7 @@ void CAssemblyWriterX86::JA(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JB(u8 off)
+void CAssemblyWriterX64::JB(u8 off)
 {
 	EmitWORD((off<<8) | 0x72);
 }
@@ -387,7 +484,7 @@ void CAssemblyWriterX86::JB(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JAE(u8 off)
+void CAssemblyWriterX64::JAE(u8 off)
 {
 	EmitWORD((off<<8) | 0x73);
 }
@@ -395,7 +492,7 @@ void CAssemblyWriterX86::JAE(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JE(u8 off)
+void CAssemblyWriterX64::JE(u8 off)
 {
 	EmitWORD((off<<8) | 0x74);
 }
@@ -403,7 +500,7 @@ void CAssemblyWriterX86::JE(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JNE(u8 off)
+void CAssemblyWriterX64::JNE(u8 off)
 {
 	EmitWORD((off<<8) | 0x75);
 }
@@ -411,7 +508,7 @@ void CAssemblyWriterX86::JNE(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JL(u8 off)
+void CAssemblyWriterX64::JL(u8 off)
 {
 	EmitWORD((off<<8) | 0x7C);
 }
@@ -419,7 +516,7 @@ void CAssemblyWriterX86::JL(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JGE(u8 off)
+void CAssemblyWriterX64::JGE(u8 off)
 {
 	EmitWORD((off<<8) | 0x7D);
 }
@@ -427,7 +524,7 @@ void CAssemblyWriterX86::JGE(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JLE(u8 off)
+void CAssemblyWriterX64::JLE(u8 off)
 {
 	EmitWORD((off<<8) | 0x7E);
 }
@@ -435,7 +532,7 @@ void CAssemblyWriterX86::JLE(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JG(u8 off)
+void CAssemblyWriterX64::JG(u8 off)
 {
 	EmitWORD((off<<8) | 0x7F);
 }
@@ -443,7 +540,7 @@ void CAssemblyWriterX86::JG(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX86::JMP_SHORT(u8 off)
+void CAssemblyWriterX64::JMP_SHORT(u8 off)
 {
 	EmitWORD((off<<8) | 0xeb);
 }
@@ -451,7 +548,7 @@ void CAssemblyWriterX86::JMP_SHORT(u8 off)
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation CAssemblyWriterX86::JumpConditionalLong( CCodeLabel target, u8 jump_type )
+CJumpLocation CAssemblyWriterX64::JumpConditionalLong( CCodeLabel target, u8 jump_type )
 {
 	const u32	JUMP_LONG_LENGTH = 6;
 
@@ -468,7 +565,7 @@ CJumpLocation CAssemblyWriterX86::JumpConditionalLong( CCodeLabel target, u8 jum
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation CAssemblyWriterX86::JELong( CCodeLabel target )
+CJumpLocation CAssemblyWriterX64::JELong( CCodeLabel target )
 {
 	return JumpConditionalLong( target, 0x84 );
 }
@@ -476,7 +573,7 @@ CJumpLocation CAssemblyWriterX86::JELong( CCodeLabel target )
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation CAssemblyWriterX86::JNELong( CCodeLabel target )
+CJumpLocation CAssemblyWriterX64::JNELong( CCodeLabel target )
 {
 	return JumpConditionalLong( target, 0x85 );
 }
@@ -484,7 +581,7 @@ CJumpLocation CAssemblyWriterX86::JNELong( CCodeLabel target )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::JMP_REG( EIntelReg reg )
+void	CAssemblyWriterX64::JMP_REG( EIntelReg reg )
 {
 	EmitWORD( ((0xe0|reg)<<8) | 0xff );
 }
@@ -492,7 +589,7 @@ void	CAssemblyWriterX86::JMP_REG( EIntelReg reg )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::CALL_REG( EIntelReg reg )
+void	CAssemblyWriterX64::CALL_REG( EIntelReg reg )
 {
 	EmitWORD(((0xd0|reg)<<8) | 0xff);
 }
@@ -500,7 +597,7 @@ void	CAssemblyWriterX86::CALL_REG( EIntelReg reg )
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation	CAssemblyWriterX86::CALL( CCodeLabel target )
+CJumpLocation	CAssemblyWriterX64::CALL( CCodeLabel target )
 {
 	const u32	CALL_LONG_LENGTH = 5;
 
@@ -516,7 +613,7 @@ CJumpLocation	CAssemblyWriterX86::CALL( CCodeLabel target )
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation	CAssemblyWriterX86::JMPLong( CCodeLabel target )
+CJumpLocation	CAssemblyWriterX64::JMPLong( CCodeLabel target )
 {
 	const u32	JUMP_DIRECT_LONG_LENGTH = 5;
 
@@ -532,18 +629,18 @@ CJumpLocation	CAssemblyWriterX86::JMPLong( CCodeLabel target )
 //*****************************************************************************
 // call dword ptr [mem + reg*4]
 //*****************************************************************************
-void	CAssemblyWriterX86::CALL_MEM_PLUS_REGx4( void * mem, EIntelReg reg )
+void	CAssemblyWriterX64::CALL_MEM_PLUS_REGx4( void * mem, EIntelReg reg )
 {
 	EmitBYTE(0xFF);
-	EmitBYTE(0x14);
-	EmitBYTE(0x85 | (reg<<3));
-	EmitDWORD((u32)mem);
+	EmitBYTE(0x94);
+	EmitBYTE(0x83 | (reg<<3));
+	EmitADDR(mem); // ff 94 83 12 34 56 78    call   QWORD PTR [rbx+rax*4+0x78563412]
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::RET()
+void	CAssemblyWriterX64::RET()
 {
 	EmitBYTE(0xC3);
 }
@@ -551,10 +648,24 @@ void	CAssemblyWriterX86::RET()
 //*****************************************************************************
 // mov reg1, reg2
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::MOV(EIntelReg reg1, EIntelReg reg2, bool is64)
 {
 	if (reg1 != reg2)
 	{
+		if (is64) {
+			u8 first_byte = 0x48;
+			if (reg2 >= R8_CODE) {
+				first_byte |= 0x1;
+				reg1 = EIntelReg(reg1 & 7);
+			}
+			if (reg1 >= R8_CODE) {
+				first_byte |= 0x4;
+				reg1 = EIntelReg(reg1 & 7);
+			}
+
+			EmitBYTE(first_byte);
+			}
+
 		EmitBYTE(0x8b);
 		EmitBYTE(0xc0 | (reg1<<3) | reg2);
 	}
@@ -563,7 +674,7 @@ void	CAssemblyWriterX86::MOV(EIntelReg reg1, EIntelReg reg2)
 //*****************************************************************************
 // movsx reg1, reg2
 //*****************************************************************************
-void	CAssemblyWriterX86::MOVSX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
+void	CAssemblyWriterX64::MOVSX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
 {
 	EmitBYTE(0x0f);
 	EmitBYTE(_8bit ? 0xBE : 0xBF);
@@ -573,7 +684,7 @@ void	CAssemblyWriterX86::MOVSX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
 //*****************************************************************************
 // movzx reg1, reg2
 //*****************************************************************************
-void	CAssemblyWriterX86::MOVZX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
+void	CAssemblyWriterX64::MOVZX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
 {
 	EmitBYTE(0x0f);
 	EmitBYTE(_8bit ? 0xB6 : 0xB7);
@@ -583,38 +694,73 @@ void	CAssemblyWriterX86::MOVZX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
 //*****************************************************************************
 // mov dword ptr[ mem ], reg
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_MEM_REG(void * mem, EIntelReg isrc)
+void	CAssemblyWriterX64::MOV_MEM_REG(u32 * mem, EIntelReg isrc)
 {
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0xa3);
 	else*/
 	{
 		EmitBYTE(0x89);
-		EmitBYTE((isrc<<3) | 0x05);
+		EmitBYTE((isrc<<3) | 0x83);
 	}
-	EmitDWORD((u32)mem);
+	EmitADDR(mem); //  89 83 12 34 56 78       mov    DWORD PTR [rbx+0x78563412],eax
+}
+
+//*****************************************************************************
+// mov qword ptr[ mem ], reg
+//*****************************************************************************
+void	CAssemblyWriterX64::MOV64_MEM_REG(u64 * mem, EIntelReg isrc)
+{
+	EmitBYTE(0x48);
+	/*if (reg == EAX_CODE)
+		EmitBYTE(0xa3);
+	else*/
+	{
+		EmitBYTE(0x89);
+		EmitBYTE((isrc<<3) | 0x83);
+	}
+	EmitADDR(mem); // 48 89 83 12 34 56 78    mov    QWORD PTR [rbx+0x78563412],rax
+}
+
+
+//*****************************************************************************
+// mov reg, qword ptr[ mem ]
+//*****************************************************************************
+void	CAssemblyWriterX64::MOV64_REG_MEM(EIntelReg reg, const u64 * mem)
+{
+	EmitBYTE(0x48);
+
+	/*if (reg == EAX_CODE)
+		EmitBYTE(0xa1);
+	else*/
+	{
+		EmitBYTE(0x8b);
+		EmitBYTE((reg<<3) | 0x83); 
+	}
+
+	EmitADDR(mem); // 48 8b 83 12 34 56 78    mov    rax,QWORD PTR [rbx+0x78563412]
 }
 
 //*****************************************************************************
 // mov reg, dword ptr[ mem ]
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_REG_MEM(EIntelReg reg, const void * mem)
+void	CAssemblyWriterX64::MOV_REG_MEM(EIntelReg reg, const u32 * mem)
 {
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0xa1);
 	else*/
 	{
 		EmitBYTE(0x8b);
-		EmitBYTE((reg<<3) | 0x05);
+		EmitBYTE((reg<<3) | 0x83); 
 	}
 
-	EmitDWORD((u32)mem);
+	EmitADDR(mem); // 8b 83 12 34 56 78       mov    eax,DWORD PTR [rbx+0x78563412]
 }
 
 //*****************************************************************************
 // mov byte ptr [base], src
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV8_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc )
+void	CAssemblyWriterX64::MOV8_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc )
 {
 	DAEDALUS_ASSERT( IsValidMov8Reg( isrc ), "Invalid source register for 8 bit move" );
 	EmitBYTE(0x88);
@@ -624,7 +770,7 @@ void	CAssemblyWriterX86::MOV8_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc )
 //*****************************************************************************
 // mov dst, byte ptr [base]
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV8_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase )
+void	CAssemblyWriterX64::MOV8_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase )
 {
 	DAEDALUS_ASSERT( IsValidMov8Reg( idst ), "Invalid destination register for 8 bit move" );
 
@@ -635,7 +781,7 @@ void	CAssemblyWriterX86::MOV8_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase )
 //*****************************************************************************
 // mov word ptr [base], src
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV16_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc )
+void	CAssemblyWriterX64::MOV16_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc )
 {
 	EmitBYTE(0x66);
 	EmitBYTE(0x89);
@@ -645,7 +791,7 @@ void	CAssemblyWriterX86::MOV16_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc )
 //*****************************************************************************
 // mov dst, word ptr[base] e.g. mov ax, word ptr [eax]
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV16_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase )
+void	CAssemblyWriterX64::MOV16_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase )
 {
 	EmitBYTE(0x66);
 	EmitBYTE(0x8B);
@@ -655,7 +801,7 @@ void	CAssemblyWriterX86::MOV16_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase )
 //*****************************************************************************
 // mov dword ptr [base + nnnnnnnn], src
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_MEM_BASE_OFFSET32_REG( EIntelReg ibase, s32 offset, EIntelReg isrc )
+void	CAssemblyWriterX64::MOV_MEM_BASE_OFFSET32_REG( EIntelReg ibase, s32 offset, EIntelReg isrc )
 {
 	EmitBYTE(0x89);
 	EmitBYTE(0x80 | (isrc<<3) | ibase);
@@ -665,7 +811,7 @@ void	CAssemblyWriterX86::MOV_MEM_BASE_OFFSET32_REG( EIntelReg ibase, s32 offset,
 //*****************************************************************************
 // mov dword ptr [base + nn], src
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_MEM_BASE_OFFSET8_REG( EIntelReg ibase, s8 offset, EIntelReg isrc )
+void	CAssemblyWriterX64::MOV_MEM_BASE_OFFSET8_REG( EIntelReg ibase, s8 offset, EIntelReg isrc )
 {
 	EmitBYTE(0x89);
 	EmitBYTE(0x40 | (isrc<<3) | ibase);
@@ -675,7 +821,7 @@ void	CAssemblyWriterX86::MOV_MEM_BASE_OFFSET8_REG( EIntelReg ibase, s8 offset, E
 //*****************************************************************************
 // mov dword ptr [base], src
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc )
+void	CAssemblyWriterX64::MOV_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc )
 {
 	EmitBYTE(0x89);
 	EmitBYTE(0x00 | (isrc<<3) | ibase);
@@ -684,7 +830,7 @@ void	CAssemblyWriterX86::MOV_MEM_BASE_REG( EIntelReg ibase, EIntelReg isrc )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_MEM_BASE_OFFSET_REG( EIntelReg ibase, s32 offset, EIntelReg isrc )
+void	CAssemblyWriterX64::MOV_MEM_BASE_OFFSET_REG( EIntelReg ibase, s32 offset, EIntelReg isrc )
 {
 	if(offset == 0)
 	{
@@ -703,7 +849,7 @@ void	CAssemblyWriterX86::MOV_MEM_BASE_OFFSET_REG( EIntelReg ibase, s32 offset, E
 //*****************************************************************************
 // mov dst, dword ptr [base + nnnnnnnn]
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_REG_MEM_BASE_OFFSET32( EIntelReg idst, EIntelReg ibase, s32 offset )
+void	CAssemblyWriterX64::MOV_REG_MEM_BASE_OFFSET32( EIntelReg idst, EIntelReg ibase, s32 offset )
 {
 	EmitBYTE(0x8B);
 	EmitBYTE(0x80 | (idst<<3) | ibase);
@@ -713,7 +859,7 @@ void	CAssemblyWriterX86::MOV_REG_MEM_BASE_OFFSET32( EIntelReg idst, EIntelReg ib
 //*****************************************************************************
 // mov dst, dword ptr [base + nn]
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_REG_MEM_BASE_OFFSET8( EIntelReg idst, EIntelReg ibase, s8 offset )
+void	CAssemblyWriterX64::MOV_REG_MEM_BASE_OFFSET8( EIntelReg idst, EIntelReg ibase, s8 offset )
 {
 	EmitBYTE(0x8B);
 	EmitBYTE(0x40 | (idst<<3) | ibase);
@@ -723,7 +869,7 @@ void	CAssemblyWriterX86::MOV_REG_MEM_BASE_OFFSET8( EIntelReg idst, EIntelReg iba
 //*****************************************************************************
 // mov dst, dword ptr [base]
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase )
+void	CAssemblyWriterX64::MOV_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase )
 {
 	EmitBYTE(0x8B);
 	EmitBYTE(0x00 | (idst<<3) | ibase);
@@ -732,7 +878,7 @@ void	CAssemblyWriterX86::MOV_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::MOV_REG_MEM_BASE_OFFSET( EIntelReg idst, EIntelReg ibase, s32 offset )
+void	CAssemblyWriterX64::MOV_REG_MEM_BASE_OFFSET( EIntelReg idst, EIntelReg ibase, s32 offset )
 {
 	if(offset == 0)
 	{
@@ -751,7 +897,7 @@ void	CAssemblyWriterX86::MOV_REG_MEM_BASE_OFFSET( EIntelReg idst, EIntelReg ibas
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::MOVI(EIntelReg reg, u32 data)
+void	CAssemblyWriterX64::MOVI(EIntelReg reg, u32 data)
 {
 	EmitBYTE(0xB8 | reg);
 	EmitDWORD(data);
@@ -760,29 +906,42 @@ void	CAssemblyWriterX86::MOVI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::MOVI_MEM(void * mem, u32 data)
+void	CAssemblyWriterX64::MOVI_64(EIntelReg reg, u64 data)
+{
+	// 0:  48 b8 78 56 34 12 78    movabs rax,0x1234567812345678
+	// 7:  56 34 12
+	EmitBYTE(0x48);
+	EmitBYTE(0xB8 | reg);
+	EmitQWORD(data);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void	CAssemblyWriterX64::MOVI_MEM(u32 * mem, u32 data)
 {
 	EmitBYTE(0xc7);
-	EmitBYTE(0x05);
-	EmitDWORD((u32)mem);
+	EmitBYTE(0x83);
+	EmitADDR(mem); 	// 0:  c7 83 12 34 56 78 12    mov    DWORD PTR [rbx+0x78563412],0x78563412
+					// 7:  34 56 78
 	EmitDWORD(data);
 }
 
 //*****************************************************************************
 //	mov		byte ptr mem, data
 //*****************************************************************************
-void	CAssemblyWriterX86::MOVI_MEM8(void * mem, u8 data)
+void	CAssemblyWriterX64::MOVI_MEM8(u32 * mem, u8 data)
 {
 	EmitBYTE(0xc6);
-	EmitBYTE(0x05);
-	EmitDWORD((u32)mem);
+	EmitBYTE(0x83);
+	EmitADDR(mem);	//0:  c6 83 12 34 56 78 12    mov    BYTE PTR [rbx+0x78563412],0x12
 	EmitBYTE(data);
 }
 
 //*****************************************************************************
 // movsx	dst, src		(e.g. movsx eax, al)
 //*****************************************************************************
-void	CAssemblyWriterX86::MOVSX8( EIntelReg idst, EIntelReg isrc )
+void	CAssemblyWriterX64::MOVSX8( EIntelReg idst, EIntelReg isrc )
 {
 	DAEDALUS_ASSERT( IsValidMov8Reg( isrc ), "Invalid source register for 8 bit move" );
 	EmitBYTE(0x0F);
@@ -793,7 +952,7 @@ void	CAssemblyWriterX86::MOVSX8( EIntelReg idst, EIntelReg isrc )
 //*****************************************************************************
 // movsx	dst, src		(e.g. movsx eax, ax)
 //*****************************************************************************
-void	CAssemblyWriterX86::MOVSX16( EIntelReg idst, EIntelReg isrc )
+void	CAssemblyWriterX64::MOVSX16( EIntelReg idst, EIntelReg isrc )
 {
 	EmitBYTE(0x0F);
 	EmitBYTE(0xBF);
@@ -803,7 +962,7 @@ void	CAssemblyWriterX86::MOVSX16( EIntelReg idst, EIntelReg isrc )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FSQRT()
+void	CAssemblyWriterX64::FSQRT()
 {
 	EmitWORD(0xfad9);
 }
@@ -811,7 +970,7 @@ void	CAssemblyWriterX86::FSQRT()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FCHS()
+void	CAssemblyWriterX64::FCHS()
 {
 	EmitWORD(0xe0d9);
 }
@@ -819,73 +978,73 @@ void	CAssemblyWriterX86::FCHS()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FILD_MEM( void * pmem )
+void	CAssemblyWriterX64::FILD_MEM( u32 * pmem )
 {
-	EmitWORD(0x05db);
-	EmitDWORD( u32(pmem) );
+	EmitWORD(0x83db);
+	EmitADDR(pmem); // 0:  db 83 12 34 56 78       fild   DWORD PTR [rbx+0x78563412]
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FLD_MEMp32( void * pmem )
+void	CAssemblyWriterX64::FLD_MEMp32( u32 * pmem )
 {
-	EmitWORD(0x05d9);
-	EmitDWORD( u32(pmem) );
+	EmitWORD(0x83d9);
+	EmitADDR(pmem); //  d9 83 12 34 56 78       fld    DWORD PTR [rbx+0x78563412]
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FSTP_MEMp32( void * pmem )
+void	CAssemblyWriterX64::FSTP_MEMp32( u32 * pmem )
 {
-	EmitWORD( 0x1dd9);
-	EmitDWORD( u32(pmem) );
+	EmitWORD( 0x9bd9);
+	EmitADDR(pmem); // 0:  d9 9b 12 34 56 78       fstp   DWORD PTR [rbx+0x78563412]
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FLD_MEMp64( void * memlo, void * memhi )
+void	CAssemblyWriterX64::FLD_MEMp64( u32 * memlo, u32 * memhi )
 {
-	static s64 longtemp;
+	// static s64 longtemp;
 
-	MOV_REG_MEM(EAX_CODE, (u8*)(memlo) );
-	MOV_REG_MEM(EDX_CODE, (u8*)(memhi) );
-	MOV_MEM_REG(((u8*)&longtemp) + 0, EAX_CODE);
-	MOV_MEM_REG(((u8*)&longtemp) + 4, EDX_CODE);
-	EmitWORD(0x05dd);
-	EmitDWORD( u32(&longtemp) );
+	// MOV_REG_MEM(EAX_CODE, (u8*)(memlo) );
+	// MOV_REG_MEM(EDX_CODE, (u8*)(memhi) );
+	// MOV_MEM_REG(((u8*)&longtemp) + 0, EAX_CODE);
+	// MOV_MEM_REG(((u8*)&longtemp) + 4, EDX_CODE);
+	// EmitWORD(0x05dd);
+	// EmitDWORD( u32(&longtemp) );
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FSTP_MEMp64( void * memlo, void * memhi )
+void	CAssemblyWriterX64::FSTP_MEMp64( u32 * memlo, u32 * memhi )
 {
-	static s64 longtemp;
+	// static s64 longtemp;
 
-	EmitWORD(0x1ddd);
-	EmitDWORD( u32(&longtemp) );
-	MOV_REG_MEM(EAX_CODE, ((u8*)(&longtemp))+0);
-	MOV_REG_MEM(EDX_CODE, ((u8*)(&longtemp))+4);
-	MOV_MEM_REG(((u8*)(memlo)), EAX_CODE);
-	MOV_MEM_REG(((u8*)(memhi)), EDX_CODE);
+	// EmitWORD(0x1ddd);
+	// EmitDWORD( u32(&longtemp) );
+	// MOV_REG_MEM(EAX_CODE, ((u8*)(&longtemp))+0);
+	// MOV_REG_MEM(EDX_CODE, ((u8*)(&longtemp))+4);
+	// MOV_MEM_REG(((u8*)(memlo)), EAX_CODE);
+	// MOV_MEM_REG(((u8*)(memhi)), EDX_CODE);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FISTP_MEMp( void * pmem )
+void	CAssemblyWriterX64::FISTP_MEMp( u32 * pmem )
 {
-	EmitWORD( 0x1ddb );
-	EmitDWORD((u32)pmem);
+	EmitWORD( 0x9bdb );
+	EmitADDR(pmem); //  db 9b 12 34 56 78       fistp  DWORD PTR [rbx+0x78563412]
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FLD( u32 i )
+void	CAssemblyWriterX64::FLD( u32 i )
 {
 	EmitWORD((u16)((0xc0 + (i))<<8) |(0xd9));
 }
@@ -893,7 +1052,7 @@ void	CAssemblyWriterX86::FLD( u32 i )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FXCH( u32 i )
+void	CAssemblyWriterX64::FXCH( u32 i )
 {
 	EmitWORD((u16)((0xc8 + (i))<<8) |(0xd9));
 }
@@ -901,7 +1060,7 @@ void	CAssemblyWriterX86::FXCH( u32 i )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FCOMP( u32 i )
+void	CAssemblyWriterX64::FCOMP( u32 i )
 {
 	EmitWORD((u16)((0xd8 + (i))<<8) |(0xd8));
 }
@@ -909,7 +1068,7 @@ void	CAssemblyWriterX86::FCOMP( u32 i )
 //*****************************************************************************
 //fnstsw      ax
 //*****************************************************************************
-void	CAssemblyWriterX86::FNSTSW()
+void	CAssemblyWriterX64::FNSTSW()
 {
 	EmitWORD(0xe0df);
 }
@@ -917,7 +1076,7 @@ void	CAssemblyWriterX86::FNSTSW()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FFREE( u32 i )
+void	CAssemblyWriterX64::FFREE( u32 i )
 {
 	EmitWORD((u16)((0xc0 + (i))<<8) |(0xdd));
 }
@@ -925,7 +1084,7 @@ void	CAssemblyWriterX86::FFREE( u32 i )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FINCSTP()
+void	CAssemblyWriterX64::FINCSTP()
 {
 	EmitWORD(0xf7d9);
 }
@@ -933,7 +1092,7 @@ void	CAssemblyWriterX86::FINCSTP()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FSQRTp()
+void	CAssemblyWriterX64::FSQRTp()
 {
 	EmitWORD(0xfad9);
 }
@@ -941,7 +1100,7 @@ void	CAssemblyWriterX86::FSQRTp()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX86::FCHSp()
+void	CAssemblyWriterX64::FCHSp()
 {
 	EmitWORD(0xe0d9);
 }
@@ -949,7 +1108,7 @@ void	CAssemblyWriterX86::FCHSp()
 //*****************************************************************************
 // fadd st(0),st(i)
 //*****************************************************************************
-void	CAssemblyWriterX86::FADD( u32 i )
+void	CAssemblyWriterX64::FADD( u32 i )
 {
 	EmitWORD((u16)((0xc0 + (i))<<8) |(0xd8));
 }
@@ -957,7 +1116,7 @@ void	CAssemblyWriterX86::FADD( u32 i )
 //*****************************************************************************
 // fsub st(0),st(i)
 //*****************************************************************************
-void	CAssemblyWriterX86::FSUB( u32 i )
+void	CAssemblyWriterX64::FSUB( u32 i )
 {
 	EmitWORD((u16)((0xe0 + (i))<<8) |(0xd8));
 }
@@ -965,7 +1124,7 @@ void	CAssemblyWriterX86::FSUB( u32 i )
 //*****************************************************************************
 // fmul st(0),st(i)
 //*****************************************************************************
-void	CAssemblyWriterX86::FMUL( u32 i )
+void	CAssemblyWriterX64::FMUL( u32 i )
 {
 	EmitWORD((u16)((0xc8 + (i))<<8) |(0xd8));
 }
@@ -973,12 +1132,20 @@ void	CAssemblyWriterX86::FMUL( u32 i )
 //*****************************************************************************
 // fdiv st(0),st(i)
 //*****************************************************************************
-void	CAssemblyWriterX86::FDIV( u32 i )
+void	CAssemblyWriterX64::FDIV( u32 i )
 {
 	EmitWORD((u16)((0xf0 + (i))<<8) |(0xd8));
 }
 
-void	CAssemblyWriterX86::CDQ()
+void	CAssemblyWriterX64::CDQ()
 {
 	EmitBYTE(0x99);
+}
+
+void	CAssemblyWriterX64::LEA(EIntelReg reg, void* mem)
+{
+	EmitBYTE(0x48);
+	EmitBYTE(0x8d);
+	EmitBYTE(0x83 | (reg << 3));
+	EmitADDR(mem); // 0:  48 8d 83 12 34 56 78    lea    rax,[rbx+0x78563412]
 }

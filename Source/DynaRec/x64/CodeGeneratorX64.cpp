@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/Trace.h"
 #include "Ultra/ultra_R4300.h"
 
-#include "DynaRec/x86/CodeGeneratorX86.h"
+#include "DynaRec/x64/CodeGeneratorX64.h"
 
 using namespace AssemblyUtils;
 
@@ -150,15 +150,15 @@ private:
 
 
 static CRegisterStatus	gRegisterStatus;
-static u32				gIntelRegUsageMap[NUM_X86_REGISTERS];
+static u32				gIntelRegUsageMap[NUM_X64_REGISTERS];
 static u32				gWriteCheck[NUM_MIPS_REGISTERS];
 
 //*****************************************************************************
 //
 //*****************************************************************************
-CCodeGeneratorX86::CCodeGeneratorX86( CAssemblyBuffer * p_primary, CAssemblyBuffer * p_secondary )
+CCodeGeneratorX64::CCodeGeneratorX64( CAssemblyBuffer * p_primary, CAssemblyBuffer * p_secondary )
 :	CCodeGenerator( )
-,	CAssemblyWriterX86( p_primary )
+,	CAssemblyWriterX64( p_primary )
 ,	mSpCachedInESI( false )
 ,	mSetSpPostUpdate( 0 )
 ,	mpPrimary( p_primary )
@@ -169,11 +169,11 @@ CCodeGeneratorX86::CCodeGeneratorX86( CAssemblyBuffer * p_primary, CAssemblyBuff
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CCodeGeneratorX86::Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps )
+void	CCodeGeneratorX64::Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps, const std::vector< RegisterSnapshotHandle >& exception_handler_snapshots )
 {
 	if( !exception_handler_jumps.empty() )
 	{
-		GenerateExceptionHander( p_exception_handler_fn, exception_handler_jumps );
+		GenerateExceptionHander( p_exception_handler_fn, exception_handler_jumps, exception_handler_snapshots );
 	}
 
 	SetAssemblyBuffer( NULL );
@@ -184,7 +184,7 @@ void	CCodeGeneratorX86::Finalise( ExceptionHandlerFn p_exception_handler_fn, con
 //*****************************************************************************
 //
 //*****************************************************************************
-#if 0
+#if DAEDALUS_DEBUG_DYNAREC
 u32 gNumFragmentsExecuted = 0;
 extern "C"
 {
@@ -194,9 +194,7 @@ void LogFragmentEntry( u32 entry_address )
 	gNumFragmentsExecuted++;
 	if(gNumFragmentsExecuted >= 0x99990)
 	{
-		char buffer[ 128 ]
-		snprintf( buffer, sizeof(buffer), "Address %08x\n", entry_address );
-		OutputDebugString( buffer );
+		printf("Address %08x\n", entry_address );
 	}
 }
 
@@ -206,17 +204,18 @@ void LogFragmentEntry( u32 entry_address )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CCodeGeneratorX86::Initialise( u32 entry_address, u32 exit_address, u32 * hit_counter, const void * p_base, const SRegisterUsageInfo & register_usage )
+void	CCodeGeneratorX64::Initialise( u32 entry_address, u32 exit_address, u32 * hit_counter, const void * p_base, const SRegisterUsageInfo & register_usage )
 {
-	//MOVI(ECX_CODE, entry_address);
-	// CALL( CCodeLabel( LogFragmentEntry ) );
-
-	if( hit_counter != NULL )
-	{
-		MOV_REG_MEM( EAX_CODE, hit_counter );
-		ADDI( EAX_CODE, 1 );
-		MOV_MEM_REG( hit_counter, EAX_CODE );
-	}
+#if DAEDALUS_DEBUG_DYNAREC
+	MOVI(FIRST_PARAM_REG_CODE, entry_address);
+	CALL( CCodeLabel( (void*)LogFragmentEntry ) );
+#endif
+	// if( hit_counter != NULL )
+	// {
+	// 	MOV_REG_MEM( RAX_CODE, hit_counter );
+	// 	ADDI( RAX_CODE, 1 );
+	// 	MOV_MEM_REG( hit_counter, RAX_CODE );
+	// }
 
 	// p_base/span_list ignored for now
 }
@@ -224,7 +223,7 @@ void	CCodeGeneratorX86::Initialise( u32 entry_address, u32 exit_address, u32 * h
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CCodeGeneratorX86::UpdateRegisterCaching( u32 instruction_idx )
+void	CCodeGeneratorX64::UpdateRegisterCaching( u32 instruction_idx )
 {
 	// This is ignored for now
 }
@@ -232,7 +231,7 @@ void	CCodeGeneratorX86::UpdateRegisterCaching( u32 instruction_idx )
 //*****************************************************************************
 //
 //*****************************************************************************
-RegisterSnapshotHandle	CCodeGeneratorX86::GetRegisterSnapshot()
+RegisterSnapshotHandle	CCodeGeneratorX64::GetRegisterSnapshot()
 {
 	// This doesn't do anything useful yet.
 	return RegisterSnapshotHandle( 0 );
@@ -241,7 +240,7 @@ RegisterSnapshotHandle	CCodeGeneratorX86::GetRegisterSnapshot()
 //*****************************************************************************
 //
 //*****************************************************************************
-CCodeLabel	CCodeGeneratorX86::GetEntryPoint() const
+CCodeLabel	CCodeGeneratorX64::GetEntryPoint() const
 {
 	return mpPrimary->GetStartAddress();
 }
@@ -249,7 +248,7 @@ CCodeLabel	CCodeGeneratorX86::GetEntryPoint() const
 //*****************************************************************************
 //
 //*****************************************************************************
-CCodeLabel	CCodeGeneratorX86::GetCurrentLocation() const
+CCodeLabel	CCodeGeneratorX64::GetCurrentLocation() const
 {
 	return mpPrimary->GetLabel();
 }
@@ -257,7 +256,7 @@ CCodeLabel	CCodeGeneratorX86::GetCurrentLocation() const
 //*****************************************************************************
 //
 //*****************************************************************************
-u32	CCodeGeneratorX86::GetCompiledCodeSize() const
+u32	CCodeGeneratorX64::GetCompiledCodeSize() const
 {
 	return mpPrimary->GetSize() + mpSecondary->GetSize();
 }
@@ -265,7 +264,7 @@ u32	CCodeGeneratorX86::GetCompiledCodeSize() const
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation CCodeGeneratorX86::GenerateExitCode( u32 exit_address, u32 jump_address, u32 num_instructions, CCodeLabel next_fragment )
+CJumpLocation CCodeGeneratorX64::GenerateExitCode( u32 exit_address, u32 jump_address, u32 num_instructions, CCodeLabel next_fragment )
 {
 	//DAEDALUS_ASSERT( exit_address != u32( ~0 ), "Invalid exit address" );
 	DAEDALUS_ASSERT( !next_fragment.IsSet() || jump_address == 0, "Shouldn't be specifying a jump address if we have a next fragment?" );
@@ -277,8 +276,8 @@ CJumpLocation CCodeGeneratorX86::GenerateExitCode( u32 exit_address, u32 jump_ad
 	}
 #endif
 
-	MOVI(ECX_CODE, num_instructions);
-	CALL( CCodeLabel( CPU_UpdateCounter ) );
+	MOVI(FIRST_PARAM_REG_CODE, num_instructions);
+	CALL( CCodeLabel( (void*)CPU_UpdateCounter ) );
 
 	// This jump may be NULL, in which case we patch it below
 	// This gets patched with a jump to the next fragment if the target is later found
@@ -317,17 +316,17 @@ CJumpLocation CCodeGeneratorX86::GenerateExitCode( u32 exit_address, u32 jump_ad
 //*****************************************************************************
 // Handle branching back to the interpreter after an ERET
 //*****************************************************************************
-void CCodeGeneratorX86::GenerateEretExitCode( u32 num_instructions, CIndirectExitMap * p_map )
+void CCodeGeneratorX64::GenerateEretExitCode( u32 num_instructions, CIndirectExitMap * p_map )
 {
-	MOVI(ECX_CODE, num_instructions);
-	CALL( CCodeLabel( CPU_UpdateCounter ) );
+	MOVI(FIRST_PARAM_REG_CODE, num_instructions);
+	CALL( CCodeLabel( (void*)CPU_UpdateCounter ) );
 
 	// We always exit to the interpreter, regardless of the state of gCPUState.StuffToDo
 
 	// Eret is a bit bodged so we exit at PC + 4
-	MOV_REG_MEM( EAX_CODE, &gCPUState.CurrentPC );
-	ADDI( EAX_CODE, 4 );
-	MOV_MEM_REG( &gCPUState.CurrentPC, EAX_CODE );
+	MOV_REG_MEM( RAX_CODE, &gCPUState.CurrentPC );
+	ADDI( RAX_CODE, 4 );
+	MOV_MEM_REG( &gCPUState.CurrentPC, RAX_CODE );
 	SetVar8( &gCPUState.Delay, NO_DELAY );
 
 	// No need to call CPU_SetPC(), as this is handled by CFragment when we exit
@@ -338,18 +337,18 @@ void CCodeGeneratorX86::GenerateEretExitCode( u32 num_instructions, CIndirectExi
 //*****************************************************************************
 // Handle branching back to the interpreter after an indirect jump
 //*****************************************************************************
-void CCodeGeneratorX86::GenerateIndirectExitCode( u32 num_instructions, CIndirectExitMap * p_map )
+void CCodeGeneratorX64::GenerateIndirectExitCode( u32 num_instructions, CIndirectExitMap * p_map )
 {
-	MOVI(ECX_CODE, num_instructions);
-	CALL( CCodeLabel( CPU_UpdateCounter ) );
+	MOVI(FIRST_PARAM_REG_CODE, num_instructions);
+	CALL( CCodeLabel( (void*) CPU_UpdateCounter ) );
 
 	CCodeLabel		no_target( NULL );
 	CJumpLocation	jump_to_next_fragment( GenerateBranchIfNotSet( const_cast< u32 * >( &gCPUState.StuffToDo ), no_target ) );
 
 	CCodeLabel		exit_dynarec( GetAssemblyBuffer()->GetLabel() );
 	// New return address is in gCPUState.TargetPC
-	MOV_REG_MEM( EAX_CODE, &gCPUState.TargetPC );
-	MOV_MEM_REG( &gCPUState.CurrentPC, EAX_CODE );
+	MOV_REG_MEM( RAX_CODE, &gCPUState.TargetPC );
+	MOV_MEM_REG( &gCPUState.CurrentPC, RAX_CODE );
 	SetVar8( &gCPUState.Delay, NO_DELAY );
 
 	// No need to call CPU_SetPC(), as this is handled by CFragment when we exit
@@ -359,25 +358,25 @@ void CCodeGeneratorX86::GenerateIndirectExitCode( u32 num_instructions, CIndirec
 	// gCPUState.StuffToDo == 0, try to jump to the indirect target
 	PatchJumpLong( jump_to_next_fragment, GetAssemblyBuffer()->GetLabel() );
 
-	MOVI( ECX_CODE, reinterpret_cast< u32 >( p_map ) );
-	MOV_REG_MEM( EDX_CODE, &gCPUState.TargetPC );
-	CALL( CCodeLabel( IndirectExitMap_Lookup ) );
+	MOVI_64(FIRST_PARAM_REG_CODE, (uintptr_t)p_map);
+	MOV_REG_MEM( SECOND_PARAM_REG_CODE, &gCPUState.TargetPC );
+	CALL( CCodeLabel( (void*)IndirectExitMap_Lookup ) );
 
 	// If the target was not found, exit
-	TEST( EAX_CODE, EAX_CODE );
+	TEST( RAX_CODE, RAX_CODE );
 	JELong( exit_dynarec );
 
-	JMP_REG( EAX_CODE );
+	JMP_REG( RAX_CODE );
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void CCodeGeneratorX86::GenerateExceptionHander( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps )
+void CCodeGeneratorX64::GenerateExceptionHander( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps, const std::vector< RegisterSnapshotHandle>& exception_handler_snapshots )
 {
 	CCodeLabel exception_handler( GetAssemblyBuffer()->GetLabel() );
 
-	CALL( CCodeLabel( p_exception_handler_fn ) );
+	CALL( CCodeLabel( (void*)p_exception_handler_fn ) );
 	RET();
 
 	for( std::vector< CJumpLocation >::const_iterator it = exception_handler_jumps.begin(); it != exception_handler_jumps.end(); ++it )
@@ -390,7 +389,7 @@ void CCodeGeneratorX86::GenerateExceptionHander( ExceptionHandlerFn p_exception_
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CCodeGeneratorX86::SetVar( u32 * p_var, u32 value )
+void	CCodeGeneratorX64::SetVar( u32 * p_var, u32 value )
 {
 	MOVI_MEM( p_var, value );
 }
@@ -398,7 +397,7 @@ void	CCodeGeneratorX86::SetVar( u32 * p_var, u32 value )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CCodeGeneratorX86::SetVar8( u32 * p_var, u8 value )
+void	CCodeGeneratorX64::SetVar8( u32 * p_var, u8 value )
 {
 	MOVI_MEM8( p_var, value );
 }
@@ -406,7 +405,7 @@ void	CCodeGeneratorX86::SetVar8( u32 * p_var, u8 value )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CCodeGeneratorX86::GenerateBranchHandler( CJumpLocation branch_handler_jump, RegisterSnapshotHandle snapshot )
+void	CCodeGeneratorX64::GenerateBranchHandler( CJumpLocation branch_handler_jump, RegisterSnapshotHandle snapshot )
 {
 	PatchJumpLong( branch_handler_jump, GetAssemblyBuffer()->GetLabel() );
 }
@@ -414,7 +413,7 @@ void	CCodeGeneratorX86::GenerateBranchHandler( CJumpLocation branch_handler_jump
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation	CCodeGeneratorX86::GenerateBranchAlways( CCodeLabel target )
+CJumpLocation	CCodeGeneratorX64::GenerateBranchAlways( CCodeLabel target )
 {
 	return JMPLong( target );
 }
@@ -422,10 +421,10 @@ CJumpLocation	CCodeGeneratorX86::GenerateBranchAlways( CCodeLabel target )
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation	CCodeGeneratorX86::GenerateBranchIfSet( const u32 * p_var, CCodeLabel target )
+CJumpLocation	CCodeGeneratorX64::GenerateBranchIfSet( const u32 * p_var, CCodeLabel target )
 {
-	MOV_REG_MEM( EAX_CODE, p_var );
-	TEST( EAX_CODE, EAX_CODE );
+	MOV_REG_MEM( RAX_CODE, p_var );
+	TEST( RAX_CODE, RAX_CODE );
 
 	return JNELong( target );
 }
@@ -433,10 +432,10 @@ CJumpLocation	CCodeGeneratorX86::GenerateBranchIfSet( const u32 * p_var, CCodeLa
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation	CCodeGeneratorX86::GenerateBranchIfNotSet( const u32 * p_var, CCodeLabel target )
+CJumpLocation	CCodeGeneratorX64::GenerateBranchIfNotSet( const u32 * p_var, CCodeLabel target )
 {
-	MOV_REG_MEM( EAX_CODE, p_var );
-	TEST( EAX_CODE, EAX_CODE );
+	MOV_REG_MEM( RAX_CODE, p_var );
+	TEST( RAX_CODE, RAX_CODE );
 
 	return JELong( target );
 }
@@ -444,7 +443,7 @@ CJumpLocation	CCodeGeneratorX86::GenerateBranchIfNotSet( const u32 * p_var, CCod
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation	CCodeGeneratorX86::GenerateBranchIfEqual32( const u32 * p_var, u32 value, CCodeLabel target )
+CJumpLocation	CCodeGeneratorX64::GenerateBranchIfEqual32( const u32 * p_var, u32 value, CCodeLabel target )
 {
 	CMP_MEM32_I32( p_var, value );
 
@@ -454,7 +453,7 @@ CJumpLocation	CCodeGeneratorX86::GenerateBranchIfEqual32( const u32 * p_var, u32
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation	CCodeGeneratorX86::GenerateBranchIfEqual8( const u32 * p_var, u8 value, CCodeLabel target )
+CJumpLocation	CCodeGeneratorX64::GenerateBranchIfEqual8( const u32 * p_var, u8 value, CCodeLabel target )
 {
 	CMP_MEM32_I8( p_var, value );
 
@@ -464,7 +463,7 @@ CJumpLocation	CCodeGeneratorX86::GenerateBranchIfEqual8( const u32 * p_var, u8 v
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation	CCodeGeneratorX86::GenerateBranchIfNotEqual32( const u32 * p_var, u32 value, CCodeLabel target )
+CJumpLocation	CCodeGeneratorX64::GenerateBranchIfNotEqual32( const u32 * p_var, u32 value, CCodeLabel target )
 {
 	CMP_MEM32_I32( p_var, value );
 
@@ -474,7 +473,7 @@ CJumpLocation	CCodeGeneratorX86::GenerateBranchIfNotEqual32( const u32 * p_var, 
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation	CCodeGeneratorX86::GenerateBranchIfNotEqual8( const u32 * p_var, u8 value, CCodeLabel target )
+CJumpLocation	CCodeGeneratorX64::GenerateBranchIfNotEqual8( const u32 * p_var, u8 value, CCodeLabel target )
 {
 	CMP_MEM32_I8( p_var, value );
 
@@ -485,7 +484,7 @@ CJumpLocation	CCodeGeneratorX86::GenerateBranchIfNotEqual8( const u32 * p_var, u
 //	Generates instruction handler for the specified op code.
 //	Returns a jump location if an exception handler is required
 //*****************************************************************************
-CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump)
+CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump)
 {
 	u32 address = ti.Address;
 	bool exception = false;
@@ -524,16 +523,16 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 
 		// For LW, SW, SWC1, LB etc, only generate an exception handler if access wasn't done through the stack (handle = false)
 		// This will have to be reworked once we handle accesses other than the stack!
-		case OP_LW:
-			handled = GenerateLW(rt, base, s16(op_code.immediate));
-			exception = !handled;
-			break;
 		case OP_SW:
 			handled = GenerateSW(rt, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
 		case OP_SWC1:
 			handled = GenerateSWC1(ft, base, s16(op_code.immediate));
+			exception = !handled;
+			break;
+		case OP_LW:
+			handled = GenerateLW(rt, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
 		case OP_LB:
@@ -552,23 +551,51 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 			handled = GenerateLWC1(ft, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
+		case OP_LUI:
+			GenerateLUI(rt, s16(op_code.immediate));
+			exception = true;
+			break;
+
 		case OP_ADDIU:
 		case OP_ADDI:
 			GenerateADDIU(rt, rs, s16(op_code.immediate)); handled = true; break;
 			break;
+		case OP_ANDI:
+			GenerateANDI(rt, rs, op_code.immediate);
+			handled = true;
+			break;
+		case OP_ORI:
+			GenerateORI(rt, rs, op_code.immediate);
+			handled = true;
+			break;
+		case OP_XORI:
+			GenerateXORI(rt, rs, op_code.immediate);
+			handled = true;
+			break;
+		case OP_SPECOP:
+			{
+				switch(op_code.spec_op)
+				{
+				// case SpecOp_JR:		handled = GenerateJR(rs); break;
 
-		//case OP_SPECOP:
-		//	{
-		//		switch(op_code.spec_op)
-		//		{
-		//		//case SpecOp_JR:		handled = GenerateJR(rs); break;
+				case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
+				case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
+				case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
+				
+				case SpecOp_OR:		GenerateOR( rd, rs, rt ); 	handled = true; break;
+				case SpecOp_AND:	GenerateAND( rd, rs, rt ); handled = true; break;
+				case SpecOp_XOR:	GenerateXOR( rd, rs, rt ); handled = true; break;
+				case SpecOp_NOR:	GenerateNOR( rd, rs, rt );	handled = true; break;
 
-		//		case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
-		//		case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
-		//		case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
-		//		}
-		//	}
-		//	break;
+				case SpecOp_ADD:	GenerateADDU( rd, rs, rt );	handled = true; break;
+				// this break something don't know yet
+				//case SpecOp_ADDU:	GenerateADDU( rd, rs, rt );	handled = true; break;
+
+				case SpecOp_SUB:	GenerateSUBU( rd, rs, rt );	handled = true; break;
+				case SpecOp_SUBU:	GenerateSUBU( rd, rs, rt );	handled = true; break;
+				}
+			}
+			break;
 	}
 
 	if (!handled)
@@ -633,24 +660,24 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CCodeGeneratorX86::GenerateGenericR4300( OpCode op_code, CPU_Instruction p_instruction )
+void	CCodeGeneratorX64::GenerateGenericR4300( OpCode op_code, CPU_Instruction p_instruction )
 {
 	// XXXX Flush all fp registers before a generic call
 
 	// Call function - __fastcall
-	MOVI(ECX_CODE, op_code._u32);
-	CALL( CCodeLabel( p_instruction ) );
+	MOVI(FIRST_PARAM_REG_CODE, op_code._u32);
+	CALL( CCodeLabel( (void*)p_instruction ) );
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-CJumpLocation CCodeGeneratorX86::ExecuteNativeFunction( CCodeLabel speed_hack, bool check_return )
+CJumpLocation CCodeGeneratorX64::ExecuteNativeFunction( CCodeLabel speed_hack, bool check_return )
 {
 	CALL( speed_hack );
 	if( check_return )
 	{
-		TEST( EAX_CODE, EAX_CODE );
+		TEST( RAX_CODE, RAX_CODE );
 
 		return JELong( CCodeLabel(NULL) );
 	}
@@ -661,7 +688,7 @@ CJumpLocation CCodeGeneratorX86::ExecuteNativeFunction( CCodeLabel speed_hack, b
 }
 
 
-void	CCodeGeneratorX86::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
+void	CCodeGeneratorX64::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
 {
 	u32 dwCache = cache_op & 0x3;
 	u32 dwAction = (cache_op >> 2) & 0x7;
@@ -670,9 +697,9 @@ void	CCodeGeneratorX86::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
 	// dynarec system can be invalidated
 	if(dwCache == 0 && (dwAction == 0 || dwAction == 4))
 	{
-		MOV_REG_MEM(ECX_CODE, &gCPUState.CPU[base]._u32_0);
-		MOVI(EDX_CODE, 0x20);
-		ADDI(ECX_CODE, offset);
+		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
+		MOVI(RDX_CODE, 0x20);
+		ADDI(RCX_CODE, offset);
 		CALL( CCodeLabel( reinterpret_cast< const void * >( CPU_InvalidateICacheRange ) ));
 	}
 	else
@@ -681,44 +708,45 @@ void	CCodeGeneratorX86::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
 	}
 }
 
-void CCodeGeneratorX86::GenerateLoad(u32 memBase, EN64Reg base, s16 offset, u8 twiddle, u8 bits)
+void CCodeGeneratorX64::GenerateLoad(EN64Reg base, s16 offset, u8 twiddle, u8 bits)
 {
-	MOV_REG_MEM(ECX_CODE, &gCPUState.CPU[base]._u32_0);
+	MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
+
 	if (twiddle == 0)
 	{
 		DAEDALUS_ASSERT_Q(bits == 32);
-		ADDI(ECX_CODE, memBase);
-		MOV_REG_MEM_BASE_OFFSET(EAX_CODE, ECX_CODE, offset);
+		ADD(RCX_CODE, R15_CODE, true);
+		MOV_REG_MEM_BASE_OFFSET(RAX_CODE, RCX_CODE, offset);
 	}
 	else
 	{
-		ADDI(ECX_CODE, offset);
-		XOR_I8(ECX_CODE, twiddle);
-		ADDI(ECX_CODE, memBase);
+		ADDI(RCX_CODE, offset);
+		XOR_I8(RCX_CODE, twiddle);
+		ADD(RCX_CODE, R15_CODE, true);
 		switch(bits)
 		{
 		case 32:
-			MOV_REG_MEM_BASE(EAX_CODE, ECX_CODE);
+			MOV_REG_MEM_BASE(RAX_CODE, RCX_CODE);
 			break;
 		case 16:
-			MOV16_REG_MEM_BASE(EAX_CODE, ECX_CODE);
+			MOV16_REG_MEM_BASE(RAX_CODE, RCX_CODE);
 			break;
 		case 8:
-			MOV8_REG_MEM_BASE(EAX_CODE, ECX_CODE);
+			MOV8_REG_MEM_BASE(RAX_CODE, RCX_CODE);
 			break;
 		}
 	}
 }
 
-bool CCodeGeneratorX86::GenerateLW( EN64Reg rt, EN64Reg base, s16 offset )
+bool CCodeGeneratorX64::GenerateLW( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad((u32)g_pu8RamBase_8000, base, offset, 0, 32);
+		GenerateLoad(base, offset, 0, 32);
 
-		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, EAX_CODE);
+		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
 		CDQ();
-		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, EDX_CODE);
+		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 
 		return true;
 	}
@@ -726,44 +754,44 @@ bool CCodeGeneratorX86::GenerateLW( EN64Reg rt, EN64Reg base, s16 offset )
 }
 
 
-bool CCodeGeneratorX86::GenerateSWC1( u32 ft, EN64Reg base, s16 offset )
+bool CCodeGeneratorX64::GenerateSWC1( u32 ft, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		MOV_REG_MEM(ECX_CODE, &gCPUState.CPU[base]._u32_0);
-		ADDI(ECX_CODE, (u32)g_pu8RamBase_8000);
+		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
+		ADD(RCX_CODE, R15_CODE, true);
 
-		MOV_REG_MEM(EAX_CODE, &gCPUState.FPU[ft]._u32);
-		MOV_MEM_BASE_OFFSET_REG(ECX_CODE, offset, EAX_CODE);
+		MOV_REG_MEM(RAX_CODE, &gCPUState.FPU[ft]._u32);
+		MOV_MEM_BASE_OFFSET_REG(RCX_CODE, offset, RAX_CODE);
 		return true;
 	}
 
 	return false;
 }
 
-bool CCodeGeneratorX86::GenerateSW( EN64Reg rt, EN64Reg base, s16 offset )
+bool CCodeGeneratorX64::GenerateSW( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		MOV_REG_MEM(ECX_CODE, &gCPUState.CPU[base]._u32_0);
-		ADDI(ECX_CODE, (u32)g_pu8RamBase_8000);
-		MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
-		MOV_MEM_BASE_OFFSET_REG(ECX_CODE, offset, EAX_CODE);
+		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
+		ADD(RCX_CODE, R15_CODE, true);
+		MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
+		MOV_MEM_BASE_OFFSET_REG(RCX_CODE, offset, RAX_CODE);
 		return true;
 	}
 
 	return false;
 }
 
-bool CCodeGeneratorX86::GenerateLB( EN64Reg rt, EN64Reg base, s16 offset )
+bool CCodeGeneratorX64::GenerateLB( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad((u32)g_pu8RamBase_8000, base, offset, U8_TWIDDLE, 8);
-		MOVSX(EAX_CODE, EAX_CODE, true);
-		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, EAX_CODE);
+		GenerateLoad(base, offset, U8_TWIDDLE, 8);
+		MOVSX(RAX_CODE, RAX_CODE, true);
+		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
 		CDQ();
-		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, EDX_CODE);
+		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 
 		return true;
 	}
@@ -771,15 +799,15 @@ bool CCodeGeneratorX86::GenerateLB( EN64Reg rt, EN64Reg base, s16 offset )
 	return false;
 }
 
-bool CCodeGeneratorX86::GenerateLBU( EN64Reg rt, EN64Reg base, s16 offset )
+bool CCodeGeneratorX64::GenerateLBU( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad((u32)g_pu8RamBase_8000, base, offset, U8_TWIDDLE, 8);
-		MOVZX(EAX_CODE, EAX_CODE, true);
-		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, EAX_CODE);
-		XOR(EDX_CODE, EDX_CODE);
-		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, EDX_CODE);
+		GenerateLoad(base, offset, U8_TWIDDLE, 8);
+		MOVZX(RAX_CODE, RAX_CODE, true);
+		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+		XOR(RDX_CODE, RDX_CODE);
+		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 		return true;
 	}
 
@@ -787,89 +815,164 @@ bool CCodeGeneratorX86::GenerateLBU( EN64Reg rt, EN64Reg base, s16 offset )
 }
 
 
-bool CCodeGeneratorX86::GenerateLH( EN64Reg rt, EN64Reg base, s16 offset )
+bool CCodeGeneratorX64::GenerateLH( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad((u32)g_pu8RamBase_8000, base, offset, U16_TWIDDLE, 16);
+		GenerateLoad(base, offset, U16_TWIDDLE, 16);
 
-		MOVSX(EAX_CODE, EAX_CODE, false);
-		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, EAX_CODE);
+		MOVSX(RAX_CODE, RAX_CODE, false);
+		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
 		CDQ();
-		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, EDX_CODE);
+		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 		return true;
 	}
 
 	return false;
 }
 
-void CCodeGeneratorX86::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
+void CCodeGeneratorX64::GenerateLUI( EN64Reg rt, s16 immediate )
 {
-	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rs]._u32_0);
-	ADDI(EAX_CODE, immediate);
+	MOVI(RAX_CODE, s32(immediate) << 16);
 	CDQ();
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, EAX_CODE);
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, EDX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 }
 
-void CCodeGeneratorX86::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
+void CCodeGeneratorX64::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
-	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
-	SHLI(EAX_CODE, sa);
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
+	ADDI(RAX_CODE, immediate);
 	CDQ();
-	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, EAX_CODE);
-	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, EDX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 }
 
-void CCodeGeneratorX86::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
+void CCodeGeneratorX64::GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immediate )
 {
-	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
-	SHRI(EAX_CODE, sa);
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
+	ANDI(RAX_CODE, immediate);
 	CDQ();
-	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, EAX_CODE);
-	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, EDX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 }
 
-void CCodeGeneratorX86::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
+void CCodeGeneratorX64::GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediate )
 {
-	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
-	SARI(EAX_CODE, sa);
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
+	ORI(RAX_CODE, immediate);
 	CDQ();
-	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, EAX_CODE);
-	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, EDX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 }
 
-bool CCodeGeneratorX86::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
+void CCodeGeneratorX64::GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immediate )
+{
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
+	XOR_I32(RAX_CODE, immediate);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
+	SHLI(RAX_CODE, sa);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, RDX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
+	SHRI(RAX_CODE, sa);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, RDX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
+	SARI(RAX_CODE, sa);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, RDX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	OR(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	AND(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	XOR(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	OR(RAX_CODE, RCX_CODE, true);
+	NOT(RAX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	ADD(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	SUB(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+bool CCodeGeneratorX64::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad((u32)g_pu8RamBase_8000, base, offset, 0, 32);
+		GenerateLoad(base, offset, 0, 32);
 
-		MOV_MEM_REG(&gCPUState.FPU[ft]._u32, EAX_CODE);
+		MOV_MEM_REG(&gCPUState.FPU[ft]._u32, RAX_CODE);
 		return true;
 	}
 
 	return false;
 }
 
-void	CCodeGeneratorX86::GenerateJAL( u32 address )
+void	CCodeGeneratorX64::GenerateJAL( u32 address )
 {
-	MOVI(EAX_CODE, address + 8);
+	MOVI(RAX_CODE, address + 8);
 	CDQ();
-	MOV_MEM_REG(&gCPUState.CPU[N64Reg_RA]._u32_0, EAX_CODE);
-	MOV_MEM_REG(&gCPUState.CPU[N64Reg_RA]._u32_1, EDX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[N64Reg_RA]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[N64Reg_RA]._u32_1, RDX_CODE);
 }
 
-void	CCodeGeneratorX86::GenerateJR( EN64Reg rs)
+void	CCodeGeneratorX64::GenerateJR( EN64Reg rs)
 {
 	//TODO
-}
-
-
-void  _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit )
-{
-	using FragmentFunction =  void (*)();
-
-
-	reinterpret_cast< FragmentFunction >( p_function )();
 }

@@ -536,10 +536,10 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 void  R4300_SetSR( u32 new_value )
 {
 #ifdef DAEDALUS_DEBUG_CONSOLE
-	if((gCPUState.CPUControl[C0_SR]._u32 & SR_FR) != (new_value & SR_FR))
-	{
-		DBGConsole_Msg(0, "[MChanging FP to %s, STATUS=%08X", (new_value & SR_FR) ? "64bit" : "32bit", (new_value & SR_FR));
-	}
+	// if((gCPUState.CPUControl[C0_SR]._u32 & SR_FR) != (new_value & SR_FR))
+	// {
+	// 	DBGConsole_Msg(0, "[MChanging FP to %s, STATUS=%08X", (new_value & SR_FR) ? "64bit" : "32bit", (new_value & SR_FR));
+	// }
 #endif
 
 	bool interrupts_enabled_before = (gCPUState.CPUControl[C0_SR]._u32 & SR_IE) != 0;

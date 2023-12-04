@@ -19,13 +19,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef SYSW32_DYNAREC_X86_CODEGENERATORX86_H_
-#define SYSW32_DYNAREC_X86_CODEGENERATORX86_H_
+#ifndef SYSW32_DYNAREC_X64_CODEGENERATORX64_H_
+#define SYSW32_DYNAREC_X64_CODEGENERATORX64_H_
 
 #include "DynaRec/CodeGenerator.h"
 #include "DynaRec/TraceRecorder.h"
-#include "DynaRec/x86/AssemblyWriterX86.h"
-#include "DynaRec/x86/DynarecTargetX86.h"
+#include "DynaRec/x64/AssemblyWriterX64.h"
+#include "DynaRec/x64/DynarecTargetX64.h"
 
 // XXXX For GenerateCompare_S/D
 #define FLAG_SWAP			0x100
@@ -33,10 +33,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define FLAG_C_LE		(FLAG_SWAP|0x41)		// je -   ! gt
 #define FLAG_C_EQ		(FLAG_SWAP|0x40)		// je -   ! eq
 
-class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
+#ifdef DAEDALUS_W32
+#define FIRST_PARAM_REG_CODE RCX_CODE
+#define SECOND_PARAM_REG_CODE RDX_CODE
+#define THIRD_PARAM_REG_CODE R8_CODE
+#else
+#define FIRST_PARAM_REG_CODE RDI_CODE
+#define SECOND_PARAM_REG_CODE RSI_CODE
+#define THIRD_PARAM_REG_CODE RDX_CODE
+#endif
+
+class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
 {
 	public:
-		CCodeGeneratorX86( CAssemblyBuffer * p_primary, CAssemblyBuffer * p_secondary );
+		CCodeGeneratorX64( CAssemblyBuffer * p_primary, CAssemblyBuffer * p_secondary );
 
 		virtual void				Initialise( u32 entry_address, u32 exit_address, u32 * hit_counter, const void * p_base, const SRegisterUsageInfo & register_usage );
 		virtual void				Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps, const std::vector<RegisterSnapshotHandle>& exception_handler_snapshots );
@@ -82,7 +92,7 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 				CAssemblyBuffer *	mpSecondary;
 
 	private:
-				void	GenerateLoad(u32 memBase, EN64Reg base, s16 offset, u8 twiddle, u8 bits);
+				void	GenerateLoad(EN64Reg base, s16 offset, u8 twiddle, u8 bits);
 				void	GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );
 				bool	GenerateLW(EN64Reg rt, EN64Reg base, s16 offset );
 				bool	GenerateSW(EN64Reg rt, EN64Reg base, s16 offset );
@@ -92,7 +102,12 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 				bool	GenerateLH(EN64Reg rt, EN64Reg base, s16 offset );
 				bool	GenerateLWC1(u32 ft, EN64Reg base, s16 offset );
 
+				void	GenerateLUI(EN64Reg rt, s16 offset );
+
 				void	GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
+				void	GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immediate );
+				void	GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediate );
+				void	GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immediate );
 
 				void	GenerateJAL( u32 address );
 				void	GenerateJR( EN64Reg rs);
@@ -100,6 +115,14 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 				void	GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa );
 				void	GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa );
 				void	GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa );
+
+				void	GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+				void	GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+				void	GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+				void	GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+
+				void	GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+				void	GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
 };
 
-#endif // SYSW32_DYNAREC_X86_CODEGENERATORX86_H_
+#endif // SYSW32_DYNAREC_X64_CODEGENERATORX64_H_
