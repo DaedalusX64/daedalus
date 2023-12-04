@@ -81,7 +81,7 @@ public:
 	}
 #endif
 
-	constexpr float Length() const
+	float Length() const
 	{
 		return sqrtf( (x*x)+(y*y)+(z*z) );
 	}

@@ -44,7 +44,7 @@ public:
 		return v4( x * s, y * s, z * s, w * s );
 	}
 
-	constexpr float Length() const
+	float Length() const
 	{
 		return sqrtf( (x*x)+(y*y)+(z*z)+(w*w) );
 	}
