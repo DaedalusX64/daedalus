@@ -43,9 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 // Opcode Jump Table
-// CPU_Instruction R4300Instruction[64] = {
-	std::array<CPU_Instruction, 64> R4300Instruction 
-	{
+CPU_Instruction R4300Instruction[64] = {
 	R4300_Special, R4300_RegImm, R4300_J, R4300_JAL, R4300_BEQ, R4300_BNE, R4300_BLEZ, R4300_BGTZ,
 	R4300_ADDI, R4300_ADDIU, R4300_SLTI, R4300_SLTIU, R4300_ANDI, R4300_ORI, R4300_XORI, R4300_LUI,
 	R4300_CoPro0, R4300_CoPro1, R4300_Unk, R4300_Unk, R4300_BEQL, R4300_BNEL, R4300_BLEZL, R4300_BGTZL,
@@ -75,8 +73,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 // SpecialOpCode Jump Table
-// CPU_Instruction R4300SpecialInstruction[64] = {
-	std::array<CPU_Instruction, 64> R4300SpecialInstruction {
+CPU_Instruction R4300SpecialInstruction[64] = {
 	R4300_Special_SLL, R4300_Special_Unk, R4300_Special_SRL, R4300_Special_SRA, R4300_Special_SLLV, R4300_Special_Unk, R4300_Special_SRLV, R4300_Special_SRAV,
 	R4300_Special_JR, R4300_Special_JALR, R4300_Special_Unk, R4300_Special_Unk, R4300_Special_SYSCALL, R4300_Special_BREAK, R4300_Special_Unk, R4300_Special_SYNC,
 	R4300_Special_MFHI, R4300_Special_MTHI, R4300_Special_MFLO, R4300_Special_MTLO, R4300_Special_DSLLV, R4300_Special_Unk, R4300_Special_DSRLV, R4300_Special_DSRAV,
@@ -100,9 +97,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  hi |-------|-------|-------|-------|-------|-------|-------|-------|
  */
 
-// CPU_Instruction R4300RegImmInstruction[32] = {
-	std::array<CPU_Instruction, 32> R4300RegImmInstruction {
-
+CPU_Instruction R4300RegImmInstruction[32] = {
 	R4300_RegImm_BLTZ,   R4300_RegImm_BGEZ,   R4300_RegImm_BLTZL,   R4300_RegImm_BGEZL,   R4300_RegImm_Unk,  R4300_RegImm_Unk, R4300_RegImm_Unk,  R4300_RegImm_Unk,
 	R4300_RegImm_TGEI,   R4300_RegImm_TGEIU,  R4300_RegImm_TLTI,    R4300_RegImm_TLTIU,   R4300_RegImm_TEQI, R4300_RegImm_Unk, R4300_RegImm_TNEI, R4300_RegImm_Unk,
 	R4300_RegImm_BLTZAL, R4300_RegImm_BGEZAL, R4300_RegImm_BLTZALL, R4300_RegImm_BGEZALL, R4300_RegImm_Unk,  R4300_RegImm_Unk, R4300_RegImm_Unk,  R4300_RegImm_Unk,
@@ -125,8 +120,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 // COP0 Jump Table
-std::array<CPU_Instruction, 32> R4300Cop0Instruction {
-// CPU_Instruction R4300Cop0Instruction[32] = {
+CPU_Instruction R4300Cop0Instruction[32] = {
 	R4300_Cop0_MFC0, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_MTC0, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk,
 	R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk,
 	R4300_Cop0_TLB, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk, R4300_Cop0_Unk,
@@ -154,8 +148,7 @@ std::array<CPU_Instruction, 32> R4300Cop0Instruction {
 */
 
 // TLBOpCode Jump Table
-// CPU_Instruction R4300TLBInstruction[64] = {
-	std::array<CPU_Instruction, 64> R4300TLBInstruction {
+CPU_Instruction R4300TLBInstruction[64] = {
 	R4300_TLB_Unk, R4300_TLB_TLBR, R4300_TLB_TLBWI, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_TLBWR, R4300_TLB_Unk,
 	R4300_TLB_TLBP, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk,
 	R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk, R4300_TLB_Unk,
@@ -184,8 +177,7 @@ std::array<CPU_Instruction, 32> R4300Cop0Instruction {
 */
 
 // COP1 Jump Table
-// CPU_Instruction R4300Cop1Instruction[32] = {
-	std::array<CPU_Instruction,32> R4300Cop1Instruction {
+CPU_Instruction R4300Cop1Instruction[32] = {
 	R4300_Cop1_MFC1,    R4300_Cop1_DMFC1,  R4300_Cop1_CFC1, R4300_Cop1_Unk, R4300_Cop1_MTC1,   R4300_Cop1_DMTC1,  R4300_Cop1_CTC1, R4300_Cop1_Unk,
 	R4300_Cop1_BCInstr, R4300_Cop1_Unk,    R4300_Cop1_Unk,  R4300_Cop1_Unk, R4300_Cop1_Unk,    R4300_Cop1_Unk,    R4300_Cop1_Unk,  R4300_Cop1_Unk,
 	R4300_Cop1_SInstr,  R4300_Cop1_DInstr, R4300_Cop1_Unk,  R4300_Cop1_Unk, R4300_Cop1_WInstr, R4300_Cop1_LInstr, R4300_Cop1_Unk,  R4300_Cop1_Unk,
@@ -204,8 +196,7 @@ std::array<CPU_Instruction, 32> R4300Cop0Instruction {
  nd |-------|-------|
 */
 
-// CPU_Instruction R4300Cop1BC1Instruction[4] = {
-	std::array<CPU_Instruction, 4> R4300Cop1BC1Instruction {
+CPU_Instruction R4300Cop1BC1Instruction[4] = {
 	R4300_BC1_BC1F, R4300_BC1_BC1T, R4300_BC1_BC1FL, R4300_BC1_BC1TL
 };
 
@@ -229,8 +220,7 @@ std::array<CPU_Instruction, 32> R4300Cop0Instruction {
 */
 
 // Single Jump Table
-// CPU_Instruction R4300Cop1SInstruction[64] = {
-	std::array<CPU_Instruction, 64> R4300Cop1SInstruction { 
+CPU_Instruction R4300Cop1SInstruction[64] = {
 	R4300_Cop1_S_ADD,     R4300_Cop1_S_SUB,     R4300_Cop1_S_MUL,    R4300_Cop1_S_DIV,     R4300_Cop1_S_SQRT,    R4300_Cop1_S_ABS,     R4300_Cop1_S_MOV,    R4300_Cop1_S_NEG,
 	R4300_Cop1_S_ROUND_L, R4300_Cop1_S_TRUNC_L,	R4300_Cop1_S_CEIL_L, R4300_Cop1_S_FLOOR_L, R4300_Cop1_S_ROUND_W, R4300_Cop1_S_TRUNC_W, R4300_Cop1_S_CEIL_W, R4300_Cop1_S_FLOOR_W,
 	R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,
@@ -260,8 +250,7 @@ std::array<CPU_Instruction, 32> R4300Cop0Instruction {
 */
 
 // Double Jump Table
-std::array<CPU_Instruction, 64> R4300Cop1DInstruction 
-// CPU_Instruction R4300Cop1DInstruction[64] =
+CPU_Instruction R4300Cop1DInstruction[64] =
 {
     R4300_Cop1_D_ADD,     R4300_Cop1_D_SUB,     R4300_Cop1_D_MUL,    R4300_Cop1_D_DIV,     R4300_Cop1_D_SQRT,    R4300_Cop1_D_ABS,     R4300_Cop1_D_MOV,    R4300_Cop1_D_NEG,
     R4300_Cop1_D_ROUND_L, R4300_Cop1_D_TRUNC_L, R4300_Cop1_D_CEIL_L, R4300_Cop1_D_FLOOR_L, R4300_Cop1_D_ROUND_W, R4300_Cop1_D_TRUNC_W, R4300_Cop1_D_CEIL_W, R4300_Cop1_D_FLOOR_W,

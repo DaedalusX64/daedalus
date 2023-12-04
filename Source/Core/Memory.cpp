@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
-#include <array>
 #include <algorithm>
 
 #include "Core/CPU.h"
@@ -63,8 +62,7 @@ static void MemoryUpdatePIF();
 
 static void Memory_InitTables();
 
-// const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
-std::array<const u32, NUM_MEM_BUFFERS> MemoryRegionSizes = 
+const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 {
 	0x04,				// This seems enough (Salvy)
 	kMaximumMemSize,	// RD_RAM
@@ -108,12 +106,9 @@ bool  g_RomWritten;
 u8 * g_pu8RamBase_8000 = nullptr;
 //u8 * g_pu8RamBase_A000 = nullptr;
 
-// std::array<MemFuncRead, 0x4000> g_MemoryLookupTableRead;
-std::array<MemFuncWrite, 0x4000> g_MemoryLookupTableWrite;
-std::array<void *, NUM_MEM_BUFFERS> g_pMemoryBuffers;
 MemFuncRead  	g_MemoryLookupTableRead[0x4000];
-// MemFuncWrite 	g_MemoryLookupTableWrite[0x4000];
-// void * 			g_pMemoryBuffers[NUM_MEM_BUFFERS];
+MemFuncWrite 	g_MemoryLookupTableWrite[0x4000];
+void * 			g_pMemoryBuffers[NUM_MEM_BUFFERS];
 
 
 #include "Memory_Read.inl"
@@ -223,9 +218,7 @@ void Memory_Fini(void)
 
 	g_pu8RamBase_8000 = nullptr;
 	//g_pu8RamBase_A000 = nullptr;
-	// std::fill(g_pMemoryBuffers.begin(), g_pMemoryBuffers.end(), 0);
-	g_pMemoryBuffers = {};
-	// memset( g_pMemoryBuffers, 0, sizeof( g_pMemoryBuffers ) );
+	memset( g_pMemoryBuffers, 0xff, sizeof( g_pMemoryBuffers ) );
 }
 
 bool Memory_Reset()
@@ -330,13 +323,6 @@ static void Memory_InitFunc(u32 start, u32 size, const u32 ReadRegion, const u32
 
 void Memory_InitTables()
 {	
-	// g_MemoryLookupTableRead = {};
-	g_MemoryLookupTableWrite = {};
-	// g_MemoryLookupTableRead.fill();
-	// g_MemoryLookupTableWrite.fill(0);
-	memset(g_MemoryLookupTableRead, 0, sizeof(MemFuncRead) * 0x4000);
-	// memset(g_MemoryLookupTableWrite, 0, sizeof(MemFuncWrite) * 0x4000);
-
 	u32 i = 0;
 	for (i = 0; i < (0x10000 >> 2); i++)
 	{
