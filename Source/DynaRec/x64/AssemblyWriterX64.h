@@ -63,19 +63,19 @@ class CAssemblyWriterX64
 				void				POP(EIntelReg reg);
 				void				PUSHI( u32 value );
 
-				void				ADD(EIntelReg reg1, EIntelReg reg2);				// add	reg1, reg2
-				void				SUB(EIntelReg reg1, EIntelReg reg2);
+				void				ADD(EIntelReg reg1, EIntelReg reg2, bool is64 = false);				// add	reg1, reg2
+				void				SUB(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
 				void				MUL_EAX_MEM(u32 * mem);							// mul	eax, dword ptr[ mem ]
 				void				MUL(EIntelReg reg);									// mul	eax, reg
 
 				void				ADD_REG_MEM_IDXx4( EIntelReg destreg, u32 * mem, EIntelReg idxreg );	// add reg, dword ptr[ mem + idx*4 ]
 
-				void				AND(EIntelReg reg1, EIntelReg reg2);
+				void				AND(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
 				void				AND_EAX( u32 mask );								// and		eax, 0x00FF	- Mask off top bits!
 
 				void				OR(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
-				void				XOR(EIntelReg reg1, EIntelReg reg2);
-				void				NOT(EIntelReg reg1);
+				void				XOR(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
+				void				NOT(EIntelReg reg1, bool is64 = false);
 
 				void				ADDI(EIntelReg reg, s32 data);
 				void				ADCI(EIntelReg reg, s32 data);
@@ -186,7 +186,7 @@ class CAssemblyWriterX64
 
 				// 64bit functions
 				void				LEA(EIntelReg reg, void* mem);
-				void				ADD_64(EIntelReg reg1, EIntelReg reg2);
+
 				void				MOVI_64(EIntelReg reg, u64 data);						// mov reg, data
 				void				MOV64_REG_MEM(EIntelReg reg, const u64 * mem);
 				void				MOV64_MEM_REG(u64 * mem, EIntelReg isrc);

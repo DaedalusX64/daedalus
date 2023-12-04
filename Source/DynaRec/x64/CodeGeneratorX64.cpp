@@ -581,7 +581,18 @@ CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool bra
 				case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
 				case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
 				case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
+				
 				case SpecOp_OR:		GenerateOR( rd, rs, rt ); 	handled = true; break;
+				case SpecOp_AND:	GenerateAND( rd, rs, rt ); handled = true; break;
+				case SpecOp_XOR:	GenerateXOR( rd, rs, rt ); handled = true; break;
+				case SpecOp_NOR:	GenerateNOR( rd, rs, rt );	handled = true; break;
+
+				case SpecOp_ADD:	GenerateADDU( rd, rs, rt );	handled = true; break;
+				// this break something don't know yet
+				//case SpecOp_ADDU:	GenerateADDU( rd, rs, rt );	handled = true; break;
+
+				case SpecOp_SUB:	GenerateSUBU( rd, rs, rt );	handled = true; break;
+				case SpecOp_SUBU:	GenerateSUBU( rd, rs, rt );	handled = true; break;
 				}
 			}
 			break;
@@ -704,14 +715,14 @@ void CCodeGeneratorX64::GenerateLoad(EN64Reg base, s16 offset, u8 twiddle, u8 bi
 	if (twiddle == 0)
 	{
 		DAEDALUS_ASSERT_Q(bits == 32);
-		ADD_64(RCX_CODE, R15_CODE);
+		ADD(RCX_CODE, R15_CODE, true);
 		MOV_REG_MEM_BASE_OFFSET(RAX_CODE, RCX_CODE, offset);
 	}
 	else
 	{
 		ADDI(RCX_CODE, offset);
 		XOR_I8(RCX_CODE, twiddle);
-		ADD_64(RCX_CODE, R15_CODE);
+		ADD(RCX_CODE, R15_CODE, true);
 		switch(bits)
 		{
 		case 32:
@@ -748,7 +759,7 @@ bool CCodeGeneratorX64::GenerateSWC1( u32 ft, EN64Reg base, s16 offset )
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
 		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
-		ADD_64(RCX_CODE, R15_CODE);
+		ADD(RCX_CODE, R15_CODE, true);
 
 		MOV_REG_MEM(RAX_CODE, &gCPUState.FPU[ft]._u32);
 		MOV_MEM_BASE_OFFSET_REG(RCX_CODE, offset, RAX_CODE);
@@ -763,7 +774,7 @@ bool CCodeGeneratorX64::GenerateSW( EN64Reg rt, EN64Reg base, s16 offset )
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
 		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
-		ADD_64(RCX_CODE, R15_CODE);
+		ADD(RCX_CODE, R15_CODE, true);
 		MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
 		MOV_MEM_BASE_OFFSET_REG(RCX_CODE, offset, RAX_CODE);
 		return true;
@@ -896,6 +907,47 @@ void CCodeGeneratorX64::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
 	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
 	OR(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	AND(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	XOR(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	OR(RAX_CODE, RCX_CODE, true);
+	NOT(RAX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	ADD(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	SUB(RAX_CODE, RCX_CODE, true);
 	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
 }
 
