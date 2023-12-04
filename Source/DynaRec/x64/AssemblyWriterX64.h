@@ -73,7 +73,7 @@ class CAssemblyWriterX64
 				void				AND(EIntelReg reg1, EIntelReg reg2);
 				void				AND_EAX( u32 mask );								// and		eax, 0x00FF	- Mask off top bits!
 
-				void				OR(EIntelReg reg1, EIntelReg reg2);
+				void				OR(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
 				void				XOR(EIntelReg reg1, EIntelReg reg2);
 				void				NOT(EIntelReg reg1);
 
@@ -188,7 +188,8 @@ class CAssemblyWriterX64
 				void				LEA(EIntelReg reg, void* mem);
 				void				ADD_64(EIntelReg reg1, EIntelReg reg2);
 				void				MOVI_64(EIntelReg reg, u64 data);						// mov reg, data
-				
+				void				MOV64_REG_MEM(EIntelReg reg, const u64 * mem);
+				void				MOV64_MEM_REG(u64 * mem, EIntelReg isrc);
 	private:
 				CJumpLocation		JumpConditionalLong( CCodeLabel target, u8 jump_type );
 

@@ -115,6 +115,8 @@ class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
 				void	GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa );
 				void	GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa );
 				void	GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa );
+
+				void	GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt );
 };
 
 #endif // SYSW32_DYNAREC_X64_CODEGENERATORX64_H_

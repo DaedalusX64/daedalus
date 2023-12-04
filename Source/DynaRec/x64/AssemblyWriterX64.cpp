@@ -45,7 +45,7 @@ void	CAssemblyWriterX64::POP(EIntelReg reg)
 	if (reg >= R8_CODE)
 	{
 		EmitBYTE(0x41);
-		EmitBYTE(0x58 | (reg - R8_CODE));
+		EmitBYTE(0x58 | (reg & 7));
 	}
 	else
 	{
@@ -153,10 +153,24 @@ void	CAssemblyWriterX64::AND_EAX( u32 mask )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::OR(EIntelReg reg1, EIntelReg reg2)
+void	CAssemblyWriterX64::OR(EIntelReg reg1, EIntelReg reg2, bool is64)
 {
 	if (reg1 != reg2)
 	{
+		if (is64)
+		{
+			u8 first_byte = 0x48;
+			if (reg2 >= R8_CODE) {
+				first_byte |= 0x1;
+				reg2 = EIntelReg(reg2 & 7);
+			}
+			if (reg1 >= R8_CODE) {
+				first_byte |= 0x4;
+				reg1 = EIntelReg(reg1 & 7);
+			}
+			EmitBYTE(first_byte);
+		}
+
 		EmitBYTE(0x0B);
 		EmitBYTE(0xc0 | (reg1<<3) | reg2);
 	}
@@ -599,7 +613,18 @@ void	CAssemblyWriterX64::MOV64(EIntelReg reg1, EIntelReg reg2)
 {
 	if (reg1 != reg2)
 	{
-		EmitBYTE(0x48);
+		u8 first_byte = 0x48;
+		if (reg2 >= R8_CODE) {
+			first_byte |= 0x1;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+		if (reg1 >= R8_CODE) {
+			first_byte |= 0x4;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+
+		EmitBYTE(first_byte);
+
 		EmitBYTE(0x8b);
 		EmitBYTE(0xc0 | (reg1<<3) | reg2);
 	}
@@ -638,6 +663,41 @@ void	CAssemblyWriterX64::MOV_MEM_REG(u32 * mem, EIntelReg isrc)
 		EmitBYTE((isrc<<3) | 0x83);
 	}
 	EmitADDR(mem); //  89 83 12 34 56 78       mov    DWORD PTR [rbx+0x78563412],eax
+}
+
+//*****************************************************************************
+// mov qword ptr[ mem ], reg
+//*****************************************************************************
+void	CAssemblyWriterX64::MOV64_MEM_REG(u64 * mem, EIntelReg isrc)
+{
+	EmitBYTE(0x48);
+	/*if (reg == EAX_CODE)
+		EmitBYTE(0xa3);
+	else*/
+	{
+		EmitBYTE(0x89);
+		EmitBYTE((isrc<<3) | 0x83);
+	}
+	EmitADDR(mem); // 48 89 83 12 34 56 78    mov    QWORD PTR [rbx+0x78563412],rax
+}
+
+
+//*****************************************************************************
+// mov reg, qword ptr[ mem ]
+//*****************************************************************************
+void	CAssemblyWriterX64::MOV64_REG_MEM(EIntelReg reg, const u64 * mem)
+{
+	EmitBYTE(0x48);
+
+	/*if (reg == EAX_CODE)
+		EmitBYTE(0xa1);
+	else*/
+	{
+		EmitBYTE(0x8b);
+		EmitBYTE((reg<<3) | 0x83); 
+	}
+
+	EmitADDR(mem); // 48 8b 83 12 34 56 78    mov    rax,QWORD PTR [rbx+0x78563412]
 }
 
 //*****************************************************************************

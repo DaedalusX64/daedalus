@@ -581,6 +581,7 @@ CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool bra
 				case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
 				case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
 				case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
+				case SpecOp_OR:		GenerateOR( rd, rs, rt ); 	handled = true; break;
 				}
 			}
 			break;
@@ -888,6 +889,14 @@ void CCodeGeneratorX64::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 	CDQ();
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, RAX_CODE);
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, RDX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
+	OR(RAX_CODE, RCX_CODE, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
 }
 
 bool CCodeGeneratorX64::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
