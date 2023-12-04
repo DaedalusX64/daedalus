@@ -568,18 +568,18 @@ CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool bra
 			GenerateXORI(rt, rs, op_code.immediate);
 			handled = true;
 			break;
-			// case OP_SPECOP:
-			//	{
-			//		switch(op_code.spec_op)
-			//		{
-			//		//case SpecOp_JR:		handled = GenerateJR(rs); break;
+		case OP_SPECOP:
+			{
+				switch(op_code.spec_op)
+				{
+				// case SpecOp_JR:		handled = GenerateJR(rs); break;
 
-			//		case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
-			//		case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
-			//		case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
-			//		}
-			//	}
-			//	break;
+				case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
+				case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
+				case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
+				}
+			}
+			break;
 	}
 
 	if (!handled)
