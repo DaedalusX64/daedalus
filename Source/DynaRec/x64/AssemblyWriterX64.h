@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSW32_DYNAREC_X64_ASSEMBLYWRITERX64_H_
 #define SYSW32_DYNAREC_X64_ASSEMBLYWRITERX64_H_
 
+#include "Core/CPU.h"
 #include "DynaRec/AssemblyBuffer.h"
 #include "DynaRec/x64/DynarecTargetX64.h"
 
@@ -125,12 +126,11 @@ class CAssemblyWriterX64
 					return isrc <= RBX_CODE;
 				}
 
-				void				LEA(EIntelReg reg, void* mem);
-
-
 				void				CDQ();
 
 				void				MOV(EIntelReg reg1, EIntelReg reg2);				// mov  reg1, reg2
+				void				MOV64(EIntelReg reg1, EIntelReg reg2);				// mov  reg1, reg2 (64bit)
+				
 				void				MOVSX(EIntelReg reg1, EIntelReg reg2, bool _8bit);	// movsx reg1, reg2
 				void				MOVZX(EIntelReg reg1, EIntelReg reg2, bool _8bit);	// movzx reg1, reg2
 				void				MOV_MEM_REG(u32 * mem, EIntelReg isrc);			// mov dword ptr[ mem ], reg
@@ -153,6 +153,7 @@ class CAssemblyWriterX64
 				void				MOV_REG_MEM_BASE( EIntelReg idst, EIntelReg ibase );							// mov dst, dword ptr [base]
 
 				void				MOVI(EIntelReg reg, u32 data);						// mov reg, data
+				void				MOVI_64(EIntelReg reg, u64 data);						// mov reg, data
 				void				MOVI_MEM(u32 * mem, u32 data);						// mov dword ptr[ mem ], data
 				void				MOVI_MEM8(u32 * mem, u8 data);						// mov byte ptr[ mem ], data
 
@@ -203,11 +204,17 @@ class CAssemblyWriterX64
 			mpAssemblyBuffer->EmitDWORD( dword );
 		}
 
+		inline void EmitQWORD(u64 qword)
+		{
+			mpAssemblyBuffer->EmitQWORD( qword );
+		}
+
 		inline void EmitADDR(const void* ptr)
 		{
-			uintptr_t diff = (uintptr_t)ptr - (intptr_t)mpAssemblyBuffer->GetLabel().GetTarget();
-			DAEDALUS_ASSERT((diff & 0xffffffff) == 0, "Address is out of scope");
-			mpAssemblyBuffer->EmitDWORD((u32)diff );
+			s64 diff = (uintptr_t)ptr - (intptr_t)&gCPUState;
+			if (diff > 0x80000000 || diff < -0x80000000)
+				printf("offset = %lld\n", diff);
+			mpAssemblyBuffer->EmitDWORD(diff);
 		}
 
 	private:

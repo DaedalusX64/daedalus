@@ -211,12 +211,12 @@ void	CCodeGeneratorX64::Initialise( u32 entry_address, u32 exit_address, u32 * h
 	//MOVI(ECX_CODE, entry_address);
 	// CALL( CCodeLabel( LogFragmentEntry ) );
 
-	if( hit_counter != NULL )
-	{
-		MOV_REG_MEM( RAX_CODE, hit_counter );
-		ADDI( RAX_CODE, 1 );
-		MOV_MEM_REG( hit_counter, RAX_CODE );
-	}
+	// if( hit_counter != NULL )
+	// {
+	// 	MOV_REG_MEM( RAX_CODE, hit_counter );
+	// 	ADDI( RAX_CODE, 1 );
+	// 	MOV_MEM_REG( hit_counter, RAX_CODE );
+	// }
 
 	// p_base/span_list ignored for now
 }
@@ -277,7 +277,7 @@ CJumpLocation CCodeGeneratorX64::GenerateExitCode( u32 exit_address, u32 jump_ad
 	}
 #endif
 
-	MOVI(RCX_CODE, num_instructions);
+	MOVI(FIRST_PARAM_REG_CODE, num_instructions);
 	CALL( CCodeLabel( (void*)CPU_UpdateCounter ) );
 
 	// This jump may be NULL, in which case we patch it below
@@ -359,7 +359,9 @@ void CCodeGeneratorX64::GenerateIndirectExitCode( u32 num_instructions, CIndirec
 	// gCPUState.StuffToDo == 0, try to jump to the indirect target
 	PatchJumpLong( jump_to_next_fragment, GetAssemblyBuffer()->GetLabel() );
 
-	LEA( FIRST_PARAM_REG_CODE, p_map );
+	MOVI( RAX_CODE, (s32)((intptr_t)p_map - (intptr_t)&gCPUState));
+	MOV64(FIRST_PARAM_REG_CODE, RBX_CODE);
+	ADD(FIRST_PARAM_REG_CODE, RAX_CODE);
 	MOV_REG_MEM( SECOND_PARAM_REG_CODE, &gCPUState.TargetPC );
 	CALL( CCodeLabel( (void*)IndirectExitMap_Lookup ) );
 
@@ -681,21 +683,21 @@ void	CCodeGeneratorX64::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
 	}
 }
 
-void CCodeGeneratorX64::GenerateLoad(u8 * mem, EN64Reg base, s16 offset, u8 twiddle, u8 bits)
+void CCodeGeneratorX64::GenerateLoad(EN64Reg base, s16 offset, u8 twiddle, u8 bits)
 {
 	MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
-	LEA(R10_CODE, mem);
+
 	if (twiddle == 0)
 	{
 		DAEDALUS_ASSERT_Q(bits == 32);
-		ADD(RCX_CODE, R10_CODE);
+		ADD(RCX_CODE, R15_CODE);
 		MOV_REG_MEM_BASE_OFFSET(RAX_CODE, RCX_CODE, offset);
 	}
 	else
 	{
 		ADDI(RCX_CODE, offset);
 		XOR_I8(RCX_CODE, twiddle);
-		ADD(RCX_CODE, R10_CODE);
+		ADD(RCX_CODE, R15_CODE);
 		switch(bits)
 		{
 		case 32:
@@ -715,7 +717,7 @@ bool CCodeGeneratorX64::GenerateLW( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad(g_pu8RamBase_8000, base, offset, 0, 32);
+		GenerateLoad(base, offset, 0, 32);
 
 		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
 		CDQ();
@@ -732,8 +734,7 @@ bool CCodeGeneratorX64::GenerateSWC1( u32 ft, EN64Reg base, s16 offset )
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
 		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
-		LEA(RBX_CODE, g_pu8RamBase_8000);
-		ADD(RCX_CODE, RBX_CODE);
+		ADD(RCX_CODE, R15_CODE);
 
 		MOV_REG_MEM(RAX_CODE, &gCPUState.FPU[ft]._u32);
 		MOV_MEM_BASE_OFFSET_REG(RCX_CODE, offset, RAX_CODE);
@@ -748,8 +749,7 @@ bool CCodeGeneratorX64::GenerateSW( EN64Reg rt, EN64Reg base, s16 offset )
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
 		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
-		LEA(RBX_CODE, g_pu8RamBase_8000);
-		ADD(RCX_CODE, RBX_CODE);
+		ADD(RCX_CODE, R15_CODE);
 		MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
 		MOV_MEM_BASE_OFFSET_REG(RCX_CODE, offset, RAX_CODE);
 		return true;
@@ -762,7 +762,7 @@ bool CCodeGeneratorX64::GenerateLB( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad(g_pu8RamBase_8000, base, offset, U8_TWIDDLE, 8);
+		GenerateLoad(base, offset, U8_TWIDDLE, 8);
 		MOVSX(RAX_CODE, RAX_CODE, true);
 		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
 		CDQ();
@@ -778,7 +778,7 @@ bool CCodeGeneratorX64::GenerateLBU( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad(g_pu8RamBase_8000, base, offset, U8_TWIDDLE, 8);
+		GenerateLoad(base, offset, U8_TWIDDLE, 8);
 		MOVZX(RAX_CODE, RAX_CODE, true);
 		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
 		XOR(RDX_CODE, RDX_CODE);
@@ -794,7 +794,7 @@ bool CCodeGeneratorX64::GenerateLH( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad(g_pu8RamBase_8000, base, offset, U16_TWIDDLE, 16);
+		GenerateLoad(base, offset, U16_TWIDDLE, 16);
 
 		MOVSX(RAX_CODE, RAX_CODE, false);
 		MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
@@ -846,7 +846,7 @@ bool CCodeGeneratorX64::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
 	{
-		GenerateLoad(g_pu8RamBase_8000, base, offset, 0, 32);
+		GenerateLoad(base, offset, 0, 32);
 
 		MOV_MEM_REG(&gCPUState.FPU[ft]._u32, RAX_CODE);
 		return true;
@@ -866,12 +866,4 @@ void	CCodeGeneratorX64::GenerateJAL( u32 address )
 void	CCodeGeneratorX64::GenerateJR( EN64Reg rs)
 {
 	//TODO
-}
-
-
-void  _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit )
-{
-	typedef void (*FragmentFunction)();
-
-	((FragmentFunction) p_function )();
 }

@@ -915,18 +915,19 @@ const char * Sanitise( const char * str )
 extern char *disasmx86(u8 *opcode1,int codeoff1,int *len);
 void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 {
-	int pos  = 0;             /* current position in buffer */
-	char *strbuf;
-	int len = 0;
+	// TODO: Need a more generic version
+	// int pos  = 0;             /* current position in buffer */
+	// char *strbuf;
+	// int len = 0;
 
-	//const u32	base_address( reinterpret_cast< u32 >( buf ) );
+	// //const u32	base_address( reinterpret_cast< u32 >( buf ) );
 
-	while ( pos < buf_size )
-	{
-		strbuf = disasmx86((u8*)buf + pos, 0, &len);
-		fprintf( fh, "%08x: %s\n", buf + pos, Sanitise( strbuf ) );
-		pos += len;
-	}
+	// while ( pos < buf_size )
+	// {
+	// 	strbuf = disasmx86((u8*)buf + pos, 0, &len);
+	// 	fprintf( fh, "%08x: %s\n", buf + pos, Sanitise( strbuf ) );
+	// 	pos += len;
+	// }
 }
 
 #elif defined ( DAEDALUS_PSP )

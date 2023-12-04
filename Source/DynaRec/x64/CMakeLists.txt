@@ -3,6 +3,7 @@ add_library(X64_Dynarec OBJECT
                                 CodeBufferManagerX64.cpp
                                 CodeGeneratorX64.cpp                    
                                 AssemblyWriterX64.cpp
+                                DynarecStubX64.S
             )
 
 list(APPEND daed_libs "X64_Dynarec")

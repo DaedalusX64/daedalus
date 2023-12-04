@@ -36,9 +36,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_W32
 #define FIRST_PARAM_REG_CODE RCX_CODE
 #define SECOND_PARAM_REG_CODE RDX_CODE
+#define THIRD_PARAM_REG_CODE R8_CODE
 #else
 #define FIRST_PARAM_REG_CODE RDI_CODE
 #define SECOND_PARAM_REG_CODE RSI_CODE
+#define THIRD_PARAM_REG_CODE RDX_CODE
 #endif
 
 class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
@@ -90,7 +92,7 @@ class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
 				CAssemblyBuffer *	mpSecondary;
 
 	private:
-				void	GenerateLoad(u8* memBase, EN64Reg base, s16 offset, u8 twiddle, u8 bits);
+				void	GenerateLoad(EN64Reg base, s16 offset, u8 twiddle, u8 bits);
 				void	GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );
 				bool	GenerateLW(EN64Reg rt, EN64Reg base, s16 offset );
 				bool	GenerateSW(EN64Reg rt, EN64Reg base, s16 offset );
