@@ -291,7 +291,7 @@ static inline std::shared_ptr<CNativeTexture> Load_ObjSprite( const uObjSprite *
 		}
 	}
 
-	gRenderer->LoadTextureDirectly(ti);
+	return gRenderer->LoadTextureDirectly(ti);
 }
 
 //*****************************************************************************
