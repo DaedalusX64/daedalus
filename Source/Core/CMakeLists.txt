@@ -24,5 +24,8 @@ add_library(Core OBJECT
                         TLB.cpp
                         )
 
+# Cannot compile with -O2 or above
+set_source_files_properties(R4300.cpp PROPERTIES COMPILE_FLAGS -O0)
+
 list(APPEND daed_libs "Core")
 set(daed_libs ${daed_libs} PARENT_SCOPE)
