@@ -551,6 +551,10 @@ CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool bra
 			handled = GenerateLWC1(ft, base, s16(op_code.immediate));
 			exception = !handled;
 			break;
+		case OP_LUI:
+			GenerateLUI(rt, s16(op_code.immediate));
+			exception = true;
+			break;
 
 		case OP_ADDIU:
 		case OP_ADDI:
@@ -813,6 +817,14 @@ bool CCodeGeneratorX64::GenerateLH( EN64Reg rt, EN64Reg base, s16 offset )
 	}
 
 	return false;
+}
+
+void CCodeGeneratorX64::GenerateLUI( EN64Reg rt, s16 immediate )
+{
+	MOVI(RAX_CODE, s32(immediate) << 16);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 }
 
 void CCodeGeneratorX64::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )

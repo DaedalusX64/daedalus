@@ -102,6 +102,8 @@ class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
 				bool	GenerateLH(EN64Reg rt, EN64Reg base, s16 offset );
 				bool	GenerateLWC1(u32 ft, EN64Reg base, s16 offset );
 
+				void	GenerateLUI(EN64Reg rt, s16 offset );
+
 				void	GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
 				void	GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immediate );
 				void	GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediate );
