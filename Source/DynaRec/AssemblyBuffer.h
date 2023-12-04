@@ -85,9 +85,6 @@ class CAssemblyBuffer
 			mpWritePointer = (u8*)make_uncached_ptr(mpCodeBuffer);
 			//ToDo: Test this
 			//mpWritePointer = mpCodeBuffer;
-#if _DEBUG
-			memset(mpWritePointer, 0xcc, 32768);
-#endif			
 			mCurrentPos = 0;
 		}
 
