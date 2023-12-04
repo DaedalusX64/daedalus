@@ -556,19 +556,30 @@ CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool bra
 		case OP_ADDI:
 			GenerateADDIU(rt, rs, s16(op_code.immediate)); handled = true; break;
 			break;
+		case OP_ANDI:
+			GenerateANDI(rt, rs, op_code.immediate);
+			handled = true;
+			break;
+		case OP_ORI:
+			GenerateORI(rt, rs, op_code.immediate);
+			handled = true;
+			break;
+		case OP_XORI:
+			GenerateXORI(rt, rs, op_code.immediate);
+			handled = true;
+			break;
+			// case OP_SPECOP:
+			//	{
+			//		switch(op_code.spec_op)
+			//		{
+			//		//case SpecOp_JR:		handled = GenerateJR(rs); break;
 
-		//case OP_SPECOP:
-		//	{
-		//		switch(op_code.spec_op)
-		//		{
-		//		//case SpecOp_JR:		handled = GenerateJR(rs); break;
-
-		//		case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
-		//		case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
-		//		case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
-		//		}
-		//	}
-		//	break;
+			//		case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
+			//		case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
+			//		case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
+			//		}
+			//	}
+			//	break;
 	}
 
 	if (!handled)
@@ -808,6 +819,33 @@ void CCodeGeneratorX64::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
 	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
 	ADDI(RAX_CODE, immediate);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immediate )
+{
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
+	ANDI(RAX_CODE, immediate);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediate )
+{
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
+	ORI(RAX_CODE, immediate);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
+}
+
+void CCodeGeneratorX64::GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immediate )
+{
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
+	XOR_I32(RAX_CODE, immediate);
 	CDQ();
 	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
 	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
