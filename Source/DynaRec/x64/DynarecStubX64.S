@@ -1,5 +1,7 @@
 .globl __EnterDynaRec
+.globl _EnterDynaRec
 .text
+_EnterDynaRec:
 __EnterDynaRec:
     pushq %rbp
     pushq %rbx
