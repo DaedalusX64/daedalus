@@ -1,4 +1,4 @@
-add_library(Graphics_GL OBJECT GraphicsContextGL.cpp NativeTextureGL.cpp UIContext.cpp)
+add_library(Graphics_GL OBJECT GraphicsContextGL.cpp NativeTextureGL.cpp UIContextGL.cpp)
 
 set(include_dirs ${include_dirs} PARENT_SCOPE)
 

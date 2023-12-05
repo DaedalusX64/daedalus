@@ -148,42 +148,7 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, c
 
     texture->InstallTexture();
 
-    // Set up the color for the texture
-    glColor4b(colour.GetR(), colour.GetG(), colour.GetB(), colour.GetA());
-
-    // Enable texture mapping
-    glEnable(GL_TEXTURE_2D);
-
-    // Set texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Define texture coordinates
-    float texCoords[] = {
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f
-    };
-
-    // Define vertex coordinates
-    float vertices[] = {
-        tl.x, tl.y,
-        tl.x + wh.x, tl.y,
-        tl.x + wh.x, tl.y + wh.y,
-        tl.x, tl.y + wh.y
-    };
-
-    // Render the texture
-    glBegin(GL_QUADS);
-    for (int i = 0; i < 4; ++i) {
-        glTexCoord2f(texCoords[i * 2], texCoords[i * 2 + 1]);
-        glVertex2f(vertices[i * 2], vertices[i * 2 + 1]);
-    }
-    glEnd();
-
-    // Disable texture mapping after rendering
-    glDisable(GL_TEXTURE_2D);
+	
 }
 
 
