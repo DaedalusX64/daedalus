@@ -32,10 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interface/Preferences.h"
 
-
-
-//extern bool g32bitColorMode;
-
+extern bool g32bitColorMode;
 
 class ISplashScreen : public CSplashScreen, public CUIScreen
 {
@@ -105,10 +102,12 @@ void	ISplashScreen::Render()
 	c32		colour( 255, 255, 255, a );
 
 	mpContext->ClearBackground();
-	mpContext->RenderTexture( mpTexture, (480 - 328)/2, (272-90)/2, colour );
+	mpContext->RenderTexture( mpTexture, (SCREEN_WIDTH - mpTexture->GetWidth()) / 2, (SCREEN_HEIGHT - mpTexture->GetHeight()) / 2, colour);
 
+#if DAEDALUS_PSP
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-//	mpContext->DrawTextAlign(0,SCREEN_WIDTH,AT_CENTRE,SCREEN_HEIGHT-50,g32bitColorMode? "32Bit Color Selected" : "16Bit Color Selected",DrawTextUtilities::TextWhite);
+	mpContext->DrawTextAlign(0,SCREEN_WIDTH,AT_CENTRE,SCREEN_HEIGHT-50,g32bitColorMode? "32Bit Color Selected" : "16Bit Color Selected",DrawTextUtilities::TextWhite);
+#endif
 }
 
 void	ISplashScreen::Run()
