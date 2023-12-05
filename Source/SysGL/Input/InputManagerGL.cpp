@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "SysGL/GL.h"
 
+#include "UI/UIContext.h" // for Input structures
+
 //Windows Xinput support 
 #ifdef DAEDALUS_WIN32
 #include <iostream>
@@ -363,4 +365,17 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 {
 	// Return the default controller config
 	return 0;
+}
+
+void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
+
+}
+
+v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
+{
+	return in;
+}
+
+void sceKernelExitGame() {
+	// todo
 }

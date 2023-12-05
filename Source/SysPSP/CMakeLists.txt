@@ -23,4 +23,4 @@ set(daed_libs ${daed_libs} PARENT_SCOPE)
 list(APPEND sys_libraries intrafont pspkubridge pspfpu pspdebug)
  set(sys_libraries ${sys_libraries} PARENT_SCOPE)
 
-set(plat_main SysPSP/main.cpp PARENT_SCOPE)
+set(plat_main SysPSP/main.cpp SysPSP/UIContext.cpp PARENT_SCOPE)

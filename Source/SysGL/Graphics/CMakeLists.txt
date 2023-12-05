@@ -1,4 +1,4 @@
-add_library(Graphics_GL OBJECT GraphicsContextGL.cpp NativeTextureGL.cpp)
+add_library(Graphics_GL OBJECT GraphicsContextGL.cpp NativeTextureGL.cpp UIContext.cpp)
 
 
 list(APPEND include_dirs ${PROJECT_SOURCE_DIR}/Source/third_party/imgui)

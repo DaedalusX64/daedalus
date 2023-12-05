@@ -75,14 +75,6 @@ void CDrawText::Destroy()
 //*************************************************************************************
 //
 //*************************************************************************************
-const char *CDrawText::Translate(const char *dest, u32 &length)
-{
-	return Translate_Strings(dest, length);
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
 u32 CDrawText::Render(EFont font, s32 x, s32 y, float scale, const char *p_str, u32 length, c32 colour)
 {
 	return Render(font, x, y, scale, p_str, length, colour, c32(0, 0, 0, 160));

@@ -9,11 +9,6 @@
 #include "Graphics/GraphicsContext.h"
 
 #include "Graphics/ColourValue.h"
-#include "third_party/imgui/imgui.h"
-#include "third_party/imgui/backends/imgui_impl_sdl.h"
-#include "third_party/imgui/backends/imgui_impl_opengl3.h"
-
-
 
 static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
@@ -116,26 +111,6 @@ bool GraphicsContextGL::Initialise()
 	SDL_GL_MakeCurrent(gWindow, gContext);
 
 	SDL_GL_SetSwapInterval(1);
-
-	 // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplSDL2_InitForOpenGL(gWindow, gContext);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-
-
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-
 
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)
