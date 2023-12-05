@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/CPU.h"
 #include "DynaRec/AssemblyBuffer.h"
-#include "DynaRec/x64/DynarecTargetX64.h"
+#include "DynarecTargetX64.h"
 
 class CAssemblyWriterX64
 {
