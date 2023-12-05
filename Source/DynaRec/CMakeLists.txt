@@ -13,7 +13,7 @@ elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
     add_subdirectory(x64)
 elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
     add_subdirectory(x86)
-elseif()
+else()
     add_subdirectory(dummy)
 endif()
 
