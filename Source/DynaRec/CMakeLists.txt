@@ -6,8 +6,10 @@ elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
     file(GLOB SRC_FILES x64/*.cpp x64/*.S)
 elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
     file(GLOB SRC_FILES x86/*.cpp x86/*.S)
+elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "mips")
+    file(GLOB SRC_FILES mips/*.cpp mips/*.S)
 else()
-    file(GLOB SRC_FILES x86/*.cpp x86/*.S)
+    file(GLOB SRC_FILES dummy/*.cpp dummy/*.S)
 endif()
 
 add_library(DynaRec OBJECT
