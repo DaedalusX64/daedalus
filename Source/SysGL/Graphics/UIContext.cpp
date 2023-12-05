@@ -146,41 +146,44 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, c
 	if(texture == NULL)
 		return;
 
-	// u32				num_verts( 2 );
-	// BackgroundTextureVtx*	p_verts = (BackgroundTextureVtx*)sceGuGetMemory(num_verts*sizeof(BackgroundTextureVtx));
+    texture->InstallTexture();
 
-	// sceGuDisable(GU_DEPTH_TEST);
-	// sceGuDepthMask( GL_TRUE );	// GL_TRUE to disable z-writes
-	// sceGuShadeModel( GU_FLAT );
+    // Set up the color for the texture
+    glColor4b(colour.GetR(), colour.GetG(), colour.GetB(), colour.GetA());
 
-	// sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-	// sceGuTexScale(1.0f,1.0f);
-	// sceGuTexOffset(0.0f,0.0f);
+    // Enable texture mapping
+    glEnable(GL_TEXTURE_2D);
 
-	// u32		width( texture->GetWidth() );
-	// u32		height( texture->GetHeight() );
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	// texture->InstallTexture();
+    // Define texture coordinates
+    float texCoords[] = {
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f
+    };
 
-	// sceGuDisable(GU_ALPHA_TEST);
-	// sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-	// sceGuEnable(GU_BLEND);
-	// sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+    // Define vertex coordinates
+    float vertices[] = {
+        tl.x, tl.y,
+        tl.x + wh.x, tl.y,
+        tl.x + wh.x, tl.y + wh.y,
+        tl.x, tl.y + wh.y
+    };
 
-	// sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+    // Render the texture
+    glBegin(GL_QUADS);
+    for (int i = 0; i < 4; ++i) {
+        glTexCoord2f(texCoords[i * 2], texCoords[i * 2 + 1]);
+        glVertex2f(vertices[i * 2], vertices[i * 2 + 1]);
+    }
+    glEnd();
 
-	// v2		tex_uv0( (float)0, (float)0 );
-	// v2		tex_uv1( (float)width, (float)height );
-
-	// p_verts[0].pos = v3( tl.x, tl.y, 0.0f );
-	// p_verts[0].t0 = v2( 0.0f, 0.0f );
-	// p_verts[0].colour = colour;
-
-	// p_verts[1].pos = v3( tl.x + wh.x, tl.y + wh.y, 0.0f );
-	// p_verts[1].t0 = v2( (float)width, (float)height );
-	// p_verts[1].colour = colour;
-
-	// sceGuDrawArray(GU_SPRITES,BackgroundTextureVtx::Flags|GU_TRANSFORM_2D,num_verts,NULL,p_verts);
+    // Disable texture mapping after rendering
+    glDisable(GL_TEXTURE_2D);
 }
 
 
@@ -192,54 +195,27 @@ void	IUIContext::ClearBackground( c32 colour )
 
 void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 {
-	// u32						num_verts( 2 );
-	// BackgroundColourVtx*	p_verts = (BackgroundColourVtx*)sceGuGetMemory(num_verts*sizeof(BackgroundColourVtx));
+    // Set up the color for the rectangle
+    glColor4b(colour.GetR(), colour.GetG(), colour.GetB(), colour.GetA());
 
-	// sceGuDisable(GU_DEPTH_TEST);
-	// sceGuDepthMask( GL_TRUE );	// GL_TRUE to disable z-writes
-	// sceGuShadeModel( GU_FLAT );
-
-	// sceGuDisable(GU_TEXTURE_2D);
-
-	// sceGuDisable(GU_ALPHA_TEST);
-	// sceGuDisable(GU_BLEND);
-
-	// sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-
-	// p_verts[0].pos = v3( float( x ), float( y ), 0.0f );
-	// p_verts[0].colour = colour;
-
-	// p_verts[1].pos = v3( float( x + w ), float( y + h ), 0.0f );
-	// p_verts[1].colour = colour;
-
-	// sceGuDrawArray(GU_SPRITES,BackgroundColourVtx::Flags|GU_TRANSFORM_2D,num_verts,NULL,p_verts);
-
+    // Draw the rectangle using OpenGL
+    glBegin(GL_QUADS);
+        glVertex2i(x, y);
+        glVertex2i(x + w, y);
+        glVertex2i(x + w, y + h);
+        glVertex2i(x, y + h);
+    glEnd();
 }
 
 void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 {
-	// u32						num_verts( 2 );
-	// BackgroundColourVtx*	p_verts = (BackgroundColourVtx*)sceGuGetMemory(num_verts*sizeof(BackgroundColourVtx));
+    glColor4b(colour.GetR(), colour.GetG(), colour.GetB(), colour.GetA());
 
-	// sceGuDisable(GU_DEPTH_TEST);
-	// sceGuDepthMask( GL_TRUE );	// GL_TRUE to disable z-writes
-	// sceGuShadeModel( GU_FLAT );
-
-	// sceGuDisable(GU_TEXTURE_2D);
-
-	// sceGuDisable(GU_ALPHA_TEST);
-	// sceGuDisable(GU_BLEND);
-
-	// sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-
-	// p_verts[0].pos = v3( float( x0 ), float( y0 ), 0.0f );
-	// p_verts[0].colour = colour;
-
-	// p_verts[1].pos = v3( float( x1 ), float( y1 ), 0.0f );
-	// p_verts[1].colour = colour;
-
-	// sceGuDrawArray(GU_LINES,BackgroundColourVtx::Flags|GU_TRANSFORM_2D,num_verts,NULL,p_verts);
-
+    // Draw the line using OpenGL
+    glBegin(GL_LINES);
+        glVertex2i(x0, y0);
+        glVertex2i(x1, y1);
+    glEnd();
 }
 
 
@@ -297,22 +273,26 @@ s32		IUIContext::AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length
 u32	IUIContext::DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour )
 {
 	// return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
+	printf("%s\n", text);
 }
 
 
 u32	IUIContext::DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour )
 {
 	// return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour, drop_colour );
+	printf("%s\n", text);
 }
 
 u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour )
 {
 	// return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour );
+	printf("%s\n", text);
 }
 
 u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour, c32 drop_colour )
 {
 	// return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour, drop_colour );
+	printf("%s\n", text);
 }
 
 u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour )
@@ -320,6 +300,7 @@ u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 
 	// s32 x( AlignText( min_x, max_x, text, length, align_type ) );
 
 	// return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
+	printf("%s\n", text);
 }
 
 u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour )
@@ -327,6 +308,7 @@ u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 
 	// s32 x( AlignText( min_x, max_x, text, length, align_type ) );
 
 	// return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour, drop_colour );
+	printf("%s\n", text);
 }
 
 

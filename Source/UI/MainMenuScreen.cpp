@@ -382,6 +382,7 @@ void DisplayRomsAndChoose(bool show_splash)
 
 	if(p_context != NULL)
 	{
+		p_context->ClearBackground(c32::Red);
 
 		if( show_splash )
 		{

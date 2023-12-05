@@ -368,7 +368,7 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 }
 
 void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
-
+	memset(data, 0, sizeof(*data));
 }
 
 v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )

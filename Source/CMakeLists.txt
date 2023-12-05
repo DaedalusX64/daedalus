@@ -119,11 +119,6 @@ endif()
 		find_package(SDL2 CONFIG REQUIRED)
 		list(APPEND default_libraries "${SDL2_LIBRARIES}")
 		list(APPEND include_dirs "${SDL2_INCLUDE_DIRS}")
-
-			if(DAEDALUS_GL) 
-				list(APPEND include_dirs "${PROJECT_SOURCE_DIR}/Source/third_party/imgui/" ) #This doesn't like being called from another file
-			endif(DAEDALUS_GL)
-
 	endif(DAEDALUS_SDL)
 
 	# Needed below the options to post process
@@ -209,7 +204,6 @@ if(WIN32)
 	if(UNIX)
 		add_subdirectory(SysPosix)
 		add_subdirectory(SysGL)
-		add_subdirectory(third_party/imgui)
 	elseif(WIN32) ## Probably keep this generic as we'll build this on Linux too?
 		add_subdirectory(SysGL)
 		add_subdirectory(SysW32)
