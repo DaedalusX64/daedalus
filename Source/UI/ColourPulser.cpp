@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/ColourValue.h"
 #include "Math/Math.h"	// VFPU Math
-#include "SysPSP/UI/ColourPulser.h"
+#include "ColourPulser.h"
 
 
 CColourPulser::CColourPulser( c32 dim_colour, c32 bright_colour, u32 cycle_period )

@@ -4,7 +4,6 @@
 #include "Base/Types.h"
 #include <string>
 
-
 // User Interface Variables
 const s16 SCREEN_WIDTH {480};
 const s16 SCREEN_HEIGHT {272};

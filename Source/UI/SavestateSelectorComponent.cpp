@@ -22,24 +22,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include <stdio.h>
-
-#include <pspctrl.h>
-#include <pspgu.h>
+#include <filesystem>
+#include <chrono>
 
 #include "Core/ROM.h"
 #include "Interface/SaveState.h"
 #include "Graphics/NativeTexture.h"
 #include "Math/Vector2.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/UICommand.h"
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIElement.h"
-#include "SysPSP/UI/UIScreen.h"
-#include "SysPSP/UI/PSPMenu.h"
-#include "SysPSP/UI/SavestateSelectorComponent.h"
+#include "DrawTextUtilities.h"
+#include "UICommand.h"
+#include "UIContext.h"
+#include "UIElement.h"
+#include "UIScreen.h"
+#include "PSPMenu.h"
+#include "SavestateSelectorComponent.h"
 #include "System/IO.h"
 #include "Utility/Stream.h"
-#include "SysPSP/Utility/Translate.h"
+#include "Utility/Translate.h"
 
 
 class ISavestateSelectorComponent : public CSavestateSelectorComponent
@@ -213,7 +212,6 @@ void ISavestateSelectorComponent::LoadFolders(){
 
 void ISavestateSelectorComponent::LoadSlots(){
 	const char * description_text( mAccessType == AT_SAVING ? "Select the slot in which to save [X:save O:back]" : "Select the slot from which to load [X:load O:back []:delete]" );
-	SceIoStat file_stat;
 	char date_string[30];
 	// We're using the same vector for directory names and slots, so we have to clear it
 	mElements.Clear();
@@ -232,9 +230,22 @@ void ISavestateSelectorComponent::LoadSlots(){
 		CUIElement *element;
 		if( !rom_id.Empty() && CRomSettingsDB::Get()->GetSettings( rom_id, &settings ) )
 		{
-			// IO::File::Stat(filename_ss, &file_stat);
-			sceIoGetstat ( filename_ss, &file_stat );
-			snprintf(date_string, sizeof(date_string),  "%02d/%02d/%d %02d:%02d:%02d", file_stat.sce_st_ctime.month,  file_stat.sce_st_ctime.day, file_stat.sce_st_ctime.year, file_stat.sce_st_ctime.hour, file_stat.sce_st_ctime.minute, file_stat.sce_st_ctime.second); // settings.GameName.c_str();
+            // Get the last write time of the file
+            auto last_write_time = std::filesystem::last_write_time(filename_ss);
+
+            // Convert the time duration to a system_clock::time_point
+            std::chrono::system_clock::time_point time_point =
+                std::chrono::time_point<std::chrono::system_clock>(std::chrono::duration_cast<std::chrono::system_clock::duration>(last_write_time.time_since_epoch()));
+
+            // Convert the time_point to a time_t to use with std::localtime
+            std::time_t tt = std::chrono::system_clock::to_time_t(time_point);
+
+            // Convert the time_t to a local time and format it
+            std::tm* timeinfo = std::localtime(&tt);
+            
+            // Format the date string
+            std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
+
 			str << date_string;
 			mSlotEmpty[ i ] = false;
 		}

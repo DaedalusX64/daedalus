@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_R4300.h"
 #include "System/IO.h"
 #include "Utility/StringUtil.h"
-#include "SysPSP/Utility/VolatileMem.h"
+#include "Utility/VolatileMem.h"
 #include <filesystem>
 
 //

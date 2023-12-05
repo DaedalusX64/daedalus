@@ -28,24 +28,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/DisplayListDebugger.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/AdvancedOptionsScreen.h"
-#include "SysPSP/UI/SavestateSelectorComponent.h"
-#include "SysPSP/UI/CheatOptionsScreen.h"
-#include "SysPSP/UI/Dialogs.h"
-#include "SysPSP/UI/PauseOptionsComponent.h"
-#include "SysPSP/UI/PSPMenu.h"
-#include "SysPSP/UI/RomPreferencesScreen.h"
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIScreen.h"
-#include "SysPSP/UI/UISetting.h"
-#include "SysPSP/UI/UICommand.h"
-#include "SysPSP/UI/UISpacer.h"
-#include "SysPSP/Utility/Functor.h"
+#include "DrawTextUtilities.h"
+#include "AdvancedOptionsScreen.h"
+#include "SavestateSelectorComponent.h"
+#include "CheatOptionsScreen.h"
+#include "Dialogs.h"
+#include "PauseOptionsComponent.h"
+#include "PSPMenu.h"
+#include "RomPreferencesScreen.h"
+#include "UIContext.h"
+#include "UIScreen.h"
+#include "UISetting.h"
+#include "UICommand.h"
+#include "UISpacer.h"
+#include "Utility/Functor.h"
 #include "System/IO.h"
-
-#include <pspctrl.h>
-#include <pspgu.h>
 
 
 extern bool gTakeScreenshot;

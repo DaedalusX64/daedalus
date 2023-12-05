@@ -19,15 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-#include "SysPSP/UI/Dialogs.h"
-#include "SysPSP/UI/UIContext.h"
+#include "Dialogs.h"
+#include "UIContext.h"
 
 #include "Graphics/ColourValue.h"
-#include "SysPSP/Graphics/DrawText.h"
-
-#include <pspctrl.h>
-#include <pspdisplay.h>
-#include <pspgu.h>
+#include "DrawTextUtilities.h"
 
 CDialog	gShowDialog;
 

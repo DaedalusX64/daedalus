@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSPSP_UI_SAVESTATESELECTORCOMPONENT_H_
 #define SYSPSP_UI_SAVESTATESELECTORCOMPONENT_H_
 
-#include "SysPSP/UI/UIComponent.h"
-#include "SysPSP/Utility/Functor.h"
+#include "UIComponent.h"
+#include "Utility/Functor.h"
 
 class CSavestateSelectorComponent : public CUIComponent
 {

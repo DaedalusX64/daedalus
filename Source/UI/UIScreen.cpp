@@ -16,23 +16,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#include <pspctrl.h>
-
-
 #include "Base/Types.h"
-
 
 #include "Graphics/GraphicsContext.h"
 #include "Math/Vector2.h"
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIScreen.h"
+#include "UIContext.h"
+#include "UIScreen.h"
 
 #include "Utility/Timer.h"
-
-
-
-
 
 CUIScreen::CUIScreen( CUIContext * p_context )
 :	mpContext( p_context )

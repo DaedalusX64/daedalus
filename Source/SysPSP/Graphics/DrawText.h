@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 
 #include "Graphics/ColourValue.h"
-#include "SysPSP/UI/UIAlignment.h"
+#include "UI/UIAlignment.h"
 
 class CDrawText
 {
@@ -56,13 +56,6 @@ class CDrawText
 
 namespace DrawTextUtilities
 {
-	extern const c32	TextWhite;
-	extern const c32	TextWhiteDisabled;
-	extern const c32	TextBlue;
-	extern const c32	TextBlueDisabled;
-	extern const c32	TextRed;
-	extern const c32	TextRedDisabled;
-
 	void			WrapText( CDrawText::EFont font, s32 width, const char * p_str, u32 length, std::vector<u32> & lengths, bool & match );
 	//inline void		WrapText( CDrawText::EFont font, s32 width, const char * p_str, std::vector<u32> & lengths )			{ WrapText( font, width, p_str, strlen( p_str ), lengths ); }
 }

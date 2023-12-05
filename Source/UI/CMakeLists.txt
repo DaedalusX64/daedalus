@@ -16,10 +16,10 @@ add_library(UI_PSP OBJECT
                             SplashScreen.cpp 
                             UICommand.cpp 
                             UIComponent.cpp 
-                            UIContext.cpp 
                             UIElement.cpp 
                             UIScreen.cpp 
                             UISetting.cpp
+                            DrawTextUtilities.cpp
             )
 
             

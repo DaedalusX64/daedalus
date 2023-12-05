@@ -19,24 +19,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-#include "SysPSP/UI/AboutComponent.h"
+#include "AboutComponent.h"
 
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIScreen.h"
+#include "UIContext.h"
+#include "UIScreen.h"
 
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
 #include "Base/MathUtil.h"
 #include "Math/Vector2.h"
-#include "SysPSP/Graphics/DrawText.h"
+#include "DrawTextUtilities.h"
 
 #include "Base/Macros.h"
-#include "SysPSP/Utility/Translate.h"
-#include "SysPSP/UI/PSPMenu.h"
+#include "Utility/Translate.h"
+#include "PSPMenu.h"
 
 #include <string>
-#include <pspctrl.h>
-#include <pspgu.h>
 
 class IAboutComponent : public CAboutComponent
 {

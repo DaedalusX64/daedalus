@@ -20,18 +20,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
-#include <pspctrl.h>
-#include <pspgu.h>
-
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
 #include "Math/Math.h"	// VFPU Math
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/PSPMenu.h"
-#include "SysPSP/UI/SplashScreen.h"
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIScreen.h"
+#include "DrawTextUtilities.h"
+#include "PSPMenu.h"
+#include "SplashScreen.h"
+#include "UIContext.h"
+#include "UIScreen.h"
 
 #include "Interface/Preferences.h"
 

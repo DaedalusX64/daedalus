@@ -19,12 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-#include "SysPSP/UI/AdjustDeadzoneScreen.h"
+#include "AdjustDeadzoneScreen.h"
 
 #include <stdio.h>
+#include <algorithm>
 
-#include <pspctrl.h>
-#include <pspgu.h>
 
 #include "UIContext.h"
 #include "UIScreen.h"
@@ -33,10 +32,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Math.h"	// VFPU Math
 #include "Base/MathUtil.h"
 #include "Math/Vector2.h"
-#include "SysPSP/Graphics/DrawText.h"
+#include "DrawTextUtilities.h"
 #include "Interface/Preferences.h"
-#include "SysPSP/Utility/Translate.h"
-#include "SysPSP/UI/PSPMenu.h"
+#include "Utility/Translate.h"
+#include "PSPMenu.h"
 #include <algorithm>
 
 

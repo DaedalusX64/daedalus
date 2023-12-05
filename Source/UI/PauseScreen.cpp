@@ -23,11 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 
-#include <psprtc.h>
-#include <psppower.h>
-#include <pspctrl.h>
-#include <pspgu.h>
-
 #include <string>
 
 
@@ -37,16 +32,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
 #include "Base/MathUtil.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIScreen.h"
-#include "SysPSP/UI/AboutComponent.h"
-#include "SysPSP/UI/GlobalSettingsComponent.h"
-#include "SysPSP/UI/PauseOptionsComponent.h"
-#include "SysPSP/UI/PauseScreen.h"
+#include "DrawTextUtilities.h"
+#include "UIContext.h"
+#include "UIScreen.h"
+#include "AboutComponent.h"
+#include "GlobalSettingsComponent.h"
+#include "PauseOptionsComponent.h"
+#include "PauseScreen.h"
 
-#include "SysPSP/Utility/Functor.h"
-#include "SysPSP/Utility/Translate.h"
+#include "Utility/Functor.h"
+#include "Utility/Translate.h"
 #include "PSPMenu.h"
 
 extern void battery_info();
@@ -237,12 +232,12 @@ void	IPauseScreen::Render()
 	EMenuOption		current( GetCurrentOption() );
 	EMenuOption		next( GetNextOption() );
 
-	s32 bat = scePowerGetBatteryLifePercent();
-	s32 batteryLifeTime = scePowerGetBatteryLifeTime();
-
 	// Meh should be big enough regarding if translated..
 	char					info[120];
 
+#if DAEDALUS_PSP
+	s32 bat = scePowerGetBatteryLifePercent();
+	s32 batteryLifeTime = scePowerGetBatteryLifeTime();
 	if(!scePowerIsBatteryCharging())
 	{
 			snprintf(info, sizeof(info), " [%s %d%% %s %2dh %2dm]",
@@ -255,10 +250,13 @@ void	IPauseScreen::Render()
 			snprintf(info, sizeof(info), "[%s]" ,
 			Translate_String("Battery is Charging"));
 	}
-// Battery Info
+#else
+	snprintf(info, sizeof(info), "PAUSED");
+#endif
+
+	// Battery Info
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 	mpContext->DrawTextAlign( 0, SCREEN_WIDTH - LIST_TEXT_LEFT, AT_RIGHT, CATEGORY_TEXT_TOP, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
-
 	
 	p_option_text = gMenuOptionNames[ previous ];
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
@@ -280,7 +278,9 @@ void	IPauseScreen::Run()
 	mIsFinished = false;
 	CUIScreen::Run();
 
+#ifdef DAEDALUS_PSP
 	CGraphicsContext::Get()->SwitchToChosenDisplay();
+#endif
 	CGraphicsContext::Get()->ClearAllSurfaces();
 }
 

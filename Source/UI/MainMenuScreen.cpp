@@ -23,9 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <string>
 
-#include <pspctrl.h>
-#include <pspgu.h>
-
 #include "Core/CPU.h"
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
@@ -33,17 +30,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
 #include "Base/MathUtil.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/AboutComponent.h"
-#include "SysPSP/UI/GlobalSettingsComponent.h"
-#include "SysPSP/UI/MainMenuScreen.h"
-#include "SysPSP/UI/PSPMenu.h"
-#include "SysPSP/UI/RomSelectorComponent.h"
-#include "SysPSP/UI/SelectedRomComponent.h"
-#include "SysPSP/UI/SavestateSelectorComponent.h"
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIScreen.h"
-#include "SysPSP/UI/SplashScreen.h"
+#include "DrawTextUtilities.h"
+#include "AboutComponent.h"
+#include "GlobalSettingsComponent.h"
+#include "MainMenuScreen.h"
+#include "PSPMenu.h"
+#include "RomSelectorComponent.h"
+#include "SelectedRomComponent.h"
+#include "SavestateSelectorComponent.h"
+#include "UIContext.h"
+#include "UIScreen.h"
+#include "SplashScreen.h"
 #include "System/SystemInit.h"
 #include "Interface/Preferences.h"
 
@@ -381,8 +378,6 @@ void DisplayRomsAndChoose(bool show_splash)
 	// switch back to the LCD display
 	CGraphicsContext::Get()->SwitchToLcdDisplay();
 
-	CDrawText::Initialise();
-
 	CUIContext *	p_context( CUIContext::Create() );
 
 	if(p_context != NULL)
@@ -401,7 +396,5 @@ void DisplayRomsAndChoose(bool show_splash)
 	}
 
 	delete p_context;
-
-	CDrawText::Destroy();
 }
 

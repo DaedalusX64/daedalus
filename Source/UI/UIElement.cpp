@@ -19,9 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-#include "SysPSP/UI/UIElement.h"
+#include "UIElement.h"
 
-#include "SysPSP/UI/UIContext.h"
+#include "UIContext.h"
 
 CUIElement::~CUIElement()
 {}

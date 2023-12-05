@@ -21,21 +21,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include "AdvancedOptionsScreen.h"
 
-#include <pspctrl.h>
-
-#include "SysPSP/UI/PSPMenu.h"
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIScreen.h"
-#include "SysPSP/UI/UISetting.h"
-#include "SysPSP/UI/UISpacer.h"
-#include "SysPSP/UI/UICommand.h"
+#include "PSPMenu.h"
+#include "UIContext.h"
+#include "UIScreen.h"
+#include "UISetting.h"
+#include "UISpacer.h"
+#include "UICommand.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
 #include "Graphics/ColourValue.h"
 #include "Input/InputManager.h"
-#include "SysPSP/Graphics/DrawText.h"
+#include "DrawTextUtilities.h"
 #include "Interface/Preferences.h"
 
 

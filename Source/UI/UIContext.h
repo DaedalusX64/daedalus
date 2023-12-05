@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SYSPSP_UI_UICONTEXT_H_
 
 #include "Graphics/ColourValue.h"
-#include "SysPSP/UI/UIAlignment.h"
+#include "UIAlignment.h"
 #include "Interface/Preferences.h"
 
 class CNativeTexture;
@@ -104,5 +104,33 @@ class CUIContext
 		virtual u32					GetFontHeight() const = 0;
 		virtual u32					GetTextWidth( const char * text ) const = 0;
 };
+
+//############################################### Emulate PSP API for now ################################
+#ifdef DAEDALUS_PSP
+	#include <pspctrl.h>
+	#include <pspgu.h>
+#else
+  #define PSP_CTRL_DOWN   0x01
+  #define PSP_CTRL_UP     0x02
+  #define PSP_CTRL_LEFT   0x04
+  #define PSP_CTRL_RIGHT  0x08
+  #define PSP_CTRL_TRIANGLE 0x10
+  #define PSP_CTRL_CIRCLE   0x20
+  #define PSP_CTRL_SELECT   0x40
+  #define PSP_CTRL_CROSS    0x80
+  #define PSP_CTRL_START    0x100
+  #define PSP_CTRL_LTRIGGER 0x200
+  #define PSP_CTRL_RTRIGGER 0x400
+  #define PSP_CTRL_SQUARE 0x800
+  
+  struct SceCtrlData {
+    u16 Lx, Ly;
+    u16 Buttons;
+  };
+
+  void sceCtrlPeekBufferPositive(struct SceCtrlData*, int n);
+  void sceKernelExitGame();
+#endif
+//##########################################################################################################
 
 #endif // SYSPSP_UI_UICONTEXT_H_

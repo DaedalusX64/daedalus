@@ -19,11 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/UICommand.h"
-#include "SysPSP/UI/UIContext.h"
-
-
+#include "DrawTextUtilities.h"
+#include "UICommand.h"
+#include "UIContext.h"
 
 
 u32		CUICommand::GetHeight( CUIContext * context ) const

@@ -53,10 +53,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
 #include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/MainMenuScreen.h"
-#include "SysPSP/UI/PauseScreen.h"
-#include "SysPSP/UI/SplashScreen.h"
-#include "SysPSP/UI/UIContext.h"
+#include "UI/MainMenuScreen.h"
+#include "UI/PauseScreen.h"
+#include "UI/SplashScreen.h"
+#include "UI/UIContext.h"
 #include <iostream>
 
 #include "System/SystemInit.h"
@@ -66,7 +66,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
-#include "SysPSP/Utility/Translate.h"
+#include "Utility/Translate.h"
 #include "Utility/Timer.h"
 
 

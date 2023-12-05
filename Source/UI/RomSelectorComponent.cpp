@@ -21,13 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 #include <map>
 #include <algorithm>
-#include <psptypes.h>
-#include <pspkernel.h>
-#include <pspctrl.h>
-#include <pspdisplay.h>
-#include <psputility.h>
-#include <pspgu.h>
-
 
 #include "Base/Types.h"
 
@@ -38,20 +31,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 #include "Base/MathUtil.h"
 #include "Math/Vector2.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/PSPMenu.h"
-#include "SysPSP/UI/RomSelectorComponent.h"
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIScreen.h"
+#include "DrawTextUtilities.h"
+#include "PSPMenu.h"
+#include "RomSelectorComponent.h"
+#include "UIContext.h"
+#include "UIScreen.h"
 
 
 #include "System/IO.h"
 #include "Interface/Preferences.h"
 #include "RomFile/RomFile.h"
-
-
-
-
 
 namespace
 {
@@ -444,8 +433,10 @@ void IRomSelectorComponent::RenderRomList()
 	x = LIST_TEXT_LEFT;
 	y = BELOW_MENU_MIN + mCurrentScrollOffset + font_height;
 
+#ifdef DAEDALUS_PSP
 	sceGuEnable(GU_SCISSOR_TEST);
 	sceGuScissor(LIST_TEXT_LEFT, BELOW_MENU_MIN, LIST_TEXT_LEFT+LIST_TEXT_WIDTH, BELOW_MENU_MIN+LIST_TEXT_HEIGHT);
+#endif
 
 	const char * const	ptr_text( "> " );
 	u32					ptr_text_width( mpContext->GetTextWidth( ptr_text ) );
@@ -483,8 +474,10 @@ void IRomSelectorComponent::RenderRomList()
 		y += line_height;
 	}
 
+#ifdef DAEDALUS_PSP
 	// Restore scissoring
 	sceGuScissor(0,0, 480,272);
+#endif
 }
 
 void IRomSelectorComponent::RenderCategoryList()
@@ -769,7 +762,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 			if( !mRomsList[ mCurrentSelection ]->mSettings.Preview.empty() )
 			{
-	IO::Filename preview_filename;
+				IO::Filename preview_filename;
 				IO::Path::Combine( preview_filename, gPreviewDirectory, mRomsList[ mCurrentSelection ]->mSettings.Preview.c_str() );
 
 				mpPreviewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_8888 );

@@ -204,6 +204,7 @@ if(WIN32)
 		add_subdirectory(System)
 		add_subdirectory(Test)
 		add_subdirectory(Utility)
+		add_subdirectory(UI)
 
 	if(UNIX)
 		add_subdirectory(SysPosix)

@@ -22,27 +22,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include <stdio.h>
-#include <pspkernel.h>
-#include <pspctrl.h>
-#include <pspgu.h>
 
 #include "Graphics/ColourValue.h"
 
-#include "SysPSP/UI/AdjustDeadzoneScreen.h"
-#include "SysPSP/UI/GlobalSettingsComponent.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/Dialogs.h"
-#include "SysPSP/UI/UIContext.h"
-#include "SysPSP/UI/UIScreen.h"
-#include "SysPSP/UI/UISetting.h"
-#include "SysPSP/UI/PSPMenu.h"
+#include "AdjustDeadzoneScreen.h"
+#include "GlobalSettingsComponent.h"
+#include "DrawTextUtilities.h"
+#include "Dialogs.h"
+#include "UIContext.h"
+#include "UIScreen.h"
+#include "UISetting.h"
+#include "PSPMenu.h"
 
 
 #include "System/Thread.h"
 #include "Core/FramerateLimiter.h"
 #include "Interface/Preferences.h"
 #include "System/IO.h"
-#include "SysPSP/Utility/Translate.h"
+#include "Utility/Translate.h"
 
 #include "Input/InputManager.h"
 
@@ -209,7 +206,7 @@ namespace
 				if(gShowDialog.Render( mpContext,"Reset settings?", false) )
 				{
 					std::filesystem::remove("preferences.ini");
-				std::filesystem::remove("rom.db");
+					std::filesystem::remove("rom.db");
 					ThreadSleepMs(1000);	//safety wait for s
 
 					gShowDialog.Render( mpContext,"Daedalus will exit now",true);

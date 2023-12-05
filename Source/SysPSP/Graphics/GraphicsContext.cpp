@@ -37,7 +37,7 @@
 #include "System/IO.h"
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
-#include "SysPSP/Utility/VolatileMem.h"
+#include "Utility/VolatileMem.h"
 
 namespace
 {
@@ -824,6 +824,9 @@ bool IGraphicsContext::Initialise()
 	sceGuFinish();
 	sceGuStart(GU_CALL,list[1]);
 	sceGuFinish();
+
+	// Initialize DrawText
+	CDrawText::Initialise();
 
 	// The app is ready to go
 	mInitialised = true;

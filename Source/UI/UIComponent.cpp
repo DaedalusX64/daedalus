@@ -19,12 +19,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-#include "SysPSP/UI/PSPMenu.h"
+#include "PSPMenu.h"
 
-#include "SysPSP/UI/UIComponent.h"
-#include "SysPSP/UI/UIContext.h"
+#include "UIComponent.h"
+#include "UIContext.h"
 
-#include "SysPSP/Graphics/DrawText.h"
+#include "DrawTextUtilities.h"
 
 CUIComponent::CUIComponent( CUIContext * p_context )
 :	mpContext( p_context )

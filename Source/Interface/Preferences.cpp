@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Path.h"
 
 #ifdef DAEDALUS_PSP
-#include "SysPSP/Utility/Translate.h"
+#include "Utility/Translate.h"
 #endif
 
 // Audio is disabled on the PSP by default, but enabled on other platforms.

@@ -4,7 +4,6 @@ add_subdirectory(HLEAudio)
 add_subdirectory(HLEGraphics)
 add_subdirectory(Input)
 add_subdirectory(PRX)
-add_subdirectory(UI)
 add_subdirectory(Utility)
 
 # Create and install Plugin files
