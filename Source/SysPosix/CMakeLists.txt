@@ -15,8 +15,5 @@ install(FILES ${PROJECT_BINARY_DIR}/../Data/roms.ini DESTINATION DaedalusX64)
 install(FILES ${PROJECT_BINARY_DIR}/../Data/readme.txt DESTINATION DaedalusX64)
 install(FILES ${PROJECT_BINARY_DIR}/../Data/copying.txt DESTINATION DaedalusX64)
 
-
-
-
 set(daed_libs ${daed_libs} PARENT_SCOPE)
 set(plat_main SysPosix/main.cpp PARENT_SCOPE)

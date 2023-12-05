@@ -376,7 +376,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 		}
 
 		codegroupcount = 0;
-		while(codegroupcount < numberofgroups && fgets(line, 32767, stream) && strlen(line) > 8)	// 32767 makes sure the entire line is read
+		while(codegroupcount < numberofgroups && fgets(line, sizeof(line), stream) && strlen(line) > 8)
 		{
 			// Codes for the group are in the string line[]
 			for(c1 = 0; line[c1] != '=' && line[c1] != '\0'; c1++) codegrouplist[codegroupcount].name[c1] = line[c1];

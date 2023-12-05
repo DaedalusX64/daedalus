@@ -98,11 +98,16 @@ inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
 
 inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
 {
-	u32 r = *ptr;
-	r &= and_bits;
-	r |= or_bits;
-	*ptr = r;
-	return r;
+    u32 new_value;
+    u32 orig_value;
+
+    do {
+        orig_value = __sync_fetch_and_or(ptr, or_bits);  // Atomically OR or_bits into *ptr
+        new_value = (orig_value & and_bits) | or_bits;   // Calculate the new value
+
+    } while (__sync_val_compare_and_swap(ptr, orig_value, new_value) != orig_value);
+
+    return new_value;
 }
 
 #endif
