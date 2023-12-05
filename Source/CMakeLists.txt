@@ -25,7 +25,6 @@ else()
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 endif()
-
 	#Determine Dynarec compatibility and link in appropriate Dynarec
 	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
 	if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" )
@@ -47,7 +46,7 @@ endif()
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
-		endif()
+	endif()
 	
 	#Check the Endian of the host platform and apply endian rules. 
 	include (TestBigEndian)
@@ -135,32 +134,36 @@ endif()
 	include_directories( BEFORE ${include_dirs})
 
 
-	## Generic defines for certain things that Windows requires.
-	if(NOT WIN32)
-		add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
-		add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
-		add_compile_options("-g")
-	endif()
+## Generic defines for certain things that Windows requires.
+if(NOT WIN32)
+	add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
+	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
+	add_compile_options("-g")
+	add_compile_options("-ffast-math")
+endif()
 
-	
-	if (APPLE)
-		list(APPEND sys_libraries "-framework OpenGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")
-		## Homebrew uses a separate path on Apple Silicon
-		##Ugh is there a better way??
-		if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" ) 
-			include_directories(/opt/homebrew/include) 
-			link_directories(/opt/homebrew/lib)
-		else()
-			include_directories(/usr/local/include)
-			link_directories(/usr/local/lib)
-		endif()
-	endif (APPLE)
-	if(CTR)
+if(UNIX)
+	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
+endif(UNIX)
+
+if (APPLE)
+	list(APPEND sys_libraries "-framework OpenGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo")
+	## Homebrew uses a separate path on Apple Silicon
+	##Ugh is there a better way??
+	if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" )
+		include_directories(/opt/homebrew/include)
+		link_directories(/opt/homebrew/lib)
+	else()
+		include_directories(/usr/local/include)
+		link_directories(/usr/local/lib)
+	endif()
+endif (APPLE)
+if(CTR)
 	include_directories($ENV{DEVKITPRO}/portlibs/3ds/include)
 	include_directories($ENV{DEVKITPRO}/picaGL/include)
 	link_directories($ENV{DEVKITPRO}/picaGL/lib)
 	include_directories($ENV{DEVKITPRO}/portlibs/3ds/lib)
-	endif(CTR)
+endif(CTR)
 
 if(WIN32)
 	set(CMAKE_TOOLCHAIN_FILE ${VCPKG_TOOLCHAIN})
@@ -180,12 +183,11 @@ if(WIN32)
 	#Build and Link Executable
 
 	add_executable(daedalus SysW32/main.cpp)
-	target_link_libraries(daedalus LINK_PUBLIC	
-										   Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility 
-										   Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui
-										   Win_Debug Win_Audio Win_Utility X86_Dynarec)
+	target_link_libraries(daedalus LINK_PUBLIC
+				   Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility
+				   Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui
+				   Win_Debug Win_Audio Win_Utility)
 	endif (WIN32)
-
 
 		## Daedalus Core Build
 		add_subdirectory(Config)
@@ -221,8 +223,9 @@ if(WIN32)
 	add_executable(daedalus ${plat_main})
 	list(APPEND default_libraries png z) ## Required Libraries 
 	
+	message(" ${daed_libs} ${default_libraries} ${sys_libraries} " )
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
-	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries}  )
+	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries})
 
 	# --- Post Build ---
 	if(PSP)
