@@ -275,7 +275,7 @@ if(WIN32)
 	endif(CTR)
 	
 	## Install and setup basic directories
-	install(DIRECTORY DESTINATION DaedalusX64)
+	install(DIRECTORY ${PROJECT_BINARY_DIR}/../Data/ DESTINATION DaedalusX64)
 	install(DIRECTORY DESTINATION DaedalusX64/Roms)
 	install(DIRECTORY DESTINATION DaedalusX64/SaveGames)
 	install(DIRECTORY DESTINATION DaedalusX64/SaveStates)
