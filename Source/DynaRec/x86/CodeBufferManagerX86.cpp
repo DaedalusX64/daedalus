@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 #include "DynaRec/CodeBufferManager.h"
-#include "DynaRec/x86/CodeGeneratorX86.h"
+#include "CodeGeneratorX86.h"
 
 /* Added by Lkb (24/8/2001)
 The second buffer is used to hold conditionally executed code pieces that will usually not be executed

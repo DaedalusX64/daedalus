@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "DynaRec/CodeBufferManager.h"
 #include "Base/MathUtil.h"
-#include "SysPSP/DynaRec/CodeGeneratorPSP.h"
+#include "CodeGeneratorPSP.h"
 
 #include <psputilsforkernel.h>
 

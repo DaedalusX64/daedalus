@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SYSPSP_DYNAREC_CODEGENERATORPSP_H_
 
 #include "DynaRec/CodeGenerator.h"
-#include "SysPSP/DynaRec/AssemblyWriterPSP.h"
-#include "SysPSP/DynaRec/N64RegisterCachePSP.h"
+#include "AssemblyWriterPSP.h"
+#include "N64RegisterCachePSP.h"
 #include <stack>
 
 class CAssemblyBuffer;

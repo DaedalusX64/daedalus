@@ -1,21 +1,27 @@
-add_library(DynaRec OBJECT 
-                                BranchType.cpp 
-                                DynaRecProfile.cpp
-                                Fragment.cpp
-                                FragmentCache.cpp 
-                                IndirectExitMap.cpp 
-                                StaticAnalysis.cpp 
-                                TraceRecorder.cpp)
-
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv")
-    add_subdirectory(ARM)
+    file(GLOB SRC_FILES ARM/*.cpp ARM/*.S)
 elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-    add_subdirectory(x64)
+    file(GLOB SRC_FILES x64/*.cpp x64/*.S)
+elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
+    file(GLOB SRC_FILES x64/*.cpp x64/*.S)
 elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
-    add_subdirectory(x86)
+    file(GLOB SRC_FILES x86/*.cpp x86/*.S)
+elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "mips")
+    file(GLOB SRC_FILES mips/*.cpp mips/*.S)
 else()
-    add_subdirectory(dummy)
+    file(GLOB SRC_FILES dummy/*.cpp dummy/*.S)
 endif()
+
+add_library(DynaRec OBJECT
+                ${SRC_FILES}
+                BranchType.cpp
+                DynaRecProfile.cpp
+                Fragment.cpp
+                FragmentCache.cpp 
+                IndirectExitMap.cpp
+                StaticAnalysis.cpp
+                TraceRecorder.cpp
+)
 
 list(APPEND daed_libs "DynaRec")
 set(daed_libs ${daed_libs} PARENT_SCOPE)
