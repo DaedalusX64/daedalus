@@ -27,3 +27,4 @@ Source/tmp
 .vs/
 *.cia
 *.3dsx
+/debug/

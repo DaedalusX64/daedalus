@@ -184,7 +184,7 @@ class CAssemblyWriterX64
 				void				FDIV( u32 i );
 
 				// 64bit functions
-				void				LEA(EIntelReg reg, void* mem);
+				void				LEA(EIntelReg reg, const void* mem);
 
 				void				MOVI_64(EIntelReg reg, u64 data);						// mov reg, data
 				void				MOV64_REG_MEM(EIntelReg reg, const u64 * mem);
@@ -216,7 +216,7 @@ class CAssemblyWriterX64
 		inline void EmitADDR(const void* ptr)
 		{
 			s64 diff = (intptr_t)ptr - (intptr_t)&gCPUState;
-			DAEDALUS_ASSERT(diff < INT32_MAX && diff > -INT32_MAX, "address offset range is too big to fit");
+			DAEDALUS_ASSERT(diff < INT32_MAX && diff > INT32_MIN, "address offset range is too big to fit");
 			mpAssemblyBuffer->EmitDWORD((s32)diff);
 		}
 

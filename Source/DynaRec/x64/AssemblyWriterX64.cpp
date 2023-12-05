@@ -602,11 +602,20 @@ CJumpLocation	CAssemblyWriterX64::CALL( CCodeLabel target )
 	const u32	CALL_LONG_LENGTH = 5;
 
 	CJumpLocation	jump_location( mpAssemblyBuffer->GetJumpLocation() );
-	s32				offset( jump_location.GetOffset( target ) - CALL_LONG_LENGTH );
+	CJumpLocation   rbx_location(&gCPUState);
 
-	EmitBYTE( 0xe8 );
-	EmitDWORD( offset );
+	if (jump_location.IsIn32BitRange(target))
+	{
+		s32				offset( jump_location.GetOffset( target ) - CALL_LONG_LENGTH );
 
+		EmitBYTE( 0xe8 );
+		EmitDWORD( offset );
+	}
+	else if (rbx_location.IsIn32BitRange(target))
+	{
+		LEA(RAX_CODE, target.GetTargetU8P());
+		EmitWORD(0xd0ff);
+	}
 	return jump_location;
 }
 
@@ -1142,7 +1151,7 @@ void	CAssemblyWriterX64::CDQ()
 	EmitBYTE(0x99);
 }
 
-void	CAssemblyWriterX64::LEA(EIntelReg reg, void* mem)
+void	CAssemblyWriterX64::LEA(EIntelReg reg, const void* mem)
 {
 	EmitBYTE(0x48);
 	EmitBYTE(0x8d);
