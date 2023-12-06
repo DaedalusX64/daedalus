@@ -9,11 +9,13 @@
 #include "Graphics/GraphicsContext.h"
 
 #include "Graphics/ColourValue.h"
+#include "UI/DrawText.h"
 
 static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
 
 SDL_Window * gWindow = nullptr;
+SDL_Renderer * gSdlRenderer = nullptr;
 
 class GraphicsContextGL : public CGraphicsContext
 {
@@ -73,6 +75,12 @@ bool GraphicsContextGL::Initialise()
 		return false;
 	}
 
+	if (TTF_Init() < 0)
+	{
+		printf( "SDL could not initialize TTF Font! SDL Error: %s\n", SDL_GetError() );
+		return false;
+	}
+
     // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
@@ -105,6 +113,8 @@ bool GraphicsContextGL::Initialise()
 	//Create window
 	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
 
+    gSdlRenderer = SDL_CreateRenderer(gWindow, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC) ;
+
 	//Create context
 	SDL_GLContext gContext = SDL_GL_CreateContext( gWindow );
 
@@ -120,6 +130,8 @@ bool GraphicsContextGL::Initialise()
 		//SDL_Quit();
 		return false;
 	}
+
+	CDrawText::Initialise();
 
 	//ClearColBufferAndDepth(0,0,0,0);
 	UpdateFrame(false);

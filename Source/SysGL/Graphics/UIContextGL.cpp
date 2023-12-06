@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Matrix4x4.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
-#include "SysPSP/Graphics/DrawText.h"
+#include "UI/DrawText.h"
 #include "UI/UIContext.h"
 #include "UI/DrawTextUtilities.h"
 #include "Utility/Translate.h"
@@ -145,8 +145,49 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, c
 {
 	if(texture == NULL)
 		return;
+	int depth;
+	Uint32 format;
 
-    texture->InstallTexture();
+	switch(texture->GetFormat())
+	{
+		case 	TexFmt_5650:
+			depth=16;
+			format = SDL_PIXELFORMAT_BGR565;
+			break;
+		case TexFmt_5551:
+			depth = 16;
+			format = SDL_PIXELFORMAT_BGRA5551;
+			break;
+		case TexFmt_4444:
+			depth = 16;
+			format = SDL_PIXELFORMAT_ABGR4444;
+			break;
+		case TexFmt_8888:
+			depth = 32;
+			format = SDL_PIXELFORMAT_ABGR8888;
+			break;
+		default:
+			return;
+	}
+
+	SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormatFrom(
+		texture->GetData(),
+		texture->GetWidth(),
+		texture->GetHeight(),
+		depth,
+		texture->GetStride(),
+		format
+	);
+
+	SDL_Rect Message_rect; //create a rect
+	Message_rect.x = tl.x;  //controls the rect's x coordinate 
+	Message_rect.y = tl.y; // controls the rect's y coordinte
+	Message_rect.w = surface->w; // controls the width of the rect
+	Message_rect.h = surface->h; // controls the height of the rect
+
+	SDL_Texture* Message = SDL_CreateTextureFromSurface(gSdlRenderer, surface);
+	SDL_RenderCopy(gSdlRenderer, Message, NULL, &Message_rect);
+	SDL_FreeSurface(surface);
 
 	
 }
@@ -160,120 +201,99 @@ void	IUIContext::ClearBackground( c32 colour )
 
 void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 {
-    // Set up the color for the rectangle
-    glColor4b(colour.GetR(), colour.GetG(), colour.GetB(), colour.GetA());
 
-    // Draw the rectangle using OpenGL
-    glBegin(GL_QUADS);
-        glVertex2i(x, y);
-        glVertex2i(x + w, y);
-        glVertex2i(x + w, y + h);
-        glVertex2i(x, y + h);
-    glEnd();
 }
 
 void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 {
-    glColor4b(colour.GetR(), colour.GetG(), colour.GetB(), colour.GetA());
 
-    // Draw the line using OpenGL
-    glBegin(GL_LINES);
-        glVertex2i(x0, y0);
-        glVertex2i(x1, y1);
-    glEnd();
 }
 
 
 void	IUIContext::SetFontStyle( EFontStyle font_style )
 {
-// 	switch( font_style )
-// 	{
-// 	case FS_REGULAR: mCurrentFont = CDrawText::F_REGULAR;		return;
-// 	case FS_HEADING: mCurrentFont = CDrawText::F_LARGE_BOLD;	return;
-// 	}
-// #ifdef DAEDALUS_DEBUG_CONSOLE
-// 	DAEDALUS_ERROR( "Unhandled font style" );
-// #endif
+	switch( font_style )
+	{
+	case FS_REGULAR: mCurrentFont = CDrawText::F_REGULAR;		return;
+	case FS_HEADING: mCurrentFont = CDrawText::F_LARGE_BOLD;	return;
+	}
+#ifdef DAEDALUS_DEBUG_CONSOLE
+	DAEDALUS_ERROR( "Unhandled font style" );
+#endif
 }
 
 u32		IUIContext::GetFontHeight() const
 {
-	// return CDrawText::GetFontHeight( mCurrentFont );
+	return CDrawText::GetFontHeight( mCurrentFont );
 }
 
 u32		IUIContext::GetTextWidth( const char * text ) const
 {
-	// return CDrawText::GetTextWidth( mCurrentFont, text );
+	return CDrawText::GetTextWidth( mCurrentFont, text );
 }
 
 s32		IUIContext::AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length, EAlignType align_type )
 {
 	s32		x = 0;
 
-	// switch( align_type )
-	// {
-	// case AT_LEFT:
-	// 	x = min_x;
-	// 	break;
+	switch( align_type )
+	{
+	case AT_LEFT:
+		x = min_x;
+		break;
 
-	// case AT_CENTRE:
-	// 	x = min_x + ((max_x - min_x) - CDrawText::GetTextWidth( mCurrentFont, p_str, length )) / 2;
-	// 	break;
+	case AT_CENTRE:
+		x = min_x + ((max_x - min_x) - CDrawText::GetTextWidth( mCurrentFont, p_str, length )) / 2;
+		break;
 
-	// case AT_RIGHT:
-	// 	x = max_x - CDrawText::GetTextWidth( mCurrentFont, p_str, length );
-	// 	break;
+	case AT_RIGHT:
+		x = max_x - CDrawText::GetTextWidth( mCurrentFont, p_str, length );
+		break;
 
-	// default:
-  	// #ifdef DAEDALUS_DEBUG_CONSOLE
-	// 	DAEDALUS_ERROR( "Unhandled alignment type" );
-    // #endif
-	// 	x = min_x;
-	// 	break;
-	// }
+	default:
+  	#ifdef DAEDALUS_DEBUG_CONSOLE
+		DAEDALUS_ERROR( "Unhandled alignment type" );
+    #endif
+		x = min_x;
+		break;
+	}
 
 	return x;
 }
 
 u32	IUIContext::DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour )
 {
-	// return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
-	printf("%s\n", text);
+	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
 }
 
 
 u32	IUIContext::DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour )
 {
-	// return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour, drop_colour );
-	printf("%s\n", text);
+	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour, drop_colour );
 }
 
 u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour )
 {
-	// return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour );
-	printf("%s\n", text);
+	return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour );
 }
 
 u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour, c32 drop_colour )
 {
-	// return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour, drop_colour );
-	printf("%s\n", text);
+	return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour, drop_colour );
 }
 
 u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour )
 {
-	// s32 x( AlignText( min_x, max_x, text, length, align_type ) );
+	s32 x( AlignText( min_x, max_x, text, length, align_type ) );
 
-	// return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
-	printf("%s\n", text);
+	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
 }
 
 u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour )
 {
-	// s32 x( AlignText( min_x, max_x, text, length, align_type ) );
+	s32 x( AlignText( min_x, max_x, text, length, align_type ) );
 
-	// return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour, drop_colour );
-	printf("%s\n", text);
+	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour, drop_colour );
 }
 
 
@@ -296,34 +316,34 @@ namespace
 
 s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align )
 {
-	// const u32			font_height( CDrawText::GetFontHeight( mCurrentFont ) );
-	// u32					length = strlen( text );
-	// std::vector<u32>	lengths;
-	// bool				match = false;
-	// DrawTextUtilities::WrapText( mCurrentFont, width, Translate_Strings( text, length ), length, lengths, match );
+	const u32			font_height( CDrawText::GetFontHeight( mCurrentFont ) );
+	u32					length = strlen( text );
+	std::vector<u32>	lengths;
+	bool				match = false;
+	DrawTextUtilities::WrapText( mCurrentFont, width, Translate_Strings( text, length ), length, lengths, match );
 
-	// s32 x( left );
-	// s32 y( VerticalAlign( vertical_align, top, height, lengths.size() * font_height ) );
+	s32 x( left );
+	s32 y( VerticalAlign( vertical_align, top, height, lengths.size() * font_height ) );
 
-	// // Our built-in auto-linebreaking can't handle unicodes.
-	// // Fall back to use intrafont's manual linebreaking feature
-	// if( match )
-	// {
-	// 	y += font_height;
-	// 	DrawTextScale( x, y, 0.8f, text, length, colour );
-	// 	y += 2;
-	// 	return y - top;
-	// }
+	// Our built-in auto-linebreaking can't handle unicodes.
+	// Fall back to use intrafont's manual linebreaking feature
+	if( match )
+	{
+		y += font_height;
+		DrawTextScale( x, y, 0.8f, text, length, colour );
+		y += 2;
+		return y - top;
+	}
 
-	// for( u32 i = 0; i < lengths.size(); ++i )
-	// {
-	// 	y += font_height;
-	// 	DrawTextScale( x, y, 0.8f, text, lengths[ i ], colour );
-	// 	y += 2;
-	// 	text += lengths[ i ];
-	// }
+	for( u32 i = 0; i < lengths.size(); ++i )
+	{
+		y += font_height;
+		DrawTextScale( x, y, 0.8f, text, lengths[ i ], colour );
+		y += 2;
+		text += lengths[ i ];
+	}
 
-	// return y - top;
+	return y - top;
 }
 
 //

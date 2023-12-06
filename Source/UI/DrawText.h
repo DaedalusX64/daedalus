@@ -53,10 +53,4 @@ class CDrawText
 		static void		Destroy();
 };
 
-namespace DrawTextUtilities
-{
-	void			WrapText( CDrawText::EFont font, s32 width, const char * p_str, u32 length, std::vector<u32> & lengths, bool & match );
-	//inline void		WrapText( CDrawText::EFont font, s32 width, const char * p_str, std::vector<u32> & lengths )			{ WrapText( font, width, p_str, strlen( p_str ), lengths ); }
-}
-
 #endif // SYSPSP_GRAPHICS_DRAWTEXT_H_

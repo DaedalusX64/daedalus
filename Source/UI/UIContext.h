@@ -110,18 +110,21 @@ class CUIContext
 	#include <pspctrl.h>
 	#include <pspgu.h>
 #else
-  #define PSP_CTRL_DOWN   0x01
-  #define PSP_CTRL_UP     0x02
-  #define PSP_CTRL_LEFT   0x04
-  #define PSP_CTRL_RIGHT  0x08
-  #define PSP_CTRL_TRIANGLE 0x10
-  #define PSP_CTRL_CIRCLE   0x20
-  #define PSP_CTRL_SELECT   0x40
-  #define PSP_CTRL_CROSS    0x80
-  #define PSP_CTRL_START    0x100
-  #define PSP_CTRL_LTRIGGER 0x200
-  #define PSP_CTRL_RTRIGGER 0x400
-  #define PSP_CTRL_SQUARE 0x800
+#include "Ultra/ultra_os.h"
+
+  #define PSP_CTRL_DOWN   D_JPAD
+  #define PSP_CTRL_UP     U_JPAD
+  #define PSP_CTRL_LEFT   L_JPAD
+  #define PSP_CTRL_RIGHT  R_JPAD
+  #define PSP_CTRL_TRIANGLE A_BUTTON
+  #define PSP_CTRL_CIRCLE   B_BUTTON
+  #define PSP_CTRL_CROSS    U_CBUTTONS
+  #define PSP_CTRL_SQUARE 	L_CBUTTONS
+  #define PSP_CTRL_SELECT   Z_TRIG
+  #define PSP_CTRL_START    START_BUTTON
+  #define PSP_CTRL_LTRIGGER L_TRIG
+  #define PSP_CTRL_RTRIGGER R_TRIG
+
   
   struct SceCtrlData {
     u16 Lx, Ly;

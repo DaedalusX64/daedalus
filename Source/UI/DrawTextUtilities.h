@@ -7,6 +7,7 @@
 
 #include "Graphics/ColourValue.h"
 #include "UI/UIAlignment.h"
+#include "UI/DrawText.h"
 
 namespace DrawTextUtilities
 {
@@ -16,6 +17,8 @@ namespace DrawTextUtilities
 	extern const c32	TextBlueDisabled;
 	extern const c32	TextRed;
 	extern const c32	TextRedDisabled;
+
+	void WrapText(CDrawText::EFont font, s32 width, const char *p_str, u32 length, std::vector<u32> &lengths, bool &match);
 }
 
 #endif

@@ -368,7 +368,15 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 }
 
 void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
-	memset(data, 0, sizeof(*data));
+	OSContPad		mContPads[ 4 ];
+	CInputManager::Get()->GetState( mContPads );
+
+	for (int i = 0; i < count; i++)
+	{
+		data[i].Buttons = mContPads[i].button;
+		data[i].Lx = mContPads[i].stick_x;
+		data[i].Ly = mContPads[i].stick_y;
+	}
 }
 
 v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )

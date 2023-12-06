@@ -119,6 +119,9 @@ endif()
 		find_package(SDL2 CONFIG REQUIRED)
 		list(APPEND default_libraries "${SDL2_LIBRARIES}")
 		list(APPEND include_dirs "${SDL2_INCLUDE_DIRS}")
+
+		find_package(SDL2_ttf CONFIG REQUIRED)
+		list(APPEND default_libraries "SDL2_ttf-2.0")
 	endif(DAEDALUS_SDL)
 
 	# Needed below the options to post process
