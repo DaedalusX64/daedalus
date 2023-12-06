@@ -140,11 +140,11 @@ if(NOT WIN32)
 	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
 	add_compile_options("-g")
 	add_compile_options("-ffast-math")
-	add_link_options("-Wl,-z,noexecstack")
 endif()
 
 if(UNIX)
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
+	add_link_options("-Wl,-z,noexecstack")
 endif(UNIX)
 
 if (APPLE)
