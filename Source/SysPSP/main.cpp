@@ -52,7 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/TextureCache.h"
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
-#include "SysPSP/Graphics/DrawText.h"
+#include "UI/DrawText.h"
 #include "UI/MainMenuScreen.h"
 #include "UI/PauseScreen.h"
 #include "UI/SplashScreen.h"
