@@ -897,6 +897,8 @@ void CCodeGeneratorX64::GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediate )
 // gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 ^ (u64)(u16)op_code.immediate;
 void CCodeGeneratorX64::GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immediate )
 {
+	if (rt == 0) return;
+
 	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
 	XORI(RAX_CODE, immediate, true);
 	MOV64_MEM_REG(&gCPUState.CPU[rt]._u64, RAX_CODE);
