@@ -107,7 +107,11 @@ class CUIContext
 
 //############################################### Emulate PSP API for now ################################
 #ifdef DAEDALUS_PSP
+	#include <psptypes.h>
+	#include <pspkernel.h>
 	#include <pspctrl.h>
+	#include <pspdisplay.h>
+	#include <psputility.h>
 	#include <pspgu.h>
 #else
 #include "Ultra/ultra_os.h"

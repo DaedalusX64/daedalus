@@ -110,8 +110,8 @@ const char * const		TITLE_TEXT = "Adjust Stick Deadzone"; // Make more sane
 
 const u32				TITLE_Y = 10;
 
-const u32				HALF_WIDTH( 480 / 2 );
-const u32				CENTRE_X( 480 / 2 );
+const u32				HALF_WIDTH( SCREEN_WIDTH / 2 );
+const u32				CENTRE_X( SCREEN_WIDTH / 2 );
 const u32				DISPLAY_WIDTH( 128 );
 const u32				DISPLAY_RADIUS( DISPLAY_WIDTH / 2 );
 
@@ -134,11 +134,13 @@ const f32				DEFAULT_MAX_DEADZONE = 1.0f;
 
 const char * const		gRomsDirectories[] =
 {
-  "ms0:/n64/",
    "Roms/" ,
+#ifdef DAEDALUS_PSP
 #ifndef DAEDALUS_SILENT
   // For ease of developing with multiple source trees, common folder for roms can be placed at host1: in usbhostfs
   "host1:/",
+#endif
+  "ms0:/n64/",
 #endif
 };
 

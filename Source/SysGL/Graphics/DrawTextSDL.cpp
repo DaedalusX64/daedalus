@@ -10,7 +10,7 @@ DAEDALUS_STATIC_ASSERT(ARRAYSIZE(gFonts) == CDrawText::NUM_FONTS);
 
 void CDrawText::Initialise()
 {
-    gFonts[CDrawText::F_REGULAR] = TTF_OpenFont("Resources/OpenSans-Regular.ttf", 16);
+    gFonts[CDrawText::F_REGULAR] = TTF_OpenFont("Resources/OpenSans-Regular.ttf", 12);
     gFonts[CDrawText::F_LARGE_BOLD] = TTF_OpenFont("Resources/OpenSans-Regular.ttf", 24);
 
     if (gFonts[0] == 0)
@@ -52,8 +52,8 @@ u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_
         SDL_Rect Message_rect; //create a rect
         Message_rect.x = x;  //controls the rect's x coordinate 
         Message_rect.y = y; // controls the rect's y coordinte
-        Message_rect.w = surface->w; // controls the width of the rect
-        Message_rect.h = surface->h; // controls the height of the rect
+        Message_rect.w = surface->w * scale; // controls the width of the rect
+        Message_rect.h = surface->h * scale; // controls the height of the rect
 
         SDL_RenderCopy(gSdlRenderer, Message, NULL, &Message_rect);
 
