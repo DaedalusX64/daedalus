@@ -367,15 +367,66 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 	return 0;
 }
 
+static bool toggle_fullscreen = false;
 void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
-	OSContPad		mContPads[ 4 ];
-	CInputManager::Get()->GetState( mContPads );
 
-	for (int i = 0; i < count; i++)
+	SDL_Event event;
+	memset(data, 0, sizeof(*data));
+	SDL_PumpEvents();
+
+	while (SDL_PeepEvents( &event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) != 0)
 	{
-		data[i].Buttons = mContPads[i].button;
-		data[i].Lx = mContPads[i].stick_x;
-		data[i].Ly = mContPads[i].stick_y;
+		if (event.type == SDL_QUIT)
+		{
+			CPU_Halt("Window Closed");	// SDL window was closed
+            // Optionally, you can also call SDL_Quit() to terminate SDL subsystems
+            SDL_Quit();
+            // Exit the application
+            exit(0);
+		}
+		else if(event.type == SDL_KEYDOWN)
+		{
+			if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+			{
+				CPU_Halt("Window Closed");	// User pressed escape to exit
+			}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_F11)
+			{
+				if (toggle_fullscreen == false) {
+					SDL_SetWindowFullscreen(gWindow, SDL_TRUE);
+					toggle_fullscreen = true;
+				}
+				else
+				{
+					SDL_SetWindowFullscreen(gWindow, SDL_FALSE);
+					toggle_fullscreen = false;
+				}
+			}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_UP) {data->Ly = +80;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {data->Ly = -80;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {data->Lx = -80;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {data->Lx = +80;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_X) {data->Buttons |= A_BUTTON;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_C) {data->Buttons |= B_BUTTON;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_Z) {data->Buttons |= Z_TRIG;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_A) {data->Buttons |= L_TRIG;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_S) {data->Buttons |= R_TRIG;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_RETURN) {data->Buttons |= START_BUTTON;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_KP_8){  data->Buttons |= U_JPAD;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_KP_2){  data->Buttons |= D_JPAD;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_KP_4){  data->Buttons |= L_JPAD;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_KP_6){  data->Buttons |= R_JPAD;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_HOME){  data->Buttons |= U_CBUTTONS;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_END){  data->Buttons |= D_CBUTTONS;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_DELETE){  data->Buttons |= L_CBUTTONS;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_PAGEDOWN){  data->Buttons |= R_CBUTTONS;}
+		}
 	}
 }
 

@@ -174,7 +174,7 @@ void HandleEndOfFrame()
 	//Enter debug menu as soon as select is pressed
 	static u32 oldButtons = 0;
 	SceCtrlData pad;
-			bool		activate_pause_menu = false;
+	bool		activate_pause_menu = false;
 	sceCtrlPeekBufferPositive(&pad, 1);
 
 	// If KernelButtons.prx not found. Use select for pause instead

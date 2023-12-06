@@ -41,6 +41,73 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <linux/limits.h>
 #endif
 
+#include "UI/UIContext.h"
+#include "Graphics/GraphicsContext.h"
+#include "UI/DrawText.h"
+#include "UI/PauseScreen.h"
+
+#ifdef DAEDALUS_PROFILE_EXECUTION
+static CTimer		gTimer;
+#endif
+
+void HandleEndOfFrame()
+{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	if(DLDebugger_IsDebugging())
+		return;
+			DPF( DEBUG_FRAME, "********************************************" );
+#endif
+
+// How long did the last frame take?
+#ifdef DAEDALUS_PROFILE_EXECUTION
+	DumpDynarecStats( elapsed_time );
+#endif
+
+	//Enter debug menu as soon as select is pressed
+	static u32 oldButtons = 0;
+	SceCtrlData pad;
+	bool		activate_pause_menu = false;
+	sceCtrlPeekBufferPositive(&pad, 1);
+
+	// If KernelButtons.prx not found. Use select for pause instead
+	if(oldButtons != pad.Buttons)
+	{
+		// if( gCheatsEnabled && (pad.Buttons & PSP_CTRL_SELECT) )
+		// {
+		// 	CheatCodes_Activate( GS_BUTTON );
+		// }
+
+		if(pad.Buttons & PSP_CTRL_SELECT)
+				activate_pause_menu = true;
+	}
+
+	if(activate_pause_menu)
+	{
+
+		CGraphicsContext::Get()->SwitchToLcdDisplay();
+		CGraphicsContext::Get()->ClearAllSurfaces();
+
+		CUIContext *	p_context( CUIContext::Create() );
+
+		if(p_context != NULL)
+		{
+			CPauseScreen *	pause( CPauseScreen::Create( p_context ) );
+			pause->Run();
+			delete pause;
+			delete p_context;
+		}
+
+		// Commit the preferences database before starting to run
+		// CPreferences::Get()->Commit();
+	}
+
+	//	Reset the elapsed time to avoid glitches when we restart
+	#ifdef DAEDALUS_PROFILE_EXECUTION
+	gTimer.Reset();
+	#endif
+
+}
+
 int main(int argc, char **argv)
 {
 	int result = 0;

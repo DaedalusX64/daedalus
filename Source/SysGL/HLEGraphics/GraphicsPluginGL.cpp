@@ -162,7 +162,7 @@ void CGraphicsPluginImpl::ProcessDList()
 }
 
 bool ShowFPSonmenu = false;
-bool toggle_fullscreen = false;
+
 
 void CGraphicsPluginImpl::UpdateScreen()
 {

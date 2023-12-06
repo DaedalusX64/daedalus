@@ -17,6 +17,8 @@ static u32 SCR_HEIGHT = 480;
 SDL_Window * gWindow = nullptr;
 SDL_Renderer * gSdlRenderer = nullptr;
 
+extern void HandleEndOfFrame();
+
 class GraphicsContextGL : public CGraphicsContext
 {
 public:
@@ -69,7 +71,7 @@ bool GraphicsContextGL::Initialise()
 {
 
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
+	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
@@ -205,6 +207,7 @@ void GraphicsContextGL::BeginFrame()
 
 void GraphicsContextGL::EndFrame()
 {
+	HandleEndOfFrame();
 }
 
 void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
