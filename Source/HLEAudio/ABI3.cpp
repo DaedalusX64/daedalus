@@ -32,10 +32,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/HLEAudioState.h"
 
 // Disables the command because it's not used?
-static void DISABLE(AudioHLECommand command) {}
-static void WHATISTHIS(AudioHLECommand command) {}
+static void DISABLE(AudioHLECommand) {}
+static void WHATISTHIS(AudioHLECommand) {}
 
-static void MP3ADDY(AudioHLECommand command) {
+static void MP3ADDY(AudioHLECommand) {
   //	setaddr = (command.cmd1 & 0xffffff);
 }
 

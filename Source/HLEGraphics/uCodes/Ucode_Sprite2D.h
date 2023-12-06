@@ -67,38 +67,38 @@ static void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo *
 //*****************************************************************************
 //
 //*****************************************************************************
-static void Load_Sprite2D( const Sprite2DStruct *sprite, const Sprite2DInfo info )
-{
-	TextureInfo ti;
-	ti.SetLoadAddress(RDPSegAddr(sprite->address));
-	ti.SetFormat(sprite->format);
-	ti.SetSize(sprite->size);
-	ti.SetSwapped(false);
-	ti.SetPalette(0);
-	ti.SetTlutAddress(RDPSegAddr(sprite->tlut));
-	ti.SetTLutFormat(kTT_RGBA16);
+// static void Load_Sprite2D( const Sprite2DStruct *sprite, const Sprite2DInfo info )
+// {
+// 	TextureInfo ti;
+// 	ti.SetLoadAddress(RDPSegAddr(sprite->address));
+// 	ti.SetFormat(sprite->format);
+// 	ti.SetSize(sprite->size);
+// 	ti.SetSwapped(false);
+// 	ti.SetPalette(0);
+// 	ti.SetTlutAddress(RDPSegAddr(sprite->tlut));
+// 	ti.SetTLutFormat(kTT_RGBA16);
 
-	u32 width = sprite->stride;
-	u32 height = sprite->height + sprite->imageY;
-	u32 pitch = (sprite->stride << sprite->size) >> 1;
+// 	u32 width = sprite->stride;
+// 	u32 height = sprite->height + sprite->imageY;
+// 	u32 pitch = (sprite->stride << sprite->size) >> 1;
 
-	if(g_ROM.GameHacks == WCW_NITRO)
-	{
-		u32 scaleY = (u32)info.scaleY;
-		width *= scaleY;
-		height /= scaleY;
-		pitch *= scaleY;
-	}
+// 	if(g_ROM.GameHacks == WCW_NITRO)
+// 	{
+// 		u32 scaleY = (u32)info.scaleY;
+// 		width *= scaleY;
+// 		height /= scaleY;
+// 		pitch *= scaleY;
+// 	}
 
-	ti.SetWidth(width);
-	ti.SetHeight(height);
-	ti.SetPitch(pitch);
+// 	ti.SetWidth(width);
+// 	ti.SetHeight(height);
+// 	ti.SetPitch(pitch);
 
-	DL_PF( "    Sprite2D Texture:[Width:%d, Height:%d] -> Address[0x%08x] Format[%s] TLUT[0x%x] Pitch[%d]",
-		ti.GetWidth(), ti.GetHeight(), ti.GetLoadAddress(), ti.GetFormatName(), ti.GetTlutAddress(), ti.GetPitch());
+// 	DL_PF( "    Sprite2D Texture:[Width:%d, Height:%d] -> Address[0x%08x] Format[%s] TLUT[0x%x] Pitch[%d]",
+// 		ti.GetWidth(), ti.GetHeight(), ti.GetLoadAddress(), ti.GetFormatName(), ti.GetTlutAddress(), ti.GetPitch());
 
-	gRenderer->LoadTextureDirectly(ti);
-}
+// 	gRenderer->LoadTextureDirectly(ti);
+// }
 
 //*****************************************************************************
 //

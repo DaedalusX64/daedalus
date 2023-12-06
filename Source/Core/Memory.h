@@ -58,7 +58,7 @@ enum MEMBANKTYPE
 static const u32 MEMORY_4_MEG( 4*1024*1024 );
 static const u32 MEMORY_8_MEG( 8*1024*1024 );
 #define MAX_RAM_ADDRESS MEMORY_8_MEG
-using mReadFunction = void * (*)(u32 address);
+using mReadFunction = const void * (*)(u32 address);
 using mWriteFunction = void(*)(u32 address, u32 value); 
 
 struct MemFuncWrite
@@ -99,7 +99,7 @@ extern MemFuncRead  				g_MemoryLookupTableRead[0x4000];
 extern MemFuncWrite 				g_MemoryLookupTableWrite[0x4000];
 
 // Fast memory access
-inline void* const ReadAddress( u32 address )
+inline const void* ReadAddress( u32 address )
 {
 	const MemFuncRead & m( g_MemoryLookupTableRead[ address >> 18 ] );
 

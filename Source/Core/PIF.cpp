@@ -159,7 +159,7 @@ class	IController : public CController
 		void			CommandWriteRumblePack(u32 channel, u8 *cmd);
 		void			CommandReadRTC(u8 *cmd);
 
-		const u8				CalculateDataCrc(const u8 * pBuf);
+		u8				CalculateDataCrc(const u8 * pBuf) const;
 		bool			IsEepromPresent() const						{ return mpEepromData != nullptr; }
 
 		void			n64_cic_nus_6105();
@@ -554,9 +554,6 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 
 bool	IController::ProcessEeprom(u8 *cmd)
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( IsEepromPresent(), "ROM is accessing the EEPROM, but none is present");
-#endif
 	switch(cmd[2])
 	{
 	case CONT_RESET:
@@ -567,10 +564,12 @@ bool	IController::ProcessEeprom(u8 *cmd)
 		break;
 
 	case CONT_READ_EEPROM:
+		DAEDALUS_ASSERT( IsEepromPresent(), "ROM is accessing the EEPROM, but none is present");
 		CommandReadEeprom( cmd );
 		break;
 
 	case CONT_WRITE_EEPROM:
+		DAEDALUS_ASSERT( IsEepromPresent(), "ROM is accessing the EEPROM, but none is present");
 		CommandWriteEeprom( cmd );
 		break;
 
@@ -587,15 +586,11 @@ bool	IController::ProcessEeprom(u8 *cmd)
 		break;
 
 	case CONT_RTC_WRITE:	// write RTC block
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR("RTC Write : %02x Not Implemented", cmd[2]);
-		#endif
 		break;
 
 	default:
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unknown Eeprom command: %02x", cmd[2] );
-		#endif
 		break;
 	}
 
@@ -614,7 +609,7 @@ void	IController::CommandWriteEeprom(u8* cmd)
 }
 
 
-const u8 IController::CalculateDataCrc(const u8 * data)
+u8 IController::CalculateDataCrc(const u8 * data) const
 {
 	size_t i;
     uint8_t crc = 0;
@@ -694,6 +689,7 @@ void	IController::CommandReadRumblePack(u8 *cmd)
 
 void	IController::CommandWriteRumblePack(u32 channel, u8 *cmd)
 {
+	DAEDALUS_USE(channel);
 	u16 addr = (cmd[3] << 8) | (cmd[4] & 0xE0);
 
 	if ( addr == 0xC000 ) {

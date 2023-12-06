@@ -290,7 +290,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	// Always clear when parsing a new ROM
 	CheatCodes_Clear();
 
-	 std::filesystem::path p("cheat_file");
+	 std::filesystem::path p(file);
 	 const char *cheat_file = p.c_str();
 
 	stream = fopen(cheat_file, "rt");
@@ -312,7 +312,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 
 	// Locate the entry for current rom by searching for g_ROM.rh.Name
 	//
-	snprintf(romname,sizeof(current_rom_name), "[%s]", current_rom_name);
+	snprintf(romname,sizeof(romname), "[%s]", current_rom_name);
 
 	bfound = false;
 

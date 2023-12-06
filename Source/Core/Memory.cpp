@@ -681,29 +681,20 @@ void MemoryUpdateSPStatus( u32 flags )
 	if (flags & SP_CLR_SIG7)				clr_bits |= SP_STATUS_SIG7;
 	if (flags & SP_SET_SIG7)				set_bits |= SP_STATUS_SIG7;
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	u32 new_status = Memory_SP_SetRegisterBits( SP_STATUS_REG, ~clr_bits, set_bits );
-#else
 	Memory_SP_SetRegisterBits( SP_STATUS_REG, ~clr_bits, set_bits );
-#endif
+
 	//
 	// We execute the task here, after we've written to the SP status register.
 	//
 	if( start_rsp )
 	{
-#ifdef DAEDALUS_ENABLE_ASSERTS
-		//DAEDALUS_ASSERT( !gRSPHLEActive, "RSP HLE already active. Status was %08x, now %08x", status, new_status );
-#endif
-
 		// Check for tasks whenever the RSP is started
 		RSP_HLE_ProcessTask();
 	}
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	else if ( stop_rsp )
+	else if (stop_rsp)
 	{
-		//DAEDALUS_ASSERT( !RSP_IsRunningHLE(), "Stopping RSP while HLE task still running. Not good!" );
+		RSP_HLE_Reset();
 	}
-#endif
 }
 
 #undef DISPLAY_DPC_WRITES
