@@ -113,6 +113,8 @@ class CUIContext
 	#include <pspdisplay.h>
 	#include <psputility.h>
 	#include <pspgu.h>
+	#include <psprtc.h>
+	#include <psppower.h>
 #else
 #include "Ultra/ultra_os.h"
 
