@@ -215,8 +215,11 @@ if(DAEDALUS_SDL)
 	find_package(SDL2 CONFIG REQUIRED)
 	target_link_libraries(daedalus PRIVATE SDL2::SDL2)
 
+if(NOT PSP)
+	# PSP is not needed as it uses built-in native font
 	find_package(SDL2_ttf REQUIRED)
 	target_link_libraries(daedalus PRIVATE SDL2_ttf::SDL2_ttf)
+endif()
 endif(DAEDALUS_SDL)
 
 
