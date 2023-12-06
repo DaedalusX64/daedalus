@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativeTexture.h"
 #include "UI/DrawText.h"
 #include "UI/UIContext.h"
+#include "Utility/Translate.h"
 #include "UI/DrawTextUtilities.h"
 
 
