@@ -1047,31 +1047,19 @@ void	CAssemblyWriterX64::FSTP_MEMp32( u32 * pmem )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FLD_MEMp64( u32 * memlo, u32 * memhi )
+void	CAssemblyWriterX64::FLD_MEMp64( u64 * mem)
 {
-	// static s64 longtemp;
-
-	// MOV_REG_MEM(EAX_CODE, (u8*)(memlo) );
-	// MOV_REG_MEM(EDX_CODE, (u8*)(memhi) );
-	// MOV_MEM_REG(((u8*)&longtemp) + 0, EAX_CODE);
-	// MOV_MEM_REG(((u8*)&longtemp) + 4, EDX_CODE);
-	// EmitWORD(0x05dd);
-	// EmitDWORD( u32(&longtemp) );
+	EmitWORD(0xabdf);
+	EmitADDR(mem); //  df ab 78 56 34 12       fild   QWORD PTR [rbx+0x12345678]
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FSTP_MEMp64( u32 * memlo, u32 * memhi )
+void	CAssemblyWriterX64::FSTP_MEMp64( u64 * mem)
 {
-	// static s64 longtemp;
-
-	// EmitWORD(0x1ddd);
-	// EmitDWORD( u32(&longtemp) );
-	// MOV_REG_MEM(EAX_CODE, ((u8*)(&longtemp))+0);
-	// MOV_REG_MEM(EDX_CODE, ((u8*)(&longtemp))+4);
-	// MOV_MEM_REG(((u8*)(memlo)), EAX_CODE);
-	// MOV_MEM_REG(((u8*)(memhi)), EDX_CODE);
+	EmitWORD(0x9bdd);
+	EmitADDR(mem); // dd 9b 78 56 34 12       fstp   QWORD PTR [rbx+0x12345678]
 }
 
 //*****************************************************************************

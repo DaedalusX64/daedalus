@@ -163,8 +163,8 @@ class CAssemblyWriterX64
 				void				FILD_MEM( u32 * pmem );
 				void				FLD_MEMp32( u32 * pmem );
 				void				FSTP_MEMp32( u32 * pmem );
-				void				FLD_MEMp64( u32 * memlo, u32 * memhi );
-				void				FSTP_MEMp64( u32 * memlo, u32 * memhi );
+				void				FLD_MEMp64( u64 * pmem );
+				void				FSTP_MEMp64( u64 * pmem );
 				void				FISTP_MEMp( u32 * pmem );
 
 				void				FLD( u32 i );
