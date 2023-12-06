@@ -115,15 +115,6 @@ endif()
 		option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
 	endif()
 
-	if(DAEDALUS_SDL)
-		find_package(SDL2 CONFIG REQUIRED)
-		list(APPEND default_libraries "${SDL2_LIBRARIES}")
-		list(APPEND include_dirs "${SDL2_INCLUDE_DIRS}")
-
-		find_package(SDL2_ttf CONFIG REQUIRED)
-		list(APPEND default_libraries "SDL2_ttf-2.0")
-	endif(DAEDALUS_SDL)
-
 	# Needed below the options to post process
 	include(${PROJECT_SOURCE_DIR}/Options.cmake) 
 
@@ -219,9 +210,22 @@ if(WIN32)
 
 	# ---  Build ---- 
 	add_executable(daedalus ${plat_main})
-	list(APPEND default_libraries png z) ## Required Libraries 
-	
-	message(" ${daed_libs} ${default_libraries} ${sys_libraries} " )
+
+if(DAEDALUS_SDL)
+	find_package(SDL2 CONFIG REQUIRED)
+	target_link_libraries(daedalus PRIVATE SDL2::SDL2)
+
+	find_package(SDL2_ttf REQUIRED)
+	target_link_libraries(daedalus PRIVATE SDL2_ttf::SDL2_ttf)
+endif(DAEDALUS_SDL)
+
+
+	find_package(ZLIB REQUIRED)
+	target_link_libraries(daedalus PRIVATE ZLIB::ZLIB)
+
+	find_package(PNG REQUIRED)
+	target_link_libraries(daedalus PRIVATE PNG::PNG)
+
 	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries})
 
