@@ -198,15 +198,29 @@ void	IUIContext::ClearBackground( c32 colour )
 	CGraphicsContext::Get()->ClearColBufferAndDepth( colour );
 }
 
-
 void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 {
-
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
+	rect.w = w;
+	rect.h = h;
+	SDL_SetRenderDrawColor(gSdlRenderer,
+                           colour.GetR(),
+                           colour.GetG(),
+                           colour.GetG(),
+                           colour.GetA());
+	SDL_RenderDrawRect(gSdlRenderer, &rect);
 }
 
 void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 {
-
+	SDL_SetRenderDrawColor(gSdlRenderer,
+                           colour.GetR(),
+                           colour.GetG(),
+                           colour.GetG(),
+                           colour.GetA());
+	SDL_RenderDrawLine(gSdlRenderer, x0, y0, x1, y1);
 }
 
 
