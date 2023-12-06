@@ -245,10 +245,20 @@ void	CAssemblyWriterX64::NOT(EIntelReg reg1, bool is64)
 //*****************************************************************************
 // Use short form (0x83c0) if data is just one byte!
 //*****************************************************************************
-void CAssemblyWriterX64::ADDI(EIntelReg reg, s32 data)
+void CAssemblyWriterX64::ADDI(EIntelReg reg, s32 data, bool is64)
 {
 	if (data == 0)
 		return;
+
+	if (is64)
+	{
+		u8 first_byte = 0x48;
+		if (reg >= R8_CODE) {
+			first_byte |= 0x4;
+			reg = EIntelReg(reg & 7);
+		}
+		EmitBYTE(first_byte);
+	}
 
 	if (data <= 127 && data > -127)
 	{
@@ -293,14 +303,24 @@ void CAssemblyWriterX64::ADCI(EIntelReg reg, s32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX64::ANDI(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::ANDI(EIntelReg reg1, u32 data, bool is64)
 {
+	if (is64) {
+		u8 first_byte = 0x48;
+		if (reg1 >= R8_CODE) {
+			first_byte |= 0x4;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+
+		EmitBYTE(first_byte);
+	}
+
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0x25);
 	else */
 	{
 		EmitBYTE(0x81);
-		EmitBYTE(0xe0 | reg);
+		EmitBYTE(0xe0 | reg1);
 	}
 	EmitDWORD(data);
 }
@@ -308,14 +328,24 @@ void CAssemblyWriterX64::ANDI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX64::ORI(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::ORI(EIntelReg reg1, u32 data, bool is64)
 {
+	if (is64) {
+		u8 first_byte = 0x48;
+		if (reg1 >= R8_CODE) {
+			first_byte |= 0x4;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+
+		EmitBYTE(first_byte);
+	}
+	
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0x0D);
 	else*/
 	{
 		EmitBYTE(0x81);
-		EmitBYTE(0xc8 | reg);
+		EmitBYTE(0xc8 | reg1);
 	}
 	EmitDWORD(data);
 }
@@ -323,27 +353,30 @@ void CAssemblyWriterX64::ORI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX64::XOR_I32(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::XORI(EIntelReg reg, u32 data, bool is64)
 {
+	if (is64) {
+		u8 first_byte = 0x48;
+		if (reg >= R8_CODE) {
+			first_byte |= 0x4;
+			reg = EIntelReg(reg & 7);
+		}
 
-	/*if (reg == EAX_CODE)
-		EmitBYTE(0x35);
-	else */
+		EmitBYTE(first_byte);
+	}
+
+	if (data <= 255)
+	{
+		EmitBYTE(0x83);
+		EmitBYTE(0xf0 | reg);
+		EmitBYTE((u8)data);
+	}
+	else
 	{
 		EmitBYTE(0x81);
 		EmitBYTE(0xf0 | reg);
+		EmitDWORD(data);
 	}
-	EmitDWORD(data);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void CAssemblyWriterX64::XOR_I8(EIntelReg reg, u8 data)
-{
-	EmitBYTE(0x83);
-	EmitBYTE(0xf0 | reg);
-	EmitBYTE(data);
 }
 
 //*****************************************************************************
@@ -673,7 +706,7 @@ void	CAssemblyWriterX64::MOV(EIntelReg reg1, EIntelReg reg2, bool is64)
 			}
 
 			EmitBYTE(first_byte);
-			}
+		}
 
 		EmitBYTE(0x8b);
 		EmitBYTE(0xc0 | (reg1<<3) | reg2);
