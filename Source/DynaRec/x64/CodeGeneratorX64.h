@@ -104,6 +104,7 @@ class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
 
 				void	GenerateLUI(EN64Reg rt, s16 offset );
 
+				void	GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
 				void	GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
 				void	GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immediate );
 				void	GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediate );
@@ -123,6 +124,9 @@ class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
 
 				void	GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
 				void	GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+
+				void 	GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+				void	GenerateDSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
 };
 
 #endif // SYSW32_DYNAREC_X64_CODEGENERATORX64_H_

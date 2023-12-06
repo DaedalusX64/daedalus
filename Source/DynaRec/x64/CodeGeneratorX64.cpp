@@ -521,6 +521,9 @@ CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool bra
 		case OP_JAL:		GenerateJAL( address ); handled = true; break;
 		case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
 
+		case OP_DADDI:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+		case OP_DADDIU:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+
 		// For LW, SW, SWC1, LB etc, only generate an exception handler if access wasn't done through the stack (handle = false)
 		// This will have to be reworked once we handle accesses other than the stack!
 		case OP_SW:
@@ -587,12 +590,17 @@ CJumpLocation	CCodeGeneratorX64::GenerateOpCode( const STraceEntry& ti, bool bra
 				case SpecOp_XOR:	GenerateXOR( rd, rs, rt ); handled = true; break;
 				case SpecOp_NOR:	GenerateNOR( rd, rs, rt );	handled = true; break;
 
-				case SpecOp_ADD:	GenerateADDU( rd, rs, rt );	handled = true; break;
-				// this break something don't know yet
-				//case SpecOp_ADDU:	GenerateADDU( rd, rs, rt );	handled = true; break;
+				case SpecOp_ADD:
+				case SpecOp_ADDU:	GenerateADDU( rd, rs, rt );	handled = true; break;
 
-				case SpecOp_SUB:	GenerateSUBU( rd, rs, rt );	handled = true; break;
+				case SpecOp_DADD:
+				case SpecOp_DADDU:	GenerateDADDU( rd, rs, rt ); handled = true; break;
+
+				case SpecOp_SUB:
 				case SpecOp_SUBU:	GenerateSUBU( rd, rs, rt );	handled = true; break;
+
+				case SpecOp_DSUB:
+				case SpecOp_DSUBU:	GenerateDSUBU( rd, rs, rt );	handled = true; break;
 				}
 			}
 			break;
@@ -721,7 +729,7 @@ void CCodeGeneratorX64::GenerateLoad(EN64Reg base, s16 offset, u8 twiddle, u8 bi
 	else
 	{
 		ADDI(RCX_CODE, offset);
-		XOR_I8(RCX_CODE, twiddle);
+		XORI(RCX_CODE, twiddle);
 		ADD(RCX_CODE, R15_CODE, true);
 		switch(bits)
 		{
@@ -769,6 +777,8 @@ bool CCodeGeneratorX64::GenerateSWC1( u32 ft, EN64Reg base, s16 offset )
 	return false;
 }
 
+//u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
+//	Write32Bits(address, gGPR[op_code.rt]._u32_0);
 bool CCodeGeneratorX64::GenerateSW( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
@@ -831,16 +841,32 @@ bool CCodeGeneratorX64::GenerateLH( EN64Reg rt, EN64Reg base, s16 offset )
 	return false;
 }
 
+//gGPR[op_code.rt]._s64 = (s64)(s32)((s32)(s16)op_code.immediate<<16);
 void CCodeGeneratorX64::GenerateLUI( EN64Reg rt, s16 immediate )
 {
+	if (rt == 0) return;
+
 	MOVI(RAX_CODE, s32(immediate) << 16);
 	CDQ();
 	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
 	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 }
 
+//gGPR[op_code.rt]._s64 = gGPR[op_code.rs]._s64 + (s32)(s16)op_code.immediate;
+void CCodeGeneratorX64::GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
+{
+	if (rt == 0) return;
+
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	ADDI(RAX_CODE, immediate, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rt]._u64, RAX_CODE);
+}
+
+// gGPR[op_code.rt]._s64 = (s64)(s32)(gGPR[op_code.rs]._s32_0 + (s32)(s16)op_code.immediate);
 void CCodeGeneratorX64::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
+	if (rt == 0) return;
+
 	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
 	ADDI(RAX_CODE, immediate);
 	CDQ();
@@ -848,35 +874,42 @@ void CCodeGeneratorX64::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
 }
 
+//gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 & (u64)(u16)op_code.immediate;
 void CCodeGeneratorX64::GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immediate )
 {
-	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
-	ANDI(RAX_CODE, immediate);
-	CDQ();
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
+	if (rt == 0) return;
+
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	ANDI(RAX_CODE, immediate, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rt]._u64, RAX_CODE);
 }
 
+//gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 | (u64)(u16)op_code.immediate;
 void CCodeGeneratorX64::GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediate )
 {
-	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
-	ORI(RAX_CODE, immediate);
-	CDQ();
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
+	if (rt == 0) return;
+
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	ORI(RAX_CODE, immediate, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rt]._u64, RAX_CODE);
 }
 
+// gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 ^ (u64)(u16)op_code.immediate;
 void CCodeGeneratorX64::GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immediate )
 {
-	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
-	XOR_I32(RAX_CODE, immediate);
-	CDQ();
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, RAX_CODE);
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, RDX_CODE);
+	if (rt == 0) return;
+
+	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
+	XORI(RAX_CODE, immediate, true);
+	MOV64_MEM_REG(&gCPUState.CPU[rt]._u64, RAX_CODE);
 }
 
+// gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << op_code.sa) & 0xFFFFFFFF );
 void CCodeGeneratorX64::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
 {
+	// NOP
+	if (rd == 0) return;
+
 	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
 	SHLI(RAX_CODE, sa);
 	CDQ();
@@ -884,8 +917,11 @@ void CCodeGeneratorX64::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, RDX_CODE);
 }
 
+// gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._u32_0 >> op_code.sa );
 void CCodeGeneratorX64::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
 {
+	if (rd == 0) return;
+
 	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
 	SHRI(RAX_CODE, sa);
 	CDQ();
@@ -893,8 +929,11 @@ void CCodeGeneratorX64::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, RDX_CODE);
 }
 
+//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._s32_0 >> op_code.sa );
 void CCodeGeneratorX64::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 {
+	if (rd == 0) return;
+
 	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rt]._u32_0);
 	SARI(RAX_CODE, sa);
 	CDQ();
@@ -902,32 +941,44 @@ void CCodeGeneratorX64::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, RDX_CODE);
 }
 
+//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 | gGPR[ op_code.rt ]._u64;
 void CCodeGeneratorX64::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
+	if (rd == 0) return;
+
 	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
 	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
 	OR(RAX_CODE, RCX_CODE, true);
 	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
 }
 
+//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 & gGPR[ op_code.rt ]._u64;
 void CCodeGeneratorX64::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
+	if (rd == 0) return;
+
 	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
 	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
 	AND(RAX_CODE, RCX_CODE, true);
 	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
 }
 
+//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 ^ gGPR[ op_code.rt ]._u64;
 void CCodeGeneratorX64::GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
+	if (rd == 0) return;
+
 	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
 	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
 	XOR(RAX_CODE, RCX_CODE, true);
 	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
 }
 
+//gGPR[ op_code.rd ]._u64 = ~(gGPR[ op_code.rs ]._u64 | gGPR[ op_code.rt ]._u64);
 void CCodeGeneratorX64::GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
+	if (rd == 0) return;
+
 	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
 	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
 	OR(RAX_CODE, RCX_CODE, true);
@@ -935,16 +986,48 @@ void CCodeGeneratorX64::GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
 }
 
+// gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 + gGPR[ op_code.rt ]._s32_0 );
 void CCodeGeneratorX64::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
+	if (rd == 0) return;
+
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
+	MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u32_0);
+	ADD(RAX_CODE, RCX_CODE);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, RDX_CODE);
+}
+
+// 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 + gGPR[ op_code.rt ]._u64;
+void CCodeGeneratorX64::GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	if (rd == 0) return;
+
 	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
 	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
 	ADD(RAX_CODE, RCX_CODE, true);
 	MOV64_MEM_REG(&gCPUState.CPU[rd]._u64, RAX_CODE);
 }
 
+//	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 - gGPR[ op_code.rt ]._s32_0 );
 void CCodeGeneratorX64::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
+	if (rd == 0) return;
+
+	MOV_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u32_0);
+	MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u32_0);
+	SUB(RAX_CODE, RCX_CODE);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, RAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, RDX_CODE);
+}
+
+//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 - gGPR[ op_code.rt ]._u64;
+void CCodeGeneratorX64::GenerateDSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+{
+	if (rd == 0) return;
+
 	MOV64_REG_MEM(RAX_CODE, &gCPUState.CPU[rs]._u64);
 	MOV64_REG_MEM(RCX_CODE, &gCPUState.CPU[rt]._u64);
 	SUB(RAX_CODE, RCX_CODE, true);

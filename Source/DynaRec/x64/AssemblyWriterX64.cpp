@@ -245,10 +245,20 @@ void	CAssemblyWriterX64::NOT(EIntelReg reg1, bool is64)
 //*****************************************************************************
 // Use short form (0x83c0) if data is just one byte!
 //*****************************************************************************
-void CAssemblyWriterX64::ADDI(EIntelReg reg, s32 data)
+void CAssemblyWriterX64::ADDI(EIntelReg reg, s32 data, bool is64)
 {
 	if (data == 0)
 		return;
+
+	if (is64)
+	{
+		u8 first_byte = 0x48;
+		if (reg >= R8_CODE) {
+			first_byte |= 0x4;
+			reg = EIntelReg(reg & 7);
+		}
+		EmitBYTE(first_byte);
+	}
 
 	if (data <= 127 && data > -127)
 	{
@@ -293,14 +303,24 @@ void CAssemblyWriterX64::ADCI(EIntelReg reg, s32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX64::ANDI(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::ANDI(EIntelReg reg1, u32 data, bool is64)
 {
+	if (is64) {
+		u8 first_byte = 0x48;
+		if (reg1 >= R8_CODE) {
+			first_byte |= 0x4;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+
+		EmitBYTE(first_byte);
+	}
+
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0x25);
 	else */
 	{
 		EmitBYTE(0x81);
-		EmitBYTE(0xe0 | reg);
+		EmitBYTE(0xe0 | reg1);
 	}
 	EmitDWORD(data);
 }
@@ -308,14 +328,24 @@ void CAssemblyWriterX64::ANDI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX64::ORI(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::ORI(EIntelReg reg1, u32 data, bool is64)
 {
+	if (is64) {
+		u8 first_byte = 0x48;
+		if (reg1 >= R8_CODE) {
+			first_byte |= 0x4;
+			reg1 = EIntelReg(reg1 & 7);
+		}
+
+		EmitBYTE(first_byte);
+	}
+	
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0x0D);
 	else*/
 	{
 		EmitBYTE(0x81);
-		EmitBYTE(0xc8 | reg);
+		EmitBYTE(0xc8 | reg1);
 	}
 	EmitDWORD(data);
 }
@@ -323,27 +353,30 @@ void CAssemblyWriterX64::ORI(EIntelReg reg, u32 data)
 //*****************************************************************************
 //
 //*****************************************************************************
-void CAssemblyWriterX64::XOR_I32(EIntelReg reg, u32 data)
+void CAssemblyWriterX64::XORI(EIntelReg reg, u32 data, bool is64)
 {
+	if (is64) {
+		u8 first_byte = 0x48;
+		if (reg >= R8_CODE) {
+			first_byte |= 0x4;
+			reg = EIntelReg(reg & 7);
+		}
 
-	/*if (reg == EAX_CODE)
-		EmitBYTE(0x35);
-	else */
+		EmitBYTE(first_byte);
+	}
+
+	if (data <= 255)
+	{
+		EmitBYTE(0x83);
+		EmitBYTE(0xf0 | reg);
+		EmitBYTE((u8)data);
+	}
+	else
 	{
 		EmitBYTE(0x81);
 		EmitBYTE(0xf0 | reg);
+		EmitDWORD(data);
 	}
-	EmitDWORD(data);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void CAssemblyWriterX64::XOR_I8(EIntelReg reg, u8 data)
-{
-	EmitBYTE(0x83);
-	EmitBYTE(0xf0 | reg);
-	EmitBYTE(data);
 }
 
 //*****************************************************************************
@@ -673,7 +706,7 @@ void	CAssemblyWriterX64::MOV(EIntelReg reg1, EIntelReg reg2, bool is64)
 			}
 
 			EmitBYTE(first_byte);
-			}
+		}
 
 		EmitBYTE(0x8b);
 		EmitBYTE(0xc0 | (reg1<<3) | reg2);
@@ -1014,31 +1047,19 @@ void	CAssemblyWriterX64::FSTP_MEMp32( u32 * pmem )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FLD_MEMp64( u32 * memlo, u32 * memhi )
+void	CAssemblyWriterX64::FLD_MEMp64( u64 * mem)
 {
-	// static s64 longtemp;
-
-	// MOV_REG_MEM(EAX_CODE, (u8*)(memlo) );
-	// MOV_REG_MEM(EDX_CODE, (u8*)(memhi) );
-	// MOV_MEM_REG(((u8*)&longtemp) + 0, EAX_CODE);
-	// MOV_MEM_REG(((u8*)&longtemp) + 4, EDX_CODE);
-	// EmitWORD(0x05dd);
-	// EmitDWORD( u32(&longtemp) );
+	EmitWORD(0xabdf);
+	EmitADDR(mem); //  df ab 78 56 34 12       fild   QWORD PTR [rbx+0x12345678]
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAssemblyWriterX64::FSTP_MEMp64( u32 * memlo, u32 * memhi )
+void	CAssemblyWriterX64::FSTP_MEMp64( u64 * mem)
 {
-	// static s64 longtemp;
-
-	// EmitWORD(0x1ddd);
-	// EmitDWORD( u32(&longtemp) );
-	// MOV_REG_MEM(EAX_CODE, ((u8*)(&longtemp))+0);
-	// MOV_REG_MEM(EDX_CODE, ((u8*)(&longtemp))+4);
-	// MOV_MEM_REG(((u8*)(memlo)), EAX_CODE);
-	// MOV_MEM_REG(((u8*)(memhi)), EDX_CODE);
+	EmitWORD(0x9bdd);
+	EmitADDR(mem); // dd 9b 78 56 34 12       fstp   QWORD PTR [rbx+0x12345678]
 }
 
 //*****************************************************************************
