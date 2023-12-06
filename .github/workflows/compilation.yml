@@ -81,7 +81,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libglew-dev
+        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev
     
     - name: Compile project
       run: |
@@ -99,9 +99,9 @@ jobs:
           DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
           DaedalusX64/copying.txt \
-#          DaedalusX64/Resources \ # Not used in Posix Buiilds
-#          DaedalusX64/Languages \ # Not used in Posix Builds
-#           DaedalusX64/ControllerConfigs \ # Not used in Posix Builds
+          DaedalusX64/Resources \
+          DaedalusX64/Languages \
+          DaedalusX64/ControllerConfigs \
 
 
     - name: Upload artifacts
@@ -147,7 +147,7 @@ jobs:
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     - name: Install dependencies
       run: |
-        brew install git bash cmake libpng minizip sdl2 glew
+        brew install git bash cmake libpng minizip sdl2 sdl2_ttf glew
     
     - name: Compile project
       run: |
@@ -165,9 +165,9 @@ jobs:
           DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
           DaedalusX64/copying.txt \
-#          DaedalusX64/Resources \ # Not used in Posix Buiilds
-#          DaedalusX64/Languages \ # Not used in Posix Builds
-#           DaedalusX64/ControllerConfigs \ # Not used in Posix Builds
+          DaedalusX64/Resources \
+          DaedalusX64/Languages \
+          DaedalusX64/ControllerConfigs \
 
 
     - name: Upload artifacts
