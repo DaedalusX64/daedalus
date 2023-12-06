@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Matrix4x4.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
-#include "SysPSP/Graphics/DrawText.h"
+#include "UI/DrawText.h"
 #include "UI/UIContext.h"
 #include "UI/DrawTextUtilities.h"
 
