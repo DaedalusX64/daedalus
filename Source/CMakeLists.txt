@@ -21,7 +21,7 @@ if(DEBUG)
 	option(DAEDALUS_LOG "Enable various logging" ON)
 	add_compile_options("-Wall")
 else()
-	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+	set(CMAKE_BUILD_TYPE Release)
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 endif()
