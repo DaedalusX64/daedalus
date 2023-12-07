@@ -146,8 +146,8 @@ namespace
 		{
 		}
 
-		virtual	void		OnNext()		{ (gGlobalPreferences.Language >= Translate_Number() ) ? 0 : gGlobalPreferences.Language++; }
-		virtual	void		OnPrevious()	{ (gGlobalPreferences.Language <= 0) ? 0 : gGlobalPreferences.Language--; }
+		virtual	void		OnNext()		{ if (gGlobalPreferences.Language < Translate_Number() ) gGlobalPreferences.Language++; }
+		virtual	void		OnPrevious()	{ if (gGlobalPreferences.Language > 0) gGlobalPreferences.Language--; }
 
 		virtual	void			OnSelected()
 		{
@@ -276,8 +276,8 @@ namespace
 		{
 		}
 
-		virtual	void		OnNext()		{ (gGlobalPreferences.DisplayFramerate >= 3) ? 0 : gGlobalPreferences.DisplayFramerate++; }
-		virtual	void		OnPrevious()	{ (gGlobalPreferences.DisplayFramerate <= 0) ? 0 : gGlobalPreferences.DisplayFramerate--; }
+		virtual	void		OnNext()		{ if (gGlobalPreferences.DisplayFramerate < 3) gGlobalPreferences.DisplayFramerate++; }
+		virtual	void		OnPrevious()	{ if (gGlobalPreferences.DisplayFramerate > 0) gGlobalPreferences.DisplayFramerate--; }
 
 		virtual const char *	GetSettingName() const
 		{
