@@ -50,6 +50,9 @@ namespace
 #endif
 	ECategory		GetCategory( char c )
 	{
+		if (c < 0)
+			return C_UNK;
+
 		if( isalpha( c ) )
 		{
 			c = tolower( c );
