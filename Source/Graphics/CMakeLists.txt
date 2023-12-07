@@ -4,5 +4,7 @@ add_library(Graphics OBJECT
                     TextureTransform.cpp
             )
 
+target_include_directories(Graphics PUBLIC ${PNG_INCLUDE_DIRS})
+
 list(APPEND daed_libs "Graphics")
 set(daed_libs ${daed_libs} PARENT_SCOPE)

@@ -1,4 +1,4 @@
-add_library(UI_PSP OBJECT 
+add_library(UI OBJECT 
                             AboutComponent.cpp 
                             AdjustDeadzoneScreen.cpp 
                             AdvancedOptionsScreen.cpp 
@@ -22,6 +22,9 @@ add_library(UI_PSP OBJECT
                             DrawTextUtilities.cpp
             )
 
-            
-list(APPEND daed_libs "UI_PSP")
+if(DAEDALUS_GL)
+target_include_directories(UI PUBLIC ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
+endif(DAEDALUS_GL)
+
+list(APPEND daed_libs "UI")
 set(daed_libs ${daed_libs} PARENT_SCOPE)

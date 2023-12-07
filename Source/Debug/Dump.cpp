@@ -52,9 +52,9 @@ void Dump_GetDumpDirectory(char * rootdir, const char * subdir)
 	{
 		// Initialise
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || !defined(DAEDALUS_SILENT)
-		IO::Path::Combine(gDumpDir, gDaedalusExePath.c_str(), "Dumps");
+		IO::Path::Combine(gDumpDir, gDaedalusExePath.string().c_str(), "Dumps");
 #else
-		IO::Path::Combine(gDumpDir, gDaedalusExePath.c_str(), "ms0:/PICTURE/");
+		IO::Path::Combine(gDumpDir, gDaedalusExePath.string().c_str(), "ms0:/PICTURE/");
 #endif
 	}
 

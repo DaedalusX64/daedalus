@@ -24,7 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/CodeBufferManager.h"
 #include "CodeGeneratorX64.h"
 
-#ifndef DAEDALUS_W32
+#ifdef DAEDALUS_W32
+#include <windows.h>
+#else
 #include <sys/mman.h>
 #endif
 

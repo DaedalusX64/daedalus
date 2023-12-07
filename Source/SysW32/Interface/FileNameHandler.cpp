@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
+#include <windows.h>
 
 #include "Base/Types.h"
 #include "FileNameHandler.h"
@@ -36,9 +36,12 @@ FileNameHandler::FileNameHandler(LPCTSTR szSectionName,
 	lstrcpy(m_szSectionName, szSectionName);
 
 	if(pszDefaultDir)
-		strcpy(m_szCurrentDirectory, pszDefaultDir);
-	else
-		GetDefaultDirectory(m_szCurrentDirectory);
+		m_szCurrentDirectory = pszDefaultDir;
+	else {
+		char current[128];
+		GetDefaultDirectory(current);
+		m_szCurrentDirectory = current;
+	}
 
 	ZeroMemory(&m_OFN, sizeof(OPENFILENAME));
 	m_OFN.lStructSize = sizeof(OPENFILENAME);
@@ -48,7 +51,7 @@ FileNameHandler::FileNameHandler(LPCTSTR szSectionName,
 	m_OFN.nMaxFile = 300;
 	m_OFN.lpstrFileTitle = m_szFileTitle;
 	m_OFN.nMaxFileTitle = 300;
-	m_OFN.lpstrInitialDir = m_szCurrentDirectory;
+	m_OFN.lpstrInitialDir = m_szCurrentDirectory.string().c_str();
 	m_OFN.lpstrFilter = szFilter;
 	m_OFN.lpstrDefExt = szDefExt;
 	m_OFN.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
@@ -57,7 +60,7 @@ FileNameHandler::FileNameHandler(LPCTSTR szSectionName,
 
 FileNameHandler::~FileNameHandler()
 {
-	SetDefaultDirectory(m_szCurrentDirectory);
+	SetDefaultDirectory(m_szCurrentDirectory.string().c_str());
 }
 
 // Get the default directory from the system
@@ -205,7 +208,9 @@ BOOL FileNameHandler::GetOpenName(HWND hwnd, LPTSTR szOutBuffer)
 		lstrcpyn(szOutBuffer, m_szFile, IO::Path::kMaxPathLen);
 
 		// Copy the current directory
-		GetCurrentDirectory(m_szCurrentDirectory);
+		char current[128];
+		GetCurrentDirectory(current);
+		m_szCurrentDirectory = current;
 		return TRUE;
 	} else {
 		return FALSE;
@@ -227,7 +232,9 @@ BOOL FileNameHandler::GetSaveName(HWND hwnd, LPTSTR szOutBuffer)
 		lstrcpyn(szOutBuffer, m_szFile, IO::Path::kMaxPathLen);
 
 		// Copy the current directory
-		GetCurrentDirectory(m_szCurrentDirectory);
+		char current[256];
+		GetCurrentDirectory(current);
+		m_szCurrentDirectory = current;
 		return TRUE;
 	} else {
 		return FALSE;

@@ -319,7 +319,7 @@ bool IIniFile::Open( const std::filesystem::path filename )
 	char		readinfo[BUFFER_LEN+1];
 	const char	trim_chars[]="{}[]"; //remove first and last character
 
-	FILE * fh( fopen( filename.c_str(), "r" ) );
+	FILE * fh( fopen( filename.string().c_str(), "r" ) );
 	if (fh == NULL)
 	{
 		return false;

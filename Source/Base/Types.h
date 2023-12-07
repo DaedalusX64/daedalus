@@ -85,4 +85,8 @@ union REG32
 #define DATA_ALIGN	16
 #define CACHE_ALIGN	64
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
+
 #endif // UTILITY_DAEDALUSTYPES_H_

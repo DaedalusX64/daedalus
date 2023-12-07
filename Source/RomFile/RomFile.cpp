@@ -52,7 +52,7 @@ bool IsRomfilename( const char * rom_filename )
 
 std::shared_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
 {
-	const char * ext = IO::Path::FindExtension( filename.c_str() );
+	const char * ext = IO::Path::FindExtension( filename.string().c_str() );
 	if (ext && strcasecmp(ext, ".zip") == 0)
 	{
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
@@ -82,7 +82,7 @@ bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages
 {
 	if( !LoadRawData( bytes_to_read, p_bytes, messages ) )
 	{
-		messages << "Unable to get rom info from '" << mFilename.c_str() << "'";
+		messages << "Unable to get rom info from '" << mFilename.string().c_str() << "'";
 		return false;
 	}
 

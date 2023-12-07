@@ -38,8 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace
 {
-
-
 //
 
 EExpansionPakUsage	ExpansionPakUsageFromString( const char * str )
@@ -155,7 +153,7 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 	mpInstance = std::make_shared<IRomSettingsDB>();
 	std::filesystem::path p = baseDir;
 	p /= "roms.ini";
-	 const char *ini_filename = p.c_str();
+	const char *ini_filename = p.string().c_str();
 
 	mpInstance->OpenSettingsFile( ini_filename );
 
@@ -339,7 +337,7 @@ void IRomSettingsDB::Commit()
 		return;
 	}
 
-	FILE * fh_dst = fopen(filename_tmp.c_str(), "w");
+	FILE * fh_dst = fopen(filename_tmp.string().c_str(), "w");
 	if (fh_dst == nullptr)
 	{
 		fclose(fh_src);

@@ -434,7 +434,7 @@ bool CPU_RequestSaveState( const std::filesystem::path &filename )
 	}
 
 	gSaveStateOperation = SSO_SAVE;
-	gSaveStateFilename = filename;
+	gSaveStateFilename = filename.string();
 	gCPUState.AddJob(CPU_CHANGE_CORE);
 
 	return true;
@@ -453,7 +453,7 @@ bool CPU_RequestLoadState( const std::filesystem::path &filename )
 	}
 
 	gSaveStateOperation = SSO_LOAD;
-	gSaveStateFilename = filename;
+	gSaveStateFilename = filename.string();
 	gCPUState.AddJob(CPU_CHANGE_CORE);
 
 	return true;	// XXXX could fail

@@ -290,14 +290,11 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	// Always clear when parsing a new ROM
 	CheatCodes_Clear();
 
-	 std::filesystem::path p("cheat_file");
-	 const char *cheat_file = p.c_str();
-
-	stream = fopen(cheat_file, "rt");
+	stream = fopen("cheat_file", "rt");
 	if(stream == nullptr)
 	{
 		// File does not exist, try to create a new empty one
-		stream = fopen(cheat_file, "wt");
+		stream = fopen("cheat_file", "wt");
 
 		if(stream == nullptr)
 		{

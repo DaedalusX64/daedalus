@@ -111,8 +111,9 @@ bool initgl()
 		size_t l = ftell(fh);
 		fseek(fh, 0, SEEK_SET);
 		char * p = (char *)malloc(l+1);
-		fread(p, l, 1, fh);
-		p[l] = 0;
+		fread(p, 1, l, fh);
+		while (p[l] != 0x0A)
+			p[l--] = 0;
 		fclose(fh);
 
 		gN64FramentLibrary = p;

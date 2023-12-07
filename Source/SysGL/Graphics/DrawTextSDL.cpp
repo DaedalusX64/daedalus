@@ -43,7 +43,7 @@ u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_
 	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
 
 	TTF_Font *font(gFonts[font_type]);
-	if (font)
+	if (font && p_str[0] != '\0')
 	{
         SDL_Color c {colour.GetR(), colour.GetG(), colour.GetB()};
         SDL_Color dc {drop_colour.GetR(), drop_colour.GetG(), drop_colour.GetB()};

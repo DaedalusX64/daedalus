@@ -950,7 +950,7 @@ static void Patch_FlushCache()
 
 	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "SaveGames/Cache");
 
-	FILE *fp = fopen(name.c_str(), "wb");
+	FILE *fp = fopen(name.string().c_str(), "wb");
 
 	if (fp != nullptr)
 	{
@@ -1003,7 +1003,7 @@ static bool Patch_GetCache()
 {
 
 	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "SaveGames/Cache");
-	FILE *fp = fopen(name.c_str(), "rb");
+	FILE *fp = fopen(name.string().c_str(), "rb");
 
 	if (fp != nullptr)
 	{

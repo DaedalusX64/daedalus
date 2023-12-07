@@ -48,7 +48,7 @@ EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression,
     #define DAEDALUS_HALT			__asm__ __volatile__ ( "bkpt" )
 
 #elif DAEDALUS_W32 // Ugh this needs simplifying
-    #include "Sys32/Include/DaedalusW32.h" // Windows is special
+    //
     #define __PRETTY_FUNCTION__ __FUNCTION__
     #define _CRT_SECURE_NO_DEPRECATE
     #define _DO_NOT_DECLARE_INTERLOCKED_INTRINSICS_IN_MEMORY

@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <Shlwapi.h>
 #include <io.h>
 
+const std::filesystem::path baseDir = std::filesystem::current_path();
 
 namespace IO
 {

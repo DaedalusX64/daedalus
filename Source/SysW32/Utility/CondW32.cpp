@@ -1,3 +1,4 @@
+#include "windows.h"
 
 #include "Base/Types.h"
 #include "System/Condition.h"
@@ -55,7 +56,8 @@ void CondWait(Cond * cond, Mutex * mutex, double timeout)
     EnterCriticalSection( &cv->waiters_count_lock );
     cv->waiters_count ++;
     LeaveCriticalSection( &cv->waiters_count_lock );
-    LeaveCriticalSection( &mutex->cs );
+    
+    mutex->Unlock();
 
 	if (timeout <= 0)
 	{
@@ -78,7 +80,7 @@ void CondWait(Cond * cond, Mutex * mutex, double timeout)
         ResetEvent( cv->events[ COND_BROADCAST ] );
     }
 
-    EnterCriticalSection( &mutex->cs );
+    mutex->Lock();
 }
 
 void CondSignal(Cond * cond)

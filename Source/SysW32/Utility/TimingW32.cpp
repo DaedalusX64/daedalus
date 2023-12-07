@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include "System/Timing.h"
 
+#include <windows.h>
 namespace NTiming {
 
 bool GetPreciseFrequency( u64 * p_freq )

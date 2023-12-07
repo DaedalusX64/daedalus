@@ -106,7 +106,7 @@ struct SRomInfo
 				std::string game_name;
 				if ( !ROM_GetRomName( filename, game_name ) )
 				{
-					game_name = IO::Path::FindFileName( filename.c_str() );
+					game_name = IO::Path::FindFileName( filename.string().c_str() );
 				}
 				game_name = game_name.substr(0, 63);
 				mSettings.GameName = game_name.c_str();
@@ -446,7 +446,7 @@ void IRomSelectorComponent::RenderRomList()
 		const char *	p_gamename;
 		if( mDisplayFilenames )
 		{
-			p_gamename = mRomsList[ i ]->mFilename.c_str();
+			p_gamename = mRomsList[ i ]->mFilename.string().c_str();
 		}
 		else
 		{
@@ -656,7 +656,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		{
 			if(mCurrentSelection < mRomsList.size())
 			{
-				mSelectedRom = mRomsList[ mCurrentSelection ]->mFilename;
+				mSelectedRom = mRomsList[ mCurrentSelection ]->mFilename.string();
 
 				if(OnRomSelected != NULL)
 				{
@@ -670,7 +670,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		{
 			if(mCurrentSelection < mRomsList.size())
 			{
-				mSelectedRom = mRomsList[ mCurrentSelection ]->mFilename;
+				mSelectedRom = mRomsList[ mCurrentSelection ]->mFilename.string();
 				mRomDelete = true;
 			}
 		}

@@ -71,7 +71,7 @@ bool Save_Reset()
 	{
 		gSaveFileName = Save_As(g_ROM.mFileName, ext, "SaveGames/");
 		
-		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
+		FILE * fp = fopen(gSaveFileName.string().c_str(), "rb");
 		if (fp != nullptr)
 		{
 			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName.c_str());
@@ -99,7 +99,7 @@ bool Save_Reset()
 	// init mempack, we always assume the presence of the mempack for simplicity 
 	{	
 		gSaveFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
-		FILE * fp = fopen(gSaveFileName.c_str(), "rb");
+		FILE * fp = fopen(gSaveFileName.string().c_str(), "rb");
 		if (fp != nullptr)
 		{
 			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gSaveFileName.c_str());
@@ -142,7 +142,7 @@ void Save_Flush()
 	{
 		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName.c_str());
 
-		FILE * fp = fopen(gSaveFileName.c_str(), "wb");
+		FILE * fp = fopen(gSaveFileName.string().c_str(), "wb");
 		if (fp != nullptr)
 		{
 			u8 buffer[2048];

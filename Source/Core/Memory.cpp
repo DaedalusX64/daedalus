@@ -40,6 +40,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/AudioPlugin.h"
 #include "HLEGraphics/GraphicsPlugin.h"
 
+#ifdef DAEDALUS_W32
+#include <windows.h>
+#endif
+
 static const u32	kMaximumMemSize = MEMORY_8_MEG;
 
 #undef min

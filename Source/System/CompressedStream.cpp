@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 COutStream::COutStream( const std::filesystem::path filename )
 :	mBufferCount( 0 )
-,	mFile( gzopen( filename.c_str(), "wb" ) )
+,	mFile( gzopen( filename.string().c_str(), "wb" ) )
 {
 }
 
@@ -121,7 +121,7 @@ void	COutStream::Reset()
 CInStream::CInStream( const std::filesystem::path filename )
 :	mBufferOffset( 0 )
 ,	mBytesAvailable( 0 )
-,	mFile( gzopen( filename.c_str(), "rb" ) )
+,	mFile( gzopen( filename.string().c_str(), "rb" ) )
 {
 }
 

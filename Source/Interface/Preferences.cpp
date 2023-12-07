@@ -85,7 +85,7 @@ class IPreferences : public CPreferences
 		PreferencesMap			mPreferences;
 
 		bool					mDirty;				// (STRMNNRMN - Changed since read from disk?)
-		std::string				mFilename;
+		std::filesystem::path	mFilename;
 };
 
 template<> bool	CSingleton< CPreferences >::Create()
@@ -105,10 +105,8 @@ CPreferences::~CPreferences()
 IPreferences::IPreferences()
 :	mDirty( false )
 {
-
-	std::filesystem::path p = baseDir;
-	p /= "preferences.ini";
-	 const char *ini_filename = p.c_str();
+	char ini_filename[128];
+	IO::Path::Combine(ini_filename, baseDir.string().c_str(), "preferences.ini");
 	OpenPreferencesFile( ini_filename );
 }
 
@@ -329,7 +327,7 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 // Write out the .ini file, keeping the original comments intact
 void IPreferences::Commit()
 {
-	FILE * fh( fopen(mFilename.c_str(), "w") );
+	FILE * fh( fopen(mFilename.string().c_str(), "w") );
 	if (fh != NULL)
 	{
 		const SGlobalPreferences	defaults;

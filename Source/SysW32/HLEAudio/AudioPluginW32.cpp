@@ -22,9 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include "HLEAudio/AudioPlugin.h"
 
-#include <mmsystem.h>
-#include <dsound.h>
-
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/Interrupt.h"
@@ -34,6 +31,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/HLEAudioInternal.h"
 #include "Utility/FastMemcpy.h"
 #include "System/Thread.h"
+
+#define INITGUID
+
+#include <windows.h>
+#include <mmsystem.h>
+#include <dsound.h>
 
 //This is disabled, it doesn't work well, causes random deadlocks/Lock failures :(
 //Would be nice to get it working correctly, since running audio in the main thread is abit jerky
@@ -55,11 +58,8 @@ inline void Soundmemcpy(void * dest, const void * src, size_t count)
 
 class CAudioPluginW32 : public CAudioPlugin
 {
-private:
-	CAudioPluginW32();
 public:
-	static CAudioPluginW32 *		Create();
-
+	CAudioPluginW32();
 
 	virtual ~CAudioPluginW32();
 	virtual bool			StartEmulation();
@@ -84,7 +84,7 @@ private:
 	DSBPOSITIONNOTIFY    rgdscbpn[NUMCAPTUREEVENTS+1];
 
 	void SetupDSoundBuffers();
-	bool CAudioPluginW32::FillBufferWithSilence( LPDIRECTSOUNDBUFFER lpDsb );
+	bool FillBufferWithSilence( LPDIRECTSOUNDBUFFER lpDsb );
 
 	void FillSectionWithSilence( int buffer );
 	void FillBuffer            ( int buffer );
@@ -111,14 +111,6 @@ CAudioPluginW32::CAudioPluginW32()
 //*****************************************************************************
 CAudioPluginW32::~CAudioPluginW32()
 {
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-CAudioPluginW32 *	CAudioPluginW32::Create()
-{
-	return new CAudioPluginW32();
 }
 
 //*****************************************************************************
@@ -369,9 +361,9 @@ EProcessResult	CAudioPluginW32::ProcessAList()
 //*****************************************************************************
 //
 //*****************************************************************************
-CAudioPlugin *		CreateAudioPlugin()
+std::unique_ptr<CAudioPlugin> CreateAudioPlugin()
 {
-	return CAudioPluginW32::Create();
+	return std::make_unique<CAudioPluginW32>();
 }
 
 void CAudioPluginW32::SetupDSoundBuffers(void) {

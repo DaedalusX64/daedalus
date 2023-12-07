@@ -52,7 +52,7 @@ bool ROMFileUncompressed::Open( COutputStream & messages )
 	DAEDALUS_ASSERT( mFH == NULL, "Opening the file twice?" );
 	#endif
 	// Open the file and read in the data
-	mFH = fopen( mFilename.c_str(), "rb" );
+	mFH = fopen( mFilename.string().c_str(), "rb" );
 	if(mFH == NULL)
 	{
 		return false;

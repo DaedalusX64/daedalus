@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <algorithm>
 
 //Windows Xinput support 
-#ifdef DAEDALUS_WIN32
+#ifdef DAEDALUS_W32
 #include <iostream>
 #include <Windows.h>
 #include <Xinput.h>
@@ -128,7 +128,7 @@ private:
 	void GetJoyPad(OSContPad *pPad);
 	bool mGamePadAvailable;
 #endif
-#ifdef DAEDALUS_WIN32
+#ifdef DAEDALUS_W32
 
 	CXBOXController* Player1;
 	CXBOXController* Player2;
@@ -167,7 +167,7 @@ static void CheckPadStatusVblHandler( void * arg )
 
 bool IInputManager::Initialise()
 {
-#ifdef DAEDALUS_WIN32
+#ifdef DAEDALUS_W32
 	Player1 = new CXBOXController(1);
 	if (Player1->IsConnected()){
 		std::cout << "Xinput device detected! ";
@@ -293,7 +293,7 @@ void IInputManager::GetState( OSContPad pPad[4] )
 		if (keys [ SDL_SCANCODE_PAGEDOWN ] ){  pPad[0].button |= R_CBUTTONS;}
 	}
 
-#ifdef DAEDALUS_WIN32
+#ifdef DAEDALUS_W32
 	if (Player1->IsConnected())
 	{
 #define XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  7849

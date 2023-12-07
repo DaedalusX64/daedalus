@@ -76,7 +76,18 @@ static bool InitAudioPlugin()
 	{
 		gAudioPlugin = std::move(audio_plugin);
 	}
+	gAudioPlugin->StartEmulation();
 	return true;
+}
+
+static void DisposeAudioPlugin()
+{
+	if ( gAudioPlugin != NULL )
+	{
+		gAudioPlugin->StopEmulation();
+		gAudioPlugin.release();
+		gAudioPlugin = NULL;
+	}
 }
 
 static bool InitGraphicsPlugin()
@@ -97,10 +108,11 @@ static void DisposeGraphicsPlugin()
 	if ( gGraphicsPlugin != NULL )
 	{
 		gGraphicsPlugin->RomClosed();
-		// delete gGraphicsPlugin;
+		gGraphicsPlugin.release();
 		gGraphicsPlugin = NULL;
 	}
 }
+
 
 struct SysEntityEntry
 {

@@ -110,8 +110,8 @@ namespace
 		snprintf( sub_path, sizeof(sub_path), "SaveStates/%s", slot_path);
 		if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
 		{
-			IO::Path::Combine( path, gDaedalusExePath.c_str(), sub_path );
-			IO::Path::Combine( png_path, gDaedalusExePath.c_str(), sub_path );
+			IO::Path::Combine( path, gDaedalusExePath.string().c_str(), sub_path );
+			IO::Path::Combine( png_path, gDaedalusExePath.string().c_str(), sub_path );
 			std::filesystem::exists(path);	// Ensure this dir exists
 		}
 		else
@@ -377,8 +377,8 @@ void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
 			std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
 	if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
 	{
-		IO::Path::Combine( path, gDaedalusExePath.c_str(), sub_path );
-		IO::Path::Combine( png_path, gDaedalusExePath.c_str(), sub_path );
+		IO::Path::Combine( path, gDaedalusExePath.string().c_str(), sub_path );
+		IO::Path::Combine( png_path, gDaedalusExePath.string().c_str(), sub_path );
 	}
 	else
 	{

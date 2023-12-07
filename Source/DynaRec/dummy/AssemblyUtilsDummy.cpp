@@ -29,6 +29,7 @@ namespace AssemblyUtils
 //*****************************************************************************
     bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
     {
+        return false;
     }
         
 //*****************************************************************************
@@ -36,6 +37,6 @@ namespace AssemblyUtils
 //*****************************************************************************
     bool	PatchJumpLongAndFlush( CJumpLocation jump, CCodeLabel target )
     {
-
+        return false;
     }
 }
