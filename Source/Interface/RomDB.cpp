@@ -172,9 +172,8 @@ template<> bool	CSingleton< CRomDB >::Create()
 	mpInstance = std::make_shared<IRomDB>();
 	std::filesystem::path p = baseDir;
 	p /= "rom.db";
-	const char *romdb_filename = p.string().c_str();
 
-	/*ret = */mpInstance->OpenDB( romdb_filename );
+	/*ret = */mpInstance->OpenDB( p );
 
 	return true;
 }

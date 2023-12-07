@@ -1007,7 +1007,7 @@ static bool Patch_GetCache()
 
 	if (fp != nullptr)
 	{
-		DBGConsole_Msg(0, "Read from OSHLE cache: %s", name.c_str());
+		DBGConsole_Msg(0, "Read from OSHLE cache: %s", name.string().c_str());
 		u32 data;
 
 		fread(&data, 1, sizeof(data), fp);

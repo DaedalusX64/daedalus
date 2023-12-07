@@ -65,7 +65,7 @@ ThreadHandle CreateThread( const char * name, DaedThread function, void * argume
 	if(h != NULL)
 	{
 		ResumeThread( h );
-		return reinterpret_cast< s32 >( h );
+		return reinterpret_cast< ThreadHandle >( h );
 	}
 
 	return 0;
@@ -137,7 +137,7 @@ void ThreadYield()
 	::Sleep( 0 );
 }
 
-void TerminateThread(long handle)
+void TerminateThread(HANDLE handle)
 {
 	::TerminateThread((HANDLE)handle, 0);
 }

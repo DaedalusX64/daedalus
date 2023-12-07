@@ -311,7 +311,7 @@ bool RomBuffer::Open()
 		sRomFixed = false;
 	}
 
-	DBGConsole_Msg(0, "Opened [C%s]\n", filename.c_str());
+	DBGConsole_Msg(0, "Opened [C%s]\n", filename.string().c_str());
 	sRomLoaded = true;
 	return true;
 }

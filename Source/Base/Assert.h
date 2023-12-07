@@ -37,8 +37,6 @@ enum EAssertResult
 	AR_BREAK,
 };
 
-EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... );
-
 #ifdef DAEDALUS_PSP
     #define DAEDALUS_HALT			__asm__ __volatile__ ( "break" )
 #elif DAEDALUS_POSIX
@@ -48,18 +46,19 @@ EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression,
     #define DAEDALUS_HALT			__asm__ __volatile__ ( "bkpt" )
 
 #elif DAEDALUS_W32 // Ugh this needs simplifying
-    //
+    #include <crtdbg.h>
     #define __PRETTY_FUNCTION__ __FUNCTION__
     #define _CRT_SECURE_NO_DEPRECATE
     #define _DO_NOT_DECLARE_INTERLOCKED_INTRINSICS_IN_MEMORY
 
     #define DAEDALUS_THREAD_CALL_TYPE			__stdcall // Thread functions need to be __stdcall to work with the W32 api
     #define DAEDALUS_VARARG_CALL_TYPE			__cdecl // Vararg functions need to be __cdecl
-    #define DAEDALUS_HALT					__asm { int 3 }
+    #define DAEDALUS_HALT						_CrtDbgBreak()
 #else
 #error Unknown Platforn DAEDALUS_HALT should be defined in Base/Assert.h
 #endif
 
+EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... );
 
 //
 //	Use this api to override the default assert handler, e.g. for logging asserts during a batch process
