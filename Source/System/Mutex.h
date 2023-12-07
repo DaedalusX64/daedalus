@@ -69,31 +69,20 @@ public:
 
 	Mutex()
 	{
-		// pthread_mutex_init(&mMutex, NULL);
-		std::mutex mMutex;
-	}
-
-	explicit Mutex( const char * name )
-	{
-		std::mutex mMutex;
-		// pthread_mutex_init(&mMutex, NULL);
 	}
 
 	~Mutex()
 	{
-		// pthread_mutex_destroy(&mMutex);
 	}
 
 	void Lock()
 	{
-		// pthread_mutex_lock(&mMutex);
-			mMutex.lock();
+		mMutex.lock();
 	}
 
 	void Unlock()
 	{
-		// pthread_mutex_unlock(&mMutex);
-		 	mMutex.unlock();
+		mMutex.unlock();
 	}
 
 public:

@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Audio UCode lists
 // Dummy UCode Handler
 //
-static void SPU(AudioHLECommand command) {}
+static void SPU(AudioHLECommand) {}
 //
 //     ABI ? : Unknown or unsupported UCode
 //

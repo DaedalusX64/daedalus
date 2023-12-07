@@ -34,6 +34,7 @@ enum EProcessResult
 	PR_COMPLETED,	// Was processed synchronously, completed
 };
 
+void RSP_HLE_Reset();
 void RSP_HLE_ProcessTask();
 
 #endif // CORE_RSP_HLE_H_
