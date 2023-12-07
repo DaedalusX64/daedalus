@@ -58,7 +58,7 @@ We're on Discord, come catch up with the latest news. Chaos ensured. https://dis
  
 ## Credits
 - StrmnNrmn - For bringing this project to us
-- Kreationz, salvy, Corn, Chilly Willy, Azimer, Shinydude100 and missed folks for past contributions
+- Kreationz, Howard0Su salvy, Corn, Chilly Willy, Azimer, Shinydude100 and missed folks for past contributions
 - MasterFeizz for 3DS Support / ARM DynaRec
 - Xerpi / Rinnegatamante / TheOfficialFloW for PS Vita and ARM Contributions
 - z2442 & Wally: Compilation improvements and updating, optimizations

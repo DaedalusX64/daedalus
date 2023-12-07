@@ -77,12 +77,11 @@ class CAssemblyWriterX64
 				void				XOR(EIntelReg reg1, EIntelReg reg2, bool is64 = false);
 				void				NOT(EIntelReg reg1, bool is64 = false);
 
-				void				ADDI(EIntelReg reg, s32 data);
+				void				ADDI(EIntelReg reg, s32 data, bool is64 = false);
 				void				ADCI(EIntelReg reg, s32 data);
-				void				ANDI(EIntelReg reg, u32 data);
-				void				ORI(EIntelReg reg, u32 data);
-				void				XOR_I32(EIntelReg reg, u32 data);
-				void				XOR_I8(EIntelReg reg, u8 data);
+				void				ANDI(EIntelReg reg, u32 data, bool is64 = false);
+				void				ORI(EIntelReg reg, u32 data, bool is64 = false);
+				void				XORI(EIntelReg reg, u32 data, bool is64 = false);
 
 				void				SHLI(EIntelReg reg, u8 sa);
 				void				SHRI(EIntelReg reg, u8 sa);
@@ -164,8 +163,8 @@ class CAssemblyWriterX64
 				void				FILD_MEM( u32 * pmem );
 				void				FLD_MEMp32( u32 * pmem );
 				void				FSTP_MEMp32( u32 * pmem );
-				void				FLD_MEMp64( u32 * memlo, u32 * memhi );
-				void				FSTP_MEMp64( u32 * memlo, u32 * memhi );
+				void				FLD_MEMp64( u64 * pmem );
+				void				FSTP_MEMp64( u64 * pmem );
 				void				FISTP_MEMp( u32 * pmem );
 
 				void				FLD( u32 i );
