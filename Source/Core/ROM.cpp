@@ -636,7 +636,7 @@ const char * ROM_GetCountryNameFromID( u8 country_id )
 	return "?";
 }
 
-const u32 ROM_GetTvTypeFromID( u8 country_id )
+u32 ROM_GetTvTypeFromID( u8 country_id )
 {
 	for (u32 i = 0; i < g_CountryCodeInfo.size(); i++)
 	{

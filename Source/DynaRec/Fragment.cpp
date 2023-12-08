@@ -931,7 +931,7 @@ void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 
 void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 {
-	const int	STRBUF_LEN = 1024;
+	const int	STRBUF_LEN = 128;
 	char		strbuf[STRBUF_LEN+1];
 
 	const OpCode *	p_op( reinterpret_cast< const OpCode * >( buf ) );
@@ -1057,7 +1057,7 @@ void CFragment::DumpFragmentInfoHtml( FILE * fh, u64 total_cycles ) const
 			OpCode				op_code( entry.OpCode );
 			u32					branch_index( entry.BranchIdx );
 
-			char				buf[100];
+			char				buf[128];
 			SprintOpCodeInfo( buf, address, op_code );
 
 			bool				is_jump( address != last_address + 4 );

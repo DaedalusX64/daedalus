@@ -73,6 +73,7 @@ namespace
 		else
 			return rom_size <  8 * 1024 * 1024;
 #else
+		DAEDALUS_USE(rom_size);
 		return true;
 #endif
 	}

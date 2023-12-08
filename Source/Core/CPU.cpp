@@ -100,7 +100,7 @@ SCPUState *gPtrCPUState = (SCPUState*)0x10000;
  alignas(CACHE_ALIGN) SCPUState gCPUState;
 #endif
 
-const static bool	CPU_IsStateSimple();
+static bool	CPU_IsStateSimple();
 void (* g_pCPUCore)();
 
 using VblCallbackFn = void (*)(void * arg);
@@ -395,7 +395,7 @@ bool CPU_RomOpen()
 }
 
 
-static const bool	CPU_IsStateSimple()
+static bool	CPU_IsStateSimple()
 {
 	bool rsp_halted = !RSP_IsRunning();
 

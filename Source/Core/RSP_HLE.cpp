@@ -233,6 +233,7 @@ EProcessResult RSP_HLE_Jpeg(OSTask * task)
 
 EProcessResult RSP_HLE_CICX105(OSTask * task)
 {
+	DAEDALUS_USE(task);
     const u32 sum {sum_bytes(g_pu8SpImemBase, 0x1000 >> 1)};
 
     switch(sum)
@@ -270,6 +271,9 @@ EProcessResult RSP_HLE_Hvqm(OSTask * task)
 	hvqm2_decode_sp1_task(task);
 	return PR_COMPLETED;
 }
+
+void RSP_HLE_Reset()
+{}
 
 void RSP_HLE_ProcessTask()
 {

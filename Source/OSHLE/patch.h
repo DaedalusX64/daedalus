@@ -123,7 +123,7 @@ static PatchSignature	g_##name##_sig[] = {
 { numops, g_##label##_x, Patch_##label, firstop, partial, crc },
 
 #define END_PATCH_SIGNATURE_LIST() \
-{ 0, NULL, NULL, 0, 0 }         \
+{ 0, NULL, NULL, 0, 0, 0 }         \
 };
 ///////////////////////////////////////////////////////////////
 

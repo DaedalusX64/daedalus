@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void WriteValueInvalid( u32 address, u32 value )
 {
+	DAEDALUS_USE(value);
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DPF( DEBUG_MEMORY, "Illegal Memory Access Tried to Write To 0x%08x PC: 0x%08x", address, gCPUState.CurrentPC );
 	DBGConsole_Msg(0, "Illegal Memory Access: Tried to Write To 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
@@ -28,6 +29,7 @@ static void WriteValueInvalid( u32 address, u32 value )
 static void WriteValueMapped( u32 address, u32 value )
 {
 	bool missing;
+	DAEDALUS_USE(value);
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 	gTLBWriteHit++;
@@ -165,10 +167,12 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 // 0x0420 0000 to 0x042F FFFF DP Span Registers
 static void WriteValue_8420_842F( u32 address, u32 value )
 {
+	DAEDALUS_USE(address);
+	DAEDALUS_USE(value);
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Write to DP Span Registers is unhandled (0x%08x, PC: 0x%08x)",
 		address, gCPUState.CurrentPC);
-		#endif
+	#endif
 }
 
 
@@ -441,6 +445,8 @@ static void WriteValue_ROM( u32 address, u32 value )
 {
 	// Write to ROM support
 	// A Bug's Life and Toy Story 2 write to ROM, add support by storing written value which is used when reading from Rom.
+	DAEDALUS_USE(address);
+
 	DBGConsole_Msg(0, "[YWarning : Wrote to ROM ->] 0x%08x", value);
 	RomBuffer::SaveRomValue( value );
 }
