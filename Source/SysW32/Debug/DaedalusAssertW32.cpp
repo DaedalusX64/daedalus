@@ -18,7 +18,7 @@
 
 */
 
-
+#include <windows.h>
 #include "Base/Types.h"
 #include "Base/Assert.h"
 
@@ -59,16 +59,17 @@ EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression,
 
 EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... )
 {
-	char buffer[ 1024 ];
 	va_list va;
 	va_start(va, msg);
+
+	char buffer[ 1024 ];
 	vsnprintf( buffer, 1024, msg, va );
 	buffer[1023] = 0;
 	va_end(va);
 
-	CHAR text[1024];
+	char text[1024];
 
-	wsprintf( text, "Debug Assertion Failed!\n"
+	sprintf( text, "Debug Assertion Failed!\n"
 					"\n"
 					"File: %s\n"
 					"Line: %d\n"
@@ -82,7 +83,7 @@ EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression,
 					expression,
 					buffer );
 
-	int ret = ::MessageBox( NULL, text, "Assert", MB_ABORTRETRYIGNORE | MB_ICONERROR );
+	int ret = ::MessageBoxA( NULL, text, "Assert", MB_ABORTRETRYIGNORE | MB_ICONERROR );
 
 	if ( ret == IDIGNORE )
 		return AR_IGNORE;
