@@ -684,6 +684,10 @@ void	CAssemblyWriterX64::CALL_MEM_PLUS_REGx4( void * mem, EIntelReg reg )
 //*****************************************************************************
 void	CAssemblyWriterX64::RET()
 {
+	EmitWORD(0x5e41); //0:  41 5e                   pop    r14
+	EmitWORD(0x5f41); // 2:  41 5f                   pop    r15
+	EmitBYTE(0x5b); // 4:  5b                      pop    rbx
+	EmitBYTE(0x5d); // 5:  5d                      pop    rbp
 	EmitBYTE(0xC3);
 }
 

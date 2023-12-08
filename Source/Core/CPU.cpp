@@ -672,16 +672,15 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			//   N cycles, but that would have a small impact on framerate (it would
 			//   interrupt the dynamo tracer for instance)
 			// TODO(strmnnrmn): should register this with CPU_RegisterVblCallback.
-			if ((gVerticalInterrupts & 0x3F) == 0) // once every 60 VBLs
-				// Save_Flush();
+			 if ((gVerticalInterrupts & 0x3F) == 0) { // once every 60 VBLs
+			// 	Save_Flush();
+				for (size_t i = 0; i < gVblCallbacks.size(); ++i)
+				{
+					VblCallback & callback = gVblCallbacks[i];
+					callback.Fn(callback.Arg);
+				}
 
-				//TESTING
-			for (size_t i = 0; i < gVblCallbacks.size(); ++i)
-			{
-				VblCallback & callback = gVblCallbacks[i];
-				callback.Fn(callback.Arg);
 			}
-
 			HandleSaveStateOperationOnVerticalBlank();
 		}
 		break;

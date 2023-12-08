@@ -10,18 +10,12 @@ _EnterDynaRec PROC
 
 
     mov rax, rcx
-    mov rcx, rdx
+    mov rbx, rdx
     mov r15, r8
     mov r14, r9
 
-    call qword ptr [rax]
+    jmp rax
 
-    pop r14
-    pop r15
-    pop rbx
-    pop rbp
-
-    ret
 _EnterDynaRec ENDP
 
 END
