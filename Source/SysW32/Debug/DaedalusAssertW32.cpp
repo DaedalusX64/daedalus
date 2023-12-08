@@ -34,7 +34,7 @@ DaedalusAssertHook gAssertHook = NULL;
 EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... )
 {
 	va_list va;
-	va_start(va);
+	va_start(va, msg);
 
 	char buffer[ 1024 ];
 	vsnprintf( buffer, 1024, msg, va );
