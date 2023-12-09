@@ -49,7 +49,7 @@ u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_
 	{
         SDL_Color c {colour.GetR(), colour.GetG(), colour.GetB()};
         SDL_Color dc {drop_colour.GetR(), drop_colour.GetG(), drop_colour.GetB()};
-        SDL_Surface *surface = TTF_RenderText_Shaded(font, p_str, c, dc);
+        SDL_Surface *surface = TTF_RenderUTF8_Shaded(font, p_str, c, dc);
         SDL_Texture* Message = SDL_CreateTextureFromSurface(gSdlRenderer, surface);
 
         SDL_Rect Message_rect; //create a rect
