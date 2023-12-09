@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Matrix4x4.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
+#include "UI/PSPMenu.h"
 #include "UI/DrawText.h"
 #include "UI/UIContext.h"
 #include "UI/DrawTextUtilities.h"
@@ -96,6 +97,9 @@ class IUIContext : public CUIContext
 		CDrawText::EFont			mCurrentFont;
 		CColourPulser				mColourPulser;
 		c32							mBackgroundColour;
+		float						scaleX;
+		float						scaleY;
+
 };
 
 CUIContext::~CUIContext() {}
@@ -180,10 +184,10 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, c
 	);
 
 	SDL_Rect Message_rect; //create a rect
-	Message_rect.x = tl.x;  //controls the rect's x coordinate 
-	Message_rect.y = tl.y; // controls the rect's y coordinte
-	Message_rect.w = surface->w; // controls the width of the rect
-	Message_rect.h = surface->h; // controls the height of the rect
+	Message_rect.x = tl.x * scaleX;  //controls the rect's x coordinate 
+	Message_rect.y = tl.y * scaleY; // controls the rect's y coordinte
+	Message_rect.w = surface->w * scaleX; // controls the width of the rect
+	Message_rect.h = surface->h * scaleY; // controls the height of the rect
 
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(gSdlRenderer, surface);
 	SDL_RenderCopy(gSdlRenderer, Message, NULL, &Message_rect);
@@ -201,10 +205,10 @@ void	IUIContext::ClearBackground( c32 colour )
 void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 {
 	SDL_Rect rect;
-	rect.x = x;
-	rect.y = y;
-	rect.w = w;
-	rect.h = h;
+	rect.x = x * scaleX;
+	rect.y = y * scaleY;
+	rect.w = w * scaleX;
+	rect.h = h * scaleY;
 	SDL_SetRenderDrawColor(gSdlRenderer,
                            colour.GetR(),
                            colour.GetG(),
@@ -220,7 +224,7 @@ void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
                            colour.GetG(),
                            colour.GetG(),
                            colour.GetA());
-	SDL_RenderDrawLine(gSdlRenderer, x0, y0, x1, y1);
+	SDL_RenderDrawLine(gSdlRenderer, x0 * scaleX, y0 * scaleY, x1 * scaleX, y1 * scaleY);
 }
 
 
@@ -360,7 +364,8 @@ s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const c
 	return y - top;
 }
 
-//
+//TODO: Should be in draw text interface
+extern void DrawText_SetScale(float X, float Y);
 
 void	IUIContext::BeginRender()
 {
@@ -368,6 +373,14 @@ void	IUIContext::BeginRender()
 	
 	// Clear the screen
 	SDL_RenderClear(gSdlRenderer);
+
+	// Caculate the scaleX and scale Y
+	u32 display_width, display_height;
+	CGraphicsContext::Get()->ViewportType(&display_width, &display_height);
+	scaleX = display_width * 1.0f / SCREEN_WIDTH;
+	scaleY = display_height * 1.0f / SCREEN_HEIGHT;
+
+	DrawText_SetScale(scaleX, scaleY);
 }
 
 

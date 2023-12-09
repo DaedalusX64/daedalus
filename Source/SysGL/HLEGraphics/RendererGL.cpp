@@ -25,18 +25,6 @@ RendererGL *   gRendererGL = NULL;
 
 static bool gAccurateUVPipe = true;
 
-/* OpenGL 3.0 */
-using PFN_glGenVertexArrays = void (GLAPIENTRY *)(GLsizei n, GLuint *arrays);
-using PFN_glBindVertexArray = void (GLAPIENTRY *)(GLuint array);
-using PFN_glDeleteVertexArrays = void (GLAPIENTRY *)(GLsizei n, GLuint *arrays);
-// typedef void (GLAPIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
-// typedef void (GLAPIENTRY * PFN_glBindVertexArray)(GLuint array);
-// typedef void (GLAPIENTRY * PFN_glDeleteVertexArrays)(GLsizei n, GLuint *arrays);
-
-static PFN_glGenVertexArrays            pglGenVertexArrays = NULL;
-static PFN_glBindVertexArray            pglBindVertexArray = NULL;
-static PFN_glDeleteVertexArrays         pglDeleteVertexArrays = NULL;
-
 // We read n64.psh into this.
 static const char * 					gN64FramentLibrary = NULL;
 
@@ -124,12 +112,9 @@ bool initgl()
 
 	// FIXME(strmnnrmn): we shouldn't need these with GLEW, but they don't seem to resolve on OSX.
     GLboolean status = GL_TRUE;
-   RESOLVE_GL_FCN(PFN_glGenVertexArrays, pglGenVertexArrays, "glGenVertexArrays");
-   RESOLVE_GL_FCN(PFN_glDeleteVertexArrays, pglDeleteVertexArrays, "glDeleteVertexArrays");
-   RESOLVE_GL_FCN(PFN_glBindVertexArray, pglBindVertexArray, "glBindVertexArray");
 
-	pglGenVertexArrays(1, &gVAO);
-	pglBindVertexArray(gVAO);
+	glGenVertexArrays(1, &gVAO);
+	glBindVertexArray(gVAO);
 
 	glGenBuffers(kNumBuffers, gVBOs);
 

@@ -1,6 +1,8 @@
 #include "SysGL/GL.h"
 #include "UI/DrawText.h"
 
+static float scaleX = 1.0f, scaleY = 1.0f;
+
 TTF_Font *gFonts[] =
 {
 		nullptr,
@@ -51,10 +53,10 @@ u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_
         SDL_Texture* Message = SDL_CreateTextureFromSurface(gSdlRenderer, surface);
 
         SDL_Rect Message_rect; //create a rect
-        Message_rect.x = x;  //controls the rect's x coordinate 
-        Message_rect.y = y; // controls the rect's y coordinte
-        Message_rect.w = surface->w * scale; // controls the width of the rect
-        Message_rect.h = surface->h * scale; // controls the height of the rect
+        Message_rect.x = x * scaleX;  //controls the rect's x coordinate 
+        Message_rect.y = y * scaleY; // controls the rect's y coordinte
+        Message_rect.w = surface->w * scaleX * scale; // controls the width of the rect
+        Message_rect.h = surface->h * scaleY * scale; // controls the height of the rect
 
         SDL_RenderCopy(gSdlRenderer, Message, NULL, &Message_rect);
 
@@ -109,4 +111,10 @@ s32 CDrawText::GetFontHeight(EFont font_type)
     }
 
 	return 0; // Return a reasonable value. Better off just returning 0?
+}
+
+void DrawText_SetScale(float X, float Y)
+{
+    scaleX = X;
+    scaleY = Y;
 }

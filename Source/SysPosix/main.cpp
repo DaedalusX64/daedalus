@@ -180,7 +180,7 @@ int main(int argc, char **argv)
 			System_Close();
 		}
 	}
-#ifdef DAEDALUS_LINUX
+
 	bool show_splash = true;
 	for (;;)
 	{
@@ -193,7 +193,6 @@ int main(int argc, char **argv)
 		CPU_Run();
 		System_Close();
 	}
-#endif
 
 	System_Finalize();
 	return result;
