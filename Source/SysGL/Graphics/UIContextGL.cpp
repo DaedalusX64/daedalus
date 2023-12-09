@@ -365,11 +365,16 @@ s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const c
 void	IUIContext::BeginRender()
 {
 	CGraphicsContext::Get()->BeginFrame();
+	
+	// Clear the screen
+	SDL_RenderClear(gSdlRenderer);
 }
 
 
 void	IUIContext::EndRender()
 {
+	SDL_RenderPresent(gSdlRenderer);
+
 	CGraphicsContext::Get()->EndFrame();
 	CGraphicsContext::Get()->UpdateFrame( true );
 }

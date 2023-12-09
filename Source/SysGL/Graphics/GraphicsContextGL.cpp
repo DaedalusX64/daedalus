@@ -115,14 +115,14 @@ bool GraphicsContextGL::Initialise()
 	//Create window
 	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
 
-    gSdlRenderer = SDL_CreateRenderer(gWindow, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC) ;
-
 	//Create context
 	SDL_GLContext gContext = SDL_GL_CreateContext( gWindow );
 
 	SDL_GL_MakeCurrent(gWindow, gContext);
 
 	SDL_GL_SetSwapInterval(1);
+
+	gSdlRenderer = SDL_CreateRenderer(gWindow, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC) ;
 
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)
