@@ -168,8 +168,13 @@ if(DAEDALUS_SDL)
 
 	if(NOT PSP)
 		# PSP is not needed as it uses built-in native font
-		find_package(SDL2_ttf REQUIRED)
-		link_libraries(SDL2_ttf::SDL2_ttf)
+		find_package(SDL2_ttf QUIET)
+		if(SDL2_ttf_FOUND)
+			link_libraries(SDL2_ttf::SDL2_ttf)
+		else()
+			PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf>=2.0.0)
+			link_libraries(${SDL2_TTF_LIBRARIES})
+		endif()
 	endif()
 endif(DAEDALUS_SDL)
 
