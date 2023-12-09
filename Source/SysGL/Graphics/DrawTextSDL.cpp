@@ -13,7 +13,7 @@ DAEDALUS_STATIC_ASSERT(ARRAYSIZE(gFonts) == CDrawText::NUM_FONTS);
 void CDrawText::Initialise()
 {
     gFonts[CDrawText::F_REGULAR] = TTF_OpenFont("Resources/OpenSans.ttf", 12);
-    gFonts[CDrawText::F_LARGE_BOLD] = TTF_OpenFont("Resources/OpenSans.ttf", 24);
+    gFonts[CDrawText::F_LARGE_BOLD] = TTF_OpenFont("Resources/OpenSans.ttf", 22);
     TTF_SetFontStyle(gFonts[CDrawText::F_LARGE_BOLD], TTF_STYLE_BOLD);
 
     if (gFonts[0] == 0)
@@ -107,7 +107,7 @@ s32 CDrawText::GetFontHeight(EFont font_type)
 	TTF_Font *font(gFonts[font_type]);
 	if (font)
 	{
-        return TTF_FontHeight(font);
+        return TTF_FontAscent(font);
     }
 
 	return 0; // Return a reasonable value. Better off just returning 0?
@@ -115,6 +115,7 @@ s32 CDrawText::GetFontHeight(EFont font_type)
 
 void DrawText_SetScale(float X, float Y)
 {
+    //TODO: we can scale the font size?
     scaleX = X;
     scaleY = Y;
 }
