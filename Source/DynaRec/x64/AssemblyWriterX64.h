@@ -78,6 +78,7 @@ class CAssemblyWriterX64
 				void				NOT(EIntelReg reg1, bool is64 = false);
 
 				void				ADDI(EIntelReg reg, s32 data, bool is64 = false);
+				void				SUBI(EIntelReg reg, s32 data, bool is64 = false);
 				void				ADCI(EIntelReg reg, s32 data);
 				void				ANDI(EIntelReg reg, u32 data, bool is64 = false);
 				void				ORI(EIntelReg reg, u32 data, bool is64 = false);
