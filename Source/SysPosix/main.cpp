@@ -68,7 +68,6 @@ void HandleEndOfFrame()
 	bool activate_pause_menu = false;
 	sceCtrlPeekBufferPositive(&pad, 1);
 
-#ifdef DAEDALUS_LINUX
 	// If KernelButtons.prx not found. Use select for pause instead
 	if (oldButtons != pad.Buttons)
 	{
@@ -100,8 +99,6 @@ void HandleEndOfFrame()
 		// Commit the preferences database before starting to run
 		// CPreferences::Get()->Commit();
 	}
-
-#endif
 
 //	Reset the elapsed time to avoid glitches when we restart
 #ifdef DAEDALUS_PROFILE_EXECUTION
