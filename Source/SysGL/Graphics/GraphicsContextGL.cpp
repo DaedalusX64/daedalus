@@ -122,8 +122,6 @@ bool GraphicsContextGL::Initialise()
 
 	SDL_GL_SetSwapInterval(1);
 
-	gSdlRenderer = SDL_CreateRenderer(gWindow, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC) ;
-
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)
 	{
@@ -212,6 +210,7 @@ void GraphicsContextGL::EndFrame()
 
 void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	SDL_GL_SwapWindow(gWindow);
 
 //	if( gCleanSceneEnabled ) //TODO: This should be optional

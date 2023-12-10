@@ -102,16 +102,19 @@ class IUIContext : public CUIContext
 
 };
 
-CUIContext::~CUIContext() {}
+CUIContext::~CUIContext() {
+	SDL_DestroyRenderer(gSdlRenderer);
+	gSdlRenderer = nullptr;
+}
 CUIContext *	CUIContext::Create() { return new IUIContext; }
-
-
 
 IUIContext::IUIContext()
 :	mCurrentFont( CDrawText::F_REGULAR )
 ,	mColourPulser( COLOUR_SELECTION_DIM, COLOUR_SELECTION_BRIGHT, MS_PER_COLOUR_CYCLE )
 ,	mBackgroundColour( 0,0,0 )
-{}
+{
+	gSdlRenderer = SDL_CreateRenderer(gWindow, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+}
 
 
 IUIContext::~IUIContext()
@@ -192,8 +195,7 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, c
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(gSdlRenderer, surface);
 	SDL_RenderCopy(gSdlRenderer, Message, NULL, &Message_rect);
 	SDL_FreeSurface(surface);
-
-	
+	SDL_DestroyTexture(Message);
 }
 
 
