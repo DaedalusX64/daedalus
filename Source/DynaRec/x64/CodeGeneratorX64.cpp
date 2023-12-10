@@ -706,8 +706,8 @@ void	CCodeGeneratorX64::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
 	if(dwCache == 0 && (dwAction == 0 || dwAction == 4))
 	{
 		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
-		MOVI(RDX_CODE, 0x20);
-		ADDI(RCX_CODE, offset);
+		MOVI(FIRST_PARAM_REG_CODE, 0x20);
+		ADDI(SECOND_PARAM_REG_CODE, offset);
 		CALL( CCodeLabel( reinterpret_cast< const void * >( CPU_InvalidateICacheRange ) ));
 	}
 	else
