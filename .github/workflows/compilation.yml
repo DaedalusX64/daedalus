@@ -139,7 +139,7 @@ jobs:
   build-ctr:
     env:
       DEVKITPRO: '/opt/devkitpro/'
-      DEVKITARM: '$DEVKITPRO/devkitARM/'
+      DEVKITARM: '/opt/devkitpro/devkitARM/'
     runs-on: ubuntu-latest
     container: devkitpro/devkitarm:latest
     steps:
