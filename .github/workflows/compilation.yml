@@ -170,10 +170,6 @@ jobs:
         run: | 
           ./build_daedalus.sh CTR
 
-      - name: Build CIA File
-        run: | 
-          3dsxtool daedalus DaedalusX64.3dsx --romfs="../Source/SysCTR/Resources/RomFS" --smdh="../Source/SysCTR/Resources/daedalus.smdh"
-          makerom -f cia -target t -execfslogo -o $PWD/DaedalusX64.cia -elf daedalus -rsf "../Source/SysCTR/Resources/template.rsf" -banner "../Source/SysCTR/Resources/banner.bnr" -icon "../Source/SysCTR/Resources/daedalus.smdh" -romfs "../Source/SysCTR/Resources/romfs.bin"
       - name: Prepare artifacts
         run: |
           tar -zcvf daedalusX64-CTR.tar.gz \
