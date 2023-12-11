@@ -142,20 +142,11 @@ jobs:
     env:
       DEVKITARM: /opt/devkitpro/devkitARM
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup DevkitARM
-        run: echo "DEVKITARM=${DEVKITARM} >> $GITHUB_ENV"
-      
-      - name: Check if DEVKITARM is set
-        run: |
-          if [ -z "$DEVKITARM" ]; then
-            echo "DEVKITARM is not set. Please set DEVKITARM in your workflow."
-            exit 1
-          fi
+      - uses: actions/checkout@v2 
 
       - name: Build PicaGL
         run: |
+            echo "DEVKITARM=${DEVKITARM} >> $GITHUB_ENV"
             git clone -b revamp https://github.com/masterfeizz/picaGL --depth=1
             cd picaGL
             make;sudo make install
