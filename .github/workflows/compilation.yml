@@ -146,7 +146,8 @@ jobs:
         run: |
             git clone -b revamp https://github.com/masterfeizz/picaGL --depth=1
             cd picaGL
-            export DEVKITARM=/opt/devkitpro/devkitARM/
+            export DEVKITPRO=/opt/devkitpro/
+            export DEVKITARM=$DEVKITPRO/devkitARM/
             make;sudo make install
       - name: Compile project
         run: | 
