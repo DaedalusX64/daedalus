@@ -276,19 +276,15 @@ namespace
 		{
 		}
 
-		virtual	void		OnNext()		{ if (gGlobalPreferences.DisplayFramerate < 3) gGlobalPreferences.DisplayFramerate++; }
-		virtual	void		OnPrevious()	{ if (gGlobalPreferences.DisplayFramerate > 0) gGlobalPreferences.DisplayFramerate--; }
+		virtual	void		OnNext()		{ gGlobalPreferences.DisplayFramerate = !gGlobalPreferences.DisplayFramerate; }
+		virtual	void		OnPrevious()	{ gGlobalPreferences.DisplayFramerate = !gGlobalPreferences.DisplayFramerate; }
 
 		virtual const char *	GetSettingName() const
 		{
-			switch ( gGlobalPreferences.DisplayFramerate )
-			{
-				case 0:		return "None";
-				case 1:		return "FPS";
-				case 2:		return "FPS + VB + SYNC";
-				case 3:		return "Render stats";
-			}
-			return "?";
+			if ( gGlobalPreferences.DisplayFramerate )
+				return "None";
+			else
+				return "None";
 		}
 	};
 

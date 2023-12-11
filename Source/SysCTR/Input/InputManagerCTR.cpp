@@ -316,7 +316,7 @@ bool IInputManager::Initialise()
 	}
 
 	char ControllerConfigs[128];
-	IO::Path::Combine(ControllerConfigs, baseDir, "CoontrollerConfigs");
+	IO::Path::Combine(ControllerConfigs, baseDir.string().c_str(), "CoontrollerConfigs");
 	LoadControllerConfigs(ControllerConfigs);
 
 	SetConfiguration(0);
