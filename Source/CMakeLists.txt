@@ -247,7 +247,7 @@ if(WIN32)
     set(APP_BANNER "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/banner.bnr")
     set(APP_AUDIO "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/audio_silent.wav")
     set(APP_RSF "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/template.rsf")
-    set(APP_ROMFS_DIR "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/RomFS")
+    set(APP_ROMFS_DIR "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/romfs")
     set(APP_ROMFS_BIN "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/romfs.bin")
 
     add_custom_command(
