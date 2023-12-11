@@ -157,6 +157,32 @@ jobs:
       - name: Compile project
         run: | 
           ./build_daedalus.sh CTR
+          cp build/Source/daedalus DaedalusX64
+
+      - name: Build CIA File
+        run: | 
+          cd DaedalusX64
+          3dsxtool daedalus DaedalusX64.3dsx --romfs="../Source/SysCTR/Resources/RomFS" --smdh="../Source/SysCTR/Resources/daedalus.smdh"
+          makerom -f cia -target t -execfslogo -o $PWD/DaedalusX64.cia -elf daedalus -rsf "../Source/SysCTR/Resources/template.rsf" -banner "../Source/SysCTR/Resources/banner.bnr" -icon "../Source/SysCTR/Resources/daedalus.smdh" -romfs "../Source/SysCTR/Resources/romfs.bin"
+      - name: Prepare artifacts
+        run: |
+          tar -zcvf daedalusX64-CTR.tar.gz \
+            DaedalusX64/DaedalusX64.cia \
+            DaedalusX64/DaedalusX64.3dsx \
+            DaedalusX64/roms.ini \
+            DaedalusX64/readme.txt \
+            DaedalusX64/copying.txt \
+            DaedalusX64/Resources \
+            DaedalusX64/Languages \
+            DaedalusX64/ControllerConfigs \ 
+
+      - name: Upload artifacts
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: daedalusX64-CTR
+          path: daedalusX64-CTR.tar.gz
+
   build-macos:
     runs-on: macOS-latest
     steps:
