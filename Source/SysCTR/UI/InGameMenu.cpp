@@ -39,7 +39,7 @@ static uint8_t currentPage = 0;
 static void ExecSaveState(int slot)
 {
 	IO::Filename full_path;
-	snprintf(full_path, sizeof(full_path) "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	snprintf(full_path, sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	CPU_RequestSaveState(full_path);
 }
