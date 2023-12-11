@@ -147,10 +147,10 @@ jobs:
         run: |
             apt-get update && \
             apt-get -y install g++ 
-            git clone https://github.com/3DSGuy/Project_CTR
+            git clone https://github.com/3DSGuy/Project_CTR --depth=1
             cd Project_CTR
             make
-            cp bin/makerom /usr/local/bin
+            cp __w/daedalus/daedalus/Project_CTR/makerom/bin/makerom /usr/local/bin
 
       - name: Build PicaGL
         run: |
