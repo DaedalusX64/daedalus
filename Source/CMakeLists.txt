@@ -239,45 +239,49 @@ if(WIN32)
 	endif(PSP)
 
 	if(CTR)
-	set(APP_TITLE "DaedalusX64")
-	set(APP_DESCRIPTION "DaedalusX64 port for 3DS")
-	set(APP_AUTHOR "MasterFeizz / DaedalusX64 Team")
+    set(APP_TITLE "DaedalusX64")
+    set(APP_DESCRIPTION "DaedalusX64 port for 3DS")
+    set(APP_AUTHOR "MasterFeizz / DaedalusX64 Team")
 
-	set(APP_SMDH "${PROJECT_SOURCE_DIR}/SysCTR/Resources/daedalus.smdh")
-	set(APP_BANNER "${PROJECT_SOURCE_DIR}/SysCTR/Resources/banner.bnr")
-	set(APP_AUDIO "${PROJECT_SOURCE_DIR}/SysCTR/Resources/audio_silent.wav")
-	set(APP_RSF "${PROJECT_SOURCE_DIR}/SysCTR/Resources/template.rsf")
-	set(APP_ROMFS_DIR "${PROJECT_SOURCE_DIR}/SysCTR/Resources/RomFS")
-	set(APP_ROMFS_BIN "${PROJECT_SOURCE_DIR}/SysCTR/Resources/romfs.bin")
+    set(APP_SMDH "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/daedalus.smdh")
+    set(APP_BANNER "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/banner.bnr")
+    set(APP_AUDIO "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/audio_silent.wav")
+    set(APP_RSF "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/template.rsf")
+    set(APP_ROMFS_DIR "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/RomFS")
+    set(APP_ROMFS_BIN "${PROJECT_SOURCE_DIR}/Source/SysCTR/Resources/romfs.bin")
 
-	add_custom_command(
-		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.3dsx
-		COMMAND 3dsxtool daedalus.elf DaedalusX64.3dsx --romfs=${APP_ROMFS_DIR} --smdh=${APP_SMDH}
-		DEPENDS daedalus.elf
-	)
-	
-	add_custom_command(
-		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.cia
-		COMMAND makerom -f cia
-			-target t
-			-exefslogo
-			-o ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.cia
-			-elf daedalus.elf
-			-rsf ${APP_RSF}
-			-banner ${APP_BANNER}
-			-icon ${APP_SMDH}
-			-romfs ${APP_ROMFS_BIN}
-		DEPENDS daedalus.elf ${APP_RSF}
-	)
-	
-	#  add_custom_target(N3DS ALL
-	#  	DEPENDS Daedalus.elf
-	# 			DaedalusX64.3dsx
-	#  			DaedalusX64.cia
-	#  )
-	
-	
-	endif(CTR)
+    add_custom_command(
+		TARGET daedalus
+		POST_BUILD COMMAND
+		3dsxtool daedalus.elf DaedalusX64.3dsx --romfs=${APP_ROMFS_DIR} --smdh=${APP_SMDH}
+       COMMENT "Calling 3dsxtool"
+		# DEPENDS daedalus.elf
+    )
+
+    add_custom_command(
+		TARGET daedalus
+		POST_BUILD COMMAND
+        # OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.cia
+       		makerom -f cia
+            -target t
+            -exefslogo
+            -o ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.cia
+            -elf daedalus.elf
+            -rsf ${APP_RSF}
+            -banner ${APP_BANNER}
+            -icon ${APP_SMDH}
+            -romfs ${APP_ROMFS_BIN}
+			COMMENT "Calling makerom"
+    )
+
+    # add_custom_target(N3DS ALL
+
+    #             ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.3dsx
+    #             ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.cia
+	# 			DEPENDS daedalus.elf
+    # )
+
+endif(CTR)
 	
 	## Install and setup basic directories
 	install(DIRECTORY DESTINATION DaedalusX64)

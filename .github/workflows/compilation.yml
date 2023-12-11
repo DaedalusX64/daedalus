@@ -142,26 +142,34 @@ jobs:
     steps:
       - uses: actions/checkout@v2 
 
+      # Needed to build CIA files
+      - name: build makerom
+        run: | 
+            git clone https://github.com/3DSGuy/Project_CTR
+            cd Project_CTR
+            make
+            cp bin/makerom /usr/local/bin
+
       - name: Build PicaGL
         run: |
             git clone -b revamp https://github.com/masterfeizz/picaGL --depth=1
             cd picaGL
             DEVKITARM='/opt/devkitpro/devkitARM' make 
             DEVKITARM='/opt/devkitpro/devkitARM' make install
+
       - name: Build imgui-picagl
         run: |
             git clone https://github.com/masterfeizz/imgui-picagl --depth=1
             cd imgui-picagl
             DEVKITARM='/opt/devkitpro/devkitARM' make 
             DEVKITARM='/opt/devkitpro/devkitARM' make install
+
       - name: Compile project
         run: | 
           ./build_daedalus.sh CTR
-          cp build/Source/daedalus DaedalusX64
 
       - name: Build CIA File
         run: | 
-          cd DaedalusX64
           3dsxtool daedalus DaedalusX64.3dsx --romfs="../Source/SysCTR/Resources/RomFS" --smdh="../Source/SysCTR/Resources/daedalus.smdh"
           makerom -f cia -target t -execfslogo -o $PWD/DaedalusX64.cia -elf daedalus -rsf "../Source/SysCTR/Resources/template.rsf" -banner "../Source/SysCTR/Resources/banner.bnr" -icon "../Source/SysCTR/Resources/daedalus.smdh" -romfs "../Source/SysCTR/Resources/romfs.bin"
       - name: Prepare artifacts
