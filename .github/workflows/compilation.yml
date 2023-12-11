@@ -144,7 +144,9 @@ jobs:
 
       # Needed to build CIA files
       - name: build makerom
-        run: | 
+        run: |
+            apt-get update && \
+            apt-get -y install g++ 
             git clone https://github.com/3DSGuy/Project_CTR
             cd Project_CTR
             make
