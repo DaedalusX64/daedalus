@@ -147,7 +147,7 @@ jobs:
       - name: Setup DevkitARM
         run: echo "DEVKITARM=${DEVKITARM} >> $GITHUB_ENV"
       
-        - name: Check if DEVKITARM is set
+      - name: Check if DEVKITARM is set
         run: |
           if [ -z "$DEVKITARM" ]; then
             echo "DEVKITARM is not set. Please set DEVKITARM in your workflow."
