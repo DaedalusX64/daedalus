@@ -136,7 +136,6 @@ jobs:
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
   build-macos:
     runs-on: macOS-latest
     steps:
@@ -201,3 +200,26 @@ jobs:
     #     tag_name: ${{ steps.tag.outputs.VERSION }}
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    runs-on: windows-latest
+    envs:
+      VCPKG_DEFAULT_TRIPLET: x64-windows
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Setup a new (or from cache) vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: aa628ceb5f15f0c30d4d481f14fa5b2be2b4a658
+          runVcpkgInstall: true
+
+      - name: Run CMake config
+        run: |
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=$ENV:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -G "Visual Studio 16 2019" -A x64
+    
+      - name: Build
+        run: |
+          cmake --build build --config Release

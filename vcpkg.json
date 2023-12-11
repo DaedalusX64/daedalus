@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "zlib",
+    "glew",
+    "libpng",
+    "sdl2",
+    "sdl2-ttf"
+  ]
+}
