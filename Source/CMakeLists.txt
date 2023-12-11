@@ -168,6 +168,7 @@ endif(CTR)
 if(DAEDALUS_SDL)
 	find_package(SDL2 CONFIG REQUIRED)
 	link_libraries(SDL2::SDL2)
+	link_libraries(${SDL2_LIBRARIES})
 
 	if(NOT PSP)
 		# PSP is not needed as it uses built-in native font
