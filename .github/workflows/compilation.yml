@@ -148,8 +148,9 @@ jobs:
             apt-get update && \
             apt-get -y install g++ libyaml-dev libmbedtls-dev
             git clone https://github.com/wally4000/Project_CTR --depth=1
-            cd Project_CTR/makerom
-            make; make install
+            cd Project_CTR/
+            make
+            cp makerom/bin/makerom /usr/local/bin
 
       - name: Build PicaGL
         run: |
