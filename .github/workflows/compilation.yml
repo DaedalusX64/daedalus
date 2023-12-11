@@ -178,9 +178,8 @@ jobs:
         run: |
           tar -zcvf daedalusX64-CTR.tar.gz \
             DaedalusX64/DaedalusX64.cia \
-           # DaedalusX64/DaedalusX64.3dsx \
             # DaedalusX64/Daedalus.cht \ 
-            DaedalusX64/roms.ini \
+            # DaedalusX64/roms.ini \
            # DaedalusX64/readme.txt \
            # DaedalusX64/copying.txt \
             # DaedalusX64/Resources \
