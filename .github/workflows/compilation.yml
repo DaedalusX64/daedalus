@@ -136,6 +136,20 @@ jobs:
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  build-ctr:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm:latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Compile project
+        run: |
+            git clone -b revamp https://github.com/masterfeizz/picaGL
+            cd picaGL
+            make; make install
+      - name: Compile project
+        run: | 
+          ./build_daedalus CTR
 
   build-macos:
     runs-on: macOS-latest
