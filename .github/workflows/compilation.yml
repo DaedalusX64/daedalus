@@ -145,9 +145,14 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup DevkitARM
-        run: | 
-            echo DEVKITARM=/opt/devkitpro/DEVKITARM >> ~/.profile
-            source ~/.profile
+        run: echo "DEVKITARM=${DEVKITARM} >> $GITHUB_ENV"
+      
+        - name: Check if DEVKITARM is set
+        run: |
+          if [ -z "$DEVKITARM" ]; then
+            echo "DEVKITARM is not set. Please set DEVKITARM in your workflow."
+            exit 1
+          fi
 
       - name: Build PicaGL
         run: |
