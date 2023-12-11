@@ -139,8 +139,6 @@ jobs:
   build-ctr:
     runs-on: ubuntu-latest
     container: devkitpro/devkitarm:latest
-    env:
-      DEVKITARM: /opt/devkitpro/devkitARM
     steps:
       - uses: actions/checkout@v2 
 
