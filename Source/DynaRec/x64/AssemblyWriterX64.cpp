@@ -739,7 +739,7 @@ void	CAssemblyWriterX64::MOV(EIntelReg reg1, EIntelReg reg2, bool is64)
 			u8 first_byte = 0x48;
 			if (reg2 >= R8_CODE) {
 				first_byte |= 0x1;
-				reg1 = EIntelReg(reg1 & 7);
+				reg2 = EIntelReg(reg2 & 7);
 			}
 			if (reg1 >= R8_CODE) {
 				first_byte |= 0x4;
