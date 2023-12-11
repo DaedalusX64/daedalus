@@ -1,19 +1,13 @@
+file(GLOB SRC_FILES Graphics/*.cpp HLEGraphics/*.cpp Input/*.cpp Interface/*.cpp)
 
-add_subdirectory(Graphics)
-add_subdirectory(HLEGraphics)
+add_library(SysGL OBJECT ${SRC_FILES})
 
-## These two should probably be in SysSDL2
-add_subdirectory(Input) 
-add_subdirectory(Interface)
+target_include_directories(SysGL PUBLIC ${OPENGL_INCLUDE_DIR})
+target_include_directories(SysGL PUBLIC ${GLEW_INCLUDE_DIRS})
+target_include_directories(SysGL PUBLIC ${SDL2_INCLUDE_DIRS})
+target_include_directories(SysGL PUBLIC ${SDL2_TTF_INCLUDE_DIRS})
 
+install(FILES ${PROJECT_SOURCE_DIR}/Source/SysGL/HLEGraphics/n64.psh DESTINATION DaedalusX64)
 
-    if (UNIX AND NOT APPLE)
-    list(APPEND sys_libraries "GL")
-endif()
-    list(APPEND sys_libraries "GLEW")
-
-
-set(sys_libraries ${sys_libraries} PARENT_SCOPE)
-
-list(APPEND daed_libs)
+list(APPEND daed_libs "SysGL")
 set(daed_libs ${daed_libs} PARENT_SCOPE)

@@ -315,10 +315,9 @@ bool IInputManager::Initialise()
 		mControllerConfigs.push_back( p_default_z_config );
 	}
 
-	std::filesystem::path ControllerConfigs = baseDir;
-	ControllerConfigs /= "CoontrollerConfigs";
-	// LoadControllerConfigs( DAEDALUS_CTR_PATH( "ControllerConfigs/" ) );
-	LoadControllerConfigs(ControllerConfigs.c_str());
+	char ControllerConfigs[128];
+	IO::Path::Combine(ControllerConfigs, baseDir.string().c_str(), "CoontrollerConfigs");
+	LoadControllerConfigs(ControllerConfigs);
 
 	SetConfiguration(0);
 

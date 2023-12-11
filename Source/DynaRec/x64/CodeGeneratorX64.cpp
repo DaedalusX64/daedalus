@@ -705,9 +705,9 @@ void	CCodeGeneratorX64::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
 	// dynarec system can be invalidated
 	if(dwCache == 0 && (dwAction == 0 || dwAction == 4))
 	{
-		MOV_REG_MEM(RCX_CODE, &gCPUState.CPU[base]._u32_0);
-		MOVI(RDX_CODE, 0x20);
-		ADDI(RCX_CODE, offset);
+		MOV_REG_MEM(FIRST_PARAM_REG_CODE, &gCPUState.CPU[base]._u32_0);
+		MOVI(SECOND_PARAM_REG_CODE, 0x20);
+		ADDI(FIRST_PARAM_REG_CODE, offset);
 		CALL( CCodeLabel( reinterpret_cast< const void * >( CPU_InvalidateICacheRange ) ));
 	}
 	else
@@ -728,8 +728,8 @@ void CCodeGeneratorX64::GenerateLoad(EN64Reg base, s16 offset, u8 twiddle, u8 bi
 	}
 	else
 	{
-		ADDI(RCX_CODE, offset);
-		XORI(RCX_CODE, twiddle);
+		ADDI(RCX_CODE, offset, true);
+		XORI(RCX_CODE, twiddle, true);
 		ADD(RCX_CODE, R15_CODE, true);
 		switch(bits)
 		{

@@ -195,14 +195,14 @@ bool RomBuffer::Open()
 	auto p_rom_file = ROMFile::Create( filename.c_str() );
 	if(p_rom_file == nullptr)
 	{
-		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename.c_str());
+		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename.string().c_str());
 		return false;
 	}
 
 	if( !p_rom_file->Open( messages ) )
 	{
 
-		DBGConsole_Msg(0, "Failed to open [C%s]\n", filename.c_str());
+		DBGConsole_Msg(0, "Failed to open [C%s]\n", filename.string().c_str());
 		return false;
 	}
 
@@ -312,7 +312,7 @@ bool RomBuffer::Open()
 		sRomFixed = false;
 	}
 
-	DBGConsole_Msg(0, "Opened [C%s]\n", filename.c_str());
+	DBGConsole_Msg(0, "Opened [C%s]\n", filename.string().c_str());
 	sRomLoaded = true;
 	return true;
 }

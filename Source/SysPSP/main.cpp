@@ -52,11 +52,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/TextureCache.h"
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/UI/MainMenuScreen.h"
-#include "SysPSP/UI/PauseScreen.h"
-#include "SysPSP/UI/SplashScreen.h"
-#include "SysPSP/UI/UIContext.h"
+#include "UI/DrawText.h"
+#include "UI/MainMenuScreen.h"
+#include "UI/PauseScreen.h"
+#include "UI/SplashScreen.h"
+#include "UI/UIContext.h"
 #include <iostream>
 
 #include "System/SystemInit.h"
@@ -66,7 +66,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
-#include "SysPSP/Utility/Translate.h"
+#include "Utility/Translate.h"
 #include "Utility/Timer.h"
 
 
@@ -174,7 +174,7 @@ void HandleEndOfFrame()
 	//Enter debug menu as soon as select is pressed
 	static u32 oldButtons = 0;
 	SceCtrlData pad;
-			bool		activate_pause_menu = false;
+	bool		activate_pause_menu = false;
 	sceCtrlPeekBufferPositive(&pad, 1);
 
 	// If KernelButtons.prx not found. Use select for pause instead

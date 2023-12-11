@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Path.h"
 
 #ifdef DAEDALUS_PSP
-#include "SysPSP/Utility/Translate.h"
+#include "Utility/Translate.h"
 #endif
 
 // Audio is disabled on the PSP by default, but enabled on other platforms.
@@ -85,7 +85,7 @@ class IPreferences : public CPreferences
 		PreferencesMap			mPreferences;
 
 		bool					mDirty;				// (STRMNNRMN - Changed since read from disk?)
-		std::string				mFilename;
+		std::filesystem::path	mFilename;
 };
 
 template<> bool	CSingleton< CPreferences >::Create()
@@ -105,10 +105,8 @@ CPreferences::~CPreferences()
 IPreferences::IPreferences()
 :	mDirty( false )
 {
-
-	std::filesystem::path p = baseDir;
-	p /= "preferences.ini";
-	 const char *ini_filename = p.c_str();
+	char ini_filename[128];
+	IO::Path::Combine(ini_filename, baseDir.string().c_str(), "preferences.ini");
 	OpenPreferencesFile( ini_filename );
 }
 
@@ -149,7 +147,7 @@ bool IPreferences::OpenPreferencesFile( const std::filesystem::path  &filename )
 
 		const SGlobalPreferences	defaults;
 
-		INT_SETTING( gGlobalPreferences, DisplayFramerate, defaults );
+		BOOL_SETTING( gGlobalPreferences, DisplayFramerate, defaults );
 		BOOL_SETTING( gGlobalPreferences, ForceLinearFilter, defaults );
 		BOOL_SETTING( gGlobalPreferences, RumblePak, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -329,7 +327,7 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 // Write out the .ini file, keeping the original comments intact
 void IPreferences::Commit()
 {
-	FILE * fh( fopen(mFilename.c_str(), "w") );
+	FILE * fh( fopen(mFilename.string().c_str(), "w") );
 	if (fh != NULL)
 	{
 		const SGlobalPreferences	defaults;
@@ -340,7 +338,7 @@ void IPreferences::Commit()
 #ifdef DAEDALUS_PSP
 #define OUTPUT_LANGUAGE( b, nm, def )	fprintf( fh, "%s=%s\n", #nm, Translate_NameFromIndex( b.nm ) );
 #endif
-		OUTPUT_INT( gGlobalPreferences, DisplayFramerate, defaults );
+		OUTPUT_BOOL( gGlobalPreferences, DisplayFramerate, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, ForceLinearFilter, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, RumblePak, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -405,7 +403,7 @@ void IPreferences::SetRomPreferences( const RomID & id, const SRomPreferences & 
 
 
 SGlobalPreferences::SGlobalPreferences()
-:	DisplayFramerate( 0 )
+:	DisplayFramerate( false )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 ,	HighlightInexactBlendModes( false )
 ,	CustomBlendModes( true )

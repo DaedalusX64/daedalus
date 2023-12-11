@@ -24,7 +24,7 @@ bool FileSink::Open(const std::filesystem::path &filename, const char * mode)
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(Handle == NULL, "Already have an open file");
 	#endif
-	Handle = fopen(filename.c_str(), mode);
+	Handle = fopen(filename.string().c_str(), mode);
 	return Handle != NULL;
 }
 

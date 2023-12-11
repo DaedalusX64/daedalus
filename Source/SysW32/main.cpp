@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
+#include <windows.h>
 
 #include "Base/Types.h"
 
@@ -33,20 +33,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"		// CProfiler::Create/Destroy
 
+#include "UI/UIContext.h"
+#include "Graphics/GraphicsContext.h"
+#include "UI/DrawText.h"
+#include "UI/PauseScreen.h"
+#include "UI/MainMenuScreen.h"
+
+void HandleEndOfFrame()
+{
+
+}
+
 int __cdecl main(int argc, char **argv)
 {
-	HMODULE hModule = GetModuleHandle(NULL);
-	if (hModule != NULL)
-	{
-		GetModuleFileName(hModule, gDaedalusExePath, ARRAYSIZE(gDaedalusExePath));
-		IO::Path::RemoveFileSpec(gDaedalusExePath);
-	}
-	else
-	{
-		fprintf(stderr, "Couldn't determine executable path\n");
-		return 1;
-	}
-
 	//ReadConfiguration();
 
 	int result = 0;
@@ -90,16 +89,24 @@ int __cdecl main(int argc, char **argv)
 		{
 			//Need absolute path when loading from Visual Studio
 			//This is ok when loading from console too, since arg0 will be empty, it'll just load file name (arg1)
-			IO::Path::Combine(rom_path, gDaedalusExePath, argv[1]);
-			fprintf(stderr, "Loading %s\n",rom_path);
-			System_Open(rom_path);
+			fprintf(stderr, "Loading %s\n",filename);
+			System_Open(filename);
 			CPU_Run();
 			System_Close();
 		}
 	}
-	else
+
+	bool show_splash = true;
+	for (;;)
 	{
-//		result = RunMain();
+		DisplayRomsAndChoose(show_splash);
+		show_splash = false;
+
+		CRomDB::Get()->Commit();
+		CPreferences::Get()->Commit();
+
+		CPU_Run();
+		System_Close();
 	}
 
 	//

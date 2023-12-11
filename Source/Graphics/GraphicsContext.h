@@ -47,11 +47,10 @@ public:
 
 	virtual bool IsInitialised() const = 0;
 
-#ifdef DAEDALUS_PSP
-	virtual void SwitchToChosenDisplay() = 0;
-	virtual void SwitchToLcdDisplay() = 0;
-	virtual void StoreSaveScreenData() = 0;
-#endif
+	virtual void SwitchToChosenDisplay() {};
+	virtual void SwitchToLcdDisplay() {};
+	virtual void StoreSaveScreenData() {};
+
 #ifdef DAEDALUS_CTR
 	virtual void ResetVertexBuffer() = 0;
 #endif

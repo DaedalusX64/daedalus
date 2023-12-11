@@ -4,11 +4,12 @@
 #include <GL/glew.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "Base/Types.h"
 
 extern SDL_Window * gWindow;
-
+extern SDL_Renderer * gSdlRenderer;
 // FIXME: burn all of this with fire.
 
 void sceGuFog(float mn, float mx, u32 col);

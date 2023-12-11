@@ -19,11 +19,12 @@ if(DEBUG)
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
 	option(DAEDALUS_LOG "Enable various logging" ON)
-	add_compile_options("-g")
+if(NOT WIN32)
 	add_compile_options("-Wall")
 	add_compile_options("-Wextra")
+endif()
 else()
-	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+	set(CMAKE_BUILD_TYPE Release)
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 endif()
@@ -44,6 +45,9 @@ endif()
 		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
 		message("x86_64 Dynarec Enabled")
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
+		message("AMD64 Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
 	else()
 		message("Platform unknown, Dynarec disabled")
@@ -106,27 +110,18 @@ endif()
 		option(DAEDALUS_DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)")
 		option(DAEDALUS_GL "OpenGL Renderer" ON)
 	elseif(WIN32)
-		option(DAEDALUS_WIN32 "Windows specific Options" ON)
+		option(DAEDALUS_SDL "SDL Build" ON)
+		option(DAEDALUS_W32 "Windows specific Options" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 		option(DAEDALUS_BREAKPOINTS_ENABLED "Enable Breakpoints" OFF)
 		option(DAEDALUS_GL "OpenGL Renderer" ON)
+		enable_language(CXX ASM_MASM)
 	elseif(CTR)
 		option(DAEDALUS_CTR "3DS Specific Options" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
 		option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
 	endif()
-
-	if(DAEDALUS_SDL)
-		find_package(SDL2 CONFIG REQUIRED)
-		list(APPEND default_libraries "${SDL2_LIBRARIES}")
-		list(APPEND include_dirs "${SDL2_INCLUDE_DIRS}")
-
-			if(DAEDALUS_GL) 
-				list(APPEND include_dirs "${PROJECT_SOURCE_DIR}/Source/third_party/imgui/" ) #This doesn't like being called from another file
-			endif(DAEDALUS_GL)
-
-	endif(DAEDALUS_SDL)
 
 	# Needed below the options to post process
 	include(${PROJECT_SOURCE_DIR}/Options.cmake) 
@@ -135,11 +130,13 @@ endif()
 	list(APPEND include_dirs "${PROJECT_SOURCE_DIR}/Source")
 	include_directories( BEFORE ${include_dirs})
 
-
 ## Generic defines for certain things that Windows requires.
 if(NOT WIN32)
 	add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
 	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
+else()
+	add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=__stdcall)
+	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=__cdecl)
 endif()
 
 if(UNIX)
@@ -168,29 +165,36 @@ if(CTR)
 	include_directories($ENV{DEVKITPRO}/portlibs/3ds/lib)
 endif(CTR)
 
-if(WIN32)
-	set(CMAKE_TOOLCHAIN_FILE ${VCPKG_TOOLCHAIN})
-	find_package(ZLIB)
+if(DAEDALUS_SDL)
 	find_package(SDL2 CONFIG REQUIRED)
+	link_libraries(SDL2::SDL2)
+	link_libraries(${SDL2_LIBRARIES})
+
+	if(NOT PSP)
+		# PSP is not needed as it uses built-in native font
+		find_package(SDL2_ttf QUIET)
+		if(SDL2_ttf_FOUND)
+			link_libraries(SDL2_ttf::SDL2_ttf)
+		else()
+			PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf>=2.0.0)
+			link_libraries(${SDL2_TTF_LIBRARIES})
+		endif()
+	endif()
+endif(DAEDALUS_SDL)
+
+if(DAEDALUS_GL)
+	find_package(OpenGL REQUIRED)
+	link_libraries(OpenGL::GL)
+
 	find_package(GLEW REQUIRED)
-		
-	set(sys_libraries png z minizip pthread GLEW SDL2 dl ${OS_LIBS})
-	# Pull in modules for glew / SDL2 / ZLib / LibPNG / Minizip
+	link_libraries(GLEW::GLEW)
+endif(DAEDALUS_GL)
 
-#	add_library(sysGL OBJECT ${SYSGL_BUILD})
-#	target_link_libraries(sysGL OpenGL32 glfw3 glew32s SDL2 Xinput ${OS_LIBS})
+find_package(PNG REQUIRED)
+link_libraries(PNG::PNG)
 
-#	add_library(daedalus.lib OBJECT ${BUILD} ${WIN_BUILD} ${AUDIO_DRIVER} )
-#	target_link_libraries(daedalus.lib dsound dxguid sysGL libpng zlib zlibwapi)
-
-	#Build and Link Executable
-
-	add_executable(daedalus SysW32/main.cpp)
-	target_link_libraries(daedalus LINK_PUBLIC
-				   Core Config Debug Graphics HLEAudio HLEGraphics Interface Math OSHLE RomFile System Utility
-				   Graphics_GL HLEGraphics_GL Input_GL Interface_GL imgui
-				   Win_Debug Win_Audio Win_Utility)
-	endif (WIN32)
+find_package(ZLIB REQUIRED)
+link_libraries(ZLIB::ZLIB)
 
 		## Daedalus Core Build
 		add_subdirectory(Config)
@@ -207,11 +211,11 @@ if(WIN32)
 		add_subdirectory(System)
 		add_subdirectory(Test)
 		add_subdirectory(Utility)
+		add_subdirectory(UI)
 
 	if(UNIX)
 		add_subdirectory(SysPosix)
 		add_subdirectory(SysGL)
-		add_subdirectory(third_party/imgui)
 	elseif(WIN32) ## Probably keep this generic as we'll build this on Linux too?
 		add_subdirectory(SysGL)
 		add_subdirectory(SysW32)
@@ -221,13 +225,9 @@ if(WIN32)
 		add_subdirectory(SysPSP)
 	endif()
 
-
 	# ---  Build ---- 
 	add_executable(daedalus ${plat_main})
-	list(APPEND default_libraries png z) ## Required Libraries 
-	
-	message(" ${daed_libs} ${default_libraries} ${sys_libraries} " )
-	target_include_directories(daedalus BEFORE PUBLIC ${include_dirs})
+
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries})
 
 	# --- Post Build ---
@@ -278,7 +278,7 @@ if(WIN32)
 endif(CTR)
 	
 	## Install and setup basic directories
-	install(DIRECTORY DESTINATION DaedalusX64)
+	install(DIRECTORY ${PROJECT_BINARY_DIR}/../Data/ DESTINATION DaedalusX64)
 	install(DIRECTORY DESTINATION DaedalusX64/Roms)
 	install(DIRECTORY DESTINATION DaedalusX64/SaveGames)
 	install(DIRECTORY DESTINATION DaedalusX64/SaveStates)

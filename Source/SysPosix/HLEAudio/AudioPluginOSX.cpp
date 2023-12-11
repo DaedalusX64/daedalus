@@ -346,7 +346,3 @@ std::unique_ptr<CAudioPlugin> CreateAudioPlugin()
 {
 	return std::make_unique<AudioPluginOSX>();
 }
-// CAudioPlugin * CreateAudioPlugin()
-// {
-// 	return new AudioPluginOSX();
-// }

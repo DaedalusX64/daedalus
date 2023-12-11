@@ -214,22 +214,11 @@ void CGraphicsPluginImpl::UpdateScreen()
 				pspDebugScreenSetBackColor(0);
 				pspDebugScreenSetXY(0, 0);
 
-				switch(gGlobalPreferences.DisplayFramerate)
-				{
-					case 1:
-						pspDebugScreenPrintf( "%#.1f  ", gCurrentFramerate );
-						break;
-					case 2:
-						pspDebugScreenPrintf( "FPS[%#.1f] VB[%d/%d] Sync[%#.1f%%]   ", gCurrentFramerate, u32( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) ), FramerateLimiter_GetTvFrequencyHz(), Fsync * 100.0f );
-						break;
-					case 3:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-						pspDebugScreenPrintf( "Dlist[%d] Cull[%d] | Tris[%d] Cull[%d] | Rect[%d] Clip[%d] ", gNumInstructionsExecuted, gNumDListsCulled, gRenderer->GetNumTrisRendered(), gRenderer->GetNumTrisClipped(), gRenderer->GetNumRect(), gNumRectsClipped);
+				pspDebugScreenPrintf( "Dlist[%d] Cull[%d] | Tris[%d] Cull[%d] | Rect[%d] Clip[%d] ", gNumInstructionsExecuted, gNumDListsCulled, gRenderer->GetNumTrisRendered(), gRenderer->GetNumTrisClipped(), gRenderer->GetNumRect(), gNumRectsClipped);
 #else
-						pspDebugScreenPrintf( "%#.1f  ", gCurrentFramerate );
+				pspDebugScreenPrintf( "FPS[%#.1f] VB[%d/%d] Sync[%#.1f%%]   ", gCurrentFramerate, u32( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) ), FramerateLimiter_GetTvFrequencyHz(), Fsync * 100.0f );
 #endif
-						break;
-				}
 			}
 			if( gGlobalPreferences.BatteryWarning )
 			{

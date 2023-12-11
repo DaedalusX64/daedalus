@@ -26,8 +26,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "SysGL/GL.h"
 
+#include "UI/UIContext.h" // for Input structures
+
+#include <algorithm>
+
 //Windows Xinput support 
-#ifdef DAEDALUS_WIN32
+#ifdef DAEDALUS_W32
 #include <iostream>
 #include <Windows.h>
 #include <Xinput.h>
@@ -124,7 +128,7 @@ private:
 	void GetJoyPad(OSContPad *pPad);
 	bool mGamePadAvailable;
 #endif
-#ifdef DAEDALUS_WIN32
+#ifdef DAEDALUS_W32
 
 	CXBOXController* Player1;
 	CXBOXController* Player2;
@@ -163,7 +167,7 @@ static void CheckPadStatusVblHandler( void * arg )
 
 bool IInputManager::Initialise()
 {
-#ifdef DAEDALUS_WIN32
+#ifdef DAEDALUS_W32
 	Player1 = new CXBOXController(1);
 	if (Player1->IsConnected()){
 		std::cout << "Xinput device detected! ";
@@ -289,7 +293,7 @@ void IInputManager::GetState( OSContPad pPad[4] )
 		if (keys [ SDL_SCANCODE_PAGEDOWN ] ){  pPad[0].button |= R_CBUTTONS;}
 	}
 
-#ifdef DAEDALUS_WIN32
+#ifdef DAEDALUS_W32
 	if (Player1->IsConnected())
 	{
 #define XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  7849
@@ -363,4 +367,147 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 {
 	// Return the default controller config
 	return 0;
+}
+
+static bool toggle_fullscreen = false;
+static s16 button = 0;
+void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
+
+	SDL_Event event;
+	SDL_PumpEvents();
+
+	while (SDL_PeepEvents( &event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) != 0)
+	{
+		if (event.type == SDL_QUIT)
+		{
+			CPU_Halt("Window Closed");	// SDL window was closed
+            // Optionally, you can also call SDL_Quit() to terminate SDL subsystems
+            SDL_Quit();
+            // Exit the application
+            exit(0);
+		}
+		else if(event.type == SDL_KEYDOWN)
+		{
+			if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+			{
+				CPU_Halt("Window Closed");	// User pressed escape to exit
+			}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_F11)
+			{
+				if (toggle_fullscreen == false) {
+					SDL_SetWindowFullscreen(gWindow, SDL_TRUE);
+					toggle_fullscreen = true;
+				}
+				else
+				{
+					SDL_SetWindowFullscreen(gWindow, SDL_FALSE);
+					toggle_fullscreen = false;
+				}
+			}
+
+			// if (event.key.keysym.scancode == SDL_SCANCODE_UP) {data->Ly = +80;}
+			// if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {data->Ly = -80;}
+			// if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {data->Lx = -80;}
+			// if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {data->Lx = +80;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_X) {button |= A_BUTTON;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_C) {button |= B_BUTTON;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_Z) {button |= Z_TRIG;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_A) {button |= L_TRIG;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_S) {button |= R_TRIG;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_RETURN) {button |= START_BUTTON;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_UP){  button |= U_JPAD;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_DOWN){  button |= D_JPAD;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_LEFT){  button |= L_JPAD;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT){  button |= R_JPAD;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_HOME){  button |= U_CBUTTONS;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_END){  button |= D_CBUTTONS;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_DELETE){  button |= L_CBUTTONS;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_PAGEDOWN){  button |= R_CBUTTONS;}
+		}
+		else if(event.type == SDL_KEYUP)
+		{
+			if (event.key.keysym.scancode == SDL_SCANCODE_X) {button &= ~A_BUTTON;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_C) {button &= ~B_BUTTON;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_Z) {button &= ~Z_TRIG;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_A) {button &= ~L_TRIG;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_S) {button &= ~R_TRIG;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_RETURN) {button &= ~START_BUTTON;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_UP){  button &= ~U_JPAD;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_DOWN){  button &= ~D_JPAD;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_LEFT){  button &= ~L_JPAD;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT){  button &= ~R_JPAD;}
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_HOME){  button &= ~U_CBUTTONS;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_END){  button &= ~D_CBUTTONS;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_DELETE){  button &= ~L_CBUTTONS;}
+			if (event.key.keysym.scancode == SDL_SCANCODE_PAGEDOWN){  button &= ~R_CBUTTONS;}
+		}
+	}
+
+	data->Buttons = button;
+	data->Lx = 128;
+	data->Ly = 128;
+}
+
+
+//*************************************************************************************
+//
+//*************************************************************************************
+v2	ProjectToUnitSquare( const v2 & in )
+{
+	f32		length( in.Length() );
+	float	abs_x( fabsf( in.x ) );
+	float	abs_y( fabsf( in.y ) );
+	float	scale;
+
+	//
+	//	Select the longest axis, and
+	//
+	if( length < 0.01f )
+	{
+		scale = 1.0f;
+	}
+	else if( abs_x > abs_y )
+	{
+		scale = length / abs_x;
+	}
+	else
+	{
+		scale = length / abs_y;
+	}
+
+	return in * scale;
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
+{
+#ifdef DAEDALUS_ENABLE_ASSERTS
+
+	DAEDALUS_ASSERT( min_deadzone >= 0.0f && min_deadzone <= 1.0f, "Invalid min deadzone" );
+	DAEDALUS_ASSERT( max_deadzone >= 0.0f && max_deadzone <= 1.0f, "Invalid max deadzone" );
+#endif
+	float	length( in.Length() );
+
+	if( length < min_deadzone )
+		return v2( 0,0 );
+
+	float	scale( ( length - min_deadzone ) / ( max_deadzone - min_deadzone )  );
+
+	scale = std::clamp( scale, 0.0f, 1.0f );
+
+	return ProjectToUnitSquare( in * (scale / length) );
+}
+
+void sceKernelExitGame() {
+	// todo
 }

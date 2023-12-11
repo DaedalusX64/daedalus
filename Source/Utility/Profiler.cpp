@@ -9,8 +9,6 @@
 #include <map>
 #include <algorithm>
 #include <string.h>
-#include <strings.h>
-
 
 #include "Base/Types.h"
 

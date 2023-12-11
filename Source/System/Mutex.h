@@ -24,45 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if defined(DAEDALUS_POSIX) || defined(DAEDALUS_PSP) || defined(DAEDALUS_CTR)
 #include <pthread.h>
-#include <mutex>
 #endif
 
-#if defined(DAEDALUS_W32)
-
-class Mutex
-{
-public:
-
-	Mutex()
-	{
-		InitializeCriticalSection(&cs);
-	}
-
-	explicit Mutex( const char * name )
-	{
-		InitializeCriticalSection(&cs);
-	};
-
-	~Mutex()
-	{
-		DeleteCriticalSection(&cs);
-	}
-
-	void Lock()
-	{
-		EnterCriticalSection(&cs);
-	}
-
-	void Unlock()
-	{
-		LeaveCriticalSection(&cs);
-	}
-
-public:
-	CRITICAL_SECTION cs;
- };
-
-#else
+#include <mutex>
 class Mutex
 {
 public:
@@ -88,9 +52,6 @@ public:
 public:
 	std::mutex  mMutex;
 };
-
-
-#endif
 
 
 class MutexLock

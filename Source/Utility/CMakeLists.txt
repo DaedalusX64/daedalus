@@ -6,7 +6,8 @@ add_library(Utility OBJECT
                             MemoryHeap.cpp  
                             Profiler.cpp  
                             Stream.cpp 
-                            StringUtil.cpp 
+                            StringUtil.cpp
+                            Translate.cpp
                             Timer.cpp
             )
 

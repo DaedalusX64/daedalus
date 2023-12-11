@@ -9,16 +9,15 @@
 #include "Graphics/GraphicsContext.h"
 
 #include "Graphics/ColourValue.h"
-#include "third_party/imgui/imgui.h"
-#include "third_party/imgui/backends/imgui_impl_sdl.h"
-#include "third_party/imgui/backends/imgui_impl_opengl3.h"
-
-
+#include "UI/DrawText.h"
 
 static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
 
 SDL_Window * gWindow = nullptr;
+SDL_Renderer * gSdlRenderer = nullptr;
+
+extern void HandleEndOfFrame();
 
 class GraphicsContextGL : public CGraphicsContext
 {
@@ -72,9 +71,15 @@ bool GraphicsContextGL::Initialise()
 {
 
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
+	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+		return false;
+	}
+
+	if (TTF_Init() < 0)
+	{
+		printf( "SDL could not initialize TTF Font! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
 
@@ -117,26 +122,6 @@ bool GraphicsContextGL::Initialise()
 
 	SDL_GL_SetSwapInterval(1);
 
-	 // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplSDL2_InitForOpenGL(gWindow, gContext);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-
-
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-
-
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)
 	{
@@ -145,6 +130,8 @@ bool GraphicsContextGL::Initialise()
 		//SDL_Quit();
 		return false;
 	}
+
+	CDrawText::Initialise();
 
 	//ClearColBufferAndDepth(0,0,0,0);
 	UpdateFrame(false);
@@ -218,10 +205,12 @@ void GraphicsContextGL::BeginFrame()
 
 void GraphicsContextGL::EndFrame()
 {
+	HandleEndOfFrame();
 }
 
 void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	SDL_GL_SwapWindow(gWindow);
 
 //	if( gCleanSceneEnabled ) //TODO: This should be optional

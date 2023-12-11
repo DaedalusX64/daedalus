@@ -81,7 +81,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libglew-dev
+        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev
     
     - name: Compile project
       run: |
@@ -99,9 +99,9 @@ jobs:
           DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
           DaedalusX64/copying.txt \
-#          DaedalusX64/Resources \ # Not used in Posix Buiilds
-#          DaedalusX64/Languages \ # Not used in Posix Builds
-#           DaedalusX64/ControllerConfigs \ # Not used in Posix Builds
+          DaedalusX64/Resources \
+          DaedalusX64/Languages \
+          DaedalusX64/ControllerConfigs \
 
 
     - name: Upload artifacts
@@ -195,7 +195,7 @@ jobs:
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     - name: Install dependencies
       run: |
-        brew install git bash cmake libpng minizip sdl2 glew
+        brew install git bash cmake libpng minizip sdl2 sdl2_ttf glew
     
     - name: Compile project
       run: |
@@ -213,9 +213,9 @@ jobs:
           DaedalusX64/roms.ini \
           DaedalusX64/readme.txt \
           DaedalusX64/copying.txt \
-#          DaedalusX64/Resources \ # Not used in Posix Buiilds
-#          DaedalusX64/Languages \ # Not used in Posix Builds
-#           DaedalusX64/ControllerConfigs \ # Not used in Posix Builds
+          DaedalusX64/Resources \
+          DaedalusX64/Languages \
+          DaedalusX64/ControllerConfigs \
 
 
     - name: Upload artifacts
@@ -249,3 +249,26 @@ jobs:
     #     tag_name: ${{ steps.tag.outputs.VERSION }}
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    runs-on: windows-latest
+    env:
+      VCPKG_DEFAULT_TRIPLET: x64-windows
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Setup a new (or from cache) vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: aa628ceb5f15f0c30d4d481f14fa5b2be2b4a658
+          runVcpkgInstall: true
+
+      - name: Run CMake config
+        run: |
+          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
+    
+      - name: Build
+        run: |
+          cmake --build build --config Release

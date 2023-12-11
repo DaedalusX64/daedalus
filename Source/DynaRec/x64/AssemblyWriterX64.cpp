@@ -276,6 +276,39 @@ void CAssemblyWriterX64::ADDI(EIntelReg reg, s32 data, bool is64)
 }
 
 //*****************************************************************************
+// Use short form (0x83c0) if data is just one byte!
+//*****************************************************************************
+void CAssemblyWriterX64::SUBI(EIntelReg reg, s32 data, bool is64)
+{
+	if (data == 0)
+		return;
+
+	if (is64)
+	{
+		u8 first_byte = 0x48;
+		if (reg >= R8_CODE) {
+			first_byte |= 0x4;
+			reg = EIntelReg(reg & 7);
+		}
+		EmitBYTE(first_byte);
+	}
+
+	if (data <= 127 && data > -127)
+	{
+		EmitBYTE(0x83);
+		EmitBYTE(0xe8 | reg);
+		EmitBYTE((u8)data);
+	}
+	else
+	{
+		EmitBYTE(0x81);
+		EmitBYTE(0xe8 | reg);
+		EmitDWORD(data);
+	}
+}
+
+
+//*****************************************************************************
 // Use short form (0x83d0) if data is just one byte!
 //*****************************************************************************
 void CAssemblyWriterX64::ADCI(EIntelReg reg, s32 data)
@@ -634,6 +667,10 @@ CJumpLocation	CAssemblyWriterX64::CALL( CCodeLabel target )
 {
 	const u32	CALL_LONG_LENGTH = 5;
 
+#ifdef DAEDALUS_W32
+	SUBI(RSP_CODE, 32, true);
+#endif
+
 	CJumpLocation	jump_location( mpAssemblyBuffer->GetJumpLocation() );
 	CJumpLocation   rbx_location(&gCPUState);
 
@@ -649,6 +686,10 @@ CJumpLocation	CAssemblyWriterX64::CALL( CCodeLabel target )
 		LEA(RAX_CODE, target.GetTargetU8P());
 		EmitWORD(0xd0ff);
 	}
+
+#ifdef DAEDALUS_W32
+	ADDI(RSP_CODE, 32, true);
+#endif
 	return jump_location;
 }
 
@@ -698,7 +739,7 @@ void	CAssemblyWriterX64::MOV(EIntelReg reg1, EIntelReg reg2, bool is64)
 			u8 first_byte = 0x48;
 			if (reg2 >= R8_CODE) {
 				first_byte |= 0x1;
-				reg1 = EIntelReg(reg1 & 7);
+				reg2 = EIntelReg(reg2 & 7);
 			}
 			if (reg1 >= R8_CODE) {
 				first_byte |= 0x4;

@@ -13,11 +13,5 @@ __EnterDynaRec:
     movq %rdx, %r15
     movq %rcx, %r14
 
-    call *%rax
+    jmp *%rax
 
-    popq %r14
-    popq %r15
-    popq %rbx
-    popq %rbp
-
-    ret

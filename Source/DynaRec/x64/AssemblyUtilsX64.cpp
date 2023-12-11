@@ -55,12 +55,17 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 		return false;
 	}
 
-	u32		offset( jump.GetOffset( target ) - instruction_length );
-
-	*p_jump_instr_offset = offset;
-
-	// All jumps are 32 bit offsets, and so always succeed.
-	return true;
+	if (jump.IsIn32BitRange(target))
+	{
+		// All jumps are 32 bit offsets, and so always succeed.
+		*p_jump_instr_offset = jump.GetOffset(target) - instruction_length;
+		return true;
+	}
+	else
+	{
+		DAEDALUS_ERROR( "Jump out of range" );
+		return false;
+	}
 }
 
 //*****************************************************************************

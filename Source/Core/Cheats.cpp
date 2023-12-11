@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_R4300.h"
 #include "System/IO.h"
 #include "Utility/StringUtil.h"
-#include "SysPSP/Utility/VolatileMem.h"
+#include "Utility/VolatileMem.h"
 #include <filesystem>
 
 //
@@ -290,14 +290,11 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	// Always clear when parsing a new ROM
 	CheatCodes_Clear();
 
-	 std::filesystem::path p(file);
-	 const char *cheat_file = p.c_str();
-
-	stream = fopen(cheat_file, "rt");
+	stream = fopen("cheat_file", "rt");
 	if(stream == nullptr)
 	{
 		// File does not exist, try to create a new empty one
-		stream = fopen(cheat_file, "wt");
+		stream = fopen("cheat_file", "wt");
 
 		if(stream == nullptr)
 		{

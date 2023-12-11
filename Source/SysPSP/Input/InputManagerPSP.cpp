@@ -1007,7 +1007,7 @@ v2	ProjectToUnitSquare( const v2 & in )
 //*************************************************************************************
 v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
+#ifdef DAEDALUS_ENABLE_ASSERTS
 
 	DAEDALUS_ASSERT( min_deadzone >= 0.0f && min_deadzone <= 1.0f, "Invalid min deadzone" );
 	DAEDALUS_ASSERT( max_deadzone >= 0.0f && max_deadzone <= 1.0f, "Invalid max deadzone" );

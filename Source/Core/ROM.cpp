@@ -500,7 +500,7 @@ void ROM_UnloadFile()
 
 bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences )
 {
-	DBGConsole_Msg(0, "Reading rom image: [C%s]", g_ROM.mFileName.c_str());
+	DBGConsole_Msg(0, "Reading rom image: [C%s]", g_ROM.mFileName.string().c_str());
 
 	// Get information about the rom header
 	RomBuffer::GetRomBytesRaw( &g_ROM.rh, 0, sizeof(ROMHeader) );

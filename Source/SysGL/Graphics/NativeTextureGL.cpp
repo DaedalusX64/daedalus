@@ -165,7 +165,7 @@ namespace
 		const size_t	SIGNATURE_SIZE = 8;
 		u8	signature[ SIGNATURE_SIZE ];
 
-		FILE * fh = fopen( p_filename.c_str(),"rb" );
+		FILE * fh = fopen( p_filename.string().c_str(),"rb" );
 		if (fh == NULL)
 		{
 			return NULL;

@@ -5,8 +5,7 @@ add_library(Utility_PSP OBJECT
                                 DisableFPUExceptions.S 
                                 exception.cpp 
                                 FastMemcpyPSP.cpp 
-                                ModulePSP.cpp 
-                                Translate.cpp 
+                                ModulePSP.cpp
                                 VolatileMemPSP.cpp
                                 ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/TimingPosix.cpp 
                                 ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/ThreadPosix.cpp

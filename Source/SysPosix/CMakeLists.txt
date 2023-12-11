@@ -4,7 +4,7 @@ add_subdirectory(HLEGraphics)
 add_subdirectory(Utility)
 
 
-list(APPEND sys_libraries "dl" "imgui")
+list(APPEND sys_libraries "dl")
 set(sys_libraries ${sys_libraries} PARENT_SCOPE)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../daedalus DESTINATION DaedalusX64

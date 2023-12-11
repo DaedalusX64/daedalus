@@ -17,6 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#include <windows.h>
 
 #include "Base/Types.h"
 #include "System/Thread.h"
@@ -64,7 +65,7 @@ ThreadHandle CreateThread( const char * name, DaedThread function, void * argume
 	if(h != NULL)
 	{
 		ResumeThread( h );
-		return reinterpret_cast< s32 >( h );
+		return reinterpret_cast< ThreadHandle >( h );
 	}
 
 	return 0;
@@ -136,7 +137,7 @@ void ThreadYield()
 	::Sleep( 0 );
 }
 
-void TerminateThread(long handle)
+void TerminateThread(HANDLE handle)
 {
 	::TerminateThread((HANDLE)handle, 0);
 }
