@@ -267,7 +267,7 @@ jobs:
 
       - name: Run CMake config
         run: |
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=$ENV:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -G "Visual Studio 16 2019" -A x64
+          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
     
       - name: Build
         run: |
