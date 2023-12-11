@@ -255,13 +255,11 @@ if(WIN32)
 		POST_BUILD COMMAND
 		3dsxtool daedalus.elf DaedalusX64.3dsx --romfs=${APP_ROMFS_DIR} --smdh=${APP_SMDH}
        COMMENT "Calling 3dsxtool"
-		# DEPENDS daedalus.elf
     )
 
     add_custom_command(
 		TARGET daedalus
 		POST_BUILD COMMAND
-        # OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.cia
        		makerom -f cia
             -target t
             -exefslogo
@@ -273,13 +271,6 @@ if(WIN32)
             -romfs ${APP_ROMFS_BIN}
 			COMMENT "Calling makerom"
     )
-
-    # add_custom_target(N3DS ALL
-
-    #             ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.3dsx
-    #             ${CMAKE_CURRENT_BINARY_DIR}/DaedalusX64.cia
-	# 			DEPENDS daedalus.elf
-    # )
 
 endif(CTR)
 	
