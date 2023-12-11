@@ -43,10 +43,6 @@ public:
 	bool				Initialise();
 	bool				IsInitialised() const { return mInitialised; }
 
-	void				SwitchToChosenDisplay();
-	void				SwitchToLcdDisplay();
-	void				StoreSaveScreenData();
-
 	void				ClearAllSurfaces();
 
 	void				ClearToBlack();
@@ -227,5 +223,3 @@ void IGraphicsContext::SetDebugScreenTarget(ETargetSurface buffer){}
 void IGraphicsContext::SaveScreenshot(const char* filename, s32 x, s32 y, u32 width, u32 height){}
 
 void IGraphicsContext::DumpScreenShot(){}
-
-void IGraphicsContext::StoreSaveScreenData(){}
