@@ -252,7 +252,7 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
-    envs:
+    env:
       VCPKG_DEFAULT_TRIPLET: x64-windows
     steps:
       - uses: actions/checkout@v2
