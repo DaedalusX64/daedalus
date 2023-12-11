@@ -146,7 +146,7 @@ jobs:
         run: |
             git clone -b revamp https://github.com/masterfeizz/picaGL
             cd picaGL
-            make; make install
+            make;sudo make install
       - name: Compile project
         run: | 
           ./build_daedalus CTR
