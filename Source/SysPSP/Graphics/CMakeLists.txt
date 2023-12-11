@@ -3,6 +3,7 @@ add_library(Graphics_PSP OBJECT
                                 GraphicsContext.cpp 
                                 NativeTexturePSP.cpp 
                                 VideoMemoryManager.cpp
+                                UIContext.cpp
             )
 
             
