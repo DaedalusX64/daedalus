@@ -136,6 +136,55 @@ jobs:
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  build-ctr:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm:latest
+    steps:
+      - uses: actions/checkout@v2 
+
+      # Needed to build CIA files
+      - name: build makerom
+        run: |
+            apt-get update && \
+            apt-get -y install g++ libyaml-dev libmbedtls-dev
+            git clone https://github.com/wally4000/Project_CTR --depth=1
+            cd Project_CTR/
+            make
+            cp makerom/bin/makerom /usr/local/bin
+
+      - name: Build PicaGL
+        run: |
+            git clone -b revamp https://github.com/masterfeizz/picaGL --depth=1
+            cd picaGL
+            DEVKITARM='/opt/devkitpro/devkitARM' make 
+            DEVKITARM='/opt/devkitpro/devkitARM' make install
+
+      - name: Build imgui-picagl
+        run: |
+            git clone https://github.com/masterfeizz/imgui-picagl --depth=1
+            cd imgui-picagl
+            DEVKITARM='/opt/devkitpro/devkitARM' make 
+            DEVKITARM='/opt/devkitpro/devkitARM' make install
+
+      - name: Compile project
+        run: | 
+          ./build_daedalus.sh CTR
+
+      - name: Get short SHA
+        id: slug
+        run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
+      - name: Prepare artifacts
+        run: |
+          tar -zcvf daedalusX64-CTR.tar.gz DaedalusX64\
+
+      - name: Upload artifacts
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: daedalusX64-CTR
+          path: daedalusX64-CTR.tar.gz
+
   build-macos:
     runs-on: macOS-latest
     steps:
@@ -158,7 +207,7 @@ jobs:
 
     - name: Prepare artifacts
       run: |
-        tar -zcvf daedalusX64-macos-x86.tar.gz \
+          tar -zcvf daedalusX64-macos-x86.tar.gz \
           DaedalusX64/daedalus \
           DaedalusX64/n64.psh \
           DaedalusX64/roms.ini \
