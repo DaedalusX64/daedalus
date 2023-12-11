@@ -170,16 +170,21 @@ jobs:
         run: | 
           ./build_daedalus.sh CTR
 
+      - name: Get short SHA
+        id: slug
+        run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+
       - name: Prepare artifacts
         run: |
           tar -zcvf daedalusX64-CTR.tar.gz \
             DaedalusX64/DaedalusX64.cia \
             DaedalusX64/DaedalusX64.3dsx \
+            DaedalusX64/Daedalus.cht \ 
             DaedalusX64/roms.ini \
             DaedalusX64/readme.txt \
             DaedalusX64/copying.txt \
-            DaedalusX64/Resources \
-            DaedalusX64/Languages \
+            # DaedalusX64/Resources \
+            # DaedalusX64/Languages \
             DaedalusX64/ControllerConfigs \ 
 
       - name: Upload artifacts
@@ -211,7 +216,7 @@ jobs:
 
     - name: Prepare artifacts
       run: |
-        tar -zcvf daedalusX64-macos-x86.tar.gz \
+          tar -zcvf daedalusX64-macos-x86.tar.gz \
           DaedalusX64/daedalus \
           DaedalusX64/n64.psh \
           DaedalusX64/roms.ini \
