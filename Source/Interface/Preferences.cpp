@@ -47,8 +47,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_PSP
 static const EAudioPluginMode      kDefaultAudioPluginMode      = APM_DISABLED;
 static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_DISABLED;
+#elif defined(DAEDALUS_W32)
+static const EAudioPluginMode      kDefaultAudioPluginMode      = APM_ENABLED_ASYNC;
+static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_EVERY_FRAME;
 #else
-static const EAudioPluginMode      kDefaultAudioPluginMode      = APM_ENABLED_SYNC;
+static const EAudioPluginMode      kDefaultAudioPluginMode = APM_ENABLED_SYNC;
 static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_EVERY_FRAME;
 #endif
 

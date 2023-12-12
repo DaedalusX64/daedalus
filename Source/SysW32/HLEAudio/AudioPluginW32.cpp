@@ -31,6 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/HLEAudioInternal.h"
 #include "Utility/FastMemcpy.h"
 #include "System/Thread.h"
+#include "System/Mutex.h"
+#include "System/Condition.h"
 
 #define INITGUID
 
@@ -38,9 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <mmsystem.h>
 #include <dsound.h>
 
-//This is disabled, it doesn't work well, causes random deadlocks/Lock failures :(
-//Would be nice to get it working correctly, since running audio in the main thread is abit jerky
-#define AUDIO_THREADED
+#define RSP_AUDIO_INTR_CYCLES     1
 
 #define NUMCAPTUREEVENTS	3
 #define BufferSize			0x3000
@@ -74,9 +74,9 @@ private:
 	u32 Frequency, Dacrate, Snd1Len, SpaceLeft, SndBuffer[3], Playing;
 	u8 *Snd1ReadPos;
 	bool AIReady;
-#ifdef AUDIO_THREADED
 	static u32 __stdcall AudioThread(void * arg);
-#endif
+	static u32 __stdcall AudioProcessThread(void *arg);
+
 	LPDIRECTSOUNDBUFFER  lpdsbuf;
 	LPDIRECTSOUND        lpds;
 	LPDIRECTSOUNDNOTIFY  lpdsNotify;
@@ -88,11 +88,17 @@ private:
 
 	void FillSectionWithSilence( int buffer );
 	void FillBuffer            ( int buffer );
+
+	Cond *audioRequest;
+	Mutex * requestMutex;
+	bool is_running;
+	ThreadHandle audiothread, audioprocessthread;
+
 };
 //*****************************************************************************
 //
 //*****************************************************************************
-EAudioPluginMode gAudioPluginEnabled( APM_ENABLED_SYNC );
+EAudioPluginMode gAudioPluginEnabled( APM_ENABLED_ASYNC );
 
 //*****************************************************************************
 //
@@ -138,15 +144,29 @@ bool		CAudioPluginW32::StartEmulation()
 	SndBuffer[0] = Buffer_Empty;
 	SndBuffer[1] = Buffer_Empty;
 	SndBuffer[2] = Buffer_Empty;
-#ifdef AUDIO_THREADED
-	if (CreateThread( "Audio", AudioThread, this ) == kInvalidThreadHandle)
+
+	is_running = true;
+
+	if ((audiothread = CreateThread( "Audio", AudioThread, this )) == kInvalidThreadHandle)
 	{
 		DAEDALUS_ERROR("Failed to start the audio thread!");
 		gAudioPluginEnabled = APM_DISABLED;
 	}
-#endif
-	return true;
 
+	if (gAudioPluginEnabled == APM_ENABLED_ASYNC)
+	{
+		audioRequest = CondCreate();
+		requestMutex = new Mutex();
+
+		if ((audioprocessthread = CreateThread( "AudioProcess", AudioProcessThread, this )) == kInvalidThreadHandle)
+		{
+			DAEDALUS_ERROR("Failed to start the audio thread!");
+			gAudioPluginEnabled = APM_DISABLED;
+		}
+	}
+
+
+	return true;
 }
 
 //*****************************************************************************
@@ -156,9 +176,20 @@ void	CAudioPluginW32::StopEmulation()
 {
 	Audio_Reset();
 
-#ifndef AUDIO_THREADED
-	//ToDo: Terminate thread
-#endif
+	is_running = false;
+
+	if (gAudioPluginEnabled == APM_ENABLED_ASYNC)
+	{
+		CondSignal(audioRequest);
+		JoinThread(audioprocessthread, INFINITE);
+		CondDestroy(audioRequest);
+		delete requestMutex;
+		ReleaseThreadHandle(audioprocessthread);
+	}
+
+	JoinThread(audiothread, INFINITE);
+
+	ReleaseThreadHandle(audiothread);
 
 	if (lpdsbuf)
 	{
@@ -172,11 +203,11 @@ void	CAudioPluginW32::StopEmulation()
 		lpds = NULL;
 	}
 }
-#ifdef AUDIO_THREADED
+
 u32	DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioThread(void * arg)
 {
 	CAudioPluginW32 * plugin = static_cast<CAudioPluginW32 *>(arg);
-	while(1)
+	while(plugin->is_running)
 	{
 		plugin->Update(true);
 		ThreadSleepMs(1);
@@ -184,7 +215,21 @@ u32	DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioThread(void * arg)
 
 	return 0;
 }
-#endif
+
+u32 DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioProcessThread(void *arg)
+{
+	CAudioPluginW32 * plugin = static_cast<CAudioPluginW32 *>(arg);
+	MutexLock lock(plugin->requestMutex);
+
+	while(plugin->is_running)
+	{
+		CondWait(plugin->audioRequest, plugin->requestMutex, INFINITE);
+
+		if(plugin->is_running) Audio_Ucode();
+	}
+
+	return 0;
+}
 
 //*****************************************************************************
 //
@@ -337,6 +382,7 @@ void	CAudioPluginW32::Update( bool Wait )
 	}
 }
 
+
 EProcessResult	CAudioPluginW32::ProcessAList()
 {
 	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
@@ -352,6 +398,13 @@ EProcessResult	CAudioPluginW32::ProcessAList()
 	case APM_ENABLED_SYNC:
 		Audio_Ucode();
 		result = PR_COMPLETED;
+		break;
+
+	case APM_ENABLED_ASYNC:
+		CondSignal(audioRequest);
+
+		CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
+		result = PR_STARTED;
 		break;
 	}
 
