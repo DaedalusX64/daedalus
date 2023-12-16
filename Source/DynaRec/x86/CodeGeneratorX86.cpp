@@ -157,7 +157,7 @@ static u32				gWriteCheck[NUM_MIPS_REGISTERS];
 //
 //*****************************************************************************
 CCodeGeneratorX86::CCodeGeneratorX86( CAssemblyBuffer * p_primary, CAssemblyBuffer * p_secondary )
-:	CCodeGenerator( )
+:	CCodeGeneratorImpl<EIntelReg>( )
 ,	CAssemblyWriterX86( p_primary )
 ,	mSpCachedInESI( false )
 ,	mSetSpPostUpdate( 0 )

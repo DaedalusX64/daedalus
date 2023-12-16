@@ -278,13 +278,11 @@ const EPspReg	gRegistersToUseForCaching[] =
 //
 
 CCodeGeneratorPSP::CCodeGeneratorPSP( CAssemblyBuffer * p_buffer_a, CAssemblyBuffer * p_buffer_b )
-:	CCodeGenerator( )
+:	CCodeGeneratorImpl<EPspReg>( )
 ,	CAssemblyWriterPSP( p_buffer_a, p_buffer_b )
 ,	mpBasePointer( nullptr )
 ,	mBaseRegister( PspReg_S8 )		// TODO
 ,	mEntryAddress( 0 )
-,	mLoopTop( nullptr )
-,	mUseFixedRegisterAllocation( false )
 {
 }
 

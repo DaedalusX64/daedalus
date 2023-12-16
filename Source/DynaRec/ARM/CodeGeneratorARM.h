@@ -36,7 +36,7 @@ using CN64RegisterCacheARM = CN64RegisterCache<EArmReg>;
 
 typedef u32 (*ReadMemoryFunction)( u32 address );
 
-class CCodeGeneratorARM : public CCodeGenerator, public CAssemblyWriterARM
+class CCodeGeneratorARM : public CCodeGeneratorImpl<EArmReg>, public CAssemblyWriterARM
 {
 	public:
 		CCodeGeneratorARM( CAssemblyBuffer * p_primary, CAssemblyBuffer * p_secondary );
@@ -128,12 +128,11 @@ class CCodeGeneratorARM : public CCodeGenerator, public CAssemblyWriterARM
 				u32					mEntryAddress;
 				CAssemblyBuffer *	mpPrimary;
 				CAssemblyBuffer *	mpSecondary;
-				RegisterSpanList	mRegisterSpanList;
+
 				// For register allocation
 				RegisterSpanList	mActiveIntervals;
 				std::stack<EArmReg>	mAvailableRegisters;
-				CCodeLabel			mLoopTop;
-				bool				mUseFixedRegisterAllocation;
+
 				std::vector< CN64RegisterCacheARM >	mRegisterSnapshots;
 				CN64RegisterCacheARM	mRegisterCache;
 				bool mQuickLoad;

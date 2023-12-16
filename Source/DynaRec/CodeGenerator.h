@@ -43,31 +43,46 @@ struct RegisterSnapshotHandle
 
 class CCodeGenerator
 {
-	public:
+public:
 	using ExceptionHandlerFn = void (*)();
 
-									CCodeGenerator() {}
-		virtual						~CCodeGenerator() {}
+	virtual ~CCodeGenerator() {}
 
-		virtual void				Initialise( u32 entry_address, u32 exit_address, u32 * hit_counter, const void * p_base, const SRegisterUsageInfo & register_usage ) = 0;
-		virtual void				Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps, const std::vector<RegisterSnapshotHandle> & exception_handler_snapshots ) = 0;
+	virtual void Initialise(u32 entry_address, u32 exit_address, u32 *hit_counter, const void *p_base, const SRegisterUsageInfo &register_usage) = 0;
+	virtual void Finalise(ExceptionHandlerFn p_exception_handler_fn, const std::vector<CJumpLocation> &exception_handler_jumps, const std::vector<RegisterSnapshotHandle> &exception_handler_snapshots) = 0;
 
-		virtual void				UpdateRegisterCaching( u32 instruction_idx ) = 0;
+	virtual void UpdateRegisterCaching(u32 instruction_idx) = 0;
 
-		virtual RegisterSnapshotHandle	GetRegisterSnapshot() = 0;
+	virtual RegisterSnapshotHandle GetRegisterSnapshot() = 0;
 
-		virtual CCodeLabel			GetEntryPoint() const = 0;
-		virtual CCodeLabel			GetCurrentLocation() const = 0;
-//		virtual u32					GetCompiledCodeSize() const = 0;
+	virtual CCodeLabel GetEntryPoint() const = 0;
+	virtual CCodeLabel GetCurrentLocation() const = 0;
+	//		virtual u32					GetCompiledCodeSize() const = 0;
 
-		virtual	CJumpLocation		GenerateExitCode( u32 exit_address, u32 jump_address, u32 num_instructions, CCodeLabel next_fragment ) = 0;
-		virtual void				GenerateEretExitCode( u32 num_instructions, CIndirectExitMap * p_map ) = 0;
-		virtual void				GenerateIndirectExitCode( u32 num_instructions, CIndirectExitMap * p_map ) = 0;
+	virtual CJumpLocation GenerateExitCode(u32 exit_address, u32 jump_address, u32 num_instructions, CCodeLabel next_fragment) = 0;
+	virtual void GenerateEretExitCode(u32 num_instructions, CIndirectExitMap *p_map) = 0;
+	virtual void GenerateIndirectExitCode(u32 num_instructions, CIndirectExitMap *p_map) = 0;
 
-		virtual void				GenerateBranchHandler( CJumpLocation branch_handler_jump, RegisterSnapshotHandle snapshot ) = 0;
+	virtual void GenerateBranchHandler(CJumpLocation branch_handler_jump, RegisterSnapshotHandle snapshot) = 0;
 
-		virtual CJumpLocation		GenerateOpCode(const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump) = 0;
-		virtual CJumpLocation		ExecuteNativeFunction( CCodeLabel speed_hack, bool check_return = false ) = 0;
+	virtual CJumpLocation GenerateOpCode(const STraceEntry &ti, bool branch_delay_slot, const SBranchDetails *p_branch, CJumpLocation *p_branch_jump) = 0;
+	virtual CJumpLocation ExecuteNativeFunction(CCodeLabel speed_hack, bool check_return = false) = 0;
+};
+
+template<typename NativeReg> class CCodeGeneratorImpl : public CCodeGenerator
+{
+public:
+	CCodeGeneratorImpl()
+		: mUseFixedRegisterAllocation(false)
+		,	mLoopTop( nullptr )
+	{
+	}
+
+protected:
+		RegisterSpanList	mRegisterSpanList;
+		CCodeLabel			mLoopTop;
+
+		bool				mUseFixedRegisterAllocation;
 };
 
 extern "C"

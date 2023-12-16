@@ -165,14 +165,12 @@ void Dynarec_SetCPUStuffToDo(){}
 //
 //*****************************************************************************
 CCodeGeneratorARM::CCodeGeneratorARM( CAssemblyBuffer * p_primary, CAssemblyBuffer * p_secondary )
-:	CCodeGenerator( )
+:	CCodeGeneratorImpl<EArmReg>( )
 ,	CAssemblyWriterARM( p_primary, p_secondary )
 ,	mSpCachedInESI( false )
 ,	mSetSpPostUpdate( 0 )
 ,	mpPrimary( p_primary )
 ,	mpSecondary( p_secondary )
-,	mLoopTop( nullptr )
-,	mUseFixedRegisterAllocation( false )
 {
 }
 

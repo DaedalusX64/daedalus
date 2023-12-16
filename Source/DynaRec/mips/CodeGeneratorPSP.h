@@ -34,7 +34,7 @@ class CAssemblyBuffer;
 
 using CN64RegisterCachePSP = CN64RegisterCache<EPspReg>;
 
-class CCodeGeneratorPSP : public CCodeGenerator, public CAssemblyWriterPSP
+class CCodeGeneratorPSP : public CCodeGeneratorImpl<EPspReg>, public CAssemblyWriterPSP
 {
 	public:
 		CCodeGeneratorPSP( CAssemblyBuffer * p_buffer_a, CAssemblyBuffer * p_buffer_b );
@@ -300,11 +300,8 @@ private:
 private:
 				const u8 *			mpBasePointer;
 				EPspReg				mBaseRegister;
-				RegisterSpanList	mRegisterSpanList;
 
 				u32					mEntryAddress;
-				CCodeLabel			mLoopTop;
-				bool				mUseFixedRegisterAllocation;
 
 				std::vector< CN64RegisterCachePSP >	mRegisterSnapshots;
 				CN64RegisterCachePSP	mRegisterCache;

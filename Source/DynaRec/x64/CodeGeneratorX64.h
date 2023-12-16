@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define THIRD_PARAM_REG_CODE RDX_CODE
 #endif
 
-class CCodeGeneratorX64 : public CCodeGenerator, public CAssemblyWriterX64
+class CCodeGeneratorX64 : public CCodeGeneratorImpl<EIntelReg>, public CAssemblyWriterX64
 {
 	public:
 		CCodeGeneratorX64( CAssemblyBuffer * p_primary, CAssemblyBuffer * p_secondary );
