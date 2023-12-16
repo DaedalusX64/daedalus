@@ -37,7 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/MathUtil.h"
 #include "Ultra/ultra_R4300.h"
 #include "CodeGeneratorPSP.h"
-#include "N64RegisterCachePSP.h"
 #include "Base/Macros.h"
 #include "Core/PrintOpCode.h"
 #include "Utility/Profiler.h"

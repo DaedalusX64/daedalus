@@ -24,26 +24,46 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdlib.h>
 
-#include "DynarecTargetPSP.h"
 
 //*************************************************************************************
 //
 //*************************************************************************************
-class CN64RegisterCachePSP
+template<typename NativeReg> class CN64RegisterCache
 {
 public:
-		CN64RegisterCachePSP();
+		CN64RegisterCache() {
+			Reset();
+		}
 
-		void				Reset();
-
-		inline void	SetCachedReg( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg psp_reg )
+		void				Reset()
 		{
-			mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].PspRegister = psp_reg;
+			for (u32 lo_hi_idx{}; lo_hi_idx < 2; ++lo_hi_idx)
+			{
+				for (u32 i{}; i < NUM_N64_REGS; ++i)
+				{
+					mRegisterCacheInfo[i][lo_hi_idx].NativeRegister = (NativeReg)-1;
+					mRegisterCacheInfo[i][lo_hi_idx].Valid = false;
+					mRegisterCacheInfo[i][lo_hi_idx].Dirty = false;
+					mRegisterCacheInfo[i][lo_hi_idx].Known = false;
+				}
+			}
+
+			for (u32 i{}; i < NUM_N64_FP_REGS; ++i)
+			{
+				mFPRegisterCacheInfo[i].Valid = false;
+				mFPRegisterCacheInfo[i].Dirty = false;
+				mFPRegisterCacheInfo[i].Sim = false;
+			}
+		}
+
+		inline void	SetCachedReg( EN64Reg n64_reg, u32 lo_hi_idx, NativeReg psp_reg )
+		{
+			mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].NativeRegister = psp_reg;
 		}
 
 		inline bool	IsCached( EN64Reg reg, u32 lo_hi_idx ) const
 		{
-			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister != PspReg_R0;
+			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].NativeRegister != (NativeReg)-1;
 		}
 
 		inline bool	IsValid( EN64Reg reg, u32 lo_hi_idx ) const
@@ -74,18 +94,18 @@ public:
 		{
 			if( IsCached( reg, lo_hi_idx ) )
 			{
-				return PspReg_IsTemporary( mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister );
+				return Reg_IsTemporary( mRegisterCacheInfo[ reg ][ lo_hi_idx ].NativeRegister );
 			}
 
 			return false;
 		}
 
-		inline EPspReg	GetCachedReg( EN64Reg reg, u32 lo_hi_idx ) const
+		inline NativeReg	GetCachedReg( EN64Reg reg, u32 lo_hi_idx ) const
 		{
 			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Trying to retreive an uncached register" );
 			#endif
-			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister;
+			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].NativeRegister;
 		}
 
 		inline void	MarkAsValid( EN64Reg reg, u32 lo_hi_idx, bool valid )
@@ -159,14 +179,24 @@ public:
 			mFPRegisterCacheInfo[ reg ].Sim = Sim;
 		}
 
-		void		ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx );
+		void ClearCachedReg(EN64Reg n64_reg, u32 lo_hi_idx)
+		{
+#ifdef DAEDALUS_ENABLE_ASSERTS
+			DAEDALUS_ASSERT(IsCached(n64_reg, lo_hi_idx), "This register is not currently cached");
+			DAEDALUS_ASSERT(!IsDirty(n64_reg, lo_hi_idx), "This register is being cleared while still dirty");
+#endif
+			mRegisterCacheInfo[n64_reg][lo_hi_idx].NativeRegister = (NativeReg)-1;
+			mRegisterCacheInfo[n64_reg][lo_hi_idx].Valid = false;
+			mRegisterCacheInfo[n64_reg][lo_hi_idx].Dirty = false;
+			mRegisterCacheInfo[n64_reg][lo_hi_idx].Known = false;
+		}
 
-private:
+	private:
 
 		struct RegisterCacheInfoPSP
 		{
 			REG32			KnownValue;			// The contents (if known)
-			EPspReg			PspRegister;		// If cached, this is the psp register we're using
+			NativeReg		NativeRegister;		// If cached, this is the psp register we're using
 			bool			Valid;				// Is the contents of the register valid?
 			bool			Dirty;				// Is the contents of the register modified?
 			bool			Known;				// Is the contents of the known?
