@@ -409,7 +409,7 @@ protected:
 #ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT(mAvailableRegisters.empty(), "Why isn't the available register list empty?");
 #endif
-		for (u32 i{0}; i < RegistersToUseForCaching[i] != (NativeReg)-1; i++)
+		for (u32 i{0}; RegistersToUseForCaching[i] != (NativeReg)-1; i++)
 		{
 			mAvailableRegisters.push_back(RegistersToUseForCaching[i]);
 		}
