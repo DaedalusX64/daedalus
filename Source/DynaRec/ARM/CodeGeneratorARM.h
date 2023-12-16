@@ -60,8 +60,12 @@ class CCodeGeneratorARM : public CCodeGeneratorImpl<EArmReg>, public CAssemblyWr
 
 	private:
 				void                GetVar(EArmReg arm_reg, const u32* p_var) override;
-				void				SetVar( const u32 * p_var, u32 value ) override;
-				void				SetVar(const u32* p_var, EArmReg reg) override;
+				void				SetVar( u32 * p_var, u32 value ) override;
+				void				SetVar( u32* p_var, EArmReg reg) override;
+				void				LoadConstant( EArmReg reg, s32 value ) override { MOV32(reg, value);}
+				void				Copy(EArmReg src_reg, EArmReg dest_reg) override { MOV( dest_reg, src_reg );}
+				void 				SignedExtend(EArmReg src_reg, EArmReg dest_reg) override { MOV_ASR_IMM(src_reg, dest_reg, 0x1F);}
+
 				void				SetFloatVar(const f32* p_var, EArmVfpReg reg);
 				void				GetFloatVar( EArmVfpReg dst_reg, const f32 * p_var );
 				void				SetDoubleVar(const f64* p_var, EArmVfpReg reg);

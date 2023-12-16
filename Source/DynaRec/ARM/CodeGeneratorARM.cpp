@@ -236,7 +236,7 @@ void CCodeGeneratorARM::GetVar(EArmReg arm_reg, const u32* p_var)
 }
 
 // Stores a variable into memory (must be within offset range of &gCPUState)
-void CCodeGeneratorARM::SetVar( const u32 * p_var, u32 value )
+void CCodeGeneratorARM::SetVar( u32 * p_var, u32 value )
 {
 	uint16_t offset = (u32)p_var - (u32)&gCPUState;
 	MOV32(ArmReg_R4, (u32)value);
@@ -244,7 +244,7 @@ void CCodeGeneratorARM::SetVar( const u32 * p_var, u32 value )
 }
 
 // Stores a register into memory (must be within offset range of &gCPUState)
-void CCodeGeneratorARM::SetVar(const u32* p_var, EArmReg reg)
+void CCodeGeneratorARM::SetVar(u32* p_var, EArmReg reg)
 {
 	uint16_t offset = (u32)p_var - (u32)& gCPUState;
 	STR(reg, ArmReg_R12, offset);
