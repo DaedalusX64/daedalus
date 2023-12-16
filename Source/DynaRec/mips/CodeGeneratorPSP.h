@@ -26,11 +26,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "DynaRec/CodeGenerator.h"
 #include "AssemblyWriterPSP.h"
-#include "N64RegisterCachePSP.h"
+#include "DynarecTargetPSP.h"
+#include "DynaRec/N64RegisterCache.h"
 #include <stack>
 
 class CAssemblyBuffer;
 
+using CN64RegisterCachePSP = CN64RegisterCache<EPspReg>;
 
 class CCodeGeneratorPSP : public CCodeGenerator, public CAssemblyWriterPSP
 {

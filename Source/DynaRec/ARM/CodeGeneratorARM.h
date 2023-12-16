@@ -23,8 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "AssemblyWriterARM.h"
 #include "DynarecTargetARM.h"
 #include "DynaRec/TraceRecorder.h"
-#include "N64RegisterCacheARM.h"
+#include "DynaRec/N64RegisterCache.h"
 #include <stack>
+
+using CN64RegisterCacheARM = CN64RegisterCache<EArmReg>;
 
 // XXXX For GenerateCompare_S/D
 #define FLAG_SWAP			0x100

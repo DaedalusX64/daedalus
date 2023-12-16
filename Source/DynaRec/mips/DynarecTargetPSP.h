@@ -46,7 +46,7 @@ enum EPspFloatReg
 };
 
 // Return true if this register is temporary (i.e. not saved across function calls)
-inline bool	PspReg_IsTemporary( EPspReg psp_reg )	{ return (0xB300FFFF >> psp_reg) & 1;}
+inline bool	Reg_IsTemporary( EPspReg psp_reg )	{ return (0xB300FFFF >> psp_reg) & 1;}
 
 // Return true if this register dont need sign extension //Corn
 inline bool	N64Reg_DontNeedSign( EN64Reg n64_reg )	{ return (0x30000001 >> n64_reg) & 1;}

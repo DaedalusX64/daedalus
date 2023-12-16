@@ -59,3 +59,5 @@ enum EArmCond
 
 // Return true if this register dont need sign extension //Corn
 inline bool	N64Reg_DontNeedSign( EN64Reg n64_reg )	{ return (0x30000001 >> n64_reg) & 1;}
+
+inline bool Reg_IsTemporary(EArmReg reg) { return false; }
