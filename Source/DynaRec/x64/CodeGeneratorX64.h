@@ -51,10 +51,6 @@ class CCodeGeneratorX64 : public CCodeGeneratorImpl<EIntelReg>, public CAssembly
 		virtual void				Initialise( u32 entry_address, u32 exit_address, u32 * hit_counter, const void * p_base, const SRegisterUsageInfo & register_usage );
 		virtual void				Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps, const std::vector<RegisterSnapshotHandle>& exception_handler_snapshots );
 
-		virtual void				UpdateRegisterCaching( u32 instruction_idx );
-
-		virtual RegisterSnapshotHandle	GetRegisterSnapshot();
-
 		virtual CCodeLabel			GetEntryPoint() const;
 		virtual CCodeLabel			GetCurrentLocation() const;
 		virtual u32					GetCompiledCodeSize() const;
@@ -70,7 +66,6 @@ class CCodeGeneratorX64 : public CCodeGeneratorImpl<EIntelReg>, public CAssembly
 		virtual CJumpLocation		ExecuteNativeFunction( CCodeLabel speed_hack, bool check_return );
 
 	private:
-				void				SetVar( u32 * p_var, u32 value );
 				void				SetVar8( u32 * p_var, u8 value );
 
 				CJumpLocation		GenerateBranchAlways( CCodeLabel target );
@@ -127,6 +122,20 @@ class CCodeGeneratorX64 : public CCodeGeneratorImpl<EIntelReg>, public CAssembly
 
 				void 	GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
 				void	GenerateDSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+
+protected:
+	void SetVar(u32 *p_var, u32 value) override;
+	void SetVar(u32 *p_var, EIntelReg reg_src) override;
+	void GetVar(EIntelReg dst_reg, const u32 *p_var) override;
+	void LoadConstant(EIntelReg reg, s32 value) override {
+		MOVI(reg, value);
+	}
+	void Copy(EIntelReg src_reg, EIntelReg dest_reg) override {
+		MOV(dest_reg, src_reg, false);
+	}
+	void SignedExtend(EIntelReg src_reg, EIntelReg dest_reg) override {
+		MOVSX(dest_reg, src_reg, false);
+	}
 };
 
 #endif // SYSW32_DYNAREC_X64_CODEGENERATORX64_H_
