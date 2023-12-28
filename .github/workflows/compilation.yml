@@ -13,7 +13,7 @@ jobs:
     container: pspdev/pspdev:latest
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -42,7 +42,7 @@ jobs:
 
     - name: Upload artifacts
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: DaedalusX64-PSP
         path: daedalusX64-PSP.tar.gz
@@ -77,7 +77,7 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
@@ -106,7 +106,7 @@ jobs:
 
     - name: Upload artifacts
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: daedalusX64-linux
         path: daedalusX64-linux.tar.gz
@@ -140,7 +140,7 @@ jobs:
     runs-on: ubuntu-latest
     container: devkitpro/devkitarm:latest
     steps:
-      - uses: actions/checkout@v2 
+      - uses: actions/checkout@v4 
 
       # Needed to build CIA files
       - name: build makerom
@@ -180,7 +180,7 @@ jobs:
 
       - name: Upload artifacts
         if: ${{ success() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: daedalusX64-CTR
           path: daedalusX64-CTR.tar.gz
@@ -188,7 +188,7 @@ jobs:
   build-macos:
     runs-on: macOS-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Setup Homebrew # This will install the correct homebrew for architecture selected
       run: |
@@ -220,7 +220,7 @@ jobs:
 
     - name: Upload artifacts
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: DaedalusX64-macos
         path: daedalusX64-macos-x86.tar.gz
@@ -255,7 +255,7 @@ jobs:
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: lukka/get-cmake@latest
 
