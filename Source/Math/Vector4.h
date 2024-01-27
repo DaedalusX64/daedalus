@@ -5,11 +5,11 @@
 
 #include "Base/Types.h"
 
-class v4
+class alignas(DATA_ALIGN) v4
 {
 public:
-	constexpr v4() {}
-	constexpr v4( float _x, float _y, float _z, float _w ) : x( _x ), y( _y ), z( _z ), w( _w ) {}
+	v4() {}
+	v4( float _x, float _y, float _z, float _w ) : x( _x ), y( _y ), z( _z ), w( _w ) {}
 
 	float Normalise()
 	{
@@ -29,17 +29,16 @@ public:
 		return len_sq;
 	}
 
-	constexpr v4 operator+( const v4 & v ) const
+	v4 operator+( const v4 & v ) const
 	{
 		return (v4( x + v.x, y + v.y, z + v.z, w + v.w ));
 	}
-
-	constexpr v4 operator-( const v4 & v ) const
+	v4 operator-( const v4 & v ) const
 	{
 		return v4( x - v.x, y - v.y, z - v.z, w - v.w );
 	}
 
-	constexpr v4 operator*( float s ) const
+	v4 operator*( float s ) const
 	{
 		return v4( x * s, y * s, z * s, w * s );
 	}
@@ -49,12 +48,12 @@ public:
 		return sqrtf( (x*x)+(y*y)+(z*z)+(w*w) );
 	}
 
-	constexpr float LengthSq() const
+	float LengthSq() const
 	{
 		return (x*x)+(y*y)+(z*z)+(w*w);
 	}
 
-	constexpr float Dot( const v4 & rhs ) const
+	float Dot( const v4 & rhs ) const
 	{
 		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z) + (w*rhs.w);
 	}

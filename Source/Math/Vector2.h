@@ -7,35 +7,35 @@
 class v2
 {
 public:
-	constexpr v2() {}
-	constexpr v2( float _x, float _y ) : x( _x ), y( _y ) {}
+	v2() {}
+	v2( float _x, float _y ) : x( _x ), y( _y ) {}
 
-	constexpr v2 operator+( const v2 & v ) const
+	v2 operator+( const v2 & v ) const
 	{
 		return v2( x + v.x, y + v.y );
 	}
 
-	constexpr v2 operator-( const v2 & v ) const
+	v2 operator-( const v2 & v ) const
 	{
 		return v2( x - v.x, y - v.y );
 	}
 
-	constexpr v2 operator+() const
+	v2 operator+() const
 	{
 		return *this;
 	}
 
-	constexpr v2 operator-() const
+	v2 operator-() const
 	{
 		return v2( -x, -y );
 	}
 
-	constexpr v2 operator*( float s ) const
+	v2 operator*( float s ) const
 	{
 		return v2( x * s, y * s );
 	}
 
-	friend constexpr v2 operator*( float s, const v2 & v )
+	inline friend v2 operator*( float s, const v2 & v )
 	{
 		return v2( v.x * s, v.y * s );
 	}
@@ -46,7 +46,7 @@ public:
 		return v2( x * r, y * r );
 	}
 
-	 v2 & operator+=( const v2 & rhs )
+	const v2 & operator+=( const v2 & rhs )
 	{
 		x += rhs.x;
 		y += rhs.y;
