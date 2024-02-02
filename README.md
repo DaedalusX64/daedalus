@@ -26,7 +26,7 @@ macOS / Linux:
 Note - Native Apple Silicon build via GitHub is not available yet however it compiles fine and works (Just a bit slow as expected)
 ## Building
 All Versions require these libraries: zlib, libpng, minizip
- ## Buiilding for PSP
+ ## Building for PSP
     Fetch the latest PSP Toolchain from https://github.com/pspdev/pspdev and install required libraries
     
     Run    ./build_daedalus.sh PSP and CMake will do the required fun stuff :)
