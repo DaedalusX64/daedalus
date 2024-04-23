@@ -373,6 +373,10 @@ void	IUIContext::BeginRender()
 {
 	CGraphicsContext::Get()->BeginFrame();
 	
+	if(gSdlRenderer == nullptr){
+		gSdlRenderer = SDL_CreateRenderer(gWindow, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	}
+
 	// Clear the screen
 	SDL_RenderClear(gSdlRenderer);
 

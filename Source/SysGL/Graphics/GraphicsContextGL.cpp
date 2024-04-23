@@ -16,6 +16,7 @@ static u32 SCR_HEIGHT = 480;
 
 SDL_Window * gWindow = nullptr;
 SDL_Renderer * gSdlRenderer = nullptr;
+SDL_GLContext gContext = nullptr;
 
 extern void HandleEndOfFrame();
 
@@ -43,6 +44,7 @@ public:
 	virtual void SetDebugScreenTarget( ETargetSurface buffer ) {}
 	virtual void DumpNextScreen() {}
 	virtual void DumpScreenShot() {}
+	virtual void UItoGL();
 };
 
 template<> bool CSingleton< CGraphicsContext >::Create()
@@ -116,7 +118,7 @@ bool GraphicsContextGL::Initialise()
 	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
 
 	//Create context
-	SDL_GLContext gContext = SDL_GL_CreateContext( gWindow );
+	gContext = SDL_GL_CreateContext( gWindow );
 
 	SDL_GL_MakeCurrent(gWindow, gContext);
 
@@ -138,6 +140,16 @@ bool GraphicsContextGL::Initialise()
 	return initgl();
 }
 
+void GraphicsContextGL::UItoGL(){
+	if(gSdlRenderer != nullptr){
+	SDL_RenderPresent(gSdlRenderer);
+	SDL_RenderFlush(gSdlRenderer);
+	SDL_DestroyRenderer(gSdlRenderer);
+	gSdlRenderer = nullptr;
+	SDL_DestroyWindow(gWindow);
+	GraphicsContextGL::Initialise();
+	}
+}
 
 void GraphicsContextGL::GetScreenSize(u32 * width, u32 * height) const
 {
@@ -157,9 +169,9 @@ void GraphicsContextGL::ClearAllSurfaces()
 {
 	// FIXME: this should clear/flip a couple of times to ensure the front and backbuffers are cleared.
 	// Not sure if it's necessary...
+	GraphicsContextGL::UItoGL();
 	ClearToBlack();
 }
-
 
 void GraphicsContextGL::ClearToBlack()
 {
