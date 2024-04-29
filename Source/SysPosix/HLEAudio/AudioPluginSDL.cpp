@@ -107,8 +107,13 @@ EProcessResult AudioPluginSDL::ProcessAList()
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_ASYNC:
+			#ifdef APPLE
 			Asyncthreadreturn = pthread_create(&Asyncthread, NULL, &Audio_UcodeEntry, (void*)nullptr);
+			result = PR_COMPLETED;
+			#else
+			Audio_Ucode();
             result = PR_COMPLETED;
+			#endif
 			break;
 		case APM_ENABLED_SYNC:
 			Audio_Ucode();
