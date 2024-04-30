@@ -131,7 +131,7 @@ void	IAdvancedOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 o
 			{
 				element->OnNext();
 			}
-			if( new_buttons & (PSP_CTRL_CROSS/*|PSP_CTRL_START*/) )
+			if( new_buttons & (PSP_CTRL_CROSS|PSP_CTRL_START) )
 			{
 				element->OnSelected();
 			}

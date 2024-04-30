@@ -308,7 +308,7 @@ void	IRomPreferencesScreen::Update( float elapsed_time, const v2 & stick, u32 ol
 			{
 				element->OnNext();
 			}
-			if( new_buttons & (PSP_CTRL_CROSS/*|PSP_CTRL_START*/) )
+			if( new_buttons & (PSP_CTRL_CROSS|PSP_CTRL_START) )
 			{
 				element->OnSelected();
 			}
