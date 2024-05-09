@@ -191,14 +191,8 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 }
 
 
-//
+ICheatOptionsScreen::~ICheatOptionsScreen() {}
 
-ICheatOptionsScreen::~ICheatOptionsScreen()
-{
-}
-
-
-//
 
 void	ICheatOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
@@ -213,7 +207,7 @@ void	ICheatOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_
 			mElements.SelectNext();
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+auto element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -239,13 +233,10 @@ void	ICheatOptionsScreen::Render()
 {
 	mpContext->ClearBackground();
 
-
- s16		y;
-
 	const char * const title_text = "Cheat Options";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-	u32		heading_height( mpContext->GetFontHeight() );
-	y = MENU_TOP + heading_height;
+	u32		heading_height = mpContext->GetFontHeight();
+	s16 y = MENU_TOP + heading_height;
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
@@ -255,7 +246,6 @@ void	ICheatOptionsScreen::Render()
 	y += 4;
 
 	// Very basic scroller for cheats, note ROM tittle is disabled since it overlaps when scrolling - FIX ME
-	//
 	if( mElements.GetSelectedIndex() > 1 )
 		mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN - mElements.GetSelectedIndex()*11 );
 	else
@@ -263,10 +253,10 @@ void	ICheatOptionsScreen::Render()
 
 	//mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
+	auto element = mElements.GetSelectedElement();
 	if( element != NULL )
 	{
-		const char *		p_description( element->GetDescription() );
+		const char *		p_description = element->GetDescription();
 
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,
@@ -279,16 +269,11 @@ void	ICheatOptionsScreen::Render()
 }
 
 
-//
-
 void	ICheatOptionsScreen::Run()
 {
 	CUIScreen::Run();
 }
 
-
-
-//
 
 void	ICheatOptionsScreen::OnConfirm()
 {
@@ -301,8 +286,6 @@ void	ICheatOptionsScreen::OnConfirm()
 	mIsFinished = true;
 }
 
-
-//
 
 void	ICheatOptionsScreen::OnCancel()
 {

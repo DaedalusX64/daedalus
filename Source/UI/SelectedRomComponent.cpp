@@ -125,7 +125,7 @@ void	ISelectedRomComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			mElements.SelectNext();
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto	element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -151,10 +151,10 @@ void	ISelectedRomComponent::Render()
 {
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
+	auto element = mElements.GetSelectedElement();
 	if( element != NULL )
 	{
-		const char *		p_description( element->GetDescription() );
+		auto p_description = element->GetDescription();
 
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,
@@ -168,7 +168,7 @@ void	ISelectedRomComponent::Render()
 
 void	ISelectedRomComponent::EditPreferences()
 {
-	CRomPreferencesScreen *	edit_preferences( CRomPreferencesScreen::Create( mpContext, mRomID ) );
+	auto edit_preferences = CRomPreferencesScreen::Create( mpContext, mRomID );
 	edit_preferences->Run();
 	delete edit_preferences;
 }
@@ -176,14 +176,14 @@ void	ISelectedRomComponent::EditPreferences()
 
 void	ISelectedRomComponent::AdvancedOptions()
 {
-	CAdvancedOptionsScreen *	advanced_options( CAdvancedOptionsScreen::Create( mpContext, mRomID ) );
+	auto	advanced_options = CAdvancedOptionsScreen::Create( mpContext, mRomID );
 	advanced_options->Run();
 	delete advanced_options;
 }
 
 void	ISelectedRomComponent::CheatOptions()
 {
-	CCheatOptionsScreen *	cheat_options( CCheatOptionsScreen::Create( mpContext, mRomID ) );
+	auto cheat_options = CCheatOptionsScreen::Create( mpContext, mRomID );
 	cheat_options->Run();
 	delete cheat_options;
 }

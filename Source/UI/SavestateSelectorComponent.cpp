@@ -150,12 +150,12 @@ ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context
 void ISavestateSelectorComponent::LoadFolders(){
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
-	u32 i {0};
-	const char * description_text( mAccessType == AT_SAVING ? "Select the slot in which to save" : "Select the slot from which to load" );
+	u32 i = 0;
+	const char * description_text = mAccessType == AT_SAVING ? "Select the slot in which to save" : "Select the slot from which to load";
 	IO::Filename full_path;
 	// We're using the same vector for directory names and slots, so we have to clear it
 	mElements.Clear();
-	for( u32 i {0}; i < NUM_SAVESTATE_SLOTS; ++i)
+	for( u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i)
 	{
 		mPVExists[ i ] = 0;
 		mLastPreviewLoad = ~0 ;
@@ -169,11 +169,11 @@ void ISavestateSelectorComponent::LoadFolders(){
 			if(std::filesystem::is_directory(full_path) && strlen( find_data.Name ) > 2 )
 			{
 				COutputStringStream str;
-				CUIElement * element;
+				// CUIElement * element;
 				str << find_data.Name;
 				CFunctor1< u32 > *	functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnFolderSelected ) );
 				CFunctor *		curried( new CCurriedFunctor< u32 >( functor_1, i++ ) );
-				element = new CUICommandImpl( curried, str.c_str(), description_text );
+				auto element = new CUICommandImpl( curried, str.c_str(), description_text );
 				mElements.Add( element );
 				mElementTitle.push_back(find_data.Name);
 			}
@@ -189,11 +189,11 @@ void ISavestateSelectorComponent::LoadFolders(){
 			if(std::filesystem::is_directory(full_path) && strlen( find_data.Name ) > 2 )
 			{
 				COutputStringStream str;
-				CUIElement *element;
+				// CUIElement *element;
 				str << find_data.Name;
 				CFunctor1< u32 > *functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnFolderSelected ) );
 				CFunctor *curried( new CCurriedFunctor< u32 >( functor_1, i++ ) );
-				element = new CUICommandImpl( curried, str.c_str(), description_text );
+			auto	element = new CUICommandImpl( curried, str.c_str(), description_text );
 				mElements.Add( element );
 				mElementTitle.push_back(find_data.Name);
 			}
@@ -203,21 +203,20 @@ void ISavestateSelectorComponent::LoadFolders(){
 	}
 	else
 	{
-		CUIElement *element;
-		element = new CUICommandDummy( "There are no Savestates to load", "There are no Savestates to load" );
+		auto element = new CUICommandDummy( "There are no Savestates to load", "There are no Savestates to load" );
 		mElements.Add( element );
 	}
 
 }
 
 void ISavestateSelectorComponent::LoadSlots(){
-	const char * description_text( mAccessType == AT_SAVING ? "Select the slot in which to save [X:save O:back]" : "Select the slot from which to load [X:load O:back []:delete]" );
+	const char * description_text = mAccessType == AT_SAVING ? "Select the slot in which to save [X:save O:back]" : "Select the slot from which to load [X:load O:back []:delete]";
 	char date_string[30];
 	// We're using the same vector for directory names and slots, so we have to clear it
 	mElements.Clear();
 	mLastPreviewLoad = ~0;
 
-	for( u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i )
+	for( auto i = 0; i < NUM_SAVESTATE_SLOTS; ++i )
 	{
 		COutputStringStream		str;
 		str << Translate_String("Slot ") << (i+1) << ": ";
@@ -321,7 +320,7 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 			    deleteButtonTriggered=false;
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -404,13 +403,13 @@ void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
 }
 void	ISavestateSelectorComponent::Render()
 {
-	const u32	font_height( mpContext->GetFontHeight() );
+	const u32	font_height = mpContext->GetFontHeight();
 
 	if( mSelectedSlot == INVALID_SLOT )
 	{
 		mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, BELOW_MENU_MIN - mElements.GetSelectedIndex()*(font_height+2) );
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto	element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 
@@ -449,7 +448,7 @@ void	ISavestateSelectorComponent::Render()
 	{
 		const char * title_text( mAccessType == AT_SAVING ? SAVING_STATUS_TEXT : LOADING_STATUS_TEXT );
 
-		s32 y( ( mpContext->GetScreenHeight() - font_height ) / 2 + font_height );
+		s32 y = ( mpContext->GetScreenHeight() - font_height ) / 2 + font_height;
 		mpContext->DrawTextAlign( 0, mpContext->GetScreenWidth(), AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() );
 	}
 

@@ -120,7 +120,7 @@ void	IAdvancedOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 o
 			mElements.SelectNext();
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+auto element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -143,14 +143,13 @@ void	IAdvancedOptionsScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	s16		font_height( mpContext->GetFontHeight() );
-	s16		line_height( font_height + 2 );
-	s16		y;
+	s16		font_height = mpContext->GetFontHeight();
+	s16		line_height = font_height + 2;
 
 	const char * const title_text = "Advanced Options";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-	s16		heading_height( mpContext->GetFontHeight() );
-	y = MENU_TOP + heading_height;
+	s16		heading_height = mpContext->GetFontHeight();
+	s16 y = MENU_TOP + heading_height;
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
@@ -162,10 +161,10 @@ void	IAdvancedOptionsScreen::Render()
 
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
+	auto	element = mElements.GetSelectedElement();
 	if( element != NULL )
 	{
-		const char *		p_description( element->GetDescription() );
+		const char *		p_description = element->GetDescription();
 
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,

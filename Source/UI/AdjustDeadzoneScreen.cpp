@@ -69,15 +69,12 @@ class IAdjustDeadzoneScreen : public CAdjustDeadzoneScreen, public CUIScreen
 CAdjustDeadzoneScreen::~CAdjustDeadzoneScreen() {}
 
 
-//
 
 CAdjustDeadzoneScreen *	CAdjustDeadzoneScreen::Create( CUIContext * p_context )
 {
 	return new IAdjustDeadzoneScreen( p_context );
 }
 
-
-//
 
 IAdjustDeadzoneScreen::IAdjustDeadzoneScreen( CUIContext * p_context )
 :	CUIScreen( p_context )
@@ -151,8 +148,8 @@ void	IAdjustDeadzoneScreen::Update( float elapsed_time, const v2 & stick, u32 ol
 	SceCtrlData		pad;
 	sceCtrlPeekBufferPositive(&pad, 1);
 
-	s32		stick_x( pad.Lx - 128 );
-	s32		stick_y( pad.Ly - 128 );
+	s32		stick_x = pad.Lx - 128;
+	s32		stick_y = pad.Ly - 128;
 
 	mPspStick.x = f32(stick_x) / 128.0f;
 	mPspStick.y = f32(stick_y) / 128.0f;
@@ -165,13 +162,13 @@ void	IAdjustDeadzoneScreen::DrawCircle( s32 x, s32 y, s32 r, c32 colour )
 {
 	const u32 NUM_POINTS = 32;
 
-	f32		radius( r );
+	f32		radius = r;
 	s32		x0 = s32( sinf( 0 ) * radius ) + x;
 	s32		y0 = s32( cosf( 0 ) * radius ) + y;
 
 	for( u32 i = 0; i < NUM_POINTS; ++i )
 	{
-		f32		angle( 2 * PI * f32( i+1 ) / f32( NUM_POINTS ) );
+		f32		angle = 2 * PI * f32( i+1 ) / f32( NUM_POINTS );
 		s32		x1 = s32( sinf( angle ) * radius ) + x;
 		s32		y1 = s32( cosf( angle ) * radius ) + y;
 
@@ -211,8 +208,8 @@ void	IAdjustDeadzoneScreen::DrawStick( s32 x, s32 y, s32 r, const v2 & stick, f3
 		DrawCircle( x, y, s32(r * min_deadzone), mAdjustingMinDeadzone ? red : white );
 	}
 
-	s32		stick_x( x + s32( stick.x * r ) );
-	s32		stick_y( y + s32( stick.y * r ) );
+	s32		stick_x = x + s32( stick.x * r );
+	s32		stick_y = y + s32( stick.y * r );
 
 	DrawCrosshair( stick_x, stick_y, white );
 }

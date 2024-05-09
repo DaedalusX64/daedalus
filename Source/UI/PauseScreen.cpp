@@ -148,7 +148,7 @@ IPauseScreen::~IPauseScreen()
 
 EMenuOption		IPauseScreen::GetPreviousValidOption() const
 {
-	bool			looped( false );
+	bool			looped = false;
 	EMenuOption		current_option( mCurrentOption );
 
 	do
@@ -164,7 +164,7 @@ EMenuOption		IPauseScreen::GetPreviousValidOption() const
 
 EMenuOption		IPauseScreen::GetNextValidOption() const
 {
-	bool			looped( false );
+	bool			looped = false;
 	EMenuOption		current_option( mCurrentOption );
 
 	do

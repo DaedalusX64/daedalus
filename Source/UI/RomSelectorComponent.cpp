@@ -78,9 +78,6 @@ namespace
 
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 struct SRomInfo
 {
 	std::filesystem::path	mFilename;
@@ -102,10 +99,8 @@ struct SRomInfo
 				mSettings.Reset();
 				mSettings.Comment = "Unknown";
 
-				//
 				// We want to get the "internal" name for this rom from the header
 				// Failing that, use the filename
-				//
 				std::string game_name;
 				if ( !ROM_GetRomName( filename, game_name ) )
 				{
@@ -124,12 +119,10 @@ struct SRomInfo
 	}
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 static ECategory Categorise( const char * name )
 {
-	char	c( name[ 0 ] );
+	char	c = name[ 0 ];
 	return GetCategory( c );
 }
 
@@ -147,9 +140,7 @@ static bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
 	return ( strcmp( a->mSettings.GameName.c_str(), b->mSettings.GameName.c_str() ) < 0 );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 //Lifting this out makes it remmember last choosen ROM
 //Could probably be fixed better but C++ is giving me an attitude //Corn
 static u32 mCurrentSelection = 0;
@@ -200,9 +191,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		bool						mQuitInit;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 CRomSelectorComponent::CRomSelectorComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
 {}
@@ -215,9 +204,7 @@ CRomSelectorComponent *	CRomSelectorComponent::Create( CUIContext * p_context, C
 	return new IRomSelectorComponent( p_context, on_rom_selected );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1< const char * > * on_rom_selected )
 :	CRomSelectorComponent( p_context )
 ,	OnRomSelected( on_rom_selected )
@@ -232,7 +219,7 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 ,	mQuitTriggered(false)
 ,	mQuitInit(false)
 {
-	for( u32 i = 0; i < ARRAYSIZE( gRomsDirectories ); ++i )
+	for( auto i = 0; i < ARRAYSIZE( gRomsDirectories ); ++i )
 	{
 		AddRomDirectory( gRomsDirectories[ i ], mRomsList );
 	}
@@ -240,7 +227,7 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 	stable_sort( mRomsList.begin(), mRomsList.end(), SortByGameName );
 
 	// Build up a map of the first location for each initial letter
-	for( u32 i = 0; i < mRomsList.size(); ++i )
+	for( auto i = 0; i < mRomsList.size(); ++i )
 	{
 		const char *	p_gamename( mRomsList[ i ]->mSettings.GameName.c_str() );
 		ECategory		category( Categorise( p_gamename ) );
@@ -252,9 +239,7 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 IRomSelectorComponent::~IRomSelectorComponent()
 {
 	for(RomInfoList::iterator it = mRomsList.begin(); it != mRomsList.end(); ++it)
@@ -275,7 +260,7 @@ void	IRomSelectorComponent::UpdateROMList()
 {
 	for(RomInfoList::iterator it = mRomsList.begin(); it != mRomsList.end(); ++it)
 	{
-		SRomInfo *	p_rominfo( *it );
+		auto	p_rominfo  = *it;
 
 		delete p_rominfo;
 	}
@@ -286,7 +271,7 @@ void	IRomSelectorComponent::UpdateROMList()
 	mpPreviewTexture = NULL;
 	mPreviewIdx= u32(-1);
 
-	for( u32 i = 0; i < ARRAYSIZE( gRomsDirectories ); ++i )
+	for( auto i = 0; i < ARRAYSIZE( gRomsDirectories ); ++i )
 	{
 		AddRomDirectory( gRomsDirectories[ i ], mRomsList );
 	}
@@ -294,9 +279,9 @@ void	IRomSelectorComponent::UpdateROMList()
 	stable_sort( mRomsList.begin(), mRomsList.end(), SortByGameName );
 
 	// Build up a map of the first location for each initial letter
-	for( u32 i = 0; i < mRomsList.size(); ++i )
+	for( auto i = 0; i < mRomsList.size(); ++i )
 	{
-		const char *	p_gamename( mRomsList[ i ]->mSettings.GameName.c_str() );
+		const char *	p_gamename = mRomsList[ i ]->mSettings.GameName.c_str();
 		ECategory		category( Categorise( p_gamename ) );
 
 		if( mRomCategoryMap.find( category ) == mRomCategoryMap.end() )
@@ -306,9 +291,7 @@ void	IRomSelectorComponent::UpdateROMList()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IRomSelectorComponent::AddRomDirectory(const char * p_roms_dir, RomInfoList & roms)
 {
 	std::string			full_path;
@@ -319,13 +302,13 @@ void	IRomSelectorComponent::AddRomDirectory(const char * p_roms_dir, RomInfoList
 	{
 		do
 		{
-			const char * rom_filename( find_data.Name );
+			const char * rom_filename = find_data.Name;
 			if(IsRomfilename( rom_filename ))
 			{
 				full_path = p_roms_dir;
 				full_path += rom_filename;
 
-				SRomInfo *	p_rom_info = new SRomInfo( full_path.c_str() );
+				auto p_rom_info = new SRomInfo( full_path.c_str() );
 
 				roms.push_back( p_rom_info );
 			}
@@ -336,9 +319,7 @@ void	IRomSelectorComponent::AddRomDirectory(const char * p_roms_dir, RomInfoList
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 ECategory	IRomSelectorComponent::GetCurrentCategory() const
 {
 	if( !mRomsList.empty() )
@@ -349,9 +330,7 @@ ECategory	IRomSelectorComponent::GetCurrentCategory() const
 	return C_NUMBERS;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const char * field_txt, const char * value_txt  )
 {
 	c32			colour(	p_context->GetDefaultTextColour() );
@@ -360,9 +339,7 @@ void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const 
 	p_context->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, value_txt, colour );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void IRomSelectorComponent::RenderPreview()
 {
 	c32	clrGREY = c32( 195, 195, 195, 0 );
@@ -393,18 +370,18 @@ void IRomSelectorComponent::RenderPreview()
 	}
 
 
-	u32		font_height( mpContext->GetFontHeight() );
-	u32		line_height( font_height + 1 );
+	u32		font_height =  mpContext->GetFontHeight();
+	u32		line_height = font_height + 1;
 
 	s32 y = BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 1 + font_height;
 
 	if( mCurrentSelection < mRomsList.size() )
 	{
-		SRomInfo *	p_rominfo( mRomsList[ mCurrentSelection ] );
+		auto p_rominfo = mRomsList[ mCurrentSelection ];
 
-		const char *	cic_name( ROM_GetCicName( p_rominfo->mCicType ) );
-		const char *	country( ROM_GetCountryNameFromID( p_rominfo->mRomID.CountryID ) );
-		u32				rom_size( p_rominfo->mRomSize );
+		const char *	cic_name = ROM_GetCicName( p_rominfo->mCicType );
+		const char *	country = ROM_GetCountryNameFromID( p_rominfo->mRomID.CountryID );
+		u32				rom_size = p_rominfo->mRomSize;
 
 		char buffer[ 32 ];
 		snprintf( buffer, sizeof(buffer), "%d MB", rom_size / (1024*1024) );
@@ -429,8 +406,8 @@ void IRomSelectorComponent::RenderPreview()
 }
 void IRomSelectorComponent::RenderRomList()
 {
-	u32		font_height( mpContext->GetFontHeight() );
-	u32		line_height( font_height + 2 );
+	u32		font_height =  mpContext->GetFontHeight();
+	u32		line_height = font_height + 2;
 
 	s32		x,y;
 	x = LIST_TEXT_LEFT;
@@ -441,8 +418,8 @@ void IRomSelectorComponent::RenderRomList()
 	sceGuScissor(LIST_TEXT_LEFT, BELOW_MENU_MIN, LIST_TEXT_LEFT+LIST_TEXT_WIDTH, BELOW_MENU_MIN+LIST_TEXT_HEIGHT);
 #endif
 
-	const char * const	ptr_text( "> " );
-	u32					ptr_text_width( mpContext->GetTextWidth( ptr_text ) );
+	const char * const	ptr_text = "> ";
+	u32					ptr_text_width = mpContext->GetTextWidth( ptr_text );
 
 	for(u32 i = 0; i < mRomsList.size(); ++i)
 	{
@@ -520,7 +497,7 @@ void IRomSelectorComponent::RenderCategoryList()
 
 void IRomSelectorComponent::Render()
 {
-	static u32 count=0;
+	static u32 count = 0;
 
 	const char * const		message[] =
 	{	"(X) -> Load",
@@ -534,8 +511,8 @@ void IRomSelectorComponent::Render()
 
 	if( mRomsList.empty() )
 	{
-		s32 offset( 0 );
-		for( u32 i = 0; i < ARRAYSIZE( gNoRomsText ); ++i )
+		s32 offset = 0;
+		for( auto i = 0; i < ARRAYSIZE( gNoRomsText ); ++i )
 		{
 			offset += mpContext->DrawTextArea( LIST_TEXT_LEFT, BELOW_MENU_MIN + offset, LIST_TEXT_WIDTH, LIST_TEXT_HEIGHT - offset, gNoRomsText[ i ], DrawTextUtilities::TextWhite, VA_TOP );
 			offset += 4;
@@ -567,9 +544,7 @@ void IRomSelectorComponent::Render()
 }
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	static const float	SCROLL_RATE_PER_SECOND = 25.0f;		// 25 roms/second
@@ -589,7 +564,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 	ECategory current_category( GetCurrentCategory() );
 
-	u32				initial_selection( mCurrentSelection );
+	u32	initial_selection = mCurrentSelection;
 
 	mDisplayFilenames = (new_buttons & PSP_CTRL_TRIANGLE) != 0;
 
@@ -681,7 +656,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	//
 	//	Apply the selection accumulator
 	//
-	f32		current_vel( mSelectionAccumulator );
+	f32	current_vel = mSelectionAccumulator;
 	while(mSelectionAccumulator >= 1.0f)
 	{
 		if(mCurrentSelection < mRomsList.size() - 1)
@@ -706,19 +681,19 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	//	We add on 'current_vel * 2' to keep the selection highlight as close to the
 	//	center as possible (as if we're predicting 2 frames ahead)
 	//
-	const u32		font_height( mpContext->GetFontHeight() );
-	const u32		line_height( font_height + 2 );
+	const u32		font_height = mpContext->GetFontHeight();
+	const u32		line_height = font_height + 2;
 
 	if( mRomsList.size() * line_height > LIST_TEXT_HEIGHT )
 	{
 		s32		current_selection_y = s32((mCurrentSelection + current_vel * 2) * line_height) + (line_height/2) + mCurrentScrollOffset;
 
-		s32		adjust_amount( (LIST_TEXT_HEIGHT/2) - current_selection_y );
+		s32		adjust_amount = (LIST_TEXT_HEIGHT/2) - current_selection_y;
 
-		float d( 1.0f - powf(0.993f, elapsed_time * 1000.0f) );
+		float d = 1.0f - powf(0.993f, elapsed_time * 1000.0f);
 
-		u32		total_height( mRomsList.size() * line_height );
-		s32		min_offset( LIST_TEXT_HEIGHT - total_height );
+		u32	total_height = mRomsList.size() * line_height;
+		s32	min_offset = LIST_TEXT_HEIGHT - total_height;
 
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
@@ -741,10 +716,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		mTimeSinceScroll = 0;
 	}
 
-	//
 	//	If the current selection is different from the preview, invalidate the picture.
-	//
-	//
 	if( mCurrentSelection < mRomsList.size() && mPreviewIdx != mCurrentSelection )
 	{
 		//mPreviewIdx = u32(-1);
@@ -753,10 +725,8 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		if(mPreviewLoadedTime < 0.0f)
 			mPreviewLoadedTime = 0.0f;
 
-		//
 		//	If we've waited long enough since starting to scroll, try and load the preview image
 		//	Note that it may fail, so we sort out the other flags regardless.
-		//
 		if( mTimeSinceScroll > PREVIEW_SCROLL_WAIT )
 		{
 			mpPreviewTexture = NULL;

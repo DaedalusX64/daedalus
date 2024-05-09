@@ -39,10 +39,10 @@ void	CColourPulser::Update( u32 elapsed_ms )
 {
 	mTimeCounter = (mTimeCounter + elapsed_ms) % mCyclePeriod;
 
-	f32	cycle_fraction( f32(mTimeCounter) / f32(mCyclePeriod) );
+	f32	cycle_fraction = f32(mTimeCounter) / f32(mCyclePeriod);
 
-	f32	sin_val( cosf( cycle_fraction * 2.0f * PI ) );				// In range -1..+1
-	f32	factor( ( sin_val + 1.0f ) / 2.0f );							// In range 0..1
+	f32	sin_val = cosf( cycle_fraction * 2.0f * PI );				// In range -1..+1
+	f32	factor = ( sin_val + 1.0f ) / 2.0f;							// In range 0..1
 
 	mCurrentColour = mDimColour.Interpolate( mBrightColour, factor );
 }

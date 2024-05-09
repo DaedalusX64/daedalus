@@ -9,7 +9,7 @@ const s16 SCREEN_WIDTH {480};
 const s16 SCREEN_HEIGHT {272};
 
 // to do adjust values to suit multiple screens
-const s16 MENU_TOP {5};
+const auto MENU_TOP {5};
 const s16 TITLE_HEADER {10};
 
 const s16 BELOW_MENU_MIN {33}; // Rename this as it's confusing

@@ -93,11 +93,20 @@ void	ISplashScreen::Update( float elapsed_time, const v2 & stick, u32 old_button
 
 void	ISplashScreen::Render()
 {
-	f32	alpha( 255.0f * sinf( mElapsedTime * PI / MAX_TIME ) );
-	u8		a;
-	if( alpha >= 255.0f ) a = 255;
-	else if (alpha < 0.f) a = 0;
-	else	a = u8( alpha );
+	f32	alpha = 255.0f * sinf( mElapsedTime * PI / MAX_TIME );
+	u8		a = 0;
+	if( alpha >= 255.0f ) 
+	{
+		a = 255;
+	}
+		else if (alpha < 0.f) 
+		{
+			a = 0;
+		}
+			else	
+			{
+				a = u8( alpha );
+			}
 
 	c32		colour( 255, 255, 255, a );
 

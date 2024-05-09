@@ -79,15 +79,15 @@ void	IAboutComponent::Update( float elapsed_time, const v2 & stick, u32 old_butt
 void	IAboutComponent::Render()
 {
 
-		s16 text_top( 38 );
+		s16 text_top = 38;
 
 	if(mpTexture != NULL)
 	{
-		s16		w( mpTexture->GetWidth() );
-		s16		h( mpTexture->GetHeight() );
+		s16		w = mpTexture->GetWidth();
+		s16		h = mpTexture->GetHeight();
 
 		f32		desired_height = 60.0f;
-		f32		scale( desired_height / f32( h ) );
+		f32		scale = desired_height / f32( h );
 
 		v2		wh( f32( w ) * scale, f32( h ) * scale );
 		v2		tl( f32( (SCREEN_WIDTH - wh.x)/2 ), f32( text_top ) );
@@ -97,24 +97,23 @@ void	IAboutComponent::Render()
 		text_top += u32( wh.y + 10.0f );
 	}
 
-	s16			y;
-	const s16	line_height( mpContext->GetFontHeight() + 2 );
+	const s16	line_height = mpContext->GetFontHeight() + 2;
 
-	y = text_top;
+	s16 y = text_top;
 
 	std::string	version = DAEDALUS_VERSION_TEXT + DAEDALUS_CONFIG_VERSION;
 
 
-std::string	date = DATE_TEXT + __DATE__;
+	std::string	date = DATE_TEXT + __DATE__;
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, version.data(), DrawTextUtilities::TextWhite ); y += line_height;
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, date.data(), DrawTextUtilities::TextWhite ); y += line_height;
 
 	// Spacer
 	y += line_height;
 
-	for( size_t i = 0; i < ARRAYSIZE( INFO_TEXT ); ++i )
+	for( auto i = 0; i < ARRAYSIZE( INFO_TEXT ); ++i )
 	{
-		const char * str( INFO_TEXT[ i ] );
+		const char * str = INFO_TEXT[ i ];
 
 		mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, str, DrawTextUtilities::TextWhite );
 		y += line_height;
