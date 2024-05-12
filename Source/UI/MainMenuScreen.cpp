@@ -370,7 +370,7 @@ void DisplayRomsAndChoose(bool show_splash)
 
 		if( show_splash )
 		{
-			auto p_splash = cdCSplashScreen::Create( p_context );
+			auto p_splash = CSplashScreen::Create( p_context );
 			p_splash->Run();
 			delete p_splash;
 		}
