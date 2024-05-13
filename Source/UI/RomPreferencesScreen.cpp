@@ -271,8 +271,8 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 
 //	mElements.Add( new CUISpacer( 16 ) );
 
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IRomPreferencesScreen >( this, &IRomPreferencesScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IRomPreferencesScreen >( this, &IRomPreferencesScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl( [this]() { OnConfirm(); }, "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl([this]() { OnCancel(); }, "Cancel", "Cancel changes to settings and return." ) );
 
 }
 

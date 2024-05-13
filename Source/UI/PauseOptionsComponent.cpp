@@ -41,8 +41,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UISetting.h"
 #include "UICommand.h"
 #include "UISpacer.h"
-#include "Utility/Functor.h"
 #include "System/IO.h"
+
+#include <functional>
 
 
 extern bool gTakeScreenshot;
@@ -53,7 +54,7 @@ class IPauseOptionsComponent : public CPauseOptionsComponent
 {
 	public:
 
-		IPauseOptionsComponent( CUIContext * p_context, CFunctor * on_resume, CFunctor * on_reset );
+		IPauseOptionsComponent( CUIContext * p_context, std::function<void()> on_resume, std::function<void()> on_reset );
 		~IPauseOptionsComponent();
 
 		// CUIComponent
@@ -78,13 +79,10 @@ class IPauseOptionsComponent : public CPauseOptionsComponent
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				void				DebugDisplayList();
 #endif
-#ifdef DAEDALUS_KERNEL_MODE
-				void				ProfileNextFrame();
-#endif
 
 	private:
-		CFunctor *					mOnResume;
-		CFunctor *					mOnReset;
+		std::function<void()>				mOnResume;
+		std::function<void()>		mOnReset;
 
 		CUIElementBag				mElements;
 };
@@ -98,42 +96,41 @@ CPauseOptionsComponent::CPauseOptionsComponent( CUIContext * p_context )
 CPauseOptionsComponent::~CPauseOptionsComponent() {}
 
 
-CPauseOptionsComponent *	CPauseOptionsComponent::Create( CUIContext * p_context, CFunctor * on_resume, CFunctor * on_reset )
+CPauseOptionsComponent *	CPauseOptionsComponent::Create( CUIContext * p_context, std::function<void()> on_resume, std::function<void()> on_reset )
 {
 	return new IPauseOptionsComponent( p_context, on_resume, on_reset );
 }
 
 
-IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor * on_resume, CFunctor * on_reset )
+IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, std::function<void()> on_resume, std::function<void()> on_reset )
 :	CPauseOptionsComponent( p_context )
 ,	mOnResume( on_resume )
 ,	mOnReset( on_reset )
 {
 	mElements.Add( new CUISpacer( 10 ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::EditPreferences ), "Edit Preferences", "Edit various preferences for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::AdvancedOptions ), "Advanced Options", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::CheatOptions ), "Cheats", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::SaveState ), "Save State", "Save the current state." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::LoadState ), "Load/Delete State", "Restore or delete a previously saved state." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::TakeScreenshot ), "Take Screenshot", "Take a screenshot on resume." ) );
+	mElements.Add( new CUICommandImpl( [this]() { EditPreferences(); }, "Edit Preferences", "Edit various preferences for this rom." ) );
+	mElements.Add( new CUICommandImpl( [this]() { AdvancedOptions(); }, "Advanced Options", "Edit advanced options for this rom." ) );
+	mElements.Add( new CUICommandImpl( [this]() { CheatOptions(); }, "Cheats", "Edit advanced options for this rom." ) );
+	mElements.Add( new CUICommandImpl( [this]() { SaveState();} , "Save State", "Save the current state." ) );
+	mElements.Add( new CUICommandImpl( [this]() { LoadState();}, "Load/Delete State", "Restore or delete a previously saved state." ) );
+	mElements.Add( new CUICommandImpl( [this]() {TakeScreenshot();}, "Take Screenshot", "Take a screenshot on resume." ) );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::DebugDisplayList ), "Debug Display List", "Debug display list on resume." ) );
+		mElements.Add( new CUICommandImpl( [this]() {DebugDisplayList(); }, "Debug Display List", "Debug display list on resume." ) );
 #endif
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
-		//mElements.Add( new CUICommandImpl( new CStaticFunctor( CPU_DumpFragmentCache ), "Dump Fragment Cache", "Dump the contents of the dynarec fragment cache to disk." ) );
-	//	mElements.Add( new CUICommandImpl( new CStaticFunctor( CPU_ResetFragmentCache ), "Clear Fragment Cache", "Clear the contents of the dynarec fragment cache." ) );
-	//	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ProfileNextFrame ), "Profile Frame", "Profile the next frame on resume." ) );
+		//mElements.Add( new CUICommandImpl( [this]() { CPU_DumpFragmentCache(); }, "Dump Fragment Cache", "Dump the contents of the dynarec fragment cache to disk." ) );
+	//	mElements.Add( new CUICommandImpl( [this]() { CPU_ResetFragmentCache();, "Clear Fragment Cache", "Clear the contents of the dynarec fragment cache." ) );
 #endif
 
 	mElements.Add( new CUISpacer( 16 ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnResume ), "Resume Emulation", "Resume emulation." ) );
+	mElements.Add( new CUICommandImpl( [this]() {OnResume(); }, "Resume Emulation", "Resume emulation." ) );
 
 #ifdef DAEDALUS_DIALOGS
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ExitConfirmation ), "Return to Main Menu", "Return to the main menu." ) );
+	mElements.Add( new CUICommandImpl( [this]() { ExitConfirmation(); }, "Return to Main Menu", "Return to the main menu." ) );
 #else
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnReset ), "Return to Main Menu", "Return to the main menu." ) );
+	mElements.Add( new CUICommandImpl( [this]() {OnReset(); }, "Return to Main Menu", "Return to the main menu." ) );
 #endif
 }
 
@@ -198,23 +195,23 @@ void IPauseOptionsComponent::ExitConfirmation()
 {
 	if(gShowDialog.Render( mpContext,"Return to main menu?", false) )
 	{
-		(*mOnReset)();
+		mOnReset();
 	}
 }
 #endif
 
-void IPauseOptionsComponent::OnResume() { (*mOnResume)(); }
+void IPauseOptionsComponent::OnResume() { mOnResume(); }
 
 
 void IPauseOptionsComponent::OnReset()
 {
-	(*mOnReset)();
+	mOnReset();
 }
 
 
 void	IPauseOptionsComponent::EditPreferences()
 {
-	CRomPreferencesScreen *	edit_preferences( CRomPreferencesScreen::Create( mpContext, g_ROM.mRomID ) );
+	auto	edit_preferences = CRomPreferencesScreen::Create( mpContext, g_ROM.mRomID );
 	edit_preferences->Run();
 	delete edit_preferences;
 }
@@ -222,7 +219,7 @@ void	IPauseOptionsComponent::EditPreferences()
 
 void	IPauseOptionsComponent::AdvancedOptions()
 {
-	CAdvancedOptionsScreen *	advanced_options( CAdvancedOptionsScreen::Create( mpContext, g_ROM.mRomID ) );
+	auto	advanced_options = CAdvancedOptionsScreen::Create( mpContext, g_ROM.mRomID );
 	advanced_options->Run();
 	delete advanced_options;
 }
@@ -237,22 +234,21 @@ void	IPauseOptionsComponent::CheatOptions()
 
 void	IPauseOptionsComponent::SaveState()
 {
-	CSavestateSelectorComponent *	component( CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_SAVING, new CMemberFunctor1< IPauseOptionsComponent, const char * >( this, &IPauseOptionsComponent::OnSaveStateSlotSelected ), g_ROM.settings.GameName.c_str() ) );
-
-	CUIComponentScreen *			screen( CUIComponentScreen::Create( mpContext, component, SAVING_TITLE_TEXT ) );
+	auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelectorComponent::AT_SAVING, [this](const char* slot) {OnSaveStateSlotSelected(slot);}, g_ROM.settings.GameName.c_str());
+	auto screen = CUIComponentScreen::Create( mpContext, component, SAVING_TITLE_TEXT );
 	screen->Run();
 	delete screen;
-	(*mOnResume)();
+	mOnResume();
 }
 
 
 void	IPauseOptionsComponent::LoadState()
 {
-	CSavestateSelectorComponent *	component( CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_LOADING, new CMemberFunctor1< IPauseOptionsComponent, const char * >( this, &IPauseOptionsComponent::OnLoadStateSlotSelected ), g_ROM.settings.GameName.c_str() ) );
-	CUIComponentScreen *			screen( CUIComponentScreen::Create( mpContext, component, LOADING_TITLE_TEXT ) );
+	auto component = CSavestateSelectorComponent::Create (mpContext, CSavestateSelectorComponent::AT_LOADING, [this](const char* slot) { OnLoadStateSlotSelected(slot);}, g_ROM.settings.GameName.c_str());
+	auto screen = CUIComponentScreen::Create( mpContext, component, LOADING_TITLE_TEXT );
 	screen->Run();
 	delete screen;
-	(*mOnResume)();
+	mOnResume();
 }
 
 
@@ -275,7 +271,7 @@ void	IPauseOptionsComponent::OnLoadStateSlotSelected( const char * filename )
 void IPauseOptionsComponent::TakeScreenshot()
 {
 	gTakeScreenshot = true;
-	(*mOnResume)();
+	mOnResume();
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -283,6 +279,6 @@ void IPauseOptionsComponent::TakeScreenshot()
 void IPauseOptionsComponent::DebugDisplayList()
 {
 	DLDebugger_RequestDebug();
-	(*mOnResume)();
+	mOnResume();
 }
 #endif

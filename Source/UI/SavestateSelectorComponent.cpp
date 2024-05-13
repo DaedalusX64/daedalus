@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <filesystem>
 #include <chrono>
+#include <format>
 
 #include "Core/ROM.h"
 #include "Interface/SaveState.h"
@@ -45,7 +46,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 {
 	public:
 
-		ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, CFunctor1< const char * > * on_slot_selected, const char *running_rom );
+		ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, std::function<void (const char *)> on_slot_selected, const char *running_rom );
 		~ISavestateSelectorComponent();
 
 		// CUIScreen
@@ -66,7 +67,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 
 	private:
 		EAccessType				mAccessType;
-		CFunctor1< const char * > *		mOnSlotSelected;
+		std::function<void (const char *)>	mOnSlotSelected;
 
 		u32					mSelectedSlot;
 		bool					mIsFinished;
@@ -91,7 +92,7 @@ CSavestateSelectorComponent::CSavestateSelectorComponent( CUIContext * p_context
 {}
 
 
-CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType accetype, CFunctor1< const char * > * on_slot_selected, const char *running_rom )
+CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType accetype, std::function<void(const char *)> on_slot_selected, const char *running_rom )
 {
 	return new ISavestateSelectorComponent( p_context, accetype, on_slot_selected, running_rom );
 }
@@ -125,7 +126,7 @@ namespace
 	}
 }
 
-ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, CFunctor1< const char * > * on_slot_selected, const char *running_rom )
+ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, std::function<void(const char *)> on_slot_selected, const char *running_rom )
 :	CSavestateSelectorComponent( p_context )
 ,	mAccessType( accetype )
 ,	mOnSlotSelected( on_slot_selected )
@@ -171,9 +172,7 @@ void ISavestateSelectorComponent::LoadFolders(){
 				COutputStringStream str;
 				// CUIElement * element;
 				str << find_data.Name;
-				CFunctor1< u32 > *	functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnFolderSelected ) );
-				CFunctor *		curried( new CCurriedFunctor< u32 >( functor_1, i++ ) );
-				auto element = new CUICommandImpl( curried, str.c_str(), description_text );
+				auto element = new CUICommandImpl( [this, &i]() { OnFolderSelected(i++); }, str.c_str(), description_text );
 				mElements.Add( element );
 				mElementTitle.push_back(find_data.Name);
 			}
@@ -191,9 +190,7 @@ void ISavestateSelectorComponent::LoadFolders(){
 				COutputStringStream str;
 				// CUIElement *element;
 				str << find_data.Name;
-				CFunctor1< u32 > *functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnFolderSelected ) );
-				CFunctor *curried( new CCurriedFunctor< u32 >( functor_1, i++ ) );
-			auto	element = new CUICommandImpl( curried, str.c_str(), description_text );
+			auto	element = new CUICommandImpl( [this, &i]() { OnFolderSelected(i++); }, str.c_str(), description_text );
 				mElements.Add( element );
 				mElementTitle.push_back(find_data.Name);
 			}
@@ -219,7 +216,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 	for( auto i = 0; i < NUM_SAVESTATE_SLOTS; ++i )
 	{
 		COutputStringStream		str;
-		str << Translate_String("Slot ") << (i+1) << ": ";
+		str << Translate_String("Slot ") << static_cast<u32>(i+1) << ": ";
 
 		IO::Filename filename_ss;
 		MakeSaveSlotPath( filename_ss, mPVFilename[ i ], i, current_slot_path);
@@ -263,10 +260,8 @@ void ISavestateSelectorComponent::LoadSlots(){
 		}
 		else
 		{
-			CFunctor1< u32 > *		functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnSlotSelected ) );
-			CFunctor *				curried( new CCurriedFunctor< u32 >( functor_1, i ) );
 
-			element = new CUICommandImpl( curried, str.c_str(), description_text );
+			element = new CUICommandImpl( [this, &i]() { OnSlotSelected(i++); }, str.c_str(), description_text );
 		}
 
 		mElements.Add( element );
@@ -274,10 +269,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 }
 
 
-ISavestateSelectorComponent::~ISavestateSelectorComponent()
-{
-	delete mOnSlotSelected;
-}
+ISavestateSelectorComponent::~ISavestateSelectorComponent() {}
 
 
 void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
@@ -294,7 +286,7 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 		IO::Filename filename_png;
 		MakeSaveSlotPath( filename_ss, filename_png, mSelectedSlot, current_slot_path );
 
-		(*mOnSlotSelected)( filename_ss );
+		mOnSlotSelected( filename_ss );
 	}
 
 	if(old_buttons != new_buttons)

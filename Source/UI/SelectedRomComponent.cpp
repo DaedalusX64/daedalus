@@ -34,14 +34,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UISetting.h"
 #include "UICommand.h"
 #include "UISpacer.h"
-
-//
+#include <functional>
 
 class ISelectedRomComponent : public CSelectedRomComponent
 {
 	public:
 
-		ISelectedRomComponent( CUIContext * p_context, CFunctor * on_start_emulation );
+		ISelectedRomComponent( CUIContext * p_context, std::function<void()> on_start_emulation );
 		~ISelectedRomComponent();
 
 		// CUIComponent
@@ -57,7 +56,7 @@ class ISelectedRomComponent : public CSelectedRomComponent
 		void						StartEmulation();
 
 	private:
-		CFunctor *					OnStartEmulation;
+		std::function<void()>					OnStartEmulation;
 
 		CUIElementBag				mElements;
 
@@ -82,7 +81,7 @@ CSelectedRomComponent::~CSelectedRomComponent()
 
 //
 
-CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, CFunctor * on_start_emulation )
+CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, std::function<void()> on_start_emulation )
 {
 	return new ISelectedRomComponent( p_context, on_start_emulation );
 }
@@ -90,26 +89,23 @@ CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, C
 
 //
 
-ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, CFunctor * on_start_emulation )
+ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, std::function<void()> on_start_emulation )
 :	CSelectedRomComponent( p_context )
 ,	OnStartEmulation( on_start_emulation )
 {
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::EditPreferences ), "Edit Preferences", "Edit various preferences for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::AdvancedOptions ), "Advanced Options", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::CheatOptions ), "Cheats", "Enable and select cheats for this rom." ) );
+	mElements.Add( new CUICommandImpl( [this]() { EditPreferences(); }, "Edit Preferences", "Edit various preferences for this rom." ) );
+	mElements.Add( new CUICommandImpl( [this]() { AdvancedOptions(); }, "Advanced Options", "Edit advanced options for this rom." ) );
+	mElements.Add( new CUICommandImpl( [this]() {CheatOptions(); }, "Cheats", "Enable and select cheats for this rom." ) );
 
 	mElements.Add( new CUISpacer( 16 ) );
 
-	u32 i = mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::StartEmulation ), "Start Emulation", "Start emulating the selected rom." ) );
+	u32 i = mElements.Add( new CUICommandImpl( [this]() { StartEmulation(); }, "Start Emulation", "Start emulating the selected rom." ) );
 
 	mElements.SetSelected( i );
 }
 
 
-ISelectedRomComponent::~ISelectedRomComponent()
-{
-	delete OnStartEmulation;
-}
+ISelectedRomComponent::~ISelectedRomComponent() {}
 
 
 void	ISelectedRomComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
@@ -193,6 +189,6 @@ void	ISelectedRomComponent::StartEmulation()
 {
 	if(OnStartEmulation != NULL)
 	{
-		(*OnStartEmulation)();
+		OnStartEmulation();
 	}
 }

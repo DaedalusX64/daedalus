@@ -22,9 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SYSPSP_UI_UICOMMAND_H_
 
 #include "UIElement.h"
-#include "Utility/Functor.h"
 
+#include <functional>
 #include <string>
+
 
 class CUICommand : public CUIElement
 {
@@ -53,20 +54,17 @@ private:
 class CUICommandImpl : public CUICommand
 {
 public:
-	CUICommandImpl( CFunctor * on_selected, const char * name, const char * description )
+	CUICommandImpl( std::function<void()> on_selected, const char * name, const char * description )
 		:	CUICommand( name, description )
 		,	mOnSelected( on_selected )
 	{
 	}
-	virtual ~CUICommandImpl()
-	{
-		delete mOnSelected;
-	}
+	virtual ~CUICommandImpl() {}
 
-	virtual	void			OnSelected()			{ (*mOnSelected)(); }
+	virtual	void			OnSelected()			{ mOnSelected(); }
 
 private:
-	CFunctor *	mOnSelected;
+	std::function<void()>	mOnSelected;
 };
 
 // For e.g. unselectable items

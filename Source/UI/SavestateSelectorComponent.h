@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SYSPSP_UI_SAVESTATESELECTORCOMPONENT_H_
 
 #include "UIComponent.h"
-#include "Utility/Functor.h"
+#include <functional>
 
 class CSavestateSelectorComponent : public CUIComponent
 {
@@ -36,7 +36,7 @@ class CSavestateSelectorComponent : public CUIComponent
 			AT_LOADING,
 		};
 
-		static CSavestateSelectorComponent *	Create( CUIContext * p_context, EAccessType access_type, CFunctor1< const char * > * on_savestate_selected, const char *running_rom );
+		static CSavestateSelectorComponent *	Create( CUIContext * p_context, EAccessType access_type, std::function<void (const char *)>, const char *running_rom );
 		void LoadState();
 		void SaveState();
 };

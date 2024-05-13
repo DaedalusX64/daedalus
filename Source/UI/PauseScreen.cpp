@@ -40,7 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "PauseOptionsComponent.h"
 #include "PauseScreen.h"
 
-#include "Utility/Functor.h"
 #include "Utility/Translate.h"
 #include "PSPMenu.h"
 
@@ -126,7 +125,7 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 	}
 
 	mOptionComponents[ MO_GLOBAL_SETTINGS ]	= CGlobalSettingsComponent::Create( mpContext );
-	mOptionComponents[ MO_PAUSE_OPTIONS ]	= CPauseOptionsComponent::Create( mpContext, new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnResume ), new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnReset ) );
+	mOptionComponents[ MO_PAUSE_OPTIONS ]	= CPauseOptionsComponent::Create( mpContext, [this]() {OnResume();}, [this]() {OnReset(); } );
 	mOptionComponents[ MO_ABOUT ]			= CAboutComponent::Create( mpContext );
 
 #ifdef DAEDALUS_ENABLE_ASSERTS

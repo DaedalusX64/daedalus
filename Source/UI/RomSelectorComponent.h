@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SYSPSP_UI_ROMSELECTORCOMPONENT_H_
 
 #include "UIComponent.h"
-#include "Utility/Functor.h"
+#include <functional>
 
 class CRomSelectorComponent : public CUIComponent
 {
@@ -30,7 +30,7 @@ class CRomSelectorComponent : public CUIComponent
 		CRomSelectorComponent( CUIContext * p_context );
 		virtual ~CRomSelectorComponent();
 
-		static CRomSelectorComponent *	Create( CUIContext * p_context, CFunctor1< const char * > * on_rom_selected );
+		static CRomSelectorComponent *	Create( CUIContext * p_context, std::function<void (const char * )> );
 };
 
 #endif // SYSPSP_UI_ROMSELECTORCOMPONENT_H_
