@@ -85,8 +85,7 @@ static void DisposeAudioPlugin()
 	if ( gAudioPlugin != NULL )
 	{
 		gAudioPlugin->StopEmulation();
-		gAudioPlugin.release();
-		gAudioPlugin = NULL;
+		gAudioPlugin.reset();
 	}
 }
 
@@ -96,7 +95,7 @@ static bool InitGraphicsPlugin()
 	DAEDALUS_ASSERT( gGraphicsPlugin == NULL, "The graphics plugin should not be initialised at this point" );
 	#endif
 	std::unique_ptr<CGraphicsPlugin> graphics_plugin = CreateGraphicsPlugin();
-	if( graphics_plugin != NULL )
+	if( graphics_plugin != nullptr )
 	{
 		 gGraphicsPlugin = std::move(graphics_plugin);
 	}
@@ -108,8 +107,7 @@ static void DisposeGraphicsPlugin()
 	if ( gGraphicsPlugin != NULL )
 	{
 		gGraphicsPlugin->RomClosed();
-		gGraphicsPlugin.release();
-		gGraphicsPlugin = NULL;
+		gGraphicsPlugin.reset();
 	}
 }
 

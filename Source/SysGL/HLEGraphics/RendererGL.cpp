@@ -26,7 +26,7 @@ RendererGL *   gRendererGL = NULL;
 static bool gAccurateUVPipe = true;
 
 // We read n64.psh into this.
-static const char * 					gN64FramentLibrary = NULL;
+static const char * gN64FramentLibrary = nullptr;
 
 static const u32 kNumTextures = 2;
 
@@ -103,6 +103,7 @@ bool initgl()
 		while (p[l] != 0x0A)
 			p[l--] = 0;
 		fclose(fh);
+
 
 		gN64FramentLibrary = p;
 	}

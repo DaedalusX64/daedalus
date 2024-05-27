@@ -127,6 +127,7 @@ CGraphicsPluginImpl::CGraphicsPluginImpl()
 
 CGraphicsPluginImpl::~CGraphicsPluginImpl()
 {
+	RomClosed();
 }
 
 bool CGraphicsPluginImpl::Initialise()
