@@ -132,7 +132,7 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context,  std::fu
 	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::OnResume, this ), "Resume Emulation", "Resume emulation." ) );
 
 #ifdef DAEDALUS_DIALOGS
-	mElements.Add( new CUICommandImpl((std::bind(&IPauseOptionsComponent::ExitConfirmation, this ), "Return to Main Menu", "Return to the main menu." ) );
+	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::ExitConfirmation, this ), "Return to Main Menu", "Return to the main menu." ) );
 #else
 	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::OnReset, this ), "Return to Main Menu", "Return to the main menu." ) );
 #endif
