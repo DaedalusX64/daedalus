@@ -866,138 +866,110 @@ inline u32 MakeMirror(u32 mirror, u32 m)
 {
 	return (mirror && m) ? (1<<m) : 0;
 }
+void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer) {
+    DAEDALUS_PROFILE("RendererGL::PrepareRenderState");
 
-void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer)
-{
-	DAEDALUS_PROFILE( "RendererGL::PrepareRenderState" );
+    if (disable_zbuffer) {
+        glDisable(GL_DEPTH_TEST);
+        glDepthMask(GL_FALSE);
+    } else {
+        if (gRDPOtherMode.zmode == 3) {
+            glPolygonOffset(-1.0, -1.0);
+        } else {
+            glPolygonOffset(0.0, 0.0);
+        }
 
-	if ( disable_zbuffer )
-	{
-		glDisable(GL_DEPTH_TEST);
-		glDepthMask(GL_FALSE);
-	}
-	else
-	{
-		// Decal mode
-		if( gRDPOtherMode.zmode == 3 )
-		{
-			glPolygonOffset(-1.0, -1.0);
-		}
-		else
-		{
-			glPolygonOffset(0.0, 0.0);
-		}
+        if ((mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd) {
+            glEnable(GL_DEPTH_TEST);
+        } else {
+            glDisable(GL_DEPTH_TEST);
+        }
 
-		// Enable or Disable ZBuffer test
-		if ( (mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
-		{
-			glEnable(GL_DEPTH_TEST);
-		}
-		else
-		{
-			glDisable(GL_DEPTH_TEST);
-		}
+        glDepthMask(gRDPOtherMode.z_upd ? GL_TRUE : GL_FALSE);
+    }
 
-		glDepthMask(gRDPOtherMode.z_upd ? GL_TRUE : GL_FALSE);
-	}
+    u32 cycle_mode = gRDPOtherMode.cycle_type;
 
+    if (cycle_mode < CYCLE_COPY && gRDPOtherMode.force_bl) {
+        InitBlenderMode();
+    } else {
+        glDisable(GL_BLEND);
+    }
 
-	u32 cycle_mode = gRDPOtherMode.cycle_type;
+    ShaderConfiguration config;
+    MakeShaderConfigFromCurrentState(&config);
 
-	// Initiate Blender
-	if(cycle_mode < CYCLE_COPY && gRDPOtherMode.force_bl)
-	{
-		InitBlenderMode();
-	}
-	else
-	{
-		glDisable(GL_BLEND);
-	}
+    const ShaderProgram* program = GetShaderForConfig(config);
+    if (program == nullptr) {
+        DBGConsole_Msg(0, "Couldn't generate a shader for mux %llx, cycle %d, alpha %d\n", config.Mux, config.CycleType, config.AlphaThreshold);
+        return;
+    }
 
-	ShaderConfiguration config;
-	MakeShaderConfigFromCurrentState(&config);
+    glUseProgram(program->program);
 
-	const ShaderProgram * program = GetShaderForConfig(config);
-	if (program == NULL)
-	{
-		// There must have been some failure to compile the shader. Abort!
-		DBGConsole_Msg(0, "Couldn't generate a shader for mux %llx, cycle %d, alpha %d\n", config.Mux, config.CycleType, config.AlphaThreshold);
-		return;
-	}
+    glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, mat_project);
 
-	glUseProgram(program->program);
+    glUniform4f(program->uloc_primcol, mPrimitiveColour.GetRf(), mPrimitiveColour.GetGf(), mPrimitiveColour.GetBf(), mPrimitiveColour.GetAf());
+    glUniform4f(program->uloc_envcol, mEnvColour.GetRf(), mEnvColour.GetGf(), mEnvColour.GetBf(), mEnvColour.GetAf());
+    glUniform1f(program->uloc_primlodfrac, mPrimLODFraction);
 
-	glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, mat_project);
+    bool use_t1 = cycle_mode == CYCLE_2CYCLE;
+    bool install_textures[] = { true, use_t1 };
 
-	glUniform4f(program->uloc_primcol, mPrimitiveColour.GetRf(), mPrimitiveColour.GetGf(), mPrimitiveColour.GetBf(), mPrimitiveColour.GetAf());
-	glUniform4f(program->uloc_envcol,  mEnvColour.GetRf(),       mEnvColour.GetGf(),       mEnvColour.GetBf(),       mEnvColour.GetAf());
-	glUniform1f(program->uloc_primlodfrac, mPrimLODFraction);
+    extern u32 gRDPFrame;
+    glUniform1i(program->uloc_foo, gRDPFrame);
 
-	// Second texture is sampled in 2 cycle mode if text_lod is clear (when set,
-	// gRDPOtherMode.text_lod enables mipmapping, but we just set lod_frac to 0.
-	bool use_t1 = cycle_mode == CYCLE_2CYCLE;
+    for (u32 i = 0; i < kNumTextures; ++i) {
+        if (!install_textures[i])
+            continue;
 
-	bool install_textures[] = { true, use_t1 };
+        std::shared_ptr<CNativeTexture> texture = mBoundTexture[i];
 
-extern u32 gRDPFrame;
-	glUniform1i(program->uloc_foo, gRDPFrame);
+        if (texture != nullptr) {
+            glActiveTexture(GL_TEXTURE0 + i);
 
-	for (u32 i = 0; i < kNumTextures; ++i)
-	{
-		if (!install_textures[i])
-			continue;
+            texture->InstallTexture();
 
-		std::shared_ptr<CNativeTexture> texture = mBoundTexture[i];
+            u8 tile_idx = mActiveTile[i];
+            const RDP_Tile& rdp_tile = gRDPStateManager.GetTile(tile_idx);
+            const RDP_TileSize& tile_size = gRDPStateManager.GetTileSize(tile_idx);
 
-		if (texture != NULL)
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
+            glUniform1i(program->uloc_texture[i], i);
 
-			texture->InstallTexture();
+            bool clamp_s = rdp_tile.clamp_s || (rdp_tile.mask_s == 0);
+            bool clamp_t = rdp_tile.clamp_t || (rdp_tile.mask_t == 0);
 
-			u8 tile_idx = mActiveTile[i];
-			const RDP_Tile &     rdp_tile  = gRDPStateManager.GetTile( tile_idx );
-			const RDP_TileSize & tile_size = gRDPStateManager.GetTileSize( tile_idx );
+            u32 mirror_bits_s = MakeMirror(rdp_tile.mirror_s, rdp_tile.mask_s);
+            u32 mirror_bits_t = MakeMirror(rdp_tile.mirror_t, rdp_tile.mask_t);
 
-			// NB: think this can be done just once per program.
-			glUniform1i(program->uloc_texture[i], i);
+            u32 mask_bits_s = MakeMask(rdp_tile.mask_s);
+            u32 mask_bits_t = MakeMask(rdp_tile.mask_t);
 
-			bool clamp_s = rdp_tile.clamp_s || (rdp_tile.mask_s == 0);
-			bool clamp_t = rdp_tile.clamp_t || (rdp_tile.mask_t == 0);
+            glUniform2i(program->uloc_tileclamp[i], clamp_s, clamp_t);
 
-			u32 mirror_bits_s = MakeMirror(rdp_tile.mirror_s, rdp_tile.mask_s);
-			u32 mirror_bits_t = MakeMirror(rdp_tile.mirror_t, rdp_tile.mask_t);
+            glUniform2f(program->uloc_tileshift[i], kShiftScales[rdp_tile.shift_s], kShiftScales[rdp_tile.shift_t]);
+            glUniform2i(program->uloc_tilemask[i], mask_bits_s, mask_bits_t);
+            glUniform2i(program->uloc_tilemirror[i], mirror_bits_s, mirror_bits_t);
 
-			u32 mask_bits_s = MakeMask(rdp_tile.mask_s);
-			u32 mask_bits_t = MakeMask(rdp_tile.mask_t);
+            glUniform2i(program->uloc_tiletl[i], mTileTopLeft[i].s, mTileTopLeft[i].t);
+            glUniform2i(program->uloc_tilebr[i], tile_size.right, tile_size.bottom);
 
-			glUniform2i(program->uloc_tileclamp[i], clamp_s, clamp_t);
+            glUniform2f(program->uloc_texscale[i], 1.f / texture->GetCorrectedWidth(), 1.f / texture->GetCorrectedHeight());
 
-			glUniform2f(program->uloc_tileshift[i],  kShiftScales[rdp_tile.shift_s],  kShiftScales[rdp_tile.shift_t]);
-			glUniform2i(program->uloc_tilemask[i],   mask_bits_s,   mask_bits_t);
-			glUniform2i(program->uloc_tilemirror[i], mirror_bits_s, mirror_bits_t);
+            if ((gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter)) {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            } else {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            }
 
-			glUniform2i(program->uloc_tiletl[i], mTileTopLeft[i].s, mTileTopLeft[i].t);
-			glUniform2i(program->uloc_tilebr[i], tile_size.right,   tile_size.bottom);
-
-			glUniform2f(program->uloc_texscale[i], 1.f / texture->GetCorrectedWidth(), 1.f / texture->GetCorrectedHeight());
-
-			if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			}
-			else
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			}
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mTexWrap[i].u);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mTexWrap[i].v);
-		}
-	}
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mTexWrap[i].u);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mTexWrap[i].v);
+        }
+    }
 }
+
 
 // FIXME(strmnnrmn): for fill/copy modes this does more work than needed.
 // It ends up copying colour/uv coords when not needed, and can use a shader uniform for the fill colour.

@@ -185,8 +185,8 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	}
 
 
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl(std::bind(&ICheatOptionsScreen::OnConfirm, this ), "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl(std::bind(&ICheatOptionsScreen::OnCancel, this ), "Cancel", "Cancel changes to settings and return." ) );
 
 }
 

@@ -98,8 +98,8 @@ IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const Ro
 	mElements.Add( new CBoolSetting( &mRomPreferences.VideoRateMatch, "Video Rate Match", "Match video rate to the frame rate (makes some games less sluggish Rayman2/Donald Duck/Tom and Jerry/Earth Worm Jim)", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.AudioRateMatch, "Audio Rate Match", "Match audio rate to the frame rate (less pops and clicks)", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, "Fog Emulation", "Enable or disable distance fog (works on many ROMs but the extra rendering pass uses more resources)", "Enabled", "Disabled" ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IAdvancedOptionsScreen >( this, &IAdvancedOptionsScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IAdvancedOptionsScreen >( this, &IAdvancedOptionsScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl(std::bind(&IAdvancedOptionsScreen::OnConfirm, this ), "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl(std::bind(&IAdvancedOptionsScreen::OnCancel, this ), "Cancel", "Cancel changes to settings and return." ) );
 
 }
 

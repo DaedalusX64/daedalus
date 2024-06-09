@@ -147,132 +147,116 @@ ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context
 	}
 }
 
-void ISavestateSelectorComponent::LoadFolders(){
-	IO::FindHandleT		find_handle;
-	IO::FindDataT		find_data;
-	u32 i {0};
-	const char * description_text( mAccessType == AT_SAVING ? "Select the slot in which to save" : "Select the slot from which to load" );
-	IO::Filename full_path;
-	// We're using the same vector for directory names and slots, so we have to clear it
-	mElements.Clear();
-	for( u32 i {0}; i < NUM_SAVESTATE_SLOTS; ++i)
-	{
-		mPVExists[ i ] = 0;
-		mLastPreviewLoad = ~0 ;
+void ISavestateSelectorComponent::LoadFolders() {
+    IO::FindHandleT find_handle;
+    IO::FindDataT find_data;
+    u32 folderIndex {0};
+    const char* const description_text = (mAccessType == AT_SAVING) ? "Select the slot in which to save" : "Select the slot from which to load";
+    IO::Filename full_path;
+
+    // Clear unused vector or perform any other necessary cleanup
+    mElements.Clear();
+
+    // Clear variables if needed
+    for (u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i) {
+        mPVExists[i] = 0;
+        mLastPreviewLoad = ~0;
+    }
+
+    // Check "ms0:/n64/SaveStates" directory
+    if (IO::FindFileOpen("ms0:/n64/SaveStates", &find_handle, find_data)) {
+        do {
+            IO::Path::Combine(full_path, "ms0:/n64/SaveStates", find_data.Name);
+            if (std::filesystem::is_directory(full_path) && strlen(find_data.Name) > 2) {
+                // Create UI element for each directory
+                COutputStringStream str;
+                str << find_data.Name;
+                auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
+                std::function<void()> functor = onSelected;
+                CUIElement* element = new CUICommandImpl(functor, str.c_str(), description_text);
+                mElements.Add(element);
+                mElementTitle.push_back(find_data.Name);
+            }
+        } while (IO::FindFileNext(find_handle, find_data));
+        IO::FindFileClose(find_handle);
+    } else if (IO::FindFileOpen("SaveStates", &find_handle, find_data)) {
+        // Check "SaveStates" directory if "ms0:/n64/SaveStates" not found
+        do {
+            IO::Path::Combine(full_path, "SaveStates", find_data.Name);
+            if (std::filesystem::is_directory(full_path) && strlen(find_data.Name) > 2) {
+                // Create UI element for each directory
+                COutputStringStream str;
+                str << find_data.Name;
+                auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
+                std::function<void()> functor = onSelected;
+                CUIElement* element = new CUICommandImpl(functor, str.c_str(), description_text);
+                mElements.Add(element);
+                mElementTitle.push_back(find_data.Name);
+            }
+        } while (IO::FindFileNext(find_handle, find_data));
+        IO::FindFileClose(find_handle);
+    } else {
+        // If neither directory exists, add a dummy UI element
+        CUIElement* element = new CUICommandDummy("There are no Savestates to load", "There are no Savestates to load");
+        mElements.Add(element);
+    }
+}
+void ISavestateSelectorComponent::LoadSlots() {
+    const char* description_text = (mAccessType == AT_SAVING) ? "Select the slot in which to save [X:save O:back]" : "Select the slot from which to load [X:load O:back []:delete]";
+    char date_string[30];
+    
+    // Clear unused vector
+    mElements.Clear();
+    mLastPreviewLoad = ~0;
+
+    for (u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i) {
+        COutputStringStream str;
+        str << Translate_String("Slot ") << (i + 1) << ": ";
+
+        IO::Filename filename_ss;
+        MakeSaveSlotPath(filename_ss, mPVFilename[i], i, current_slot_path);
+        mPVExists[i] = std::filesystem::exists(mPVFilename[i]) ? 1 : -1;
+
+        if (mPVExists[i] == 1) {
+
+// Get the last write time of the file
+auto last_write_time = std::filesystem::last_write_time(filename_ss);
+
+// Convert last_write_time to system_clock's time_point
+auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+    last_write_time - decltype(last_write_time)::clock::now() + std::chrono::system_clock::now()
+);
+
+// Convert the time_point to a time_t to use with std::localtime
+std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
+
+// Convert the time_t to a local time and format it
+std::tm* timeinfo = std::localtime(&tt);
+
+// Format the date string
+std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
+
+            str << date_string;
+            mSlotEmpty[i] = false;
+        } else {
+            str << Translate_String("Empty");
+            mSlotEmpty[i] = true;
+        }
+
+        // Create UI elements based on slot availability
+        CUIElement* element;
+        if (mAccessType == AT_LOADING && mSlotEmpty[i]) {
+            element = new CUICommandDummy(str.c_str(), description_text);
+        } else {
+            auto onSelected = [this, i]() { OnSlotSelected(i); };
+            std::function<void()> functor = onSelected;
+            element = new CUICommandImpl(functor, str.c_str(), description_text);
+        }
+
+        mElements.Add(element);
+    }
 }
 
-	if (IO::FindFileOpen( "ms0:/n64/SaveStates" , &find_handle, find_data))
-	{
-		do
-		{
-			IO::Path::Combine( full_path, "ms0:/n64/SaveStates", find_data.Name);
-			if(std::filesystem::is_directory(full_path) && strlen( find_data.Name ) > 2 )
-			{
-				COutputStringStream str;
-				CUIElement * element;
-				str << find_data.Name;
-				CFunctor1< u32 > *	functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnFolderSelected ) );
-				CFunctor *		curried( new CCurriedFunctor< u32 >( functor_1, i++ ) );
-				element = new CUICommandImpl( curried, str.c_str(), description_text );
-				mElements.Add( element );
-				mElementTitle.push_back(find_data.Name);
-			}
-		}
-		while(IO::FindFileNext( find_handle, find_data ));
-		IO::FindFileClose( find_handle );
-	}
-	else if(IO::FindFileOpen( "SaveStates" , &find_handle, find_data))
-	{
-		do
-		{
-			IO::Path::Combine( full_path, "SaveStates", find_data.Name);
-			if(std::filesystem::is_directory(full_path) && strlen( find_data.Name ) > 2 )
-			{
-				COutputStringStream str;
-				CUIElement *element;
-				str << find_data.Name;
-				CFunctor1< u32 > *functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnFolderSelected ) );
-				CFunctor *curried( new CCurriedFunctor< u32 >( functor_1, i++ ) );
-				element = new CUICommandImpl( curried, str.c_str(), description_text );
-				mElements.Add( element );
-				mElementTitle.push_back(find_data.Name);
-			}
-		}
-		while(IO::FindFileNext( find_handle, find_data ));
-		IO::FindFileClose( find_handle );
-	}
-	else
-	{
-		CUIElement *element;
-		element = new CUICommandDummy( "There are no Savestates to load", "There are no Savestates to load" );
-		mElements.Add( element );
-	}
-
-}
-
-void ISavestateSelectorComponent::LoadSlots(){
-	const char * description_text( mAccessType == AT_SAVING ? "Select the slot in which to save [X:save O:back]" : "Select the slot from which to load [X:load O:back []:delete]" );
-	char date_string[30];
-	// We're using the same vector for directory names and slots, so we have to clear it
-	mElements.Clear();
-	mLastPreviewLoad = ~0;
-
-	for( u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i )
-	{
-		COutputStringStream		str;
-		str << Translate_String("Slot ") << (i+1) << ": ";
-
-		IO::Filename filename_ss;
-		MakeSaveSlotPath( filename_ss, mPVFilename[ i ], i, current_slot_path);
-		mPVExists[ i ] = std::filesystem::exists( mPVFilename[ i ] ) ? 1 : -1;
-		RomID	rom_id( SaveState_GetRomID( filename_ss ) );
-		RomSettings	settings;
-		CUIElement *element;
-		if( !rom_id.Empty() && CRomSettingsDB::Get()->GetSettings( rom_id, &settings ) )
-		{
-            // Get the last write time of the file
-            auto last_write_time = std::filesystem::last_write_time(filename_ss);
-
-            // Convert the time duration to a system_clock::time_point
-            std::chrono::system_clock::time_point time_point =
-                std::chrono::time_point<std::chrono::system_clock>(std::chrono::duration_cast<std::chrono::system_clock::duration>(last_write_time.time_since_epoch()));
-
-            // Convert the time_point to a time_t to use with std::localtime
-            std::time_t tt = std::chrono::system_clock::to_time_t(time_point);
-
-            // Convert the time_t to a local time and format it
-            std::tm* timeinfo = std::localtime(&tt);
-            
-            // Format the date string
-            std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
-
-			str << date_string;
-			mSlotEmpty[ i ] = false;
-		}
-		else
-		{
-			str << Translate_String("Empty");
-			mSlotEmpty[ i ] = true;
-		}
-
-		//
-		//	Don't allow empty slots to be loaded
-		//
-		if( mAccessType == AT_LOADING && mSlotEmpty[ i ] )
-		{
-			element = new CUICommandDummy( str.c_str(), description_text );
-		}
-		else
-		{
-			CFunctor1< u32 > *		functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnSlotSelected ) );
-			CFunctor *				curried( new CCurriedFunctor< u32 >( functor_1, i ) );
-
-			element = new CUICommandImpl( curried, str.c_str(), description_text );
-		}
-
-		mElements.Add( element );
-	}
-}
 
 
 ISavestateSelectorComponent::~ISavestateSelectorComponent()
