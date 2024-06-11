@@ -126,7 +126,7 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 	}
 
 	mOptionComponents[ MO_GLOBAL_SETTINGS ]	= CGlobalSettingsComponent::Create( mpContext );
-	mOptionComponents[ MO_PAUSE_OPTIONS ]	= CPauseOptionsComponent::Create( mpContext, new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnResume ), new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnReset ) );
+	mOptionComponents[ MO_PAUSE_OPTIONS ]	= CPauseOptionsComponent::Create( mpContext, std::bind(&IPauseScreen::OnResume, this), std::bind(&IPauseScreen::OnReset, this ) );
 	mOptionComponents[ MO_ABOUT ]			= CAboutComponent::Create( mpContext );
 
 #ifdef DAEDALUS_ENABLE_ASSERTS

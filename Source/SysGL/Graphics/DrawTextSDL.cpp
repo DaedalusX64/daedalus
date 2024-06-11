@@ -61,7 +61,8 @@ u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_
         SDL_RenderCopy(gSdlRenderer, Message, NULL, &Message_rect);
 
         SDL_FreeSurface(surface);
-        SDL_DestroyTexture(Message);
+
+        SDL_DestroyTexture(Message); 
 
         return Message_rect.w;
     }

@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Functor.h"
 
 #include <string>
+#include <functional>
 
 //*************************************************************************************
 //
@@ -53,24 +54,20 @@ private:
 	std::string				mDescription;
 };
 
-class CUICommandImpl : public CUICommand
-{
-public:
-	CUICommandImpl( CFunctor * on_selected, const char * name, const char * description )
-		:	CUICommand( name, description )
-		,	mOnSelected( on_selected )
-	{
-	}
-	virtual ~CUICommandImpl()
-	{
-		delete mOnSelected;
-	}
 
-	virtual	void			OnSelected()			{ (*mOnSelected)(); }
+class CUICommandImpl : public CUICommand {
+public:
+    CUICommandImpl(std::function<void()> on_selected, const char* name, const char* description)
+        : CUICommand(name, description), mOnSelected(on_selected) {}
+
+    virtual void OnSelected() override {
+        mOnSelected();
+    }
 
 private:
-	CFunctor *	mOnSelected;
+    std::function<void()> mOnSelected; // Store the function directly as std::function
 };
+
 
 // For e.g. unselectable items
 class CUICommandDummy : public CUICommand

@@ -116,11 +116,13 @@ static bool	Initialize()
 	sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
+	#ifdef DAEDALUS_SDL
 		if( SDL_Init( SDL_INIT_AUDIO ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
+	#endif
 
 	// Detect PSP greater than PSP 1000
 	if ( kuKernelGetModel() > 0 )
