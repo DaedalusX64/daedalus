@@ -45,7 +45,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 {
 	public:
 
-		ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, CFunctor1< const char * > * on_slot_selected, const char *running_rom );
+		ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, std::function<void (const char *)> on_slot_selected, const char *running_rom );
 		~ISavestateSelectorComponent();
 
 		// CUIScreen
@@ -66,7 +66,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 
 	private:
 		EAccessType				mAccessType;
-		CFunctor1< const char * > *		mOnSlotSelected;
+		std::function<void(const char *)> 	mOnSlotSelected;
 
 		u32					mSelectedSlot;
 		bool					mIsFinished;
@@ -91,7 +91,7 @@ CSavestateSelectorComponent::CSavestateSelectorComponent( CUIContext * p_context
 {}
 
 
-CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType accetype, CFunctor1< const char * > * on_slot_selected, const char *running_rom )
+CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType accetype, std::function<void( const char *)>  on_slot_selected, const char *running_rom )
 {
 	return new ISavestateSelectorComponent( p_context, accetype, on_slot_selected, running_rom );
 }
@@ -125,7 +125,7 @@ namespace
 	}
 }
 
-ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, CFunctor1< const char * > * on_slot_selected, const char *running_rom )
+ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, std::function<void (const char *)> on_slot_selected, const char *running_rom )
 :	CSavestateSelectorComponent( p_context )
 ,	mAccessType( accetype )
 ,	mOnSlotSelected( on_slot_selected )
@@ -259,10 +259,7 @@ std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
 
 
 
-ISavestateSelectorComponent::~ISavestateSelectorComponent()
-{
-	delete mOnSlotSelected;
-}
+ISavestateSelectorComponent::~ISavestateSelectorComponent() {}
 
 
 void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
@@ -279,7 +276,7 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 		IO::Filename filename_png;
 		MakeSaveSlotPath( filename_ss, filename_png, mSelectedSlot, current_slot_path );
 
-		(*mOnSlotSelected)( filename_ss );
+		mOnSlotSelected( filename_ss );
 	}
 
 	if(old_buttons != new_buttons)

@@ -136,12 +136,12 @@ IMainMenuScreen::IMainMenuScreen( CUIContext * p_context )
 		mOptionComponents[ i ] = nullptr;
 	}
 
-	mSelectedRomComponent = CSelectedRomComponent::Create( mpContext, new CMemberFunctor< IMainMenuScreen >( this, &IMainMenuScreen::OnStartEmulation ) );
+	mSelectedRomComponent = CSelectedRomComponent::Create( mpContext, [this]() { this->OnStartEmulation(); });
 
 	mOptionComponents[ MO_GLOBAL_SETTINGS ]	= CGlobalSettingsComponent::Create( mpContext );
-	mOptionComponents[ MO_ROMS ]			= CRomSelectorComponent::Create( mpContext, new CMemberFunctor1< IMainMenuScreen, const char * >( this, &IMainMenuScreen::OnRomSelected ) );
+	mOptionComponents[ MO_ROMS ] 			= CRomSelectorComponent::Create( mpContext, [this](const char *rom ) { this->OnRomSelected(rom); } );
 	mOptionComponents[ MO_SELECTED_ROM ]	= mSelectedRomComponent;
-	mOptionComponents[ MO_SAVESTATES ]		= CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_LOADING, new CMemberFunctor1< IMainMenuScreen, const char * >( this, &IMainMenuScreen::OnSavestateSelected ), 0 );
+	mOptionComponents[ MO_SAVESTATES ]		= CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_LOADING,[this](const char* savestate) { this->OnSavestateSelected(savestate); }, 0);
 	mOptionComponents[ MO_ABOUT ]			= CAboutComponent::Create( mpContext );
 
 }

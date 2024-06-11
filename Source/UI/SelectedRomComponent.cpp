@@ -41,7 +41,7 @@ class ISelectedRomComponent : public CSelectedRomComponent
 {
 	public:
 
-		ISelectedRomComponent( CUIContext * p_context, CFunctor * on_start_emulation );
+		ISelectedRomComponent( CUIContext * p_context, std::function<void()> on_start_emulation );
 		~ISelectedRomComponent();
 
 		// CUIComponent
@@ -57,7 +57,7 @@ class ISelectedRomComponent : public CSelectedRomComponent
 		void						StartEmulation();
 
 	private:
-		CFunctor *					OnStartEmulation;
+		std::function<void()> OnStartEmulation;
 
 		CUIElementBag				mElements;
 
@@ -82,7 +82,7 @@ CSelectedRomComponent::~CSelectedRomComponent()
 
 //
 
-CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, CFunctor * on_start_emulation )
+CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, std::function<void()> on_start_emulation )
 {
 	return new ISelectedRomComponent( p_context, on_start_emulation );
 }
@@ -90,7 +90,7 @@ CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, C
 
 //
 
-ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, CFunctor * on_start_emulation )
+ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, std::function<void()> on_start_emulation )
 :	CSelectedRomComponent( p_context )
 ,	OnStartEmulation( on_start_emulation )
 {
@@ -106,10 +106,7 @@ ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, CFunctor *
 }
 
 
-ISelectedRomComponent::~ISelectedRomComponent()
-{
-	delete OnStartEmulation;
-}
+ISelectedRomComponent::~ISelectedRomComponent() {}
 
 
 void	ISelectedRomComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
@@ -193,6 +190,6 @@ void	ISelectedRomComponent::StartEmulation()
 {
 	if(OnStartEmulation != NULL)
 	{
-		(*OnStartEmulation)();
+		OnStartEmulation();
 	}
 }
