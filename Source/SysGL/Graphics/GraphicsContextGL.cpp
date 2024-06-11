@@ -73,7 +73,7 @@ bool GraphicsContextGL::Initialise()
 {
 
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS ) < 0 )
+	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
@@ -147,6 +147,7 @@ void GraphicsContextGL::UItoGL(){
 	SDL_DestroyRenderer(gSdlRenderer);
 	gSdlRenderer = nullptr;
 	SDL_DestroyWindow(gWindow);
+	gWindow = NULL;
 	GraphicsContextGL::Initialise();
 	}
 }

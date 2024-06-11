@@ -30,6 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <algorithm>
 
+SDL_GameController *controller;
+
 //Windows Xinput support 
 #ifdef DAEDALUS_W32
 #include <iostream>
@@ -102,9 +104,6 @@ void CXBOXController::Vibrate(int leftVal, int rightVal)
 #endif
 
 
-//TODO: Implement gamepad support with SDL
-//#define GAMEPAD_SUPPORT
-
 class IInputManager : public CInputManager
 {
 public:
@@ -121,13 +120,14 @@ public:
 	virtual const char *		GetConfigurationDescription( u32 configuration_idx ) const;
 	virtual void				SetConfiguration( u32 configuration_idx );
 	virtual u32					GetConfigurationFromName( const char * name ) const;
-#ifdef GAMEPAD_SUPPORT
 	void						GetGamePadStatus();
-
-private:
-	void GetJoyPad(OSContPad *pPad);
+	void 						GetJoyPad(OSContPad *pPad);
+	
+	private:
+	
 	bool mGamePadAvailable;
-#endif
+	//SDL_GameController *controller;
+
 #ifdef DAEDALUS_W32
 
 	CXBOXController* Player1;
@@ -144,13 +144,13 @@ IInputManager::~IInputManager()
 }
 
 IInputManager::IInputManager()
-#ifdef GAMEPAD_SUPPORT
+
 :	mGamePadAvailable(false)
-#endif
+
 {
 }
 
-#ifdef GAMEPAD_SUPPORT
+
 static void CheckPadStatusVblHandler( void * arg )
 {
 	IInputManager * manager = static_cast< IInputManager * >( arg );
@@ -163,10 +163,11 @@ static void CheckPadStatusVblHandler( void * arg )
 	}
 	++count;
 }
-#endif
+
 
 bool IInputManager::Initialise()
 {
+
 #ifdef DAEDALUS_W32
 	Player1 = new CXBOXController(1);
 	if (Player1->IsConnected()){
@@ -177,70 +178,60 @@ bool IInputManager::Initialise()
 	}
 #endif
 
-#ifdef GAMEPAD_SUPPORT	
-	CPU_RegisterVblCallback( &CheckPadStatusVblHandler, this );
-#endif
-	return true;
 
+	//Init Joystick / Gamepad 
+	CPU_RegisterVblCallback( &CheckPadStatusVblHandler, this );
+
+
+	return true;
 }
 
 void IInputManager::Finalise()
 {
-#ifdef GAMEPAD_SUPPORT
+
 	CPU_UnregisterVblCallback( &CheckPadStatusVblHandler, this );
-#endif
+
 }
 
-#ifdef GAMEPAD_SUPPORT
+
 void IInputManager::GetGamePadStatus()
 {
-	mGamePadAvailable = glfwJoystickPresent(GLFW_JOYSTICK_1) ? true : false;
-}
+	//Check for joystick SDL2 and open it if avaiable 
+		controller = SDL_GameControllerOpen(0);
+		if(!controller){
+			DAEDALUS_ASSERT("controller not found");
+		}
+		else{
+			DAEDALUS_ASSERT("controller found");
+		}
+	}
 
-void InputManager::GetJoyPad(OSContPad *pPad)
+void IInputManager::GetJoyPad(OSContPad *pPad)
 {
 	static const s32 N64_ANALOGUE_STICK_RANGE =  80;
 
-	int num_axes;
-	const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &num_axes);
-    if(!axes || num_axes < 2)
-	{
-		// gamepad was disconnected?
-        DAEDALUS_ERROR("Couldn't read axes");
-        return;
-    }
-
-    int num_buttons;
-	const u8 * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &num_buttons);
-	if(!buttons || num_buttons < 24)
-	{
-		// gamepad was disconnected?
-		DAEDALUS_ERROR("Couldn't read buttons");
-		return;
-	}
-
 	//ToDo: Different gamepads will need different configuration, this is for PS3/PS2 controller
-	if (buttons[11])	pPad->button |= START_BUTTON;
-	if (buttons[9])		pPad->button |= START_BUTTON;
-	if (buttons[2])		pPad->button |= A_BUTTON;
-	if (buttons[3])		pPad->button |= B_BUTTON;
-	if (buttons[6])		pPad->button |= Z_TRIG;
-	if (buttons[4])		pPad->button |= L_TRIG;
-	if (buttons[5])		pPad->button |= R_TRIG;
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START))					pPad->button |= START_BUTTON;
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A))						pPad->button |= A_BUTTON;
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B))						pPad->button |= B_BUTTON;
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER))				pPad->button |= Z_TRIG;
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))			pPad->button |= Z_TRIG;
+	if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > 16383)		pPad->button |= L_TRIG;
+	if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 16383)		pPad->button |= R_TRIG;
 
-	if (buttons[20])	pPad->button |= U_JPAD;
-	if (buttons[22])	pPad->button |= D_JPAD;
-	if (buttons[23])	pPad->button |= L_JPAD;
-	if (buttons[21])	pPad->button |= R_JPAD;
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP))		pPad->button |= U_JPAD;
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN))	pPad->button |= D_JPAD;
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT))	pPad->button |= L_JPAD;
+	if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))	pPad->button |= R_JPAD;
 
 	// Hold O button and use hat buttons for N64 c buttons (same as the PSP)
 	// We could use the second analog stick to map them, but will require to translate asix >=2
-	if(buttons[1])
+	if(SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_X))
 	{
-		if (buttons[20])	pPad->button |= U_CBUTTONS;
-		if (buttons[22])	pPad->button |= D_CBUTTONS;
-		if (buttons[23])	pPad->button |= L_CBUTTONS;
-		if (buttons[21])	pPad->button |= R_CBUTTONS;
+		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP))		pPad->button |= U_CBUTTONS;
+		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN))	pPad->button |= D_CBUTTONS;
+		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT))	pPad->button |= L_CBUTTONS;
+		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))	pPad->button |= R_CBUTTONS;
 	}
 
 	// Used to see key presses, useful to add a different button configuration
@@ -250,10 +241,39 @@ void InputManager::GetJoyPad(OSContPad *pPad)
 	//		printf("%d\n",i);
 	//}
 
-	pPad->stick_x =  s8(axes[0] * N64_ANALOGUE_STICK_RANGE);
-	pPad->stick_y =  s8(axes[1] * N64_ANALOGUE_STICK_RANGE);
+    const s32 SDL_AXIS_MIN = -32768;
+    const s32 SDL_AXIS_MAX = 32767;
+
+    // Get the raw axis values
+    s32 raw_x = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+    s32 raw_y = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+
+    // Normalize the axis values to the range [-1, 1]
+    float normalized_x = raw_x / 32767.0f;
+    float normalized_y = raw_y / 32767.0f;
+
+    // Scale the normalized values to the N64 range
+    s8 scaled_x = static_cast<s8>(normalized_x * N64_ANALOGUE_STICK_RANGE);
+    s8 scaled_y = static_cast<s8>(normalized_y * N64_ANALOGUE_STICK_RANGE);
+
+    // Manually clamp the values to ensure they are within the valid range
+    if (scaled_x > N64_ANALOGUE_STICK_RANGE) {
+        scaled_x = N64_ANALOGUE_STICK_RANGE;
+    } else if (scaled_x < -N64_ANALOGUE_STICK_RANGE) {
+        scaled_x = -N64_ANALOGUE_STICK_RANGE;
+    }
+
+    if (scaled_y > N64_ANALOGUE_STICK_RANGE) {
+        scaled_y = N64_ANALOGUE_STICK_RANGE;
+    } else if (scaled_y < -N64_ANALOGUE_STICK_RANGE) {
+        scaled_y = -N64_ANALOGUE_STICK_RANGE;
+    }
+
+    pPad->stick_x = scaled_x;
+    pPad->stick_y = -1 * scaled_y;
+
 }
-#endif
+
 void IInputManager::GetState( OSContPad pPad[4] )
 {
 	// Clear the initial state
@@ -323,13 +343,13 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	}
 #endif
 
-#ifdef GAMEPAD_SUPPORT
+
 	// Override the keyboard with the gamepad if it's available.
-	if(mGamePadAvailable)
-	{
+	//if(mGamePadAvailable)
+	//{
 		GetJoyPad(&pPad[0]);
-	}
-#endif
+	//}
+
 }
 
 template<> bool CSingleton< CInputManager >::Create()
@@ -375,11 +395,14 @@ void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
 
 	SDL_Event event;
 	SDL_PumpEvents();
+	controller = SDL_GameControllerOpen(0);
 
 	while (SDL_PeepEvents( &event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) != 0)
 	{
+	
 		if (event.type == SDL_QUIT)
 		{
+			
 			CPU_Halt("Window Closed");	// SDL window was closed
             // Optionally, you can also call SDL_Quit() to terminate SDL subsystems
             SDL_Quit();
@@ -429,7 +452,7 @@ void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
 			if (event.key.keysym.scancode == SDL_SCANCODE_DELETE){  button |= L_CBUTTONS;}
 			if (event.key.keysym.scancode == SDL_SCANCODE_PAGEDOWN){  button |= R_CBUTTONS;}
 		}
-		else if(event.type == SDL_KEYUP)
+		else if( event.type == SDL_KEYUP)
 		{
 			if (event.key.keysym.scancode == SDL_SCANCODE_X) {button &= ~A_BUTTON;}
 			if (event.key.keysym.scancode == SDL_SCANCODE_C) {button &= ~B_BUTTON;}
@@ -449,7 +472,41 @@ void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
 			if (event.key.keysym.scancode == SDL_SCANCODE_DELETE){  button &= ~L_CBUTTONS;}
 			if (event.key.keysym.scancode == SDL_SCANCODE_PAGEDOWN){  button &= ~R_CBUTTONS;}
 		}
+
+
+			//UI Controler
+			if(controller && event.type == SDL_CONTROLLERBUTTONDOWN){	
+				if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START))					button |= START_BUTTON;
+				if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A))						button |= A_BUTTON;
+				if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B))						button |= B_BUTTON;
+				if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER))			button |= L_TRIG;		
+				if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))			button |= R_TRIG;	
+				if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP))					button |= U_JPAD;
+				if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN))				button |= D_JPAD;
+				if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT))				button |= L_JPAD;
+				if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))				button |= R_JPAD;
+				//Using this breaks the menu / Controller support 
+				//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK))				    button |= Z_TRIG;
+
+			}
+			else if(controller && event.type == SDL_CONTROLLERBUTTONUP){
+				if (!SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START))					button &= ~START_BUTTON;
+				if (!SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A))						button &= ~A_BUTTON;
+				if (!SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B))						button &= ~B_BUTTON;
+				if (!SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER))			button &= ~L_TRIG;		
+				if (!SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))			button &= ~R_TRIG;	
+				if (!SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP))				button &= ~U_JPAD;
+				if (!SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN))				button &= ~D_JPAD;
+				if (!SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT))				button &= ~L_JPAD;
+				if (!SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))				button &= ~R_JPAD;
+				//Using this breaks the menu / Controller support 
+				//if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_BACK))				    button &= ~Z_TRIG;
+			}
+
+
 	}
+
+	//SDL_GameControllerClose(controller);
 
 	data->Buttons = button;
 	data->Lx = 128;
