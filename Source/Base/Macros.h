@@ -3,13 +3,6 @@
 
 #include <cstdint>
 
-#ifdef _MSC_VER
-#define DAEDALUS_FORCEINLINE __forceinline
-#else
-#define DAEDALUS_FORCEINLINE inline
-#endif
-
-
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(arr)  std::size(arr)
 #endif
