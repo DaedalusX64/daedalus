@@ -71,7 +71,7 @@ const char * Translate_Strings(const char *original, u32 & len)
 	if( hash == 0 )
 		return original;
 
-	for( u32 i=0; i < ARRAYSIZE(text); i++ )
+	for( u32 i=0; i < std::size(text); i++ )
 	{
 		// ToDo..
 		//DAEDALUS_ASSERT( text[i].translated != original, " String already translated" );
@@ -105,7 +105,7 @@ const char * Translate_String(const char *original)
 void Translate_Unload()
 {
 	// Clear translations
-	for( u32 i = 0; i < ARRAYSIZE(text); ++i )
+	for( u32 i = 0; i < std::size(text); ++i )
 	{
 		if( text[i].translated != NULL )
 		{
@@ -297,7 +297,7 @@ bool Translate_Read(u32 idx, const char * dir)
 			string++;
 			len = strlen( string );
 			sscanf( line,"%08x", &hash );
-			if( count < ARRAYSIZE(text) )
+			if( count < std::size(text) )
 			{
 				// Write translated string and hash to array
 				text[count].hash = hash;

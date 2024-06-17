@@ -26,9 +26,8 @@ bool Memory_GetInternalReadAddress(u32 address, void ** translated)
 	return (gInternalReadFastTable)[(address)>>18](address, translated);
 }
 
-static bool InternalReadInvalid( u32 address, void ** translated )
+static bool InternalReadInvalid( u32 address [[maybe_unused]], void ** translated )
 {
-	DAEDALUS_USE(address);
 
 	*translated = g_pMemoryBuffers[MEM_UNUSED];
 	return false;

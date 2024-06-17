@@ -112,7 +112,7 @@ std::string	date = DATE_TEXT + __DATE__;
 	// Spacer
 	y += line_height;
 
-	for( size_t i = 0; i < ARRAYSIZE( INFO_TEXT ); ++i )
+	for( size_t i = 0; i < std::size( INFO_TEXT ); ++i )
 	{
 		const char * str( INFO_TEXT[ i ] );
 

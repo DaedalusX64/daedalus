@@ -26,10 +26,9 @@ struct NativePf5650
 {
 	u16	Bits;
 
-	static u16 Make( u8 r, u8 g, u8 b, u8 a )
+	static u16 Make( u8 r, u8 g, u8 b, u8 a [[maybe_unused]] )
 	{
 		// Alpha is discarded
-		DAEDALUS_USE( a );
 
 		return ((r >> (8-BitsR)) << ShiftR) |
 			   ((g >> (8-BitsG)) << ShiftG) |

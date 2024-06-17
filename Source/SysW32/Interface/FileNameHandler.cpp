@@ -100,7 +100,7 @@ void FileNameHandler::GetDefaultDirectory(LPTSTR szOutBuffer)
 	else if (nResult == REG_OPENED_EXISTING_KEY)
 	{
 		// Key was already in registry - try to read value
-		DWORD datasize = ARRAYSIZE(m_szSectionName);
+		DWORD datasize = std::size(m_szSectionName);
 		if (RegQueryValueEx(hRegKey, m_szSectionName, NULL,
 			&datatype, (LPBYTE) szOutBuffer, &datasize) != ERROR_SUCCESS)
 		{

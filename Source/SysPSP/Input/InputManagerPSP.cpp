@@ -513,7 +513,7 @@ bool IsIdentifierChar( char c )
 
 u32 GetMaskFromIdentifier( const char * identifier )
 {
-	for( u32 i = 0; i < ARRAYSIZE( gButtonNameMappings ); ++i )
+	for( u32 i = 0; i < std::size( gButtonNameMappings ); ++i )
 	{
 		if( strcmp( gButtonNameMappings[ i ].ButtonName, identifier ) == 0 )
 		{

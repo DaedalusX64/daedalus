@@ -231,9 +231,8 @@ EProcessResult RSP_HLE_Jpeg(OSTask * task)
 	return PR_COMPLETED;
 }
 
-EProcessResult RSP_HLE_CICX105(OSTask * task)
+EProcessResult RSP_HLE_CICX105(OSTask * task [[maybe_unused]])
 {
-	DAEDALUS_USE(task);
     const u32 sum {sum_bytes(g_pu8SpImemBase, 0x1000 >> 1)};
 
     switch(sum)

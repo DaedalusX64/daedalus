@@ -386,11 +386,11 @@ void DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode)
 	{
 		u32 mask = 0xffffffff;
 		u32 data = mode.L;
-		DumpOtherMode(kOtherModeLData, ARRAYSIZE(kOtherModeLData), &mask, &data);
+		DumpOtherMode(kOtherModeLData, std::size(kOtherModeLData), &mask, &data);
 
 		mask = 0xffffffff;
 		data = mode.H;
-		DumpOtherMode(kOtherModeHData, ARRAYSIZE(kOtherModeHData), &mask, &data);
+		DumpOtherMode(kOtherModeHData, std::size(kOtherModeHData), &mask, &data);
 	}
 }
 
@@ -398,7 +398,7 @@ void DLDebug_DumpRDPOtherModeL(u32 mask, u32 data)
 {
 	if (DLDebug_IsActive())
 	{
-		DumpOtherMode(kOtherModeLData, ARRAYSIZE(kOtherModeLData), &mask, &data);
+		DumpOtherMode(kOtherModeLData, std::size(kOtherModeLData), &mask, &data);
 
 		// Just check we're not handling some unusual calls.
 		DAEDALUS_ASSERT(mask == 0, "OtherModeL mask is non zero: %08x", mask);
@@ -410,7 +410,7 @@ void DLDebug_DumpRDPOtherModeH(u32 mask, u32 data)
 {
 	if (DLDebug_IsActive())
 	{
-		DumpOtherMode(kOtherModeHData, ARRAYSIZE(kOtherModeHData), &mask, &data);
+		DumpOtherMode(kOtherModeHData, std::size(kOtherModeHData), &mask, &data);
 
 		// Just check we're not handling some unusual calls.
 		DAEDALUS_ASSERT(mask == 0, "OtherModeH mask is non zero: %08x", mask);

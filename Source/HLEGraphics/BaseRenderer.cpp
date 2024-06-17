@@ -975,7 +975,7 @@ void BaseRenderer::PrepareTrisUnclipped( TempVerts * temp_verts ) const
 	//
 	//	http://forums.ps2dev.org/viewtopic.php?t=4703
 	//
-	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > ARRAYSIZE(mIndexBuffer) );
+	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > std::size(mIndexBuffer) );
 
 #ifdef DAEDALUS_PSP_USE_VFPU
 	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, mIndexBuffer );

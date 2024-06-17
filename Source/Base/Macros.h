@@ -3,9 +3,6 @@
 
 #include <cstdint>
 
-#ifndef ARRAYSIZE
-#define ARRAYSIZE(arr)  std::size(arr)
-#endif
 
 #define DAEDALUS_USE(...)	do { (void)sizeof(__VA_ARGS__, 0); } while(0)
 

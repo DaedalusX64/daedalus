@@ -47,7 +47,7 @@ namespace
 {
 	bool			sRomLoaded	= false;
 	u8 *			spRomData	= nullptr;
-	u32				sRomSize	= 0;
+	u32				sRomSize [[maybe_unused]]	= 0;
 	bool			sRomFixed	= false;
 	bool			sRomWritten	= false;
 	u32				sRomValue	= 0;
@@ -73,7 +73,6 @@ namespace
 		else
 			return rom_size <  8 * 1024 * 1024;
 #else
-		DAEDALUS_USE(rom_size);
 		return true;
 #endif
 	}
@@ -166,9 +165,7 @@ namespace
 #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::Create()
 {
 	// Create memory heap used for either ROM Cache or ROM buffer
@@ -177,17 +174,13 @@ bool RomBuffer::Create()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void RomBuffer::Destroy()
 {
 
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::Open()
 {
 	CNullOutputStream messages;
@@ -224,7 +217,7 @@ bool RomBuffer::Open()
 			return false;
 		}
 #else
-		u32 offset( 0 );
+		u32 offset = 0;
 		u32 length_remaining( sRomSize );
 		const u32 TEMP_BUFFER_SIZE = 128 * 1024;
 
@@ -317,9 +310,7 @@ bool RomBuffer::Open()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	RomBuffer::Close()
 {
 	if (spRomData)
@@ -384,9 +375,7 @@ namespace
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 {
 	if( sRomFixed )
@@ -401,27 +390,21 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	RomBuffer::SaveRomValue( u32 value )
 {
 	sRomWritten = true;
 	sRomValue	= value;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	RomBuffer::PutRomBytesRaw( u32 rom_start, const void * p_src, u32 length )
 {
 	DAEDALUS_ASSERT( sRomFixed, "Cannot put rom bytes when the data isn't fixed" );
 	memcpy( (u8*)spRomData + rom_start, p_src, length );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void * RomBuffer::GetAddressRaw( u32 rom_start )
 {
 	if (sRomWritten)
@@ -450,9 +433,7 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 	return nullptr;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_offset, u32 length )
 {
 	if( sRomFixed )
@@ -498,9 +479,7 @@ bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u32 src_size, u32 length )
 {
 	if( sRomFixed )
@@ -517,17 +496,13 @@ bool RomBuffer::CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::IsRomAddressFixed()
 {
 	return sRomFixed;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 const void * RomBuffer::GetFixedRomBaseAddress()
 {
 	DAEDALUS_ASSERT( sRomLoaded, "The rom isn't loaded" );

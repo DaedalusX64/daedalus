@@ -687,9 +687,8 @@ void	IController::CommandReadRumblePack(u8 *cmd)
 //
 //
 
-void	IController::CommandWriteRumblePack(u32 channel, u8 *cmd)
+void	IController::CommandWriteRumblePack(u32 channel [[maybe_unused]], u8 *cmd)
 {
-	DAEDALUS_USE(channel);
 	u16 addr = (cmd[3] << 8) | (cmd[4] & 0xE0);
 
 	if ( addr == 0xC000 ) {

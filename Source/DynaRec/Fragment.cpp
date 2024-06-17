@@ -878,7 +878,7 @@ const char * Sanitise( const char * str )
 	//
 	const char * b( str );
 	const char * e( str + strlen(str) );		//  Point to nullptr char
-	const char * s = std::find_first_of( b, e, gIllegalChars, gIllegalChars+ARRAYSIZE(gIllegalChars));
+	const char * s = std::find_first_of( b, e, gIllegalChars, gIllegalChars+std::size(gIllegalChars));
 	if( s == e )
 	{
 		return str;

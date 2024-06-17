@@ -8,7 +8,7 @@ TTF_Font *gFonts[] =
 		nullptr,
 		nullptr,
 };
-DAEDALUS_STATIC_ASSERT(ARRAYSIZE(gFonts) == CDrawText::NUM_FONTS);
+DAEDALUS_STATIC_ASSERT(std::size(gFonts) == CDrawText::NUM_FONTS);
 
 void CDrawText::Initialise()
 {

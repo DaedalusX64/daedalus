@@ -111,7 +111,7 @@ void WebDebugConnection::BeginResponse(int code, int content_length, const char 
 		{ "Content-Type", content_type },
 	};
 
-	WebbyBeginResponse(mConnection, code, content_length, headers, ARRAYSIZE(headers));
+	WebbyBeginResponse(mConnection, code, content_length, headers, std::size(headers));
 	mState = kResponding;
 }
 

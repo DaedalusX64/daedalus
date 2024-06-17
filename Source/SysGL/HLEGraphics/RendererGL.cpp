@@ -60,7 +60,7 @@ const float kShiftScales[] = {
     (float)(1 << 2),
     (float)(1 << 1),
 };
-DAEDALUS_STATIC_ASSERT(ARRAYSIZE(kShiftScales) == 16);
+DAEDALUS_STATIC_ASSERT(std::size(kShiftScales) == 16);
 
 enum
 {
@@ -574,8 +574,8 @@ static ShaderProgram * GetShaderForConfig(const ShaderConfiguration & config)
 	const char * fragment_lines[] = { gN64FramentLibrary, frag_shader };
 
 	GLuint shader_program = make_shader_program(
-								vertex_lines, ARRAYSIZE(vertex_lines),
-								fragment_lines, ARRAYSIZE(fragment_lines));
+								vertex_lines, std::size(vertex_lines),
+								fragment_lines, std::size(fragment_lines));
 	if (shader_program == 0)
 	{
 		fprintf(stderr, "ERROR: during creation of the shader program\n");
