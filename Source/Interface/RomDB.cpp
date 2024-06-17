@@ -373,8 +373,8 @@ void IRomDB::AddRomDirectory(const std::filesystem::path directory)
 			const std::filesystem::path rom_filename = find_data.Name;
 			if(IsRomfilename( rom_filename.string().c_str() ))
 			{
-				IO::Filename full_path;
-				IO::Path::Combine(full_path, directory.string().c_str(), rom_filename.string().c_str());
+				std::filesystem::path full_path;
+				full_path / directory / rom_filename;
 
 				AddRomFile(full_path);
 			}

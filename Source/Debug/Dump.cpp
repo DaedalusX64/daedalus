@@ -137,14 +137,11 @@ void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
 	{
-		// Dump_GetDumpDirectory(file_path, "");
-		// IO::Path::Append(file_path, "dis.txt");
 		file_path /= "dis.txt";
 	}
 	else
 	{
 		file_path /= "p_file_name";
-		// IO::Path::Assign(file_path, p_file_name);
 	}
 
 	u8 * p_base;
@@ -234,13 +231,10 @@ void Dump_RSPDisassemble(const char * p_file_name)
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
 	{
 		file_path /= "rdis.txt";
-		// Dump_GetDumpDirectory(file_path, "");
-		// IO::Path::Append(file_path, "rdis.txt");
 	}
 	else
 	{
 		file_path = p_file_name;
-		// IO::Path::Assign(file_path, p_file_name);
 	}
 
 	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path.string().c_str());
@@ -278,13 +272,10 @@ void Dump_Strings( const char * p_file_name )
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
 	{
 		file_path /= "strings.txt";
-		// Dump_GetDumpDirectory(file_path, "");
-		// IO::Path::Append(file_path, "strings.txt");
 	}
 	else
 	{
 		file_path = p_file_name;
-		// IO::Path::Assign(file_path, p_file_name);
 	}
 
 	DBGConsole_Msg(0, "Dumping strings in rom ([C%s])", file_path.string().c_str());

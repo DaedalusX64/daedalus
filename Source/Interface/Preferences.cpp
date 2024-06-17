@@ -108,8 +108,8 @@ CPreferences::~CPreferences()
 IPreferences::IPreferences()
 :	mDirty( false )
 {
-	char ini_filename[128];
-	IO::Path::Combine(ini_filename, baseDir.string().c_str(), "preferences.ini");
+	std::filesystem::path ini_filename = "preferences.ini";
+	baseDir / ini_filename;
 	OpenPreferencesFile( ini_filename );
 }
 

@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 
 #include <vector>
+#include <iostream>
 #include <string>
 
 #include "System/IO.h"
@@ -253,7 +254,7 @@ void Translate_Dump(const char *string, bool dump)
 //*****************************************************************************
 //
 //*****************************************************************************
-bool Translate_Read(u32 idx, const char * dir)
+bool Translate_Read(u32 idx, const std::filesystem::path& dir)
 {
 	/// Always unload previous language file if available
 	Translate_Unload();
@@ -263,7 +264,7 @@ bool Translate_Read(u32 idx, const char * dir)
 
 	const char * ext( ".lng" );
 	char line[1024];
-	IO::Filename path;
+
 	char *string;
 	FILE *stream;
 
@@ -272,11 +273,13 @@ bool Translate_Read(u32 idx, const char * dir)
 	u32	len   = 0;
 
 	// Build path where we'll load the translation file(s)
-	strcpy(path, dir);
-	strcat(path, gLanguage[ idx ].c_str());
-	strcat(path, ext);
+	
+	std::filesystem::path language = gLanguage[ idx ].c_str();
+	
+	std::filesystem::path path = dir / language;
 
-	stream = fopen(path,"r");
+
+	stream = fopen(path.c_str(),"r");
 	if( stream == NULL )
 	{
 		return false;
