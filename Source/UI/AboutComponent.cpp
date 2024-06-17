@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Math/Vector2.h"
 #include "DrawTextUtilities.h"
 

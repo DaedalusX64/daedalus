@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/SaveState.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "DrawTextUtilities.h"
 #include "AboutComponent.h"
 #include "GlobalSettingsComponent.h"

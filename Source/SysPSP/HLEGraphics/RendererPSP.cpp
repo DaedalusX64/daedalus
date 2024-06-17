@@ -14,7 +14,7 @@
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/TextureCache.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "SysPSP/HLEGraphics/RendererPSP.h"
 #include "Ultra/ultra_gbi.h"
 #include "System/IO.h"

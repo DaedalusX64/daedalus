@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativeTexture.h"
 #include "Graphics/NativePixelFormat.h"
 #include "Graphics/ColourValue.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"
 #include "Utility/FastMemcpy.h"
 

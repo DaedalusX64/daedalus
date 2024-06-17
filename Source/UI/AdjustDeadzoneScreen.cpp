@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Math/Vector2.h"
 #include "DrawTextUtilities.h"
 #include "Interface/Preferences.h"

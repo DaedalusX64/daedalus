@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 
 #include "Debug/DBGConsole.h"
 

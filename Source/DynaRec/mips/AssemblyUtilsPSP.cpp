@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynarecTargetPSP.h"
 
 
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include <limits>
 
 extern "C" { void _DaedalusICacheInvalidate( const void * address, u32 length ); }

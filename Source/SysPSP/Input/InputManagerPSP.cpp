@@ -15,7 +15,7 @@
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 
 #include "Utility/IniFile.h"
 #include "System/IO.h"
