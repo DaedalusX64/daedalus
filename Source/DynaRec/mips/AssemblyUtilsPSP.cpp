@@ -23,12 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "DynarecTargetPSP.h"
 
-#include <limits.h>
-
-#include <psputilsforkernel.h>
-#include <psputils.h>
 
 #include "Base/MathUtil.h"
+#include <limits>
 
 extern "C" { void _DaedalusICacheInvalidate( const void * address, u32 length ); }
 
@@ -71,7 +68,7 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 		//
 		//	Check if the branch is within range
 		//
-		if( offset < SHRT_MIN || offset > SHRT_MAX )
+		if( offset < std::numeric_limits<short>::lowest() || offset > std::numeric_limits<short>::max() )
 		{
 			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR(" PatchJump out of range!!!");
