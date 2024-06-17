@@ -13,10 +13,6 @@ rm -r build
    make --quiet -j $PROC_NR -C "$PWD/Source/SysPSP/PRX/MediaEngine" || { exit 1; }
  }
 
-
-
-
-
 # Add any custom console toolchains
 case "$1" in
     PSP)
