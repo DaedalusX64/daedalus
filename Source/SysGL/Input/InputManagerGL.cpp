@@ -29,12 +29,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UI/UIContext.h" // for Input structures
 
 #include <algorithm>
-
+#include <iostream>
 SDL_GameController *controller;
 
 //Windows Xinput support 
 #ifdef DAEDALUS_W32
-#include <iostream>
+
 #include <Windows.h>
 #include <Xinput.h>
 
@@ -199,10 +199,10 @@ void IInputManager::GetGamePadStatus()
 	//Check for joystick SDL2 and open it if avaiable 
 		controller = SDL_GameControllerOpen(0);
 		if(!controller){
-			DAEDALUS_ASSERT("controller not found");
+			std::cout << "Controller Not Found" << std::endl;
 		}
 		else{
-			DAEDALUS_ASSERT("controller found");
+			std::cout << "Controller found" << std::endl; // We probably need to confirm what the controller is
 		}
 	}
 

@@ -13,12 +13,6 @@ rm -r build
    make --quiet -j $PROC_NR -C "$PWD/Source/SysPSP/PRX/MediaEngine" || { exit 1; }
  }
 
-
-if [[ $1 = "DEBUG" ]] || [[ $2 = "DEBUG" ]]; then
-    CMAKEDEFINES+=" -DDEBUG=1"
-fi
-
-
 # Add any custom console toolchains
 case "$1" in
     PSP)
@@ -34,6 +28,10 @@ case "$1" in
     CMAKEDEFINES=""
     ;;
 esac
+
+if [[ $1 = "DEBUG" ]] || [[ $2 = "DEBUG" ]]; then
+    CMAKEDEFINES+=" -DDEBUG=1"
+fi
     # Use the custom define to do initial build then parse cmake after
     $CMAKE $CMAKEDEFINES -S . -B build 
     cmake --build build -j${PROC_NR}
