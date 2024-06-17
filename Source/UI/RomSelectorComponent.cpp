@@ -764,10 +764,12 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 			if( !mRomsList[ mCurrentSelection ]->mSettings.Preview.empty() )
 			{
-				IO::Filename preview_filename;
-				IO::Path::Combine( preview_filename, gPreviewDirectory, mRomsList[ mCurrentSelection ]->mSettings.Preview.c_str() );
+				const std::filesystem::path gPreviewDirectory = "Resources/Preview";
 
-				mpPreviewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_8888 );
+				std::filesystem::path previewPath = mRomsList[mCurrentSelection]->mSettings.Preview;
+				std::filesystem::path preview_filename = gPreviewDirectory / previewPath;
+
+				mpPreviewTexture = CNativeTexture::CreateFromPng( preview_filename.c_str(), TexFmt_8888 );
 			}
 		}
 	}

@@ -3,6 +3,7 @@
 
 #include "Base/Types.h"
 #include <string>
+#include <filesystem>
 
 // User Interface Variables
 const s16 SCREEN_WIDTH {480};
@@ -157,8 +158,6 @@ const char * const		gNoRomsText[] =
   "including .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.",
 };
 ;
-
-const char * const		gPreviewDirectory =  "Resources/Preview/";
 
 const f32				PREVIEW_SCROLL_WAIT = 0.500f;		// seconds to wait for scrolling to stop before loading preview (prevent thrashing)
 const f32				PREVIEW_FADE_TIME = 0.50f;			// seconds
