@@ -54,9 +54,8 @@ static std::vector<SRomInfo> PopulateRomList()
 	{
 		do 
 		{
-			const char* rom_filename( find_data.Name );
-
-			if(IsRomfilename( rom_filename ))
+			const std::filesystem::path rom_filename( find_data.Name );
+			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
 				SRomInfo info;
 

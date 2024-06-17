@@ -318,8 +318,8 @@ void	IRomSelectorComponent::AddRomDirectory(const char * p_roms_dir, RomInfoList
 	{
 		do
 		{
-			const char * rom_filename( find_data.Name );
-			if(IsRomfilename( rom_filename ))
+			const std::filesystem::path rom_filename( find_data.Name );
+			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
 				full_path = p_roms_dir;
 				full_path += rom_filename;
@@ -448,7 +448,7 @@ void IRomSelectorComponent::RenderRomList()
 		const char *	p_gamename;
 		if( mDisplayFilenames )
 		{
-			p_gamename = mRomsList[ i ]->mFilename.string().c_str();
+			p_gamename = mRomsList[ i ]->mFilename.c_str();
 		}
 		else
 		{

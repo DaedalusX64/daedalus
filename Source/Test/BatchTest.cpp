@@ -50,8 +50,8 @@ void MakeRomList( const char * romdir, std::vector< std::string > & roms )
 	{
 		do
 		{
-			const std::filesystem::path filename( find_data.Name );
-			if( IsRomfilename( filename ) )
+			const std::filesystem::path rom_filename( find_data.Name );
+			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
 				IO::Filename rompath;
 

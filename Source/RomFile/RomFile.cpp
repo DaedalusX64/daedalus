@@ -33,26 +33,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <filesystem>
 
-bool IsRomfilename( const char * rom_filename )
-{
-	const char * last_period( strrchr( rom_filename, '.' ) );
-	if(last_period == NULL)
-		return false;
-
-	return (strcasecmp(last_period, ".v64") == 0 ||
-		    strcasecmp(last_period, ".z64") == 0 ||
-		    strcasecmp(last_period, ".n64") == 0 ||
-		    strcasecmp(last_period, ".rom") == 0 ||
-			strcasecmp(last_period, ".bin") == 0 ||
-		    strcasecmp(last_period, ".jap") == 0 ||
-		    strcasecmp(last_period, ".pal") == 0 ||
-		    strcasecmp(last_period, ".usa") == 0 ||
-		    strcasecmp(last_period, ".zip") == 0);
-}
 
 std::shared_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
 {
 	const char * ext = IO::Path::FindExtension( filename.string().c_str() );
+
 	if (ext && strcasecmp(ext, ".zip") == 0)
 	{
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT

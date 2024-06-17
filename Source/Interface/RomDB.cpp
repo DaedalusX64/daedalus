@@ -371,7 +371,7 @@ void IRomDB::AddRomDirectory(const std::filesystem::path directory)
 		do
 		{
 			const std::filesystem::path rom_filename = find_data.Name;
-			if(IsRomfilename( rom_filename.string().c_str() ))
+			if (rom_filename.extension() == ".z64")
 			{
 				std::filesystem::path full_path;
 				full_path / directory / rom_filename;

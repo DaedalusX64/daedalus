@@ -23,10 +23,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UTILITY_ROMFILE_H_
 
 #include "System/IO.h"
+#include <array>
 
 class COutputStream;
 
-bool IsRomfilename( const char * rom_filename );
+
+const std::array<std::filesystem::path, 9> valid_extensions = {".v64", ".z64", ".n64", ".rom", ".bin", ".jap", ".pal", ".usa", ".zip"};
 
 class ROMFile
 {
