@@ -264,7 +264,7 @@ namespace
 	}
 }
 
-std::shared_ptr<CNativeTexture>	CNativeTexture::CreateFromPng( const char * p_filename, ETextureFormat texture_format )
+std::shared_ptr<CNativeTexture>	CNativeTexture::CreateFromPng( const std::filesystem::path p_filename, ETextureFormat texture_format )
 {
 	return LoadPng( p_filename, texture_format );
 }

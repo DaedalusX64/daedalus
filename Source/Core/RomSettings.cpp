@@ -137,7 +137,7 @@ class IRomSettingsDB : public CRomSettingsDB
 		SettingsMap				mSettings;
 
 		bool					mDirty;				// (STRMNNRMN - Changed since read from disk?)
-		IO::Filename			mFilename;
+		std::filesystem::path		mFilename;
 };
 
 
@@ -224,7 +224,6 @@ bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 	mFilename /= filename;
 
 	auto p_ini_file = CIniFile::Create(filename);
-	// CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == nullptr )
 	{
 		DBGConsole_Msg( 0, "Failed to open roms.ini from %s\n", filename.c_str() );
@@ -330,7 +329,7 @@ void IRomSettingsDB::Commit()
 	
 	std::filesystem::path filename_tmp("roms.ini.tmp");
 
-	FILE * fh_src = fopen(mFilename, "r");
+	FILE * fh_src = fopen(mFilename.c_str(), "r");
 	if (fh_src == nullptr)
 	{
 		return;

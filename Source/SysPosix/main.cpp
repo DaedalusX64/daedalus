@@ -69,16 +69,17 @@ void HandleEndOfFrame()
 	sceCtrlPeekBufferPositive(&pad, 1);
 
 	// If KernelButtons.prx not found. Use select for pause instead
-	if (oldButtons != pad.Buttons)
+	if(oldButtons != pad.Buttons)
 	{
 		// if( gCheatsEnabled && (pad.Buttons & PSP_CTRL_SELECT) )
 		// {
 		// 	CheatCodes_Activate( GS_BUTTON );
 		// }
 
-		if (pad.Buttons & PSP_CTRL_SELECT)
-			activate_pause_menu = true;
+		if(pad.Buttons & PSP_CTRL_SELECT)
+				activate_pause_menu = true;
 	}
+
 
 	if (activate_pause_menu)
 	{

@@ -530,11 +530,11 @@ void IGraphicsContext::SaveScreenshot( const char* filename, s32 x, s32 y, u32 w
 //*****************************************************************************
 void IGraphicsContext::DumpScreenShot()
 {
-	IO::Filename dumpdir;
+	std::filesystem::path dumpdir;
 
 // Do not combine more than one dir for release, since pic will be saved in ms0:/PICTURE/
 #ifndef DAEDALUS_SILENT
-	IO::Path::Combine(dumpdir, g_ROM.settings.GameName.c_str(), gScreenDumpRootPath);
+	IO::Path::Combine(dumpdir, g_ROM.settings.GameName.c_str(), 	);
 #else
 	IO::Path::Assign(dumpdir, g_ROM.settings.GameName.c_str());
 #endif
@@ -586,10 +586,11 @@ void IGraphicsContext::StoreSaveScreenData()
 
 	void * buffer;
 	char pngbuffer[128*1024];
-	IO::Filename pngfile;
+	std::filesystem::path pngfile;
 
 	extern std::string	gSaveStateFilename;
-	snprintf( pngfile, sizeof(pngfile), "%s.png", gSaveStateFilename.c_str() );	//Add .png to filename
+	pngfile /= gSaveStateFilename;
+	// snprintf( pngfile, sizeof(pngfile), "%s.png", gSaveStateFilename.c_str() );	//Add .png to filename
 
 	u32		display_width = 0;
 	u32		display_height= 0;

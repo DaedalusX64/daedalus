@@ -21,9 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 
-#include <stdio.h>
 #include <filesystem>
+#include <format>
 #include <chrono>
+#include <iostream>
 
 #include "Core/ROM.h"
 #include "Interface/SaveState.h"
@@ -45,7 +46,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 {
 	public:
 
-		ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, std::function<void (const char *)> on_slot_selected, const char *running_rom );
+		ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, std::function<void (const char *)> on_slot_selected, const std::filesystem::path& running_rom );
 		~ISavestateSelectorComponent();
 
 		// CUIScreen
@@ -53,9 +54,9 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		virtual void				Render();
 		virtual bool				IsFinished() const									{ return mIsFinished; }
 	public:
-		IO::Filename			current_slot_path;
+		std::filesystem::path			current_slot_path;
 		bool					isGameRunning;
-
+	
 	private:
 		void				OnSlotSelected( u32 slot_idx );
 		void				OnFolderSelected( u32 index );
@@ -75,7 +76,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		CUIElementBag				mElements;
 		std::vector<std::string> 		mElementTitle;
 		bool					mSlotEmpty[ NUM_SAVESTATE_SLOTS ];
-		IO::Filename			mPVFilename[ NUM_SAVESTATE_SLOTS ];
+		std::filesystem::path		mPVFilename[ NUM_SAVESTATE_SLOTS ];
 		s8						mPVExists[ NUM_SAVESTATE_SLOTS ];	//0=skip, 1=file exists, -1=show no preview
 		std::shared_ptr<CNativeTexture>	mPreviewTexture;
 		u32						mLastPreviewLoad;
@@ -91,41 +92,29 @@ CSavestateSelectorComponent::CSavestateSelectorComponent( CUIContext * p_context
 {}
 
 
-CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType accetype, std::function<void( const char *)>  on_slot_selected, const char *running_rom )
+CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType accetype, std::function<void( const char *)>  on_slot_selected, const std::filesystem::path& running_rom )
 {
 	return new ISavestateSelectorComponent( p_context, accetype, on_slot_selected, running_rom );
 }
 
 namespace
 {
-	void MakeSaveSlotPath(char * path, char * png_path, u32 slot_idx, char *slot_path )
-	{
+	   void MakeSaveSlotPath(std::filesystem::path& path, std::filesystem::path& png_path, u32 slot_idx, const std::filesystem::path& slot_path)
+    {
+		//XXXX Todo Add support for alternative directories
 		std::filesystem::create_directory("SaveStates");
-		IO::Filename	filename_png;
-		IO::Filename	filename_ss;
-		IO::Filename    sub_path;
-		std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-		snprintf( filename_png, sizeof(filename_png), "saveslot%u.ss.png", slot_idx );
-		snprintf( filename_ss, sizeof(filename_ss), "saveslot%u.ss", slot_idx );
-		snprintf( sub_path, sizeof(sub_path), "SaveStates/%s", slot_path);
-		if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
-		{
-			IO::Path::Combine( path, gDaedalusExePath.string().c_str(), sub_path );
-			IO::Path::Combine( png_path, gDaedalusExePath.string().c_str(), sub_path );
-			std::filesystem::exists(path);	// Ensure this dir exists
-		}
-		else
-		{
-			IO::Path::Combine( path, "ms0:/n64/", sub_path );
-			IO::Path::Combine( png_path, "ms0:/n64/", sub_path );
-			std::filesystem::exists(path);	// Ensure this dir exists
-		}
-		IO::Path::Append( path, filename_ss );
-		IO::Path::Append( png_path, filename_png );
-	}
+        std::filesystem::path save_directory = "SaveStates";
+        std::filesystem::path full_directory = save_directory / slot_path;
+
+        std::string filename_png = std::format("saveslot{}.ss.png", slot_idx);
+        std::string filename_ss = std::format("saveslot{}.ss", slot_idx);
+
+        path = full_directory / filename_ss;
+        png_path = full_directory / filename_png;
+    }
 }
 
-ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, std::function<void (const char *)> on_slot_selected, const char *running_rom )
+ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, std::function<void (const char *)> on_slot_selected, const std::filesystem::path& running_rom )
 :	CSavestateSelectorComponent( p_context )
 ,	mAccessType( accetype )
 ,	mOnSlotSelected( on_slot_selected )
@@ -134,10 +123,9 @@ ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context
 ,	deleteButtonTriggered(false)
 {
 
-
-	if(running_rom){
+	if(!running_rom.empty()){
 		isGameRunning = true;
-		strcpy(current_slot_path, running_rom);
+		current_slot_path = running_rom;
 		LoadSlots();
 		isDeletionAllowed=true;
 	} else {
@@ -213,7 +201,7 @@ void ISavestateSelectorComponent::LoadSlots() {
         COutputStringStream str;
         str << Translate_String("Slot ") << (i + 1) << ": ";
 
-        IO::Filename filename_ss;
+        std::filesystem::path filename_ss;
         MakeSaveSlotPath(filename_ss, mPVFilename[i], i, current_slot_path);
         mPVExists[i] = std::filesystem::exists(mPVFilename[i]) ? 1 : -1;
 
@@ -272,11 +260,11 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 	{
 		mIsFinished = true;
 
-		IO::Filename filename_ss;
-		IO::Filename filename_png;
+		std::filesystem::path filename_ss;
+		std::filesystem::path filename_png;
 		MakeSaveSlotPath( filename_ss, filename_png, mSelectedSlot, current_slot_path );
 
-		mOnSlotSelected( filename_ss );
+		mOnSlotSelected( filename_ss.c_str());
 	}
 
 	if(old_buttons != new_buttons)
@@ -345,43 +333,35 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 }
 
 
-void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
+void	ISavestateSelectorComponent::deleteSlot(u32 slot_idx)
 {
-    IO::Filename	path;
-    IO::Filename	png_path;
-    IO::Filename	filename_ss;
-    IO::Filename	filename_png;
-    IO::Filename	sub_path;
-    snprintf( filename_ss, sizeof(filename_ss), "saveslot%u.ss", id_ss );
-    snprintf( filename_png, sizeof(filename_png), "saveslot%u.png", id_ss );
-    snprintf( sub_path, sizeof(sub_path), "SaveStates/%s", current_slot_path);
-			std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-	if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
-	{
-		IO::Path::Combine( path, gDaedalusExePath.string().c_str(), sub_path );
-		IO::Path::Combine( png_path, gDaedalusExePath.string().c_str(), sub_path );
-	}
-	else
-	{
-		IO::Path::Combine( path, "ms0:/n64/", sub_path );
-		IO::Path::Combine( png_path, "ms0:/n64/", sub_path );
-	}
-	IO::Path::Append( path, filename_ss );
-	IO::Path::Append( png_path, filename_png );
+	
+	// if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
+	// {
+	// 	IO::Path::Combine( path, gDaedalusExePath.string().c_str(), sub_path );
+	// 	IO::Path::Combine( png_path, gDaedalusExePath.string().c_str(), sub_path );
+	// }
+	// else
+	// {
+	// 	IO::Path::Combine( path, "ms0:/n64/", sub_path );
+	// 	IO::Path::Combine( png_path, "ms0:/n64/", sub_path );
+	// }
+	// IO::Path::Append( path, filename_ss );
+	// IO::Path::Append( png_path, filename_png );
 
-	if (std::filesystem::exists(path))
-    {
-      remove(path);
-      deleteButtonTriggered=false;
-      LoadSlots();
-    }
+	// if (std::filesystem::exists(path))
+    // {
+    //   remove(path);
+    //   deleteButtonTriggered=false;
+    //   LoadSlots();
+    // }
 
-	if (std::filesystem::exists(png_path))
-    {
-      remove(png_path);
-      deleteButtonTriggered=false;
-      LoadSlots();
-    }
+	// if (std::filesystem::exists(png_path))
+    // {
+    //   remove(png_path);
+    //   deleteButtonTriggered=false;
+    //   LoadSlots();
+    // }
 }
 void	ISavestateSelectorComponent::Render()
 {
@@ -453,7 +433,7 @@ void	ISavestateSelectorComponent::OnSlotSelected( u32 slot_idx )
 
 void	ISavestateSelectorComponent::OnFolderSelected( u32 index )
 {
-	strcpy( current_slot_path, mElementTitle[index].c_str());
+		 current_slot_path = mElementTitle[index].c_str();
 	mElementTitle.clear();
 	LoadSlots();
 	isDeletionAllowed=true;
