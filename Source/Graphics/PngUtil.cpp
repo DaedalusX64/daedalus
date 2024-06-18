@@ -166,7 +166,7 @@ void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETe
 	png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
 }
 
-void PngSaveImage( const char* filename, const void * data, const void * palette,
+void PngSaveImage( const std::filesystem::path filename, const void * data, const void * palette,
 				   ETextureFormat format, s32 stride,
 				   u32 width, u32 height, bool use_alpha )
 {

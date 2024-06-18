@@ -70,10 +70,6 @@ namespace IO
 			return true;
 		}
 
-		const char *  FindExtension( const char * p_path )
-		{
-			return strrchr( p_path, '.' );
-		}
 
 		const char *	FindFileName( const char * p_path )
 		{
@@ -88,30 +84,11 @@ namespace IO
 			}
 		}
 
-		char *	RemoveBackslash( char * p_path )
-		{
-			u32 len = strlen( p_path );
-			if ( len > 0 )
-			{
-				char * p_last_char( &p_path[ len - 1 ] );
-				if ( *p_last_char == kPathSeparator )
-				{
-					*p_last_char = '\0';
-				}
-				return p_last_char;
-			}
-			return NULL;
-		}
 
-		bool	RemoveFileSpec( char * p_path )
+
+		const char *  FindExtension( const char * p_path )
 		{
-			char * last_slash = strrchr( p_path, kPathSeparator );
-			if ( last_slash )
-			{
-				*last_slash = '\0';
-				return true;
-			}
-			return false;
+			return strrchr( p_path, '.' );
 		}
 
 		void	RemoveExtension( char * p_path )
@@ -123,13 +100,8 @@ namespace IO
 			}
 		}
 
-		void	AddExtension( char * p_path, const char * p_ext )
-		{
-			strcat( p_path, p_ext );
-		}
+		void	AddExtension( char * p_path, const char * p_ext ) {}
 	}
-
-
 
 
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data )

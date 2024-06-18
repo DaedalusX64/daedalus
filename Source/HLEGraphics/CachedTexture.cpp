@@ -350,20 +350,6 @@ void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptr<C
 		std::string filename = std::format("{}-{}_{}bpp-{}x{}-{}x{}.png", ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(), 0, 0, ti.GetWidth(), ti.GetHeight() );
 		std::filesystem::path filepath;
 
-
-		// IO::Path::Combine( dumpdir, g_ROM.settings.GameName.c_str(), "Textures" );
-
-		// Dump_GetDumpDirectory( filepath, dumpdir );
-
-
-		// snprintf( filename, sizeof(filename),  "%08x-%s_%dbpp-%dx%d-%dx%d.png",
-		// 					ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(),
-		// 					0, 0,		// Left/Top
-		// 					ti.GetWidth(), ti.GetHeight() );
-
-		// IO::Path::Append( filepath, filename );
-
-		// dumpdir = "Textures" / filename;
 		void *	texels;
 		void *	palette;
 

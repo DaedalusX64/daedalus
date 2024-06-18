@@ -20,7 +20,7 @@
 
 
 #include "Base/Types.h"
-
+#include <format>
 
 #include <pspgu.h>
 #include <pspdisplay.h>
@@ -40,13 +40,8 @@
 #include "Utility/Profiler.h"
 #include "Utility/VolatileMem.h"
 
-namespace
-{
-#ifndef DAEDALUS_SILENT
-	const char *	gScreenDumpRootPath = "ScreenShots";
-#endif
-	const char *	gScreenDumpDumpPathFormat = "sd%04d.png";
-}
+
+constexpr std::string gScreenDumpDumpPathFormat = "sd{}.png";
 
 #define DLISTSIZE 1*1024*1024	//Size of PSP Dlist
 
@@ -133,7 +128,7 @@ public:
 	void				DumpNextScreen()			{ mDumpNextScreen = 2; }
 
 private:
-	void				SaveScreenshot( const char* filename, s32 x, s32 y, u32 width, u32 height );
+	void				SaveScreenshot( const std::filesystem::path filename, s32 x, s32 y, u32 width, u32 height );
 
 private:
 	bool				mInitialised;
@@ -481,7 +476,7 @@ void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height ) const
 // Save current visible screen as PNG
 // From Shazz/71M - thanks guys!
 //*****************************************************************************
-void IGraphicsContext::SaveScreenshot( const char* filename, s32 x, s32 y, u32 width, u32 height )
+void IGraphicsContext::SaveScreenshot( const std::filesystem::path filename, s32 x, s32 y, u32 width, u32 height )
 {
 	void * buffer;
 	int bufferwidth;
@@ -530,28 +525,16 @@ void IGraphicsContext::SaveScreenshot( const char* filename, s32 x, s32 y, u32 w
 //*****************************************************************************
 void IGraphicsContext::DumpScreenShot()
 {
-	std::filesystem::path dumpdir;
+	std::filesystem::create_directory( "ScreenShots" );
+	std::filesystem::path dumpdir = "ScreenShots";
 
-// Do not combine more than one dir for release, since pic will be saved in ms0:/PICTURE/
-#ifndef DAEDALUS_SILENT
-	IO::Path::Combine(dumpdir, g_ROM.settings.GameName.c_str(), 	);
-#else
-	IO::Path::Assign(dumpdir, g_ROM.settings.GameName.c_str());
-#endif
+	std::filesystem::path file_name = g_ROM.settings.GameName.c_str();
 
-	IO::Filename filepath;
-	Dump_GetDumpDirectory(filepath, dumpdir);
 
-	IO::Filename unique_filename;
 	u32 count = 0;
-	do
-	{
-		IO::Filename test_name;
 
-		snprintf(test_name, sizeof(test_name), gScreenDumpDumpPathFormat, count++);
-		IO::Path::Combine( unique_filename, filepath, test_name );
 
-	} while( std::filesystem::exists( unique_filename ) );
+	std::filesystem::path unique_filename = std::format(gScreenDumpDumpPathFormat, count++);
 
 	u32		display_width = 0;
 	u32		display_height= 0;
