@@ -1,6 +1,7 @@
 #include <3ds.h>
 #include <GL/picaGL.h>
 #include <stdio.h>
+#include <format>
 
 #include "UserInterface.h"
 #include "InGameMenu.h"
@@ -35,29 +36,35 @@ extern RomInfo g_ROM;
 static uint8_t currentPage = 0;
 #define DAEDALUS_CTR_PATH(p)	"sdmc:/3ds/DaedalusX64/" p
 
-
 static void ExecSaveState(int slot)
 {
-	IO::Filename full_path;
-	snprintf(full_path, sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	std::filesystem::path full_path;
+	std::string path = std::format("{}{}.ss{}", "SaveStates", g_ROM.settings.GameName.c_str(), slot);
+	
+	full_path = path;
+	// snprintf(full_path, sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	CPU_RequestSaveState(full_path);
 }
 
 static void LoadSaveState(int slot)
 {
-	IO::Filename full_path;
-	snprintf(full_path,sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	std::filesystem::path full_path;
+	std::string path = std::format("{}{}.ss{}", "SaveStates", g_ROM.settings.GameName.c_str(), slot);
+	full_path = path;
+	// snprintf(full_path),sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	CPU_RequestLoadState(full_path);
 }
 
 static bool SaveStateExists(int slot)
 {
-	IO::Filename full_path;
-	snprintf(full_path, sizeof(full_path), "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+	std::filesystem::path full_path;
+	std::string path = std::format("{}{}.ss{}", "SaveStates", g_ROM.settings.GameName.c_str(), slot);
+	full_path = path;
+	// snprintf(full_path, sizeof(full_path), "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
 
-	snprintf(full_path, sizeof(full_path),  "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	// snprintf(full_path, sizeof(full_path),  "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
 
 	return std::filesystem::exists(full_path);
 }

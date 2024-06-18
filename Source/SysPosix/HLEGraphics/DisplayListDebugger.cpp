@@ -230,7 +230,7 @@ void DLDebugger_ProcessDebugTask()
 						tile_size.GetHeight() > 0)
 					{
 						const TextureInfo &  ti = gRDPStateManager.GetUpdatedTextureDescriptor(i);
-						std::Shared_ptr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture(ti);
+						std::shared_ptr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture(ti);
 						if (texture)
 						{
 							connection->WriteString("\t\t\"texture\": {\n");

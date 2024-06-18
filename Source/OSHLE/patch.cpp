@@ -178,7 +178,7 @@ void Patch_PatchAll()
 	FILE *fp;
 	std::filesystem::path path;
 	Dump_GetDumpDirectory(path, "");
-	IO::Path::Append(path, "n64.cfg");
+	path / "n64.cfg";
 	fp = fopen(path, "w");
 #endif
 	for (u32 i = 0; i < nPatchSymbols; i++)
@@ -186,10 +186,10 @@ void Patch_PatchAll()
 		if (g_PatchSymbols[i]->Found)
 		{
 #ifdef DUMPOSFUNCTIONS
-			IO::Filename buf;
-			PatchSymbol * ps = g_PatchSymbols[i];
+			std::filesystem::path buf;
+			auto ps = g_PatchSymbols[i];
 			Dump_GetDumpDirectory(buf, "oshle");
-			IO::Path::Append(buf, ps->Name);
+			buf / ps->Name;
 
 			Dump_Disassemble(PHYS_TO_K0(ps->Location), PHYS_TO_K0(ps->Location) + ps->Signatures->NumOps * sizeof(OpCode),
 				buf);

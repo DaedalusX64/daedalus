@@ -38,7 +38,7 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 			for (size_t i = 0; i < textures.size(); ++i)
 			{
 				CTextureCache::STextureInfoSnapshot & snap = textures[i];
-				if ((CNativeTexture*)snap.Texture == ptr)
+				if ((snap.Texture.get() == ptr))
 				{
 					texture = snap.Texture;
 					break;
@@ -118,8 +118,8 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 				ti.GetPitch(),
 				ti.GetWidth(),
 				ti.GetHeight(),
-				(CNativeTexture *)snap.Texture,
-				(CNativeTexture *)snap.Texture,
+				(std::shared_ptr<CNativeTexture>)snap.Texture,
+				(std::shared_ptr<CNativeTexture>)snap.Texture,
 				snap.Texture->GetWidth(),
 				snap.Texture->GetHeight()
 			);

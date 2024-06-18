@@ -52,6 +52,8 @@ static CTimer gTimer;
 void HandleEndOfFrame()
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#include "HLEGraphics/DisplayListDebugger.h"
+#include "Debug/DebugLog.h"
 	if (DLDebugger_IsDebugging())
 		return;
 	DPF(DEBUG_FRAME, "********************************************");

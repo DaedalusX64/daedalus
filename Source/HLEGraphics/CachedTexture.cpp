@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 #include <random>
+#include <format>
 
 #include "Config/ConfigOptions.h"
 #include "Core/ROM.h"
@@ -336,30 +337,33 @@ bool CachedTexture::HasExpired() const
 	//Otherwise we wait 20+random(0-3) frames before trashing the texture if unused
 	//Spread trashing them over time so not all get killed at once (lower value uses less VRAM) //Corn
 	return gRDPFrame - mFrameLastUsed > (20 + (FastRand() & 0x3));
-}
 
+}
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptrstd::shared_ptr<CNativeTexture> texture  )
+void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptr<CNativeTexture> texture  )
 {
 	DAEDALUS_ASSERT(texture != nullptr, "Should have a texture");
 
 	if( texture != nullptr && texture->HasData() )
 	{
-		IO::Filename filename;
-		IO::Filename filepath;
-		IO::Filename dumpdir;
+		std::filesystem::path dumpdir = g_ROM.settings.GameName;
+		std::string filename = std::format("{}-{}_{}bpp-{}x{}-{}x{}.png", ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(), 0, 0, ti.GetWidth(), ti.GetHeight() );
+		std::filesystem::path filepath;
 
-		IO::Path::Combine( dumpdir, g_ROM.settings.GameName.c_str(), "Textures" );
 
-		Dump_GetDumpDirectory( filepath, dumpdir );
+		// IO::Path::Combine( dumpdir, g_ROM.settings.GameName.c_str(), "Textures" );
 
-		snprintf( filename, sizeof(filename),  "%08x-%s_%dbpp-%dx%d-%dx%d.png",
-							ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(),
-							0, 0,		// Left/Top
-							ti.GetWidth(), ti.GetHeight() );
+		// Dump_GetDumpDirectory( filepath, dumpdir );
 
-		IO::Path::Append( filepath, filename );
 
+		// snprintf( filename, sizeof(filename),  "%08x-%s_%dbpp-%dx%d-%dx%d.png",
+		// 					ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(),
+		// 					0, 0,		// Left/Top
+		// 					ti.GetWidth(), ti.GetHeight() );
+
+		// IO::Path::Append( filepath, filename );
+
+		// dumpdir = "Textures" / filename;
 		void *	texels;
 		void *	palette;
 
@@ -375,7 +379,7 @@ void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptrst
 			// contain our pixels.
 			const void * native_palette = texture->GetPalette();
 
-			PngSaveImage( filepath, texels, native_palette, texture->GetFormat(), texture->GetStride(), ti.GetWidth(), ti.GetHeight(), true );
+			PngSaveImage( filepath.c_str(), texels, native_palette, texture->GetFormat(), texture->GetStride(), ti.GetWidth(), ti.GetHeight(), true );
 		}
 	}
 }

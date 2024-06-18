@@ -153,7 +153,6 @@ void FileNameHandler::SetDefaultDirectory(LPCTSTR szDir)
 	RegCloseKey(hRegKey);
 }
 
-// szOutBuffer must be at least IO::Path::kMaxPathLen in length
 // FIXME(strmnnrmn): Pass a PathBuf.
 void FileNameHandler::GetModuleDirectory(LPTSTR szOutBuffer)
 {
@@ -165,7 +164,6 @@ void FileNameHandler::GetModuleDirectory(LPTSTR szOutBuffer)
 }
 
 // Retrieves the path from the currently selected file
-// szOutBuffer must be at least IO::Path::kMaxPathLen in length
 // FIXME(strmnnrmn): Pass a PathBuf.
 void FileNameHandler::GetCurrentDirectory(LPTSTR szOutBuffer)
 {
@@ -176,7 +174,7 @@ void FileNameHandler::GetCurrentDirectory(LPTSTR szOutBuffer)
 }
 
 // Retrieves the path/name of the currently selected file
-// szOutBuffer must be at least IO::Path::kMaxPathLen in length
+
 // FIXME(strmnnrmn): Pass a PathBuf.
 void FileNameHandler::GetCurrentFileName(LPTSTR szOutBuffer)
 {
@@ -184,7 +182,6 @@ void FileNameHandler::GetCurrentFileName(LPTSTR szOutBuffer)
 }
 
 // Set the current filename
-// szOutBuffer must be at least IO::Path::kMaxPathLen in length
 // FIXME(strmnnrmn): Pass a PathBuf.
 void FileNameHandler::SetFileName(LPCTSTR szNewName)
 {
