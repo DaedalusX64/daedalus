@@ -34,7 +34,7 @@ static void InitMempackContent();
 std::filesystem::path gSaveFileName;
 static bool				gSaveDirty;
 static u32				gSaveSize;
-static IO::Filename		gMempackFileName;
+static std::filesystem::path	gMempackFileName;
 static bool				gMempackDirty;
 
 
@@ -163,9 +163,9 @@ void Save_Flush()
 
 	if (gMempackDirty)
 	{
-		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName);
+		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName.c_str());
 
-		FILE * fp = fopen(gMempackFileName, "wb");
+		FILE * fp = fopen(gMempackFileName.c_str(), "wb");
 		if (fp != nullptr)
 		{
 			fwrite(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);

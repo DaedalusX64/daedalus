@@ -264,7 +264,6 @@ void Dump_RSPDisassemble(const char * p_file_name)
 void Dump_Strings( const char * p_file_name )
 {
 	std::filesystem::path file_path;
-	// IO::Filename file_path;
 	FILE * fp;
 
 	static const u32 MIN_LENGTH = 5;

@@ -176,7 +176,7 @@ void Patch_PatchAll()
 	}
 #ifdef DUMPOSFUNCTIONS
 	FILE *fp;
-	IO::Filename path;
+	std::filesystem::path path;
 	Dump_GetDumpDirectory(path, "");
 	IO::Path::Append(path, "n64.cfg");
 	fp = fopen(path, "w");

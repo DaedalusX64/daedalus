@@ -78,14 +78,14 @@ namespace
 	}
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-	std::shared_ptr<ROMFile> DecompressRom( std::shared_ptr<ROMFile> p_rom_file, const char * temp_filename, COutputStream & messages )
+	std::shared_ptr<ROMFile> DecompressRom( std::shared_ptr<ROMFile> p_rom_file, const std::filesystem::path temp_filename, COutputStream & messages )
 	{
-		auto p_new_file = nullptr;
-		FILE *		fh( fopen( temp_filename, "wb" ) );
 
+		FILE *		fh( fopen( temp_filename.c_str(), "wb" ) );
+		auto p_new_file = ROMFile::Create( temp_filename );
 		if( fh == nullptr )
 		{
-			messages << "Unable to create temporary rom '" << temp_filename << "' for decompression\n";
+			messages << "Unable to create temporary rom '" << temp_filename.c_str() << "' for decompression\n";
 		}
 		else
 		{
@@ -136,24 +136,23 @@ namespace
 
 			if( failed )
 			{
-				messages << "Failed to decompress rom to '" << temp_filename << "' - out of disk space?\n";
+				messages << "Failed to decompress rom to '" << temp_filename.c_str() << "' - out of disk space?\n";
 			}
 			else
 			{
 				//
 				//	Open the newly created file
 				//
-				p_new_file = ROMFile::Create( temp_filename );
+
 				if( p_new_file == nullptr )
 				{
-					messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
+					messages << "Failed to open temporary rom '" << temp_filename.c_str() << "' we just created\n";
 				}
 				else
 				{
 					if( !p_new_file->Open( messages ) )
 					{
-						messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
-						delete p_new_file;
+						messages << "Failed to open temporary rom '" << temp_filename.c_str() << "' we just created\n";
 						p_new_file = nullptr;
 					}
 				}
@@ -288,7 +287,6 @@ bool RomBuffer::Open()
 					#ifdef DAEDALUS_DEBUG_CONSOLE
 					DBGConsole_Msg( 0, "Decompression [gsuccessful]. Booting using decompressed rom" );
 					#endif
-					delete p_rom_file;
 					p_rom_file = p_new_file;
 				}
 				#ifdef DAEDALUS_DEBUG_CONSOLE

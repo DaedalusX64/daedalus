@@ -160,7 +160,7 @@ class IRomDB : public CRomDB
 	using FilenameVec = std::vector< RomFilesKeyValue >;
 	using DetailsVec = std::vector< RomDetails >;
 	
-		IO::Filename					mRomDBFileName;
+		std::filesystem::path			mRomDBFileName;
 		FilenameVec						mRomFiles;
 		DetailsVec						mRomDetails;
 		bool							mDirty;
@@ -181,7 +181,7 @@ template<> bool	CSingleton< CRomDB >::Create()
 IRomDB::IRomDB()
 :	mDirty( false )
 {
-	mRomDBFileName[ 0 ] = '\0';
+	// mRomDBFileName[ 0 ] = '\0';
 }
 
 IRomDB::~IRomDB()
@@ -203,12 +203,12 @@ bool IRomDB::OpenDB( const std::filesystem::path filename )
 	//
 	// Remember the filename
 	//
-	IO::Path::Assign( mRomDBFileName, filename.string().c_str() );
+	mRomDBFileName = filename;
 
 	FILE * fh = fopen( filename.string().c_str(), "rb" );
 	if ( !fh )
 	{
-		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", mRomDBFileName );
+		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", mRomDBFileName.c_str() );
 		return false;
 	}
 
@@ -292,10 +292,8 @@ bool IRomDB::Commit()
 	//
 	// Check if we have a valid filename
 	//
-	if ( strlen( mRomDBFileName ) <= 0 )
-		return false;
 
-	FILE * fh = fopen( mRomDBFileName, "wb" );
+	FILE * fh = fopen( mRomDBFileName.c_str(), "wb" );
 
 	if ( !fh )
 		return false;
