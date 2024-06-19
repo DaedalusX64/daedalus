@@ -150,24 +150,25 @@ void ISavestateSelectorComponent::LoadFolders() {
         mPVExists[i] = 0;
         mLastPreviewLoad = ~0;
     }
+	
 
-    // Check "ms0:/n64/SaveStates" directory
-    if (IO::FindFileOpen("ms0:/n64/SaveStates", &find_handle, find_data)) {
-        do {
-            IO::Path::Combine(full_path, "ms0:/n64/SaveStates", find_data.Name);
-            if (std::filesystem::is_directory(full_path) && strlen(find_data.Name) > 2) {
-                // Create UI element for each directory
-                COutputStringStream str;
-                str << find_data.Name;
-                auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
-                std::function<void()> functor = onSelected;
-                CUIElement* element = new CUICommandImpl(functor, str.c_str(), description_text);
-                mElements.Add(element);
-                mElementTitle.push_back(find_data.Name);
-            }
-        } while (IO::FindFileNext(find_handle, find_data));
-        IO::FindFileClose(find_handle);
-    } else if (IO::FindFileOpen("SaveStates", &find_handle, find_data)) {
+    // if (IO::FindFileOpen("ms0:/n64/SaveStates", &find_handle, find_data)) {
+    //     do {
+    //         IO::Path::Combine(full_path, "ms0:/n64/SaveStates", find_data.Name);
+    //         if (std::filesystem::is_directory(full_path) && strlen(find_data.Name) > 2) {
+    //             // Create UI element for each directory
+    //             COutputStringStream str;
+    //             str << find_data.Name;
+    //             auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
+    //             std::function<void()> functor = onSelected;
+    //             CUIElement* element = new CUICommandImpl(functor, str.c_str(), description_text);
+    //             mElements.Add(element);
+    //             mElementTitle.push_back(find_data.Name);
+    //         }
+    //     } while (IO::FindFileNext(find_handle, find_data));
+    //     IO::FindFileClose(find_handle);
+    // } else 
+	if (IO::FindFileOpen("SaveStates", &find_handle, find_data)) {
         // Check "SaveStates" directory if "ms0:/n64/SaveStates" not found
         do {
             IO::Path::Combine(full_path, "SaveStates", find_data.Name);
@@ -180,6 +181,7 @@ void ISavestateSelectorComponent::LoadFolders() {
                 CUIElement* element = new CUICommandImpl(functor, str.c_str(), description_text);
                 mElements.Add(element);
                 mElementTitle.push_back(find_data.Name);
+				    folderIndex++; 
             }
         } while (IO::FindFileNext(find_handle, find_data));
         IO::FindFileClose(find_handle);
@@ -200,9 +202,10 @@ void ISavestateSelectorComponent::LoadSlots() {
     for (u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i) {
         COutputStringStream str;
         str << Translate_String("Slot ") << (i + 1) << ": ";
-
+		 
         std::filesystem::path filename_ss;
         MakeSaveSlotPath(filename_ss, mPVFilename[i], i, current_slot_path);
+		// Is outputting filenames correctly
         mPVExists[i] = std::filesystem::exists(mPVFilename[i]) ? 1 : -1;
 
         if (mPVExists[i] == 1) {
