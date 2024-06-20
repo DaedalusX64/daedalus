@@ -173,7 +173,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 				void				RenderRomList();
 				void				RenderCategoryList();
 
-				void				AddRomDirectory(const char * p_roms_dir, RomInfoList & roms);
+				void				AddRomDirectory(const std::filesystem::path& p_roms_dir, RomInfoList & roms);
 
 				ECategory			GetCurrentCategory() const;
 
@@ -304,30 +304,20 @@ void	IRomSelectorComponent::UpdateROMList()
 //*************************************************************************************
 //
 //*************************************************************************************
-void	IRomSelectorComponent::AddRomDirectory(const char * p_roms_dir, RomInfoList & roms)
+void	IRomSelectorComponent::AddRomDirectory(const std::filesystem::path &p_roms_dir, RomInfoList & roms)
 {
-	std::string			full_path;
-
-	IO::FindHandleT		find_handle;
-	IO::FindDataT		find_data;
-	if(IO::FindFileOpen( p_roms_dir, &find_handle, find_data ))
+	
+	for (const auto& entry : std::filesystem::directory_iterator(p_roms_dir))
 	{
-		do
+		if (entry.is_regular_file())
 		{
-			const std::filesystem::path rom_filename( find_data.Name );
+			const std::filesystem::path& rom_filename = entry.path().filename();
 			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
-				full_path = p_roms_dir;
-				full_path += rom_filename;
-
-				SRomInfo *	p_rom_info = new SRomInfo( full_path.c_str() );
-
-				roms.push_back( p_rom_info );
+				SRomInfo * p_rom_info = new SRomInfo(entry);
+				roms.push_back( p_rom_info);
 			}
 		}
-		while(IO::FindFileNext( find_handle, find_data ));
-
-		IO::FindFileClose( find_handle );
 	}
 }
 

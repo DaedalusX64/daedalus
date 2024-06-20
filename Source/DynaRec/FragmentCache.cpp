@@ -427,12 +427,10 @@ void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 			fprintf( fh, "<td>%d</td>", fragment->GetInputLength() );
 			fprintf( fh, "<td>%d</td>", fragment->GetOutputLength() );
 			fprintf( fh, "<td>%#.2f</td>", f32( fragment->GetOutputLength() ) / f32( fragment->GetInputLength() ) );
-			fputs( "</tr>\n", fh );
-
-			IO::Filename	fragment_path;
+			fputs( "</tr>\n", fh ); 
 			char			fragment_name[ 32+1 ];
 			snprintf( fragment_name, sizeof(fragment_name), "%08x.html", fragment->GetEntryAddress() );
-			IO::Path::Combine( fragment_path, fragments_dir.string().c_str(), fragment_name );
+			fragments_dir / fragment_name;
 
 			FILE * fragment_fh( fopen( fragment_path, "w" ) );
 			if( fragment_fh != nullptr )

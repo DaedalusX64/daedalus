@@ -40,40 +40,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/PrintOpCode.h"
 #include "Base/Path.h"
 
-static IO::Filename gDumpDir = "";
+const std::filesystem::path gDumpDir = "Dumps";
 
 // Initialise the directory where files are dumped
 // Appends subdir to the global dump base. Stores in rootdir)
 // Not really required with std::filesystem
-void Dump_GetDumpDirectory(char * rootdir, const char * subdir)
+void Dump_GetDumpDirectory(std::filesystem::path& rootdir, const std::filesystem::path& subdir)
 {
-	std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-	if (gDumpDir[0] == '\0')
+	if (!subdir.empty())
 	{
-		// Initialise
-#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || !defined(DAEDALUS_SILENT)
-		IO::Path::Combine(gDumpDir, gDaedalusExePath.string().c_str(), "Dumps");
-#else
-		IO::Path::Combine(gDumpDir, gDaedalusExePath.string().c_str(), "ms0:/PICTURE/");
-#endif
+		rootdir = gDumpDir / subdir;
 	}
-
-	// If a subdirectory was specified, append
-	if (subdir[0] != '\0')
+	else 
 	{
-		IO::Path::Combine(rootdir, gDumpDir, subdir);
+		rootdir = gDumpDir;
 	}
-	else
-	{
-		IO::Path::Assign(rootdir, gDumpDir);
-	}
-
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	if(CDebugConsole::IsAvailable())
-	{
-		//DBGConsole_Msg( 0, "Dump dir: [C%s]", rootdir );
-	}
-#endif
 
 }
 

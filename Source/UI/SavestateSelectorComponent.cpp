@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <format>
 #include <chrono>
 #include <iostream>
+#include <string_view>
 
 #include "Core/ROM.h"
 #include "Interface/SaveState.h"
@@ -136,11 +137,9 @@ ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context
 }
 
 void ISavestateSelectorComponent::LoadFolders() {
-    IO::FindHandleT find_handle;
-    IO::FindDataT find_data;
-    u32 folderIndex {0};
+    u32 folderIndex = 0;
     const char* const description_text = (mAccessType == AT_SAVING) ? "Select the slot in which to save" : "Select the slot from which to load";
-    IO::Filename full_path;
+    // IO::Filename full_path;
 
     // Clear unused vector or perform any other necessary cleanup
     mElements.Clear();
@@ -150,46 +149,29 @@ void ISavestateSelectorComponent::LoadFolders() {
         mPVExists[i] = 0;
         mLastPreviewLoad = ~0;
     }
-	
-
-    // if (IO::FindFileOpen("ms0:/n64/SaveStates", &find_handle, find_data)) {
-    //     do {
-    //         IO::Path::Combine(full_path, "ms0:/n64/SaveStates", find_data.Name);
-    //         if (std::filesystem::is_directory(full_path) && strlen(find_data.Name) > 2) {
-    //             // Create UI element for each directory
-    //             COutputStringStream str;
-    //             str << find_data.Name;
-    //             auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
-    //             std::function<void()> functor = onSelected;
-    //             CUIElement* element = new CUICommandImpl(functor, str.c_str(), description_text);
-    //             mElements.Add(element);
-    //             mElementTitle.push_back(find_data.Name);
-    //         }
-    //     } while (IO::FindFileNext(find_handle, find_data));
-    //     IO::FindFileClose(find_handle);
-    // } else 
-	if (IO::FindFileOpen("SaveStates", &find_handle, find_data)) {
-        // Check "SaveStates" directory if "ms0:/n64/SaveStates" not found
-        do {
-            IO::Path::Combine(full_path, "SaveStates", find_data.Name);
-            if (std::filesystem::is_directory(full_path) && strlen(find_data.Name) > 2) {
-                // Create UI element for each directory
-                COutputStringStream str;
-                str << find_data.Name;
-                auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
-                std::function<void()> functor = onSelected;
-                CUIElement* element = new CUICommandImpl(functor, str.c_str(), description_text);
-                mElements.Add(element);
-                mElementTitle.push_back(find_data.Name);
-				    folderIndex++; 
-            }
-        } while (IO::FindFileNext(find_handle, find_data));
-        IO::FindFileClose(find_handle);
-    } else {
-        // If neither directory exists, add a dummy UI element
-        CUIElement* element = new CUICommandDummy("There are no Savestates to load", "There are no Savestates to load");
-        mElements.Add(element);
-    }
+	// Don't use 
+		for( const auto& entry : std::filesystem::directory_iterator("SaveStates"))
+		{
+			if (entry.is_directory()) 
+			{
+				std::string directoryName = entry.path().filename().string();
+				if (directoryName.size() > 2)
+				{
+					std::string_view str = directoryName;
+					auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
+					std::function<void()> functor = onSelected;
+					CUIElement* element = new CUICommandImpl(functor, str.data(), description_text);
+					mElements.Add(element);
+					mElementTitle.push_back(directoryName);
+					folderIndex++; 
+				}
+			}
+			else
+			{
+				CUIElement* element = new CUICommandDummy("There are no Savestates to load", "There are no Savestates to load");
+				mElements.Add(element);
+			}
+		}
 }
 void ISavestateSelectorComponent::LoadSlots() {
     const char* description_text = (mAccessType == AT_SAVING) ? "Select the slot in which to save [X:save O:back]" : "Select the slot from which to load [X:load O:back []:delete]";

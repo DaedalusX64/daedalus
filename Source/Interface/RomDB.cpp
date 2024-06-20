@@ -55,7 +55,7 @@ class IRomDB : public CRomDB
 		void			Reset();
 		bool			Commit();
 
-		void			AddRomDirectory(const std::filesystem::path directory);
+		void			AddRomDirectory(const std::filesystem::path& directory);
 
 		bool			QueryByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type );
 		bool			QueryByID( const RomID & id, u32 * rom_size, ECicType * cic_type ) const;
@@ -99,7 +99,7 @@ class IRomDB : public CRomDB
 				ID = id;
 			}
 
-			// This is actually IO::Path::kMaxPathLen+1, but we need to ensure that it doesn't change if we ever change the kMaxPathLen constant.
+			// This is actually kMaxPathLen+1, but we need to ensure that it doesn't change if we ever change the kMaxPathLen constant.
 			static const u32 kMaxFilenameLen = 260;
 			char		FileName[ kMaxFilenameLen + 1 ];
 			RomID		ID;
@@ -356,31 +356,23 @@ void IRomDB::AddRomEntry( const std::filesystem::path filename, const RomID & id
 	mDirty = true;
 }
 
-void IRomDB::AddRomDirectory(const std::filesystem::path directory)
+void IRomDB::AddRomDirectory(const std::filesystem::path& directory)
 {
 	DBGConsole_Msg(0, "Adding roms directory [C%s]", directory.c_str());
 
-	std::string			full_path;
-
-	IO::FindHandleT		find_handle;
-	IO::FindDataT		find_data;
-	if(IO::FindFileOpen( directory.string().c_str(), &find_handle, find_data ))
+	for (const auto& entry : std::filesystem::directory_iterator(directory))
 	{
-		do
+		if (entry.is_regular_file())
 		{
-			const std::filesystem::path rom_filename = find_data.Name;
-			if (rom_filename.extension() == ".z64")
+			const std::filesystem::path rom_filename = entry.path().filename();
+			if (std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
-				std::filesystem::path full_path;
-				full_path / directory / rom_filename;
-
-				AddRomFile(full_path);
+				std::filesystem::path rompath = directory / rom_filename;
+				AddRomFile(rompath);
 			}
 		}
-		while(IO::FindFileNext( find_handle, find_data ));
-
-		IO::FindFileClose( find_handle );
 	}
+
 }
 
 void IRomDB::AddRomFile(const std::filesystem::path filename)

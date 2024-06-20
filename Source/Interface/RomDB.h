@@ -38,7 +38,7 @@ class	CRomDB :  public CSingleton< CRomDB >
 		virtual void			Reset() = 0;																		// Resets the contents of the database
 		virtual bool			Commit() = 0;																		// Commits any changes made to the database to disk
 
-		virtual void			AddRomDirectory(const std::filesystem::path directory) = 0;
+		virtual void			AddRomDirectory(const std::filesystem::path& directory) = 0;
 
 		virtual bool			QueryByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type ) = 0;		// Query a rom from the database
 		virtual bool			QueryByID( const RomID & id, u32 * rom_size, ECicType * cic_type ) const = 0;						// Query a rom from the database

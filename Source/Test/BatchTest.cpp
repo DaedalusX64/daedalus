@@ -42,31 +42,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Timer.h"
 #include "System/Timing.h"
 
-void MakeRomList( const char * romdir, std::vector< std::string > & roms )
+void MakeRomList( const std::filesystem::path& romdir, std::vector< std::string > & roms )
 {
-	IO::FindHandleT		find_handle;
-	IO::FindDataT		find_data;
-	if(IO::FindFileOpen( romdir, &find_handle, find_data ))
+	for (const auto& entry : std::filesystem::directory_iterator(romdir))
 	{
-		do
+		if (entry.is_regular_file())
 		{
-			const std::filesystem::path rom_filename( find_data.Name );
-			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
-			{
-				IO::Filename rompath;
+			const std::filesystem::path& rom_filename = entry.path.filename();
+				if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
+				{
+					IO::Filename rompath;
 
-				IO::Path::Combine( rompath, romdir, filename );
+					IO::Path::Combine( rompath, romdir, filename );
 
-				roms.push_back( rompath );
-			}
+					roms.push_back( rompath );
+				}
+
 		}
-		while(IO::FindFileNext( find_handle, find_data ));
-
-		IO::FindFileClose( find_handle );
-	}
-
-	//_finddata_t		data;
-	//_findfirst("foo", &data )
 }
 
 FILE * gBatchFH = NULL;
