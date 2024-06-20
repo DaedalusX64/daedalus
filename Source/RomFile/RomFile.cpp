@@ -52,8 +52,8 @@ std::shared_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
 }
 
 ROMFile::ROMFile( const std::filesystem::path filename )
-:	mHeaderMagic( 0 )
-,	mFilename ( filename )
+:	mFilename ( filename )
+,	mHeaderMagic ( 0 )
 {
 
 }

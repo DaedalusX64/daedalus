@@ -68,7 +68,7 @@ const char * const	LOGO_FILENAME { "Resources/logo.png"};
 const s16 NUM_SAVESTATE_SLOTS {15};
 const char * const		SAVING_STATUS_TEXT  = "Saving...";
 const char * const		LOADING_STATUS_TEXT = "Loading...";
-const s16				INVALID_SLOT = s16( -1 );
+const u32				INVALID_SLOT = s16( -1 );
 
 
 

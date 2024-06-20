@@ -253,7 +253,7 @@ std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
 ISavestateSelectorComponent::~ISavestateSelectorComponent() {}
 
 
-void	ISavestateSelectorComponent::Update( float elapsed_time [[maybe_unused]], const v2 & stick, [[maybe_unused]] u32 old_buttons, u32 new_buttons )
+void	ISavestateSelectorComponent::Update( float elapsed_time [[maybe_unused]], const v2 & stick [[maybe_unused]], [[maybe_unused]] u32 old_buttons, u32 new_buttons )
 {
 	//
 	//	Trigger the save on the first update AFTER mSelectedSlot was set.

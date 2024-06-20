@@ -109,7 +109,7 @@ struct SRomInfo
 				std::string game_name;
 				if ( !ROM_GetRomName( filename, game_name ) )
 				{
-					game_name = IO::Path::FindFileName( filename.string().c_str() );
+					game_name = std::filesystem::path(filename.string());
 				}
 				game_name = game_name.substr(0, 63);
 				mSettings.GameName = game_name.c_str();
@@ -127,13 +127,13 @@ struct SRomInfo
 //*************************************************************************************
 //
 //*************************************************************************************
-const ECategory Categorise( const char * name )
+ECategory Categorise( const char * name )
 {
 	char	c( name[ 0 ] );
 	return GetCategory( c );
 }
 
-const bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
+bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
 {
 	// Sort by the category first, then on the actual string.
 	ECategory	cat_a( Categorise( a->mSettings.GameName.c_str() ) );
@@ -196,8 +196,6 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		float						mTimeSinceScroll;		//
 
 		bool						mRomDelete;
-		bool						mQuitTriggered;
-		bool						mQuitInit;
 };
 
 //*************************************************************************************
@@ -229,8 +227,6 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, std::funct
 ,	mPreviewLoadedTime( 0.0f )
 ,	mTimeSinceScroll( 0.0f )
 ,	mRomDelete(false)
-,	mQuitTriggered(false)
-,	mQuitInit(false)
 {
 	for( u32 i = 0; i < std::size( gRomsDirectories ); ++i )
 	{

@@ -760,7 +760,7 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 
 	const u32 * code_base( g_pu32RamBase );
 
-	PatchCrossRef dummy_cr = {static_cast<u32>(~0), PX_JUMP, nullptr };
+	PatchCrossRef dummy_cr = {static_cast<u32>(~0), PX_JUMP, nullptr, nullptr};
 
 	if (pcr == nullptr)
 		pcr = &dummy_cr;

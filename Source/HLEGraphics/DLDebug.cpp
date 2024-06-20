@@ -245,8 +245,8 @@ static void DumpRenderMode(u32 data);
 static void DumpBlender(u32 data);
 
 static const OtherModeData kOtherModeLData[] = {
-	{ "alpha_compare", 2, G_MDSFT_ALPHACOMPARE,		kAlphaCompareValues },
-	{ "depth_source",  1, G_MDSFT_ZSRCSEL,			kDepthSourceValues },
+	{ "alpha_compare", 2, G_MDSFT_ALPHACOMPARE,		kAlphaCompareValues, nullptr  },
+	{ "depth_source",  1, G_MDSFT_ZSRCSEL,			kDepthSourceValues, nullptr},
 
 #if 0
 	// G_MDSFT_RENDERMODE
@@ -269,19 +269,19 @@ static const OtherModeData kOtherModeLData[] = {
 };
 
 static const OtherModeData kOtherModeHData[] = {
-	{ "blend_mask",    4, G_MDSFT_BLENDMASK,		nullptr },
-	{ "alpha_dither",  2, G_MDSFT_ALPHADITHER,		kAlphaDitherValues },
-	{ "rgb_dither",    2, G_MDSFT_RGBDITHER,		kRGBDitherValues },
-	{ "comb_key",      1, G_MDSFT_COMBKEY,			kCombKeyValues },
-	{ "text_conv",     3, G_MDSFT_TEXTCONV,			kTextureConvValues },
-	{ "text_filt",     2, G_MDSFT_TEXTFILT,			kTextureFilterValues },
-	{ "text_tlut",     2, G_MDSFT_TEXTLUT,			kTextureLUTValues },
-	{ "text_lod",      1, G_MDSFT_TEXTLOD,			kTextureLODValues },
-	{ "text_detail",   2, G_MDSFT_TEXTDETAIL,		kTextureDetailValues },
-	{ "text_persp",    1, G_MDSFT_TEXTPERSP,		kOnOffValues },
-	{ "cycle_type",    2, G_MDSFT_CYCLETYPE,		kCycleTypeValues },
-	{ "color_dither",  1, G_MDSFT_COLORDITHER,		nullptr },
-	{ "pipeline",      1, G_MDSFT_PIPELINE,			kPipelineValues },
+	{ "blend_mask",    4, G_MDSFT_BLENDMASK,		nullptr, nullptr },
+	{ "alpha_dither",  2, G_MDSFT_ALPHADITHER,		kAlphaDitherValues, nullptr  },
+	{ "rgb_dither",    2, G_MDSFT_RGBDITHER,		kRGBDitherValues, nullptr  },
+	{ "comb_key",      1, G_MDSFT_COMBKEY,			kCombKeyValues, nullptr  },
+	{ "text_conv",     3, G_MDSFT_TEXTCONV,			kTextureConvValues, nullptr  },
+	{ "text_filt",     2, G_MDSFT_TEXTFILT,			kTextureFilterValues, nullptr  },
+	{ "text_tlut",     2, G_MDSFT_TEXTLUT,			kTextureLUTValues, nullptr  },
+	{ "text_lod",      1, G_MDSFT_TEXTLOD,			kTextureLODValues, nullptr  },
+	{ "text_detail",   2, G_MDSFT_TEXTDETAIL,		kTextureDetailValues, nullptr  },
+	{ "text_persp",    1, G_MDSFT_TEXTPERSP,		kOnOffValues, nullptr  },
+	{ "cycle_type",    2, G_MDSFT_CYCLETYPE,		kCycleTypeValues, nullptr  },
+	{ "color_dither",  1, G_MDSFT_COLORDITHER,		nullptr, nullptr  },
+	{ "pipeline",      1, G_MDSFT_PIPELINE,			kPipelineValues, nullptr  },
 };
 
 static const u32 kOtherModeLabelWidth = 15;
