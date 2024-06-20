@@ -33,19 +33,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern const std::filesystem::path baseDir;
 namespace IO
 {
-	namespace File
-	{
-		bool		Move( const char * p_existing, const char * p_new );
-		bool		Delete( const char * p_file );
-		bool		Exists( const char * p_path );
+	// namespace File
+	// {
+	// 	bool		Move( const char * p_existing, const char * p_new );
+	// 	bool		Delete( const char * p_file );
+	// 	bool		Exists( const char * p_path );
 
-	}
-	namespace Directory
-	{
-		bool		Create( const char * p_path );
-		bool		EnsureExists( const char * p_path );
-		bool		IsDirectory( const char * p_path );
-	}
+	// }
+	// namespace Directory
+	// {
+	// 	bool		Create( const char * p_path );
+	// 	bool		EnsureExists( const char * p_path );
+	// 	bool		IsDirectory( const char * p_path );
+	// }
 
 	namespace Path
 	{
@@ -65,15 +65,15 @@ namespace IO
 		bool				RemoveFileSpec( char * p_path );
 		void				RemoveExtension( char * p_path );
 		void				AddExtension( char * p_path, const char * p_ext );
-#ifdef DAEDALUS_PSP
-		int					DeleteRecursive(const char* p_path, const char * p_extension);
-#endif
+// #ifdef DAEDALUS_PSP
+// 		int					DeleteRecursive(const char* p_path, const char * p_extension);
+// #endif
 
-		inline void SetExtension( char * p_path, const char * p_extension)
-		{
-			RemoveExtension(p_path);
-			AddExtension(p_path, p_extension);
-		}
+		// inline void SetExtension( char * p_path, const char * p_extension)
+		// {
+		// 	RemoveExtension(p_path);
+		// 	AddExtension(p_path, p_extension);
+		// }
 	}
 
 	typedef char Filename[IO::Path::kMaxPathLen+1];

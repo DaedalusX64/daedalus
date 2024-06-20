@@ -20,11 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 #include "System/IO.h"
-
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <dirent.h>
-#include <stdio.h>
 #include <filesystem>
 
 
@@ -37,70 +33,8 @@ const std::filesystem::path baseDir = std::filesystem::current_path();
 
 namespace IO
 {
-	const char kPathSeparator = '/';
-
-	namespace Path
-	{
-		char *	Combine( char * p_dest, const char * p_dir, const char * p_file )
-		{
-			// p_dest = Savestates/
-			// p_dir = root
-			// strcpy(root/SaveStates)
-			// append file to destination root/savestates/file
-
-			strcpy( p_dest, p_dir );
-			Append( p_dest, p_file );
-			return p_dest;
-		}
-
-		bool	Append( char * p_path, const char * p_more )
-		{
-			u32		len( strlen(p_path) );
-
-			if(len > 0)
-			{
-				if(p_path[len-1] != kPathSeparator)
-				{
-					p_path[len] = kPathSeparator;
-					p_path[len+1] = '\0';
-					len++;
-				}
-			}
-			strcat( p_path, p_more );
-			return true;
-		}
 
 
-		const char *	FindFileName( const char * p_path )
-		{
-		const	char * p_last_slash = strrchr( p_path, kPathSeparator );
-			if ( p_last_slash )
-			{
-				return p_last_slash + 1;
-			}
-			else
-			{
-				return p_path;
-			}
-		}
-
-
-
-		const char *  FindExtension( const char * p_path )
-		{
-			return strrchr( p_path, '.' );
-		}
-
-		void	RemoveExtension( char * p_path )
-		{
-			char * ext = const_cast< char * >( FindExtension( p_path ) );
-			if ( ext )
-			{
-				*ext = '\0';
-			}
-		}
-
-	}
 
 
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data )

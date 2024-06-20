@@ -139,7 +139,6 @@ ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context
 void ISavestateSelectorComponent::LoadFolders() {
     u32 folderIndex = 0;
     const char* const description_text = (mAccessType == AT_SAVING) ? "Select the slot in which to save" : "Select the slot from which to load";
-    // IO::Filename full_path;
 
     // Clear unused vector or perform any other necessary cleanup
     mElements.Clear();

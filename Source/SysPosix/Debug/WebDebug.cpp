@@ -392,42 +392,31 @@ static u32 DAEDALUS_THREAD_CALL_TYPE WebDebugThread(void * arg)
 	return 0;
 }
 
-static void AddStaticContent(const char * dir, const char * root)
+static void AddStaticContent(const std::filesystem::path& dir, const std::filesystem::path& root)
 {
-	IO::FindHandleT find_handle;
-	IO::FindDataT   find_data;
 
-	if (IO::FindFileOpen(dir, &find_handle, find_data))
-	{
-		do
-		{
-			IO::Filename full_path;
-			IO::Path::Combine(full_path, dir, find_data.Name);
+    for (const auto& entry : std::filesystem::directory_iterator(dir))
+    {
+        std::filesystem::path full_path = entry.path();
+        std::filesystem::path resource_path = full_path.filename().string();
+		full_path /= resource_path;
+        if (std::filesystem::is_directory(full_path))
+        {
+            AddStaticContent(full_path, resource_path);
+        }
+        else if (std::filesystem::exists(full_path))
+        {
+            StaticResource resource;
+            resource.Resource = resource_path;
+            resource.FullPath = full_path;
 
-			std::string resource_path = root;
-			resource_path += '/';
-			resource_path += find_data.Name;
-
-			if (std::filesystem::is_directory(full_path))
-			{
-				AddStaticContent(full_path, resource_path.c_str());
-			}
-			else if (std::filesystem::exists(full_path))
-			{
-				StaticResource resource;
-				resource.Resource = resource_path;
-				resource.FullPath = full_path;
-
-				DBGConsole_Msg(0, " adding [M%s] -> [C%s]",
+			DBGConsole_Msg(0, " adding [M%s] -> [C%s]",
 					resource.Resource.c_str(), resource.FullPath.c_str());
 
-				gStaticResources.push_back(resource);
-			}
-		}
-		while (IO::FindFileNext(find_handle, find_data));
+            gStaticResources.push_back(resource);
+        }
+    }
 
-		IO::FindFileClose(find_handle);
-	}
 }
 
 bool WebDebug_Init()
@@ -472,10 +461,9 @@ bool WebDebug_Init()
 		return false;
 	}
 
-	IO::Filename data_path;
+	std::filesystem::path data_path = "Web";
 	std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-	IO::Path::Combine(data_path, gDaedalusExePath.c_str(), "Web");
-	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path);
+	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path.c_str());
 	AddStaticContent(data_path, "");
 
 	gKeepRunning = true;
