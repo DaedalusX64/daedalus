@@ -168,9 +168,9 @@ bool ROM_LoadFile();
 void ROM_UnloadFile();
 bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences );
 
-bool ROM_GetRomDetailsByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * boot_type );
+bool ROM_GetRomDetailsByFilename( const std::filesystem::path &filename, RomID * id, u32 * rom_size, ECicType * boot_type );
 bool ROM_GetRomDetailsByID( const RomID & id, u32 * rom_size, ECicType * boot_type );
-bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_name );
+bool ROM_GetRomName( const std::filesystem::path &filename, std::string & game_name );
 
 const char *	ROM_GetCountryNameFromID( u8 country_id );
 u32				ROM_GetTvTypeFromID( u8 country_id );

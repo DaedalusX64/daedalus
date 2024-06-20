@@ -78,7 +78,7 @@ namespace
 	}
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-	std::shared_ptr<ROMFile> DecompressRom( std::shared_ptr<ROMFile> p_rom_file, const std::filesystem::path temp_filename, COutputStream & messages )
+	std::shared_ptr<ROMFile> DecompressRom( std::shared_ptr<ROMFile> p_rom_file, const std::filesystem::path &temp_filename, COutputStream & messages )
 	{
 
 		FILE *		fh( fopen( temp_filename.c_str(), "wb" ) );
@@ -183,7 +183,7 @@ void RomBuffer::Destroy()
 bool RomBuffer::Open()
 {
 	CNullOutputStream messages;
-	const std::filesystem::path filename   = g_ROM.mFileName;
+	const std::filesystem::path &filename   = g_ROM.mFileName;
 	auto p_rom_file = ROMFile::Create( filename.c_str() );
 	if(p_rom_file == nullptr)
 	{

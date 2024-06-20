@@ -51,9 +51,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Macros.h"
 #include "Utility/Profiler.h"
 #include "Interface/Preferences.h"
-#ifdef DAEDALUS_PSP
 #include "Utility/Translate.h"
-#endif
+
 #include "Input/InputManager.h"		// CInputManager::Create/Destroy
 
 #include "Debug/DBGConsole.h"
@@ -159,9 +158,10 @@ static const std::array<SysEntityEntry, 17> gSysInitTable =
 	{"ROM Database",		CRomDB::Create,				CRomDB::Destroy},
 	{"ROM Settings",		CRomSettingsDB::Create,		CRomSettingsDB::Destroy},
 	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
+	{"Language",			Translate_Init,				NULL},
 #ifdef DAEDALUS_PSP
 	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
-	{"Language",			Translate_Init,				NULL},
+
 #endif
 	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
 	{"Preference",			CPreferences::Create,		CPreferences::Destroy},

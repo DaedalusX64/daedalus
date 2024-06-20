@@ -122,7 +122,7 @@ class IRomSettingsDB : public CRomSettingsDB
 		//
 		// CRomSettingsDB implementation
 		//
-		bool			OpenSettingsFile( const std::filesystem::path filename );
+		bool			OpenSettingsFile( const std::filesystem::path &filename );
 		void			Commit();												// (STRMNNRMN - Write ini back out to disk?)
 
 		bool			GetSettings( const RomID & id, RomSettings * p_settings ) const;
@@ -137,7 +137,7 @@ class IRomSettingsDB : public CRomSettingsDB
 		SettingsMap				mSettings;
 
 		bool					mDirty;				// (STRMNNRMN - Changed since read from disk?)
-		std::filesystem::path		mFilename;
+		const std::filesystem::path		mFilename;
 };
 
 
@@ -218,7 +218,7 @@ static RomID	RomIDFromString( const char * str )
 	return RomID( crc1, crc2, (u8)country );
 }
 
-bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
+bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path &filename )
 {
 	std::filesystem::path mFilename = baseDir;
 	mFilename /= filename;
@@ -327,7 +327,7 @@ bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path filename )
 void IRomSettingsDB::Commit()
 {
 	
-	std::filesystem::path filename_tmp("roms.ini.tmp");
+	std::filesystem::path filename_tmp = "roms.ini.tmp";
 
 	FILE * fh_src = fopen(mFilename.c_str(), "r");
 	if (fh_src == nullptr)

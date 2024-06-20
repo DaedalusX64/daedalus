@@ -208,7 +208,7 @@ class IIniFile : public CIniFile
 		//
 		// CIniFile implementation
 		//
-		virtual bool					Open( const std::filesystem::path filename );
+		virtual bool					Open( const std::filesystem::path &filename );
 
 		virtual const CIniFileSection *	GetDefaultSection() const;
 
@@ -293,7 +293,7 @@ static bool	trim( char * p_string, const char * p_trim_chars )
 //*****************************************************************************
 //
 //*****************************************************************************
-std::unique_ptr<CIniFile> CIniFile::Create( const std::filesystem::path filename )
+std::unique_ptr<CIniFile> CIniFile::Create( const std::filesystem::path &filename )
 {
 	auto p_file = std::make_unique<IIniFile>();
 	
@@ -313,7 +313,7 @@ std::unique_ptr<CIniFile> CIniFile::Create( const std::filesystem::path filename
 //*****************************************************************************
 //
 //*****************************************************************************
-bool IIniFile::Open( const std::filesystem::path filename )
+bool IIniFile::Open( const std::filesystem::path &filename )
 {
 	const u32	BUFFER_LEN = 1024;
 	char		readinfo[BUFFER_LEN+1];

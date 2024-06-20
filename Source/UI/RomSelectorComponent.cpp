@@ -127,13 +127,13 @@ struct SRomInfo
 //*************************************************************************************
 //
 //*************************************************************************************
-static ECategory Categorise( const char * name )
+const ECategory Categorise( const char * name )
 {
 	char	c( name[ 0 ] );
 	return GetCategory( c );
 }
 
-static bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
+const bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
 {
 	// Sort by the category first, then on the actual string.
 	ECategory	cat_a( Categorise( a->mSettings.GameName.c_str() ) );
@@ -152,7 +152,7 @@ static bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
 //*************************************************************************************
 //Lifting this out makes it remmember last choosen ROM
 //Could probably be fixed better but C++ is giving me an attitude //Corn
-static u32 mCurrentSelection = 0;
+u32 mCurrentSelection = 0;
 
 class IRomSelectorComponent : public CRomSelectorComponent
 {

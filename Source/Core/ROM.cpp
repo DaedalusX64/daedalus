@@ -545,7 +545,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	return true;
 }
 
-bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_name )
+bool ROM_GetRomName( const std::filesystem::path &filename, std::string & game_name )
 {
 	auto p_rom_file = ROMFile::Create( filename );
 	if (p_rom_file == nullptr)
@@ -586,7 +586,7 @@ bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_na
 	return true;
 }
 
-bool ROM_GetRomDetailsByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * boot_type )
+bool ROM_GetRomDetailsByFilename( const std::filesystem::path &filename, RomID * id, u32 * rom_size, ECicType * boot_type )
 {
 	return CRomDB::Get()->QueryByFilename( filename.c_str(), id, rom_size, boot_type );
 }

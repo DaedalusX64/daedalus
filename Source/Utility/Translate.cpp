@@ -129,33 +129,18 @@ bool	Translate_Init()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	Translate_Load( const char * p_dir )
+void	Translate_Load( const std::filesystem::path& p_dir )
 {
 	// Set default language
 	gLanguage.push_back("English");
 
-	IO::FindHandleT		find_handle;
-	IO::FindDataT		find_data;
-
-	if(IO::FindFileOpen( p_dir, &find_handle, find_data ))
+	for (auto const& dir_entry : std::filesystem::directory_iterator(p_dir))
 	{
-		do
+		if (dir_entry.is_regular_file() && dir_entry.path().extension() == ".lng")
 		{
-			char * filename( find_data.Name );
-			char * last_period( strrchr( filename, '.' ) );
-			if(last_period != NULL)
-			{
-				if( strcasecmp(last_period, ".lng") == 0 )
-				{
-					IO::Path::RemoveExtension( filename );
-					gLanguage.push_back( filename );
-
-				}
-			}
+			std::string filename = dir_entry.path().stem().string();
+			gLanguage.push_back(filename);
 		}
-		while(IO::FindFileNext( find_handle, find_data ));
-
-		IO::FindFileClose( find_handle );
 	}
 }
 
@@ -280,6 +265,7 @@ bool Translate_Read(u32 idx, const std::filesystem::path& dir)
 
 
 	stream = fopen(path.c_str(),"r");
+
 	if( stream == NULL )
 	{
 		return false;
