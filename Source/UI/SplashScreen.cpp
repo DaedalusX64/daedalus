@@ -76,7 +76,7 @@ ISplashScreen::ISplashScreen( CUIContext * p_context )
 ISplashScreen::~ISplashScreen() {}
 
 
-void	ISplashScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	ISplashScreen::Update( float elapsed_time , const v2 & stick[[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	// If any button was unpressed and is now pressed, exit
 	if((~old_buttons) & new_buttons)

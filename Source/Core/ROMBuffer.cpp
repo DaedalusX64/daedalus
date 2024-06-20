@@ -60,7 +60,7 @@ namespace
 	const u32		SCRATCH_BUFFER_LENGTH = 16;
 	u8				sScratchBuffer[ SCRATCH_BUFFER_LENGTH ];
 
-	bool		ShouldLoadAsFixed( u32 rom_size )
+	bool		ShouldLoadAsFixed( u32 rom_size [[maybe_unused]] )
 	{
 #if	defined(DAEDALUS_PSP)
 		if (PSP_IS_SLIM && !gGlobalPreferences.LargeROMBuffer)

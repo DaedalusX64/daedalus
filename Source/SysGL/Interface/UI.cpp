@@ -47,7 +47,7 @@ static s32 get_saveslot_from_keysym(s32 keysym)
     }
 }
 
-static void PollKeyboard(void * arg)
+static void PollKeyboard(void * arg [[maybe_unused]])
 {
 	SDL_Event event;
 	while (SDL_PollEvent( &event) != 0)

@@ -125,7 +125,7 @@ public:
 	
 	private:
 	
-	bool mGamePadAvailable;
+	bool mGamePadAvailable [[maybe_unused]];
 	//SDL_GameController *controller;
 
 #ifdef DAEDALUS_W32
@@ -241,8 +241,8 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 	//		printf("%d\n",i);
 	//}
 
-    const s32 SDL_AXIS_MIN = -32768;
-    const s32 SDL_AXIS_MAX = 32767;
+    const s32 SDL_AXIS_MIN [[maybe_unused]] = -32768;
+    const s32 SDL_AXIS_MAX [[maybe_unused]] = 32767;
 
     // Get the raw axis values
     s32 raw_x = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
@@ -366,24 +366,24 @@ u32	 IInputManager::GetNumConfigurations() const
 	return 0;
 }
 
-const char * IInputManager::GetConfigurationName( u32 configuration_idx ) const
+const char * IInputManager::GetConfigurationName( u32 configuration_idx [[maybe_unused]]) const
 {
 	DAEDALUS_ERROR( "Invalid controller config" );
 	return "?";
 }
 
-const char * IInputManager::GetConfigurationDescription( u32 configuration_idx ) const
+const char * IInputManager::GetConfigurationDescription( u32 configuration_idx [[maybe_unused]]) const
 {
 	DAEDALUS_ERROR( "Invalid controller config" );
 	return "?";
 }
 
-void IInputManager::SetConfiguration( u32 configuration_idx )
+void IInputManager::SetConfiguration( u32 configuration_idx [[maybe_unused]] )
 {
 	DAEDALUS_ERROR( "Invalid controller config" );
 }
 
-u32		IInputManager::GetConfigurationFromName( const char * name ) const
+u32		IInputManager::GetConfigurationFromName( const char * name [[maybe_unused]] ) const
 {
 	// Return the default controller config
 	return 0;
@@ -391,7 +391,7 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 
 static bool toggle_fullscreen = false;
 static s16 button = 0;
-void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
+void sceCtrlPeekBufferPositive(SceCtrlData *data, int count [[maybe_unused]]){
 
 	SDL_Event event;
 	SDL_PumpEvents();

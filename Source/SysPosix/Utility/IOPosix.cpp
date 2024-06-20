@@ -100,7 +100,6 @@ namespace IO
 			}
 		}
 
-		void	AddExtension( char * p_path, const char * p_ext ) {}
 	}
 
 

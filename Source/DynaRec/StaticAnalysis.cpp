@@ -31,8 +31,8 @@ using namespace StaticAnalysis;
 namespace
 {
 
-void RegFPRRead( u32 r ) {}
-void RegFPRWrite( u32 r ) {}
+void RegFPRRead( u32 r [[maybe_unused]] ) {}
+void RegFPRWrite( u32 r [[maybe_unused]]) {}
 
 using StaticAnalysisFunction = void (*const) ( OpCode op_code, RegisterUsage & recorder );
 
@@ -48,45 +48,45 @@ void StaticAnalysis_Cop1_BCInstr( OpCode op_code, RegisterUsage & recorder );
 void StaticAnalysis_Cop1_SInstr( OpCode op_code, RegisterUsage & recorder );
 void StaticAnalysis_Cop1_DInstr( OpCode op_code, RegisterUsage & recorder );
 
-void StaticAnalysis_Unk( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Unk( OpCode op_code [[maybe_unused]], RegisterUsage & recorder[[maybe_unused]] )
 {
 }
 
 // These are the only unimplemented R4300 instructions now:
-void StaticAnalysis_LL( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_LLD( OpCode op_code, RegisterUsage & recorder ) {}
+void StaticAnalysis_LL( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]]) {}
+void StaticAnalysis_LLD( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
 
-void StaticAnalysis_SC( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_SCD( OpCode op_code, RegisterUsage & recorder ) {}
+void StaticAnalysis_SC( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_SCD( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
 
-void StaticAnalysis_LDC2( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_SDC2( OpCode op_code, RegisterUsage & recorder ) {}
+void StaticAnalysis_LDC2( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_SDC2( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
 
-void StaticAnalysis_RegImm_TGEI( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_RegImm_TGEIU( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_RegImm_TLTI( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_RegImm_TLTIU( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_RegImm_TEQI( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_RegImm_TNEI( OpCode op_code, RegisterUsage & recorder ) {}
+void StaticAnalysis_RegImm_TGEI( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_RegImm_TGEIU( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_RegImm_TLTI( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]]) {}
+void StaticAnalysis_RegImm_TLTIU( OpCode op_code [[maybe_unused]] , RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_RegImm_TEQI( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_RegImm_TNEI( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
 
-void StaticAnalysis_RegImm_BLTZALL( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_RegImm_BGEZALL( OpCode op_code, RegisterUsage & recorder ) {}
+void StaticAnalysis_RegImm_BLTZALL( OpCode op_code [[maybe_unused]] , RegisterUsage & recorder [[maybe_unused]]) {}
+void StaticAnalysis_RegImm_BGEZALL( OpCode op_code [[maybe_unused]] , RegisterUsage & recorder [[maybe_unused]] ) {}
 
-void StaticAnalysis_Special_TGE( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_Special_TGEU( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_Special_TLT( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_Special_TLTU( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_Special_TEQ( OpCode op_code, RegisterUsage & recorder ) {}
-void StaticAnalysis_Special_TNE( OpCode op_code, RegisterUsage & recorder ) {}
+void StaticAnalysis_Special_TGE( OpCode op_code [[maybe_unused]] , RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_Special_TGEU( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_Special_TLT( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_Special_TLTU( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_Special_TEQ( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
+void StaticAnalysis_Special_TNE( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) {}
 
 
-void StaticAnalysis_J( OpCode op_code, RegisterUsage & recorder ) 				// Jump
+void StaticAnalysis_J( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) 				// Jump
 {
 	// No registers used
 	recorder.BranchOP( BT_J );
 }
 
-void StaticAnalysis_JAL( OpCode op_code, RegisterUsage & recorder ) 				// Jump And Link
+void StaticAnalysis_JAL( OpCode op_code [[maybe_unused]], RegisterUsage & recorder ) 				// Jump And Link
 {
 	recorder.BranchOP( BT_JAL );
 	recorder.Record( RegDstUse( N64Reg_RA ) );
@@ -346,7 +346,7 @@ void StaticAnalysis_SDC1( OpCode op_code, RegisterUsage & recorder )		// Store D
 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
-void StaticAnalysis_Special_Unk( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Special_Unk( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )
 {
 	// Just ignore
 }
@@ -395,15 +395,15 @@ void StaticAnalysis_Special_JALR( OpCode op_code, RegisterUsage & recorder ) 		/
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ) );
 }
 
-void StaticAnalysis_Special_SYSCALL( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Special_SYSCALL( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )
 {
 }
 
-void StaticAnalysis_Special_BREAK( OpCode op_code, RegisterUsage & recorder ) 	// BREAK
+void StaticAnalysis_Special_BREAK( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) 	// BREAK
 {
 }
 
-void StaticAnalysis_Special_SYNC( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Special_SYNC( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )
 {
 }
 
@@ -629,23 +629,23 @@ void StaticAnalysis_Cop0_MTC0( OpCode op_code, RegisterUsage & recorder )
 	recorder.Record( RegSrcUse( op_code.rt ) );
 }
 
-void StaticAnalysis_TLB_TLBR( OpCode op_code, RegisterUsage & recorder ) 				// TLB Read
+void StaticAnalysis_TLB_TLBR( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] ) 				// TLB Read
 {
 }
 
-void StaticAnalysis_TLB_TLBWI( OpCode op_code, RegisterUsage & recorder )			// TLB Write Index
+void StaticAnalysis_TLB_TLBWI( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )			// TLB Write Index
 {
 }
 
-void StaticAnalysis_TLB_TLBWR( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_TLB_TLBWR( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )
 {
 }
 
-void StaticAnalysis_TLB_TLBP( OpCode op_code, RegisterUsage & recorder ) 				// TLB Probe
+void StaticAnalysis_TLB_TLBP( OpCode op_code [[maybe_unused]],  RegisterUsage & recorder [[maybe_unused]]) 				// TLB Probe
 {
 }
 
-void StaticAnalysis_TLB_ERET( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_TLB_ERET( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )
 {
 	recorder.BranchOP( BT_ERET );
 }
@@ -684,33 +684,33 @@ void StaticAnalysis_Cop1_CTC1( OpCode op_code, RegisterUsage & recorder ) 		// m
 	recorder.Record( RegSrcUse( op_code.rt ) );
 }
 
-void StaticAnalysis_BC1_BC1F( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU False
+void StaticAnalysis_BC1_BC1F( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )		// Branch on FPU False
 {
 	recorder.BranchOP( BT_BC1F );
 }
 
-void StaticAnalysis_BC1_BC1T( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU True
+void StaticAnalysis_BC1_BC1T( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )	// Branch on FPU True
 {
 	recorder.BranchOP( BT_BC1T );
 }
 
-void StaticAnalysis_BC1_BC1FL( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU False Likely
+void StaticAnalysis_BC1_BC1FL( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )	// Branch on FPU False Likely
 {
 	recorder.BranchOP( BT_BC1FL );
 }
 
-void StaticAnalysis_BC1_BC1TL( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU True Likely
+void StaticAnalysis_BC1_BC1TL( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]] )		// Branch on FPU True Likely
 {
 	recorder.BranchOP( BT_BC1TL );
 }
 
-void StaticAnalysis_Cop1_W_CVT_S( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_W_CVT_S( OpCode op_code [[maybe_unused]], RegisterUsage & recorder [[maybe_unused]])
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_W_CVT_D( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_W_CVT_D( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
@@ -729,13 +729,13 @@ void StaticAnalysis_Cop1_WInstr( OpCode op_code, RegisterUsage & recorder )
 	}
 }
 
-void StaticAnalysis_Cop1_L_CVT_S( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_L_CVT_S( OpCode op_code, RegisterUsage & recorder [[maybe_unused]])
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_L_CVT_D( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_L_CVT_D( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
@@ -754,119 +754,119 @@ void StaticAnalysis_Cop1_LInstr( OpCode op_code, RegisterUsage & recorder )
 	}
 }
 
-void StaticAnalysis_Cop1_S_ADD( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_ADD( OpCode op_code, RegisterUsage & recorder [[maybe_unused]])
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
 
-void StaticAnalysis_Cop1_S_SUB( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_SUB( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
 
-void StaticAnalysis_Cop1_S_MUL( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_MUL( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
 
-void StaticAnalysis_Cop1_S_DIV( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_DIV( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
 
-void StaticAnalysis_Cop1_S_SQRT( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_SQRT( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_NEG( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_NEG( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_MOV( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_MOV( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_ABS( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_ABS( OpCode op_code, RegisterUsage & recorder [[maybe_unused]])
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_TRUNC_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_TRUNC_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_TRUNC_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_TRUNC_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_ROUND_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_ROUND_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_ROUND_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_ROUND_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_CEIL_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_CEIL_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_CEIL_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_CEIL_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_FLOOR_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_FLOOR_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]]  )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_FLOOR_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_FLOOR_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_CVT_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_CVT_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_CVT_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_CVT_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_S_CVT_D( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_S_CVT_D( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
@@ -886,131 +886,131 @@ void StaticAnalysis_Cop1_S_CVT_D( OpCode op_code, RegisterUsage & recorder )
 //	RegFPRRead( op_code.ft );
 //}
 
-void StaticAnalysis_Cop1_Compare_S( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_Compare_S( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
 
-void StaticAnalysis_Cop1_D_ADD( OpCode op_code, RegisterUsage & recorder )
-{
-	RegFPRWrite( op_code.fd );
-	RegFPRRead( op_code.fs );
-	RegFPRRead( op_code.ft );
-}
-
-void StaticAnalysis_Cop1_D_SUB( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_ADD( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
 
-void StaticAnalysis_Cop1_D_MUL( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_SUB( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
 
-void StaticAnalysis_Cop1_D_DIV( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_MUL( OpCode op_code, RegisterUsage & recorder [[maybe_unused]]  )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
 
-void StaticAnalysis_Cop1_D_ABS( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_DIV( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
+{
+	RegFPRWrite( op_code.fd );
+	RegFPRRead( op_code.fs );
+	RegFPRRead( op_code.ft );
+}
+
+void StaticAnalysis_Cop1_D_ABS( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_SQRT( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_SQRT( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_NEG( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_NEG( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_MOV( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_MOV( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_TRUNC_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_TRUNC_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]])
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_TRUNC_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_TRUNC_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_ROUND_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_ROUND_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_ROUND_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_ROUND_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_CEIL_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_CEIL_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_CEIL_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_CEIL_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_FLOOR_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_FLOOR_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_FLOOR_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_FLOOR_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]])
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_CVT_S( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_CVT_S( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_CVT_W( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_CVT_W( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_D_CVT_L( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_D_CVT_L( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
 
-void StaticAnalysis_Cop1_Compare_D( OpCode op_code, RegisterUsage & recorder )
+void StaticAnalysis_Cop1_Compare_D( OpCode op_code, RegisterUsage & recorder [[maybe_unused]] )
 {
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );

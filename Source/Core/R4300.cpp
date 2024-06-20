@@ -1893,7 +1893,7 @@ static void  R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 }
 
 // Move Word To CopReg
-static const u32 kCauseSW = CAUSE_SW1|CAUSE_SW2;
+static const u32 kCauseSW [[maybe_unused]] = CAUSE_SW1|CAUSE_SW2;
 
 static void  R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 {
@@ -2660,8 +2660,8 @@ static void  R4300_Cop1_S_NGLE( R4300_CALL_SIGNATURE )
 
 	R4300_CALL_MAKE_OP( op_code );
 
-	f32 fX = LoadFPR_Single( op_code.fs );
-	f32 fY = LoadFPR_Single( op_code.ft );
+	f32 fX [[maybe_unused]] = LoadFPR_Single( op_code.fs );
+	f32 fY [[maybe_unused]] = LoadFPR_Single( op_code.ft );
 
 	gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
 }
@@ -2751,8 +2751,8 @@ static void  R4300_Cop1_S_SF( R4300_CALL_SIGNATURE )
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	R4300_CALL_MAKE_OP( op_code );
 
-	f32 fX = LoadFPR_Single( op_code.fs );
-	f32 fY = LoadFPR_Single( op_code.ft );
+	f32 fX [[maybe_unused]] = LoadFPR_Single( op_code.fs );
+	f32 fY [[maybe_unused]] = LoadFPR_Single( op_code.ft );
 
 	// CATCH_NAN_EXCEPTION( "R4300_Cop1_S_SF", fX, fY );
 #endif
@@ -3169,8 +3169,8 @@ static void  R4300_Cop1_D_SF( R4300_CALL_SIGNATURE )
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	R4300_CALL_MAKE_OP( op_code );
 
-	d64 fX = LoadFPR_Double( op_code.fs );
-	d64 fY = LoadFPR_Double( op_code.ft );
+	d64 fX [[maybe_unused]] = LoadFPR_Double( op_code.fs );
+	d64 fY [[maybe_unused]] = LoadFPR_Double( op_code.ft );
 
 	// CATCH_NAN_EXCEPTION( "R4300_Cop1_D_SF", fX, fY );
 #endif
@@ -3184,8 +3184,8 @@ static void  R4300_Cop1_D_NGLE( R4300_CALL_SIGNATURE )
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	R4300_CALL_MAKE_OP( op_code );
 
-	d64 fX = LoadFPR_Double( op_code.fs );
-	d64 fY = LoadFPR_Double( op_code.ft );
+	d64 fX [[maybe_unused]] = LoadFPR_Double( op_code.fs );
+	d64 fY [[maybe_unused]] = LoadFPR_Double( op_code.ft );
 
 	// CATCH_NAN_EXCEPTION( "R4300_Cop1_D_NGLE", fX, fY );
 #endif

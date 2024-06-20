@@ -12,7 +12,7 @@
 
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-static void TextureHandler(void * arg, WebDebugConnection * connection)
+static void TextureHandler(void * arg [[maybe_unused]], WebDebugConnection * connection [[maybe_unused]])
 {
 	const char * params = connection->GetQueryString();
 	if (!params)
@@ -63,7 +63,7 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
+static void TextureCacheHandler(void * arg [[maybe_unused]], WebDebugConnection * connection)
 {
 	connection->BeginResponse(200, -1, "text/html" );
 

@@ -253,7 +253,7 @@ std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
 ISavestateSelectorComponent::~ISavestateSelectorComponent() {}
 
 
-void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	ISavestateSelectorComponent::Update( float elapsed_time [[maybe_unused]], const v2 & stick, [[maybe_unused]] u32 old_buttons, u32 new_buttons )
 {
 	//
 	//	Trigger the save on the first update AFTER mSelectedSlot was set.
@@ -335,8 +335,8 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 	}
 }
 
-
-void	ISavestateSelectorComponent::deleteSlot(u32 slot_idx)
+// Disabled for now, will be fixed soon
+void	ISavestateSelectorComponent::deleteSlot(u32 slot_idx [[maybe_unused]])
 {
 	
 	// if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))

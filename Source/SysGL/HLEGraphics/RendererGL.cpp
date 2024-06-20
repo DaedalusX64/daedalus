@@ -111,7 +111,7 @@ bool initgl()
 	gRDPStateManager.SetEmulateMirror(!gAccurateUVPipe);
 
 	// FIXME(strmnnrmn): we shouldn't need these with GLEW, but they don't seem to resolve on OSX.
-    GLboolean status = GL_TRUE;
+    GLboolean status [[maybe_unused]] = GL_TRUE;
 
 	glGenVertexArrays(1, &gVAO);
 	glBindVertexArray(gVAO);
@@ -130,7 +130,7 @@ bool initgl()
 }
 
 
-void sceGuFog(f32 mn, f32 mx, u32 col)
+void sceGuFog(f32 mn [[maybe_unused]], f32 mx [[maybe_unused]], u32 col [[maybe_unused]])
 {
 	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
 }

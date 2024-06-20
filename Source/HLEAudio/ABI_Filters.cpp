@@ -148,7 +148,7 @@ void FILTER2(AudioHLECommand command) {
   memmove(gAudioHLEState.Buffer + (command.cmd0 & 0xffff), outbuff, cnt);
 }
 
-void POLEF(AudioHLECommand command)
+void POLEF(AudioHLECommand command [[maybe_unused]])
 
 {
 #ifdef DEBUG_AUDIO

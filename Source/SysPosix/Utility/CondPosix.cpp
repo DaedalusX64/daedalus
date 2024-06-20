@@ -45,7 +45,7 @@ static void ComputeWait(double timeout, timespec * wait)
 	wait->tv_sec = currenttime.tv_sec + dt_sec;
 }
 
-void CondWait(Cond * cond, Mutex * mutex, double timeout)
+void CondWait(Cond * cond [[maybe_unused]], Mutex * mutex [[maybe_unused]], double timeout)
 {
 	if (timeout <= 0)
 	{

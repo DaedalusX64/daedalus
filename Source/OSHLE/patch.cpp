@@ -205,7 +205,7 @@ void Patch_PatchAll()
 #endif
 }
 
-void Patch_ApplyPatch(u32 i)
+void Patch_ApplyPatch(u32 i [[maybe_unused]])
 {
 #ifdef DAEDALUS_ENABLE_DYNAREC
 	u32 pc = g_PatchSymbols[i]->Location;

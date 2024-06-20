@@ -335,7 +335,7 @@ static void DoTask(WebDebugConnection * connection, DebugTask task)
 	CondWait(gMainThreadCond, gMainThreadMutex, kTimeoutInfinity);
 }
 
-static void DLDebugHandler(void * arg, WebDebugConnection * connection)
+static void DLDebugHandler(void * arg [[maybe_unused]], WebDebugConnection * connection)
 {
 	const WebDebugConnection::QueryParams & params = connection->GetQueryParams();
 	if (!params.empty())

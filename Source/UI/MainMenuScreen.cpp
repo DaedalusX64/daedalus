@@ -58,8 +58,8 @@ namespace
 	};
 	const s16 NUM_MENU_OPTIONS {MO_ABOUT+1};
 
-	const EMenuOption	MO_FIRST_OPTION = MO_GLOBAL_SETTINGS;
-	const EMenuOption	MO_LAST_OPTION = MO_ABOUT;
+	const EMenuOption	MO_FIRST_OPTION [[maybe_unused]] = MO_GLOBAL_SETTINGS;
+	const EMenuOption	MO_LAST_OPTION [[maybe_unused]] = MO_ABOUT;
 
 	const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
 	{

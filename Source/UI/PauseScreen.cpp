@@ -54,8 +54,8 @@ namespace {
 		NUM_MENU_OPTIONS,
 	};
 
-	const EMenuOption	MO_FIRST_OPTION = MO_GLOBAL_SETTINGS;
-	const EMenuOption	MO_LAST_OPTION = MO_ABOUT;
+	const EMenuOption	MO_FIRST_OPTION [[maybe_unused]]= MO_GLOBAL_SETTINGS;
+	const EMenuOption	MO_LAST_OPTION  [[maybe_unused]] = MO_ABOUT;
 
 	const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
 	{
@@ -177,7 +177,7 @@ EMenuOption		IPauseScreen::GetNextValidOption() const
 }
 
 
-bool	IPauseScreen::IsOptionValid( EMenuOption option ) const
+bool	IPauseScreen::IsOptionValid( EMenuOption option [[maybe_unused]] ) const
 {
 	return true;
 }

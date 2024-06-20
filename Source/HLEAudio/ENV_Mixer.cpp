@@ -44,7 +44,9 @@ void ENVSETUP2(AudioHLECommand command) {
   // %X\n", env[0], env[1], env[2], env[3]);
 }
 
-void ENVSETUP3(AudioHLECommand command) {}
+void ENVSETUP3(AudioHLECommand command [[maybe_unused]]) { 
+  // Not implemented
+}
 
 void ENVMIXER(AudioHLECommand command) {
   // static int envmixcnt = 0;
@@ -56,7 +58,7 @@ void ENVMIXER(AudioHLECommand command) {
   gAudioHLEState.EnvMixer(flags, address);
 }
 
-void ENVMIXER_GE(AudioHLECommand command) {
+void ENVMIXER_GE(AudioHLECommand command [[maybe_unused]]) {
   // Not implemented
 }
 

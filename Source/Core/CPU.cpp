@@ -394,6 +394,15 @@ bool CPU_RomOpen()
 	return true;
 }
 
+void CPU_RomClose()
+{
+#ifdef DAEDALUS_ENABLE_DYNAREC
+	#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+		//This will dump the fragment cache on exit to ROMs menu
+		//CPU_DumpFragmentCache();
+	#endif
+#endif
+}
 
 static bool	CPU_IsStateSimple()
 {

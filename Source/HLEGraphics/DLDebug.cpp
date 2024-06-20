@@ -216,8 +216,8 @@ static const char * const kBlendA2[]				= { "1-A", "AMem", "1",      "?" };
 static const char * const kAlphaCompareValues[]		= {"None", "Threshold", "?", "Dither"};
 static const char * const kDepthSourceValues[]		= {"Pixel", "Primitive"};
 
-static const char * const kCvgDestValues[]			= {"Clamp", "Wrap", "Full", "Save"};
-static const char * const kZModeValues[]			= {"Opa", "Inter", "XLU", "Decal"};
+static const char * const kCvgDestValues [[maybe_unused]] [] 			= {"Clamp", "Wrap", "Full", "Save"};
+static const char * const kZModeValues [[maybe_unused]] []			= {"Opa", "Inter", "XLU", "Decal"};
 
 static const char * const kAlphaDitherValues[]		= {"Pattern", "NotPattern", "Noise", "Disable"};
 static const char * const kRGBDitherValues[]		= {"MagicSQ", "Bayer", "Noise", "Disable"};
@@ -463,7 +463,7 @@ public:
 		return Sink->Write(p, len);
 	}
 
-	virtual void BeginInstruction(u32 idx, u32 cmd0, u32 cmd1, u32 depth, const char * name)
+	virtual void BeginInstruction(u32 idx, u32 cmd0, u32 cmd1, u32 depth [[maybe_unused]], const char * name)
 	{
 		Print("[%05d] %08x %08x %-10s\n", idx, cmd0, cmd1, name);
 	}

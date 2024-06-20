@@ -533,7 +533,7 @@ static const ConvertFunction gConvertFunctions[ 32 ] =
 
 bool ConvertTile(const TextureInfo & ti,
 				 void * texels,
-				 NativePf8888 * palette,
+				 NativePf8888 * palette [[maybe_unused]],
 				 ETextureFormat texture_format,
 				 u32 pitch)
 {

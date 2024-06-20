@@ -247,7 +247,6 @@ bool Translate_Read(u32 idx, const std::filesystem::path& dir)
 	if( idx > gLanguage.size() )
 		return false;
 
-	const char * ext( ".lng" );
 	char line[1024];
 
 	char *string;

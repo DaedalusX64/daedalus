@@ -284,7 +284,7 @@ IRomPreferencesScreen::~IRomPreferencesScreen() {}
 
 //
 
-void	IRomPreferencesScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	IRomPreferencesScreen::Update( float elapsed_time[[maybe_unused]], const v2 & stick[[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{

@@ -159,7 +159,7 @@ void SAVEBUFF3(AudioHLECommand command) {
   memmove(rdram + v0, gAudioHLEState.Buffer + src, cnt);
 }
 
-void SEGMENT(AudioHLECommand command) {
+void SEGMENT(AudioHLECommand command [[maybe_unused]] ) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SEGMENT - Not implemented");
 #endif

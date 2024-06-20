@@ -46,7 +46,7 @@ ROMFileUncompressed::~ROMFileUncompressed()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool ROMFileUncompressed::Open( COutputStream & messages )
+bool ROMFileUncompressed::Open( COutputStream & messages [[maybe_unused]] )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mFH == NULL, "Opening the file twice?" );
@@ -90,7 +90,7 @@ bool ROMFileUncompressed::Open( COutputStream & messages )
 //*****************************************************************************
 //
 //*****************************************************************************
-bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
+bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages [[maybe_unused]] )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mFH != NULL, "Reading data when Open failed?" );

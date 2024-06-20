@@ -148,7 +148,7 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, s
 	RenderTexture( texture, tl, wh, colour );
 }
 
-void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh, c32 colour )
+void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh [[maybe_unused]], c32 colour [[maybe_unused]] )
 {
 	if(texture == NULL)
 		return;
@@ -334,7 +334,7 @@ namespace
 }
 
 
-s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align )
+s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width [[maybe_unused]], u32 height, const char * text, c32 colour, EVerticalAlign vertical_align )
 {
 	const u32			font_height( CDrawText::GetFontHeight( mCurrentFont ) );
 	u32					length = strlen( text );

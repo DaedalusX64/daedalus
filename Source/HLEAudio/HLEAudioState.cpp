@@ -42,8 +42,8 @@ inline s32 FixedPointMul16(s32 a, s32 b) { return s32((a * b) >> 16); }
 
 inline s32 FixedPointMul15(s32 a, s32 b) { return s32((a * b) >> 15); }
 
-void SPNOOP(AudioHLECommand command) {}
-void UNKNOWN(AudioHLECommand command) {}
+void SPNOOP(AudioHLECommand command [[maybe_unused]]) {}
+void UNKNOWN(AudioHLECommand command [[maybe_unused]]) {}
 
 AudioHLEState gAudioHLEState;
 
