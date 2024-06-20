@@ -118,8 +118,8 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 				ti.GetPitch(),
 				ti.GetWidth(),
 				ti.GetHeight(),
-				(std::shared_ptr<CNativeTexture>)snap.Texture,
-				(std::shared_ptr<CNativeTexture>)snap.Texture,
+				static_cast<void*>(snap.Texture.get()),
+				static_cast<void*>(snap.Texture.get()),
 				snap.Texture->GetWidth(),
 				snap.Texture->GetHeight()
 			);

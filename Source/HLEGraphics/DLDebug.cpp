@@ -4,7 +4,8 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include <stdarg.h>
-
+#include <format>
+#include <filesystem>
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
@@ -478,26 +479,21 @@ DLDebugOutput * DLDebug_CreateFileOutput()
 {
 	static u32 count = 0;
 
-	IO::Filename dumpdir;
-	IO::Path::Combine(dumpdir, g_ROM.settings.GameName.c_str(), "DisplayLists");
+	std::filesystem::path dumpdir = "DisplayLists";
+	dumpdir /= g_ROM.settings.GameName.c_str();
+	std::string filepath = std::format("dl{}.txt", count++);	
 
-	IO::Filename filepath;
-	Dump_GetDumpDirectory(filepath, dumpdir);
-
-	char filename[64];
-	snprintf(filename, sizeof(filename), "dl%04d.txt", count++);
-
-	IO::Path::Append(filepath, filename);
+	dumpdir /= filepath;
 
 	DLDebugOutputFile * output = new DLDebugOutputFile();
-	if (!output->Open(filepath))
+	if (!output->Open(dumpdir))
 	{
 		delete output;
-		DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", filepath);
+		DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", filepath.c_str());
 		return nullptr;
 	}
 
-	DBGConsole_Msg(0, "RDP: Dumping Display List as %s", filepath);
+	DBGConsole_Msg(0, "RDP: Dumping Display List as %s", filepath.c_str());
 	return output;
 }
 

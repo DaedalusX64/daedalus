@@ -17,7 +17,7 @@ if(DEBUG)
 	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
 	option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
-	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
+	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
 	option(DAEDALUS_LOG "Enable various logging" ON)
 if(NOT WIN32)
 	add_compile_options("-Wall")
