@@ -5,10 +5,9 @@
 #include <stack>
 #include <string>
 #include <vector>
-
-
 #include <algorithm>
-
+#
+#include <pspctrl.h>
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
@@ -279,9 +278,9 @@ class IInputManager : public CInputManager
 
 	private:
 		void								SwapJoyStick(OSContPad *pPad, SceCtrlData *pad);
-		void								LoadControllerConfigs( const std::filesystem::path p_dir );
+		void								LoadControllerConfigs( const std::filesystem::path& p_dir );
 		CControllerConfig *					BuildDefaultConfig();
-		CControllerConfig *					BuildControllerConfig( const std::filesystem::path filename );
+		CControllerConfig *					BuildControllerConfig( const std::filesystem::path& filename );
 
 	private:
 		CControllerConfig *					mpControllerConfig;
@@ -804,7 +803,7 @@ CControllerConfig *	IInputManager::BuildDefaultConfig()
 //*****************************************************************************
 //
 //*****************************************************************************
-CControllerConfig *	IInputManager::BuildControllerConfig( const std::filesystem::path filename )
+CControllerConfig *	IInputManager::BuildControllerConfig( const std::filesystem::path& filename )
 {
 	auto p_ini_file = CIniFile::Create( filename );
 

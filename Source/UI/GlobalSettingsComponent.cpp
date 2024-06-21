@@ -146,12 +146,12 @@ namespace
 		{
 		}
 
-		virtual	void		OnNext()		{ if (gGlobalPreferences.Language < Translate_Number() ) gGlobalPreferences.Language++; }
+		virtual	void		OnNext()		{ if (gGlobalPreferences.Language < _Number() ) gGlobalPreferences.Language++; }
 		virtual	void		OnPrevious()	{ if (gGlobalPreferences.Language > 0) gGlobalPreferences.Language--; }
 
 		virtual	void			OnSelected()
 		{
-			Translate_Read( gGlobalPreferences.Language, "Languages/");
+			_Read( gGlobalPreferences.Language, "Languages/");
 		}
 		virtual const char *	GetSettingName() const
 		{
@@ -282,7 +282,7 @@ namespace
 		virtual const char *	GetSettingName() const
 		{
 			if ( gGlobalPreferences.DisplayFramerate )
-				return "None";
+				return "FS + VB + SYNC";
 			else
 				return "None";
 		}
@@ -382,7 +382,7 @@ void	IGlobalSettingsComponent::Update( float elapsed_time [[maybe_unused]], cons
 			if( new_buttons & PSP_CTRL_LEFT )
 			{
 				element->OnPrevious();
-			}
+			} 
 			if( new_buttons & PSP_CTRL_RIGHT )
 			{
 				element->OnNext();

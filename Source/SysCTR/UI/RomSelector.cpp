@@ -28,7 +28,7 @@
 
 struct SRomInfo
 {
-	std::string		mFilename;
+	std::filesystem::path	mFilename;
 
 	RomID			mRomID;
 	u32				mRomSize;
@@ -182,10 +182,12 @@ std::string UI::DrawRomSelector()
 		{
 			std::shared_ptr<CNativeTexture>	previewTexture = nullptr;
 
-			IO::Filename preview_filename;
-			IO::Path::Combine(preview_filename, DAEDALUS_CTR_PATH("Resources/Preview/"), roms.at(currentItem).mSettings.Preview.c_str() );
 
-			previewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_5650 );
+			std::filesystem::path preview_file =roms.at(currentItem).mSettings.Preview.c_str();
+			std::filesystem::path preview_path = "Resources/Preview";
+			preview_path /= preview_file;
+			
+			previewTexture = CNativeTexture::CreateFromPng( preview_path, TexFmt_5650 );
 
 			pglSelectScreen(GFX_TOP, GFX_LEFT);
 			glDisable(GL_SCISSOR_TEST);

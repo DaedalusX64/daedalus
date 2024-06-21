@@ -121,8 +121,6 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	Translate_Init();
-
 	if (argc > 1)
 	{
 		bool batch_test = false;
@@ -180,7 +178,7 @@ int main(int argc, char **argv)
 			System_Close();
 		}
 	}
-
+	Translate_Init();
 	bool show_splash = true;
 	for (;;)
 	{

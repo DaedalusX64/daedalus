@@ -228,11 +228,8 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, std::funct
 ,	mTimeSinceScroll( 0.0f )
 ,	mRomDelete(false)
 {
-	for( u32 i = 0; i < std::size( gRomsDirectories ); ++i )
-	{
-		AddRomDirectory( gRomsDirectories[ i ], mRomsList );
-	}
 
+		AddRomDirectory( "Roms", mRomsList );
 	stable_sort( mRomsList.begin(), mRomsList.end(), SortByGameName );
 
 	// Build up a map of the first location for each initial letter
@@ -281,11 +278,7 @@ void	IRomSelectorComponent::UpdateROMList()
 	mpPreviewTexture = NULL;
 	mPreviewIdx= u32(-1);
 
-	for( u32 i = 0; i < std::size( gRomsDirectories ); ++i )
-	{
-		AddRomDirectory( gRomsDirectories[ i ], mRomsList );
-	}
-
+		AddRomDirectory( "Roms", mRomsList );
 	stable_sort( mRomsList.begin(), mRomsList.end(), SortByGameName );
 
 	// Build up a map of the first location for each initial letter
