@@ -146,7 +146,7 @@ namespace
 		{
 		}
 
-		virtual	void		OnNext()		{ if (gGlobalPreferences.Language < _Number() ) gGlobalPreferences.Language++; }
+		virtual	void		OnNext()		{ if (gGlobalPreferences.Language < Number() ) gGlobalPreferences.Language++; }
 		virtual	void		OnPrevious()	{ if (gGlobalPreferences.Language > 0) gGlobalPreferences.Language--; }
 
 		virtual	void			OnSelected()
