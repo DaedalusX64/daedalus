@@ -29,3 +29,4 @@ Source/tmp
 *.3dsx
 /debug/
 /vcpkg_installed/
+/CMakeSettings.json
