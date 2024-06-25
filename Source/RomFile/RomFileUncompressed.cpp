@@ -31,9 +31,7 @@ ROMFileUncompressed::ROMFileUncompressed( const std::filesystem::path filename )
 ,	mFH( filename, std::ios::in | std::ios::binary)
 ,	mRomSize( 0 )
 {
-    if (!mFH.is_open()) {
-        std::cerr << "Failed to open file: " << filename << " Error: " << std::strerror(errno) << std::endl;
-    }
+
 }
 
 //*****************************************************************************

@@ -12,9 +12,7 @@ add_library(Core OBJECT
                         JpegTask.cpp 
                         Memory.cpp 
                         PIF.cpp 
-                        PrintOpCode.cpp 
                         R4300.cpp 
-                        Registers.cpp
                         ROM.cpp
                         ROMBuffer.cpp 
                         ROMImage.cpp 
@@ -24,6 +22,10 @@ add_library(Core OBJECT
                         TLB.cpp
                         )
 
+                        if(DEBUG)
+                        add_library(Core_Debug Registers.cpp PrintOpCode.cpp) 
+                        list(APPEND daed_libs "Core_Debug")
+                        endif(DEBUG)
 # Cannot compile with -O2 or above on Apple Intel
 if(APPLE)
 set_source_files_properties(R4300.cpp PROPERTIES COMPILE_FLAGS -O0)

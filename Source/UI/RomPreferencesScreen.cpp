@@ -128,27 +128,6 @@ namespace
 		mutable char 	mString[8];
 	};
 
-	class CAdjustFrequencySetting : public CUISetting
-	{
-	public:
-		CAdjustFrequencySetting( bool * setting, EAudioPluginMode * audio_enabled, const char * name, const char * description )
-			:	CUISetting( name, description )
-			,	mSetting( setting )
-			,	mAudioEnabled( audio_enabled )
-		{
-		}
-
-		virtual bool			IsReadOnly() const		{ return *mAudioEnabled > APM_DISABLED; }		// Disable this if no audio enabled;
-
-		virtual	void			OnNext()				{ if( !IsReadOnly() ) *mSetting = !*mSetting; }
-		virtual	void			OnPrevious()			{ if( !IsReadOnly() ) *mSetting = !*mSetting; }
-
-		virtual const char *	GetSettingName() const	{ return (*mSetting) ? "Enabled" : "Disabled"; }
-
-	private:
-		bool *					mSetting;
-		EAudioPluginMode *		mAudioEnabled;
-	};
 
 
 	class CAdjustFrameskipSetting : public CUISetting
@@ -276,8 +255,6 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 
 }
 
-
-//
 
 IRomPreferencesScreen::~IRomPreferencesScreen() {}
 

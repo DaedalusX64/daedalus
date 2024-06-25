@@ -69,26 +69,18 @@ class ISelectedRomComponent : public CSelectedRomComponent
 
 CSelectedRomComponent::CSelectedRomComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
-{
-}
+{}
 
-
-//
 
 CSelectedRomComponent::~CSelectedRomComponent()
-{
-}
+{}
 
-
-//
 
 CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, std::function<void()> on_start_emulation )
 {
 	return new ISelectedRomComponent( p_context, on_start_emulation );
 }
 
-
-//
 
 ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, std::function<void()> on_start_emulation )
 :	CSelectedRomComponent( p_context )

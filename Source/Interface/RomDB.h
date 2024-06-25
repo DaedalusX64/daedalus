@@ -40,7 +40,7 @@ class	CRomDB :  public CSingleton< CRomDB >
 
 		virtual void			AddRomDirectory(const std::filesystem::path& directory) = 0;
 
-		virtual bool			QueryByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * cic_type ) = 0;		// Query a rom from the database
+		virtual bool			QueryByFilename( const std::filesystem::path& filename, RomID * id, u32 * rom_size, ECicType * cic_type ) = 0;		// Query a rom from the database
 		virtual bool			QueryByID( const RomID & id, u32 * rom_size, ECicType * cic_type ) const = 0;						// Query a rom from the database
 		virtual const char *	QueryFilenameFromID( const RomID & id ) const = 0;
 };
