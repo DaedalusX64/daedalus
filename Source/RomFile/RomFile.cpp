@@ -34,20 +34,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <filesystem>
 
 
-std::shared_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
+std::unique_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
 {
 
 	if (filename.extension() == ".zip")
 	{
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-		return std::make_shared<ROMFileCompressed>( filename.c_str() );
+		return std::make_unique<ROMFileCompressed>( filename.c_str() );
 #else
 		return NULL;
 #endif
 	}
 	else
 	{
-		return std::make_shared<ROMFileUncompressed>( filename.c_str() );
+		return std::make_unique<ROMFileUncompressed>( filename.c_str() );
 	}
 }
 
