@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <filesystem>
 
 
-std::unique_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
+std::unique_ptr<ROMFile> ROMFile::Create( const std::filesystem::path& filename )
 {
 
 	if (filename.extension() == ".zip")
@@ -42,7 +42,7 @@ std::unique_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 		return std::make_unique<ROMFileCompressed>( filename.c_str() );
 #else
-		return NULL;
+		return nullptr;
 #endif
 	}
 	else
@@ -51,16 +51,14 @@ std::unique_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
 	}
 }
 
-ROMFile::ROMFile( const std::filesystem::path filename )
+ROMFile::ROMFile( const std::filesystem::path& filename )
 :	mFilename ( filename )
 ,	mHeaderMagic ( 0 )
 {
 
 }
 
-ROMFile::~ROMFile()
-{
-}
+ROMFile::~ROMFile() {}
 
 bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
 {

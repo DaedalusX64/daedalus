@@ -22,9 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_ROMFILEUNCOMPRESSED_H_
 #define UTILITY_ROMFILEUNCOMPRESSED_H_
 
-#include <stdio.h>
+#include <fstream>
 
 #include "RomFile/RomFile.h"
+
 
 class ROMFileUncompressed : public ROMFile
 {
@@ -41,7 +42,7 @@ public:
 	virtual bool		ReadChunk( u32 offset, u8 * p_dst, u32 length );
 
 private:
-	FILE *				mFH;
+	std::fstream	mFH;
 	u32					mRomSize;
 };
 
