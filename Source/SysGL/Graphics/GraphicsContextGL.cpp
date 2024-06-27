@@ -213,6 +213,7 @@ void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
 	if (gSdlRenderer == nullptr) {
 		SDL_GL_SwapWindow(gWindow);
 	}
