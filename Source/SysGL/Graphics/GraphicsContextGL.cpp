@@ -209,7 +209,9 @@ void GraphicsContextGL::EndFrame()
 void GraphicsContextGL::UpdateFrame( bool wait_for_vbl [[maybe_unused]] )
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	SDL_GL_SwapWindow(gWindow);
+	if (gSdlRenderer == nullptr) {
+		SDL_GL_SwapWindow(gWindow);
+	}
 
 //	if( gCleanSceneEnabled ) //TODO: This should be optional
 //	{

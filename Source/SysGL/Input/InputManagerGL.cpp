@@ -32,78 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <iostream>
 SDL_GameController *controller;
 
-//Windows Xinput support 
-#ifdef DAEDALUS_W32
-
-#include <Windows.h>
-#include <Xinput.h>
-
-class CXBOXController
-{
-private:
-	XINPUT_STATE _controllerState;
-	int _controllerNum;
-public:
-	CXBOXController(int playerNumber);
-	XINPUT_STATE GetState();
-	bool IsConnected();
-	void Vibrate(int leftVal = 0, int rightVal = 0);
-};
-
-CXBOXController::CXBOXController(int playerNumber)
-{
-	// Set the Controller Number
-	_controllerNum = playerNumber - 1;
-}
-
-XINPUT_STATE CXBOXController::GetState()
-{
-	// Zeroise the state
-	ZeroMemory(&_controllerState, sizeof(XINPUT_STATE));
-
-	// Get the state
-	XInputGetState(_controllerNum, &_controllerState);
-
-	return _controllerState;
-}
-
-bool CXBOXController::IsConnected()
-{
-	// Zeroise the state
-	ZeroMemory(&_controllerState, sizeof(XINPUT_STATE));
-
-	// Get the state
-	DWORD Result = XInputGetState(_controllerNum, &_controllerState);
-
-	if (Result == ERROR_SUCCESS)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-void CXBOXController::Vibrate(int leftVal, int rightVal)
-{
-	// Create a Vibraton State
-	XINPUT_VIBRATION Vibration;
-
-	// Zeroise the Vibration
-	ZeroMemory(&Vibration, sizeof(XINPUT_VIBRATION));
-
-	// Set the Vibration Values
-	Vibration.wLeftMotorSpeed = leftVal;
-	Vibration.wRightMotorSpeed = rightVal;
-
-	// Vibrate the controller
-	XInputSetState(_controllerNum, &Vibration);
-}
-
-#endif
-
-
 class IInputManager : public CInputManager
 {
 public:
@@ -125,17 +53,8 @@ public:
 	
 	private:
 	
-	bool mGamePadAvailable [[maybe_unused]];
+	bool mGamePadAvailable;
 	//SDL_GameController *controller;
-
-#ifdef DAEDALUS_W32
-
-	CXBOXController* Player1;
-	CXBOXController* Player2;
-	CXBOXController* Player3;
-	CXBOXController* Player4;
-
-#endif
 
 };
 
@@ -167,16 +86,6 @@ static void CheckPadStatusVblHandler( void * arg )
 
 bool IInputManager::Initialise()
 {
-
-#ifdef DAEDALUS_W32
-	Player1 = new CXBOXController(1);
-	if (Player1->IsConnected()){
-		std::cout << "Xinput device detected! ";
-	}
-	else{
-		std::cout << "Xinput device not detected!";
-	}
-#endif
 
 
 	//Init Joystick / Gamepad 
@@ -241,8 +150,8 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 	//		printf("%d\n",i);
 	//}
 
-    const s32 SDL_AXIS_MIN [[maybe_unused]] = -32768;
-    const s32 SDL_AXIS_MAX [[maybe_unused]] = 32767;
+    const s32 SDL_AXIS_MIN = -32768;
+    const s32 SDL_AXIS_MAX = 32767;
 
     // Get the raw axis values
     s32 raw_x = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
@@ -288,6 +197,13 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	{
 		const u8* keys = SDL_GetKeyboardState( NULL );
 
+			// Override the keyboard with the gamepad if it's available.
+			//if(mGamePadAvailable)
+			//{
+				GetJoyPad(&pPad[0]);
+			//}
+
+
 		if (keys [ SDL_SCANCODE_UP ] ) {pPad[0].stick_y = +80;}
 		if (keys [ SDL_SCANCODE_DOWN ] ) {pPad[0].stick_y = -80;}
 		if (keys [ SDL_SCANCODE_LEFT ] ) {pPad[0].stick_x = -80;}
@@ -313,42 +229,7 @@ void IInputManager::GetState( OSContPad pPad[4] )
 		if (keys [ SDL_SCANCODE_PAGEDOWN ] ){  pPad[0].button |= R_CBUTTONS;}
 	}
 
-#ifdef DAEDALUS_W32
-	if (Player1->IsConnected())
-	{
-#define XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  7849
-#define XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE 8689
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_A){ pPad[0].button |= A_BUTTON;}
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_B){ pPad[0].button |= B_BUTTON;}
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_START) { pPad[0].button |= START_BUTTON; }
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) { pPad[0].button |= L_TRIG; }
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) { pPad[0].button |= R_TRIG; }
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) { pPad[0].button |= L_JPAD; }
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) { pPad[0].button |= R_JPAD; }
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) { pPad[0].button |= U_JPAD; }
-		if (Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) { pPad[0].button |= D_JPAD; }
 
-		if (Player1->GetState().Gamepad.bLeftTrigger > 30) { pPad[0].button |= Z_TRIG; }
-		if (Player1->GetState().Gamepad.bRightTrigger > 30 ) { pPad[0].button |= Z_TRIG; }
-
-		pPad[0].stick_x = s8(Player1->GetState().Gamepad.sThumbLX / 500);
-		pPad[0].stick_y = s8(Player1->GetState().Gamepad.sThumbLY / 500);
-
-		//Xinput Righstick to C buttons
-		if (s8(Player1->GetState().Gamepad.sThumbRX / 500 ) < -40) pPad[0].button |= L_CBUTTONS;
-		if (s8(Player1->GetState().Gamepad.sThumbRX / 500 ) > 40) pPad[0].button |= R_CBUTTONS;
-		if (s8(Player1->GetState().Gamepad.sThumbRY / 500 ) < -40) pPad[0].button |= D_CBUTTONS;
-		if (s8(Player1->GetState().Gamepad.sThumbRY / 500 ) > 40) pPad[0].button |= U_CBUTTONS;
-	
-	}
-#endif
-
-
-	// Override the keyboard with the gamepad if it's available.
-	//if(mGamePadAvailable)
-	//{
-		GetJoyPad(&pPad[0]);
-	//}
 
 }
 
@@ -366,24 +247,24 @@ u32	 IInputManager::GetNumConfigurations() const
 	return 0;
 }
 
-const char * IInputManager::GetConfigurationName( u32 configuration_idx [[maybe_unused]]) const
+const char * IInputManager::GetConfigurationName( u32 configuration_idx ) const
 {
 	DAEDALUS_ERROR( "Invalid controller config" );
 	return "?";
 }
 
-const char * IInputManager::GetConfigurationDescription( u32 configuration_idx [[maybe_unused]]) const
+const char * IInputManager::GetConfigurationDescription( u32 configuration_idx ) const
 {
 	DAEDALUS_ERROR( "Invalid controller config" );
 	return "?";
 }
 
-void IInputManager::SetConfiguration( u32 configuration_idx [[maybe_unused]] )
+void IInputManager::SetConfiguration( u32 configuration_idx )
 {
 	DAEDALUS_ERROR( "Invalid controller config" );
 }
 
-u32		IInputManager::GetConfigurationFromName( const char * name [[maybe_unused]] ) const
+u32		IInputManager::GetConfigurationFromName( const char * name ) const
 {
 	// Return the default controller config
 	return 0;
@@ -391,7 +272,7 @@ u32		IInputManager::GetConfigurationFromName( const char * name [[maybe_unused]]
 
 static bool toggle_fullscreen = false;
 static s16 button = 0;
-void sceCtrlPeekBufferPositive(SceCtrlData *data, int count [[maybe_unused]]){
+void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
 
 	SDL_Event event;
 	SDL_PumpEvents();
