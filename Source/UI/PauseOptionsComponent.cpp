@@ -72,8 +72,8 @@ class IPauseOptionsComponent : public CPauseOptionsComponent
 #ifdef DAEDALUS_DIALOGS
 				void				ExitConfirmation();
 #endif
-				void				OnSaveStateSlotSelected( const char * filename );
-				void				OnLoadStateSlotSelected( const char * filename );
+				void				OnSaveStateSlotSelected( const std::filesystem::path& filename );
+				void				OnLoadStateSlotSelected( const std::filesystem::path& filename );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				void				DebugDisplayList();
@@ -264,7 +264,7 @@ auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelect
 }
 
 
-void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
+void	IPauseOptionsComponent::OnSaveStateSlotSelected( const std::filesystem::path& filename )
 {
 	std::filesystem::remove( filename ); // Ensure that we're re-creating the file
 	CPU_RequestSaveState( filename );
@@ -274,7 +274,7 @@ void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
 }
 
 
-void	IPauseOptionsComponent::OnLoadStateSlotSelected( const char * filename )
+void	IPauseOptionsComponent::OnLoadStateSlotSelected( const std::filesystem::path& filename )
 {
 	CPU_RequestLoadState( filename );
 }

@@ -34,7 +34,7 @@ class ROMFileCache
 		ROMFileCache();
 		~ROMFileCache();
 
-		bool				Open( std::shared_ptr<ROMFile> p_rom_file );
+		bool				Open( std::unique_ptr<ROMFile> p_rom_file );
 		void				Close();
 
 		bool				GetChunk( u32 rom_offset, u8 ** p_p_chunk_base, u32 * p_chunk_offset, u32 * p_chunk_size );
@@ -45,7 +45,7 @@ class ROMFileCache
 		CacheIdx			GetCacheIndex( u32 address );
 
 	private:
-		std::shared_ptr<ROMFile> 		mpROMFile;
+		std::unique_ptr<ROMFile> 		mpROMFile;
 
 		u8 *				mpStorage;			// Underlying storage. This is carved up between different chunks
 		SChunkInfo *		mpChunkInfo;		// Info about which region a chunk is allocated to

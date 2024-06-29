@@ -3,7 +3,7 @@ add_library(Utility_PSP OBJECT
                                 BatteryPSP.cpp 
                                 DebugMemory.cpp 
                                 DisableFPUExceptions.S 
-                                exception.cpp 
+                                # exception.cpp 
                                 FastMemcpyPSP.cpp 
                                 ModulePSP.cpp
                                 VolatileMemPSP.cpp

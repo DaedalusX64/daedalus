@@ -116,6 +116,7 @@ class CUIContext
 	#include <psprtc.h>
 	#include <psppower.h>
 #else
+
 #include "Ultra/ultra_os.h"
 
   #define PSP_CTRL_DOWN   D_JPAD

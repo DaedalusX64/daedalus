@@ -319,20 +319,8 @@ void	ISavestateSelectorComponent::Update( float elapsed_time [[maybe_unused]], c
 // Disabled for now, will be fixed soon
 void	ISavestateSelectorComponent::deleteSlot(u32 slot_idx [[maybe_unused]])
 {
+	// To reimplement we need to define path and sub_path for local SaveStates Directory and ms0:/n64 (maybe)
 	
-	// if(!std::filesystem::is_directory( "ms0:/n64/SaveStates/" ))
-	// {
-	// 	IO::Path::Combine( path, gDaedalusExePath.string().c_str(), sub_path );
-	// 	IO::Path::Combine( png_path, gDaedalusExePath.string().c_str(), sub_path );
-	// }
-	// else
-	// {
-	// 	IO::Path::Combine( path, "ms0:/n64/", sub_path );
-	// 	IO::Path::Combine( png_path, "ms0:/n64/", sub_path );
-	// }
-	// IO::Path::Append( path, filename_ss );
-	// IO::Path::Append( png_path, filename_png );
-
 	// if (std::filesystem::exists(path))
     // {
     //   remove(path);
@@ -370,12 +358,12 @@ void	ISavestateSelectorComponent::Render()
 					mLastPreviewLoad = mElements.GetSelectedIndex();
 				}
 
-				mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::White );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::Black );
 				mpContext->RenderTexture( mPreviewTexture, tl, wh, c32::White );
 			}
 			else if( mPVExists[ mElements.GetSelectedIndex() ] == -1 && mElements.GetSelectedIndex() < NUM_SAVESTATE_SLOTS )
 			{
-				mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::White );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::Black );
 				mpContext->DrawRect( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2, PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4, c32::Black );
 				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_CENTRE, BELOW_MENU_MIN+PREVIEW_IMAGE_HEIGHT/2, "No Preview Available", c32::White );
 			}

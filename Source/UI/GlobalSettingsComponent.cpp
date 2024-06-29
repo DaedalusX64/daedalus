@@ -282,7 +282,7 @@ namespace
 		virtual const char *	GetSettingName() const
 		{
 			if ( gGlobalPreferences.DisplayFramerate )
-				return "None";
+				return "FS + VB + SYNC";
 			else
 				return "None";
 		}
@@ -382,7 +382,7 @@ void	IGlobalSettingsComponent::Update( float elapsed_time [[maybe_unused]], cons
 			if( new_buttons & PSP_CTRL_LEFT )
 			{
 				element->OnPrevious();
-			}
+			} 
 			if( new_buttons & PSP_CTRL_RIGHT )
 			{
 				element->OnNext();
