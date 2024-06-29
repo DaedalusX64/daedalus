@@ -109,7 +109,7 @@ struct SRomInfo
 				std::string game_name;
 				if ( !ROM_GetRomName( filename, game_name ) )
 				{
-					game_name = std::filesystem::path(filename.string());
+					game_name = filename.string();
 				}
 				game_name = game_name.substr(0, 63);
 				mSettings.GameName = game_name.c_str();
@@ -427,7 +427,7 @@ void IRomSelectorComponent::RenderRomList()
 		const char *	p_gamename;
 		if( mDisplayFilenames )
 		{
-			p_gamename = mRomsList[ i ]->mFilename.c_str();
+			p_gamename = mRomsList[ i ]->mFilename.string().c_str();
 		}
 		else
 		{

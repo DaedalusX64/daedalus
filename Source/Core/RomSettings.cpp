@@ -329,7 +329,7 @@ void IRomSettingsDB::Commit()
 	
 	std::filesystem::path filename_tmp = "roms.ini.tmp";
 
-	FILE * fh_src = fopen(mFilename.c_str(), "r");
+	FILE * fh_src = fopen(mFilename.string().c_str(), "r");
 	if (fh_src == nullptr)
 	{
 		return;

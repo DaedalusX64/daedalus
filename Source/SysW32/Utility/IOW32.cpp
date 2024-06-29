@@ -47,6 +47,11 @@ namespace IO
 	}
 	namespace Directory
 	{
+		bool	IsDirectory( const char * p_path )
+		{
+			return ::PathIsDirectory( p_path ) ? true : false;
+		}
+
 		bool	Create( const char * p_path )
 		{
 			return ::CreateDirectory( p_path, NULL ) ? true : false;
@@ -73,10 +78,7 @@ namespace IO
 			return Create( p_path );
 		}
 
-		bool	IsDirectory( const char * p_path )
-		{
-			return ::PathIsDirectory( p_path ) ? true : false;
-		}
+
 	}
 
 	namespace Path

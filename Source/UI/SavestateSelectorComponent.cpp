@@ -248,7 +248,7 @@ void	ISavestateSelectorComponent::Update( float elapsed_time [[maybe_unused]], c
 		std::filesystem::path filename_png;
 		MakeSaveSlotPath( filename_ss, filename_png, mSelectedSlot, current_slot_path );
 
-		mOnSlotSelected( filename_ss.c_str());
+		mOnSlotSelected( filename_ss.string().c_str());
 	}
 
 	if(old_buttons != new_buttons)

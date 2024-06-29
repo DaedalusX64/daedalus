@@ -263,7 +263,7 @@ bool Translate_Read(u32 idx, const std::filesystem::path& dir)
 	std::filesystem::path path = dir / language;
 
 
-	stream = fopen(path.c_str(),"r");
+	stream = fopen(path.string().c_str(),"r");
 
 	if( stream == NULL )
 	{

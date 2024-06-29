@@ -165,7 +165,7 @@ void Save_Flush()
 	{
 		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName.c_str());
 
-		FILE * fp = fopen(gMempackFileName.c_str(), "wb");
+		FILE * fp = fopen(gMempackFileName.string().c_str(), "wb");
 		if (fp != nullptr)
 		{
 			fwrite(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
