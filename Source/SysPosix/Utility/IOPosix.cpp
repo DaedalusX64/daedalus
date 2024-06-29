@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 #include "System/IO.h"
-#include <dirent.h>
 #include <filesystem>
 
 
@@ -31,12 +30,11 @@ const std::filesystem::path baseDir = std::filesystem::current_path();
 #endif
 
 
+#ifdef DAEDALUS_CTR // TODO, Remove the rom list iterator that uses this
+#include <dirent.h>
+
 namespace IO
 {
-
-
-
-
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data )
 	{
 		DIR * d = opendir( path );
@@ -80,3 +78,4 @@ namespace IO
 		return closedir( static_cast< DIR * >( handle ) ) >= 0;
 	}
 }
+#endif
