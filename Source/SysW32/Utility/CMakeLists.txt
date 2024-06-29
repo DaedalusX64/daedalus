@@ -1,7 +1,7 @@
 add_library(Utility_Win OBJECT
                                 CondW32.cpp
                                 DISASM86.cpp
-                                IOW32.cpp
+                               ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/IOPosix.cpp
                                 ThreadW32.cpp
                                 TimingW32.cpp
             )
