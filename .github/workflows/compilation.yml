@@ -271,7 +271,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build
+          cmake --build build --config Release
           cmake --install build --prefix DaedalusX64
 
       - name: Prepare artifacts
