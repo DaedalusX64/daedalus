@@ -268,10 +268,12 @@ jobs:
       - name: Run CMake config
         run: |
           cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
+          cmake install
     
       - name: Build
         run: |
           cmake --build build --config Release
+          cmake --install build --prefix $PWD
 
       - name: Prepare artifacts
         run: |
