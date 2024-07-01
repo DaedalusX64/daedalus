@@ -2,8 +2,8 @@ add_library(Utility_PSP OBJECT
                                 AtomicPrimitives.S 
                                 BatteryPSP.cpp 
                                 DebugMemory.cpp 
-                                DisableFPUExceptions.S 
-                                # exception.cpp 
+                                # DisableFPUExceptions.S 
+                                exception.cpp 
                                 FastMemcpyPSP.cpp 
                                 ModulePSP.cpp
                                 VolatileMemPSP.cpp
