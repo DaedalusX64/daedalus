@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 #include "System/IO.h"
 #include <iostream>
+#include <cstring> 
 
 static void InitMempackContent();
 

@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 
 #include <stdio.h>
+#include <cstring>
 
 #include "Core/Cheats.h"
 #include "Core/CPU.h"

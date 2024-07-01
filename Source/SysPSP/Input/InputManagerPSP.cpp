@@ -6,7 +6,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#
+#include <cstring> 
+
 #include <pspctrl.h>
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"

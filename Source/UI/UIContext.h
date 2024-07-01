@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/ColourValue.h"
 #include "UIAlignment.h"
 #include "Interface/Preferences.h"
+#include <cstring>
 
 class CNativeTexture;
 class v2;

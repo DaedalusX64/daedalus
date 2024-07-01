@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <vector>
 #include <fstream>
+#include <cstring>
 
 #include "Core/ROM.h"
 #include "Core/ROMImage.h"

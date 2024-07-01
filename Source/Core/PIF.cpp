@@ -86,7 +86,7 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 // Stuff to handle controllers
 
 #include <time.h>
-
+#include <cstring>
 
 #include "Base/Types.h"
 

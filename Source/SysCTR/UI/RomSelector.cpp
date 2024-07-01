@@ -50,10 +50,10 @@ static std::vector<SRomInfo> PopulateRomList()
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
 	
-	if(IO::FindFileOpen( DAEDALUS_CTR_PATH("Roms/"), &find_handle, find_data ))
-	{
-		do 
-		{
+	// if(IO::FindFileOpen( DAEDALUS_CTR_PATH("Roms/"), &find_handle, find_data ))
+	// {
+	// 	do 
+	// 	{
 			const std::filesystem::path rom_filename( find_data.Name );
 			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
@@ -88,10 +88,10 @@ static std::vector<SRomInfo> PopulateRomList()
 				roms.push_back(info);
 			}
 
-		} while(IO::FindFileNext( find_handle, find_data ));
+		// } while(IO::FindFileNext( find_handle, find_data ));
 
-		IO::FindFileClose( find_handle );
-	}
+		// IO::FindFileClose( find_handle );
+	// }
 
 	std::stable_sort(roms.begin(), roms.end());
 
