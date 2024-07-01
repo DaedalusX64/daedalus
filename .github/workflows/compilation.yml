@@ -277,7 +277,7 @@ jobs:
       - name: Prepare artifacts
         run: |
               tar -zcvf daedalusX64-windows-amd64.tar.gz \
-                  DaedalusX64/daedalus.exe \
+                  build/Source/Release/daedalus.exe \
                   DaedalusX64/n64.psh \
                   DaedalusX64/roms.ini \
                   DaedalusX64/readme.txt \
