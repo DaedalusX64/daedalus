@@ -273,7 +273,7 @@ jobs:
       - name: Build
         run: |
           cmake --build build --config Release
-          cmake --install build --prefix $PWD
+          cmake --install build --prefix DaedalusX64
 
       - name: Prepare artifacts
         run: |
