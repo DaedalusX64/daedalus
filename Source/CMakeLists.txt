@@ -10,9 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 #TODO: Separate SDL Options
 list(APPEND plat_main )
 
-# Required for Windows, it puts the binary in a separate directory breaking my scripts :D 
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR})
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 if(DEBUG)
 	set(CMAKE_BUILD_TYPE Debug)
