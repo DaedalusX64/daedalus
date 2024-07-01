@@ -272,3 +272,23 @@ jobs:
       - name: Build
         run: |
           cmake --build build --config Release
+
+      - name: Prepare artifacts
+        run: |
+            tar -zcvf daedalusX64-windows-amd64.tar.gz \
+            DaedalusX64/daedalus.exe \
+            DaedalusX64/n64.psh \
+            DaedalusX64/roms.ini \
+            DaedalusX64/readme.txt \
+            DaedalusX64/copying.txt \
+            DaedalusX64/Resources \
+            DaedalusX64/Languages \
+            DaedalusX64/ControllerConfigs \
+
+
+      - name: Upload artifacts
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: DaedalusX64-win
+          path: daedalusX64-Win-amd64.tar.gz
