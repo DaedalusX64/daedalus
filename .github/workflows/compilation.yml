@@ -282,4 +282,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DaedalusX64-win
-          path: daedalusX64-Win-amd64.tar.gz
+          path: daedalusX64-windows-amd64.tar.gz
