@@ -75,7 +75,7 @@ bool Save_Reset()
 		FILE * fp = fopen(gSaveFileName.string().c_str(), "rb");
 		if (fp != nullptr)
 		{
-			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName.c_str());
+			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName.string().c_str());
 
 			u8 buffer[2048];
 			u8 * dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
@@ -93,7 +93,7 @@ bool Save_Reset()
 		}
 		else
 		{
-			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", gSaveFileName.c_str());
+			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", gSaveFileName.string().c_str());
 		}
 	}
 
@@ -110,7 +110,7 @@ bool Save_Reset()
 		}
 		else
 		{
-			DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", gSaveFileName.c_str());
+			DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", gSaveFileName.string().c_str());
 			InitMempackContent();
 			gMempackDirty = true;
 		}
@@ -141,7 +141,7 @@ void Save_Flush()
 {
 	if (gSaveDirty && g_ROM.settings.SaveType != SAVE_TYPE_UNKNOWN)
 	{
-		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName.c_str());
+		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName.string().c_str());
 
 		FILE * fp = fopen(gSaveFileName.string().c_str(), "wb");
 		if (fp != nullptr)
@@ -164,7 +164,7 @@ void Save_Flush()
 
 	if (gMempackDirty)
 	{
-		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName.c_str());
+		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName.string().c_str());
 
 		FILE * fp = fopen(gMempackFileName.string().c_str(), "wb");
 		if (fp != nullptr)
