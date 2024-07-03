@@ -666,10 +666,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			gVerticalInterrupts++;
 
 			FramerateLimiter_Limit();
-#ifdef DAEDALUS_W32
-			if (gAudioPlugin != nullptr)
-				gAudioPlugin->Update(false);
-#endif
+
 			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_VI);
 			R4300_Interrupt_UpdateCause3();
 

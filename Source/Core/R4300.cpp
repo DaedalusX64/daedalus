@@ -44,15 +44,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <float.h>
 #endif
 
-#ifdef DAEDALUS_POSIX
+#if defined(DAEDALUS_POSIX) || defined(DAEDALUS_W32)
 #include <fenv.h>
 //Accurate cvt for W32/OSX, convert using the rounding mode specified in the Floating Control/Status register (FCSR)
 #define DAEDALUS_ACCURATE_CVT // This also works with Windows
 #endif
 
-#ifdef DAEDALUS_W32
-#define isnan _isnan
-#endif
+// #ifdef DAEDALUS_W32
+// #define isnan _isnan
+// #endif
 
 #define SPEEDHACK_INTERPRETER // Probably can disalbe this on the PSP?
 
@@ -104,22 +104,8 @@ inline void SET_ROUND_MODE( ERoundingMode mode )
 	//pspFpuSetRoundmode( gNativeRoundingModes[ mode ] );
 }
 
-#elif defined(DAEDALUS_W32)
 
-static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
-{
-	_RC_NEAR,	// RM_ROUND,
-	_RC_CHOP,	// RM_TRUNC,
-	_RC_UP,		// RM_CEIL,
-	_RC_DOWN,	// RM_FLOOR,
-};
-
-inline void SET_ROUND_MODE( ERoundingMode mode )
-{
-	_controlfp( gNativeRoundingModes[ mode ], _MCW_RC );
-}
-
-#elif DAEDALUS_POSIX
+#elif DAEDALUS_POSIX || defined(DAEDALUS_W32)
 
 static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
 {

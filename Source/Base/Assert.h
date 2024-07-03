@@ -51,7 +51,7 @@ enum EAssertResult
     #define _CRT_SECURE_NO_DEPRECATE
     #define _DO_NOT_DECLARE_INTERLOCKED_INTRINSICS_IN_MEMORY
 
-    #define DAEDALUS_HALT						_CrtDbgBreak()
+    #define DAEDALUS_HALT						__debugbreak()
 #else
 #error Unknown Platforn DAEDALUS_HALT should be defined in Base/Assert.h
 #endif
