@@ -2,7 +2,7 @@
 # Created and Maintained by Wally 
 # Yes right now this is a mess, hoping to simplify things further in future but please deal with it for now :)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # Below is related to Macros within the project, a lot of these could be deprecated and deleted.
 # For now they will remain here so they're visible and can be switched on and off as desired.
@@ -80,7 +80,7 @@ endif()
 	# Additional Debug Options
 	option(SHOW_MEM "Show memory usage" OFF)
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
-	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" OFF)
+	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" ON)
 	option(DAEDALUS_DEBUG_DYNAREC "Enable Various Debugging options for the Dynarec" OFF)
 	option(DAEDALUS_ENABLE_SYNCHRONISATION "Enable for sync testing" OFF)
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
