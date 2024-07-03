@@ -143,17 +143,22 @@ int main(int argc, char **argv)
 					{
 						const char *relative_path = argv[i + 1];
 						++i;
-
-						char *dir = realpath(relative_path, nullptr);
-						CRomDB::Get()->AddRomDirectory(dir);
-						free(dir);
-					}
+						try 
+						{ 
+							std::filesystem::path dir = std::filesystem::absolute(relative_path);
+							CRomDB::Get()->AddRomDirectory(dir.string().c_str());
+						}
+						catch (const std::filesystem::filesystem_error& e) 
+						{
+                    std::cerr << "Error resolving path: " << e.what() << std::endl;
+						}
+                	}
 				}
 			}
-			else
-			{
-				filename = arg;
-			}
+					else
+					{
+						filename = arg;
+					}
 		}
 
 		if (batch_test)

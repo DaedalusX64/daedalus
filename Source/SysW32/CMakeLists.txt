@@ -19,7 +19,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../daedalus.exe DESTINATION DaedalusX6
 endif()
 list(APPEND daed_libs)
 set(daed_libs ${daed_libs} Shlwapi.lib Dsound.lib Xinput.lib uuid.lib PARENT_SCOPE)
-set(plat_main SysW32/main.cpp PARENT_SCOPE)
+set(plat_main SysPosix/main.cpp PARENT_SCOPE)
 
 file(GLOB DYNAMIC_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/../*.dll")
 
