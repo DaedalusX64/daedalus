@@ -33,7 +33,7 @@ const std::array<std::filesystem::path, 9> valid_extensions = {".v64", ".z64", "
 class ROMFile
 {
 public:
-	static std::unique_ptr<ROMFile> Create( const std::filesystem::path& filename );
+	static std::shared_ptr<ROMFile> Create( const std::filesystem::path& filename );
 
 	ROMFile( const std::filesystem::path& filename );
 	virtual ~ROMFile();

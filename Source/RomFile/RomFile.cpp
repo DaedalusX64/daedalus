@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <filesystem>
 
 
-std::unique_ptr<ROMFile> ROMFile::Create( const std::filesystem::path& filename )
+std::shared_ptr<ROMFile> ROMFile::Create( const std::filesystem::path& filename )
 {
 
 	if (filename.extension() == ".zip")
