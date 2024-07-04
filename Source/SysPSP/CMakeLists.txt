@@ -14,6 +14,12 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/PRX/DveMgr/dvemgr.prx DESTINATION Daed
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}//PRX/ExceptionHandler/exception.prx DESTINATION DaedalusX64/Plugins)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../EBOOT.PBP DESTINATION DaedalusX64)
 
+#Copy the PRX and plain binary to the DaedalusX64 Directory for testing
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../daedalus.prx DESTINATION DaedalusX64)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../daedalus DESTINATION DaedalusX64/daedalus_psp) #Named daedalus_psp to avoid having to overwrite other binaries
+endif()
+
 list(APPEND daed_libs)
 set(daed_libs ${daed_libs} PARENT_SCOPE)
 

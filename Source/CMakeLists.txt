@@ -12,10 +12,11 @@ list(APPEND plat_main )
 
 
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
-if(DEBUG)
-	set(CMAKE_BUILD_TYPE Debug)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	message("Debug Build")
+
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
-	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
+	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Show the build type in the UI
 	option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
@@ -25,9 +26,9 @@ if(NOT WIN32)
 	add_compile_options("-Wextra")
 endif()
 else()
-	set(CMAKE_BUILD_TYPE Release)
+	message("Release Build")
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
+	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Show the build type in the UI
 endif()
 	#Determine Dynarec compatibility and link in appropriate Dynarec
 	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
