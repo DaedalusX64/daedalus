@@ -55,9 +55,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Thread.h"
 
 
-#ifdef DAEDALUS_W32
-#include "HLEAudio/AudioPlugin.h"
-#endif
 
 extern void R4300_Init();
 
