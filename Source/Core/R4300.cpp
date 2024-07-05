@@ -46,8 +46,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if defined(DAEDALUS_POSIX) || defined(DAEDALUS_W32)
 #include <fenv.h>
-//Accurate cvt for W32/OSX, convert using the rounding mode specified in the Floating Control/Status register (FCSR)
-#define DAEDALUS_ACCURATE_CVT // This also works with Windows
 #endif
 
 #define SPEEDHACK_INTERPRETER // Probably can disalbe this on the PSP?

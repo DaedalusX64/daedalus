@@ -43,7 +43,7 @@ enum EAssertResult
     #define DAEDALUS_HALT			__builtin_trap()
 #elif DAEDALUS_CTR
     #define DAEDALUS_HALT			__asm__ __volatile__ ( "bkpt" )
-#elif DAEDALUS_W32 // Ugh this needs simplifying
+#elif DAEDALUS_W32
     #define DAEDALUS_HALT						__debugbreak()
 #else
 #error Unknown Platform DAEDALUS_HALT should be defined in Base/Assert.h
