@@ -81,7 +81,7 @@ endif()
 	# Additional Debug Options
 	option(SHOW_MEM "Show memory usage" OFF)
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
-	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" ON)
+	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" OFF)
 	option(DAEDALUS_DEBUG_DYNAREC "Enable Various Debugging options for the Dynarec" OFF)
 	option(DAEDALUS_ENABLE_SYNCHRONISATION "Enable for sync testing" OFF)
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
