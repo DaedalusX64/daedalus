@@ -50,10 +50,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_ACCURATE_CVT // This also works with Windows
 #endif
 
-// #ifdef DAEDALUS_W32
-// #define isnan _isnan
-// #endif
-
 #define SPEEDHACK_INTERPRETER // Probably can disalbe this on the PSP?
 
 
