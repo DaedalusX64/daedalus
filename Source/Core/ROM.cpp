@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Stream.h"
 #include "Debug/Synchroniser.h"
 
-#if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
+#if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE)
 // This isn't really the most appropriate place. Need to check with
 // the graphics plugin really
 u32 g_dwNumFrames = 0;
