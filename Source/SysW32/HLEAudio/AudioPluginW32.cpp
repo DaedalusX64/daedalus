@@ -204,7 +204,7 @@ void	CAudioPluginW32::StopEmulation()
 	}
 }
 
-u32	DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioThread(void * arg)
+u32 CAudioPluginW32::AudioThread(void * arg)
 {
 	CAudioPluginW32 * plugin = static_cast<CAudioPluginW32 *>(arg);
 	while(plugin->is_running)
@@ -216,7 +216,7 @@ u32	DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioThread(void * arg)
 	return 0;
 }
 
-u32 DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioProcessThread(void *arg)
+u32 CAudioPluginW32::AudioProcessThread(void *arg)
 {
 	CAudioPluginW32 * plugin = static_cast<CAudioPluginW32 *>(arg);
 	MutexLock lock(plugin->requestMutex);
