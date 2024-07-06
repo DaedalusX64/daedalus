@@ -49,7 +49,7 @@ enum EAssertResult
 #error Unknown Platform DAEDALUS_HALT should be defined in Base/Assert.h
 #endif
 
-EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... );
+EAssertResult  DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... );
 
 //
 //	Use this api to override the default assert handler, e.g. for logging asserts during a batch process
