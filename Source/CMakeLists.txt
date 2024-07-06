@@ -116,6 +116,7 @@ endif()
 		option(DAEDALUS_GL "OpenGL Renderer" ON)
 	elseif(WIN32)
 		option(DAEDALUS_SDL "SDL Build" ON)
+		option(DAED_USE_VIRTUAL_ALLOC "Use Windows Memory specifiers" ON) # We probably need to remove and simplfy this using modern C++
 		option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)" ON)
 		option(DAEDALUS_W32 "Windows specific Options" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
@@ -136,14 +137,6 @@ endif()
 	list(APPEND include_dirs "${PROJECT_SOURCE_DIR}/Source")
 	include_directories( BEFORE ${include_dirs})
 
-## Generic defines for certain things that Windows requires.
-if(NOT WIN32)
-	add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
-	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
-else()
-	add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=__stdcall)
-	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=__cdecl)
-endif()
 
 if(UNIX)
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)

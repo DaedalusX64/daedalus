@@ -164,3 +164,7 @@ if(SHOW_MEM)
     message("SHOW_MEM=ON")
     add_compile_definitions(SHOW_MEM)
 endif()
+if(DAED_USE_VIRTUAL_ALLOC)
+    message("DAED_USE_VIRTUAL_ALLOC=ON")
+    add_compile_definitions((DAED_USE_VIRTUAL_ALLOC))
+endif
