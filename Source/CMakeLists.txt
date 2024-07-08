@@ -87,6 +87,8 @@ endif()
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
 	option(DAEDALUS_PROFILE_EXECUTION "Keep track of various execution stats" OFF)
 	option(DUMPOSFUNCTIONS "Dump OSHLE Functions" OFF)
+	option(DAEDALUS_FRAMERATE_ANALYSIS "Output a CSV file containing framerate analysis" OFF)
+	option(DAEDALUS_DEBUG_AUDIO "Output some Audio Samples to raw file" OFF)
 	# Additional PSP Options
 	option(DAEDALUS_PSP_GPROF "PSP Profiling, needs Silent enabled" OFF)
 
