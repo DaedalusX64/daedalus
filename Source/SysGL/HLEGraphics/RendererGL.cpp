@@ -4,6 +4,8 @@
 
 #include <vector>
 #include <GL/glew.h>
+#include <fstream>
+#include <iostream>
 
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
@@ -26,7 +28,7 @@ RendererGL *   gRendererGL = NULL;
 static bool gAccurateUVPipe = true;
 
 // We read n64.psh into this.
-static const char * 					gN64FramentLibrary = NULL;
+std::string	gN64FragmentLibrary;
 
 static const u32 kNumTextures = 2;
 
@@ -80,33 +82,39 @@ static float 	gPositionBuffer[kMaxVertices][3];
 static TexCoord gTexCoordBuffer[kMaxVertices];
 static u32 		gColorBuffer[kMaxVertices];
 
+bool loadShader(const std::filesystem::path& shader_path)
+{
+	std::ifstream shader_file(shader_path);
+
+	if (!shader_file)
+	{
+		std::cerr << "ERROR: Could not load shader source" << shader_path << std::endl;
+		return false;
+	}
+	
+	shader_file.seekg(0, std::ios::end);
+	size_t length = shader_file.tellg();
+	shader_file.seekg(0, std::ios::beg);
+
+	std::string shader_code (length, '\0');
+	shader_file.read(&shader_code[0], length);
+
+	// Truncate shader code if it ends with newline characters
+	while (!shader_code.empty() && shader_code.back() == '\n')
+	{
+		shader_code.pop_back();
+	}
+	gN64FragmentLibrary  = shader_code;
+
+	return true;
+}
+
 bool initgl()
 {
-	DAEDALUS_ASSERT(gN64FramentLibrary == NULL, "Already initialised");
-
-	{
-		std::filesystem::path shader_path = "n64.psh";
-		
-		FILE * fh = fopen(shader_path.string().c_str(), "r");
-		if (!fh)
-		{
-			DAEDALUS_ERROR("Couldn't load shader source %s", shader_path.string().c_str());
-			fprintf(stderr, "ERROR: couldn't load shader source %s\n", shader_path.string().c_str());
-			return false;
-		}
-
-		fseek(fh, 0, SEEK_END);
-		size_t l = ftell(fh);
-		fseek(fh, 0, SEEK_SET);
-		char * p = (char *)malloc(l+1);
-		fread(p, 1, l, fh);
-		while (p[l] != 0x0A)
-			p[l--] = 0;
-		fclose(fh);
-
-		gN64FramentLibrary = p;
-	}
-
+	std::filesystem::path shader_path = "n64.psh";
+	loadShader(shader_path);
+	
+	std::cout << "Loading Shader File: " << shader_path << std::endl;
 	// Only do software emulation of mirror_s/mirror_t if we're not doing accurate UV handling
 	gRDPStateManager.SetEmulateMirror(!gAccurateUVPipe);
 
@@ -558,7 +566,6 @@ void RendererGL::MakeShaderConfigFromCurrentState(ShaderConfiguration * config) 
 
 static ShaderProgram * GetShaderForConfig(const ShaderConfiguration & config)
 {
-	DAEDALUS_ASSERT( gN64FramentLibrary != NULL, "Haven't initialised the n64 fragment library" );
 
 	for (u32 i = 0; i < gShaders.size(); ++i)
 	{
@@ -571,7 +578,7 @@ static ShaderProgram * GetShaderForConfig(const ShaderConfiguration & config)
 	SprintShader(frag_shader, config);
 
 	const char * vertex_lines[] = { default_vertex_shader };
-	const char * fragment_lines[] = { gN64FramentLibrary, frag_shader };
+	const char * fragment_lines[] = { gN64FragmentLibrary.c_str(), frag_shader };
 
 	GLuint shader_program = make_shader_program(
 								vertex_lines, std::size(vertex_lines),
