@@ -13,6 +13,8 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
+#include <fstream> 
+
 
 #define DAEDALUS_PSP_GPROF
 
@@ -166,7 +168,6 @@ static void initialize()
 */
 void gprof_cleanup()
 {
-        FILE *fp;
         int i;
         struct gmonhdr hdr;
         struct gmonhisthdr histhdr; 
@@ -182,7 +183,7 @@ void gprof_cleanup()
 
         sceKernelStopVTimer(gp.timer);
 
-        fp = fopen("gmon.out", "wb");
+        std::ofstream fp = fopen("gmon.out", std::ios::binary);
  
         memset(&hdr, 0x00, sizeof(hdr)); 
         memcpy(hdr.cookie, "gmon", 4); 

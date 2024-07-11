@@ -29,6 +29,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/IO.h"
 #include <iostream>
 #include <cstring> 
+#include <vector>
+#include <fstream>
+
 
 static void InitMempackContent();
 
@@ -71,25 +74,26 @@ bool Save_Reset()
 	if (gSaveSize > 0)
 	{
 		gSaveFileName = Save_As(g_ROM.mFileName, ext, "SaveGames/");
-		
-		FILE * fp = fopen(gSaveFileName.string().c_str(), "rb");
-		if (fp != nullptr)
+		std::fstream file(gSaveFileName, std::ios::in | std::ios::out | std::ios::binary);
+		if (file.is_open())
+
+		// if (fp != nullptr)
 		{
 			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName.string().c_str());
 
-			u8 buffer[2048];
+			std::vector<u8> buffer(2048);
 			u8 * dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
 
-			for (u32 d = 0; d < gSaveSize; d += sizeof(buffer))
+			for (u32 d = 0; d < gSaveSize; d += buffer.size())
 			{
-				fread(buffer, sizeof(buffer), 1, fp);
+				file.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
 
 				for (u32 i = 0; i < sizeof(buffer); i++)
 				{
 					dst[d+i] = buffer[i^U8_TWIDDLE];
 				}
 			}
-			fclose(fp);
+			// fclose(fp);
 		}
 		else
 		{
@@ -100,12 +104,11 @@ bool Save_Reset()
 	// init mempack, we always assume the presence of the mempack for simplicity 
 	{	
 		gSaveFileName = Save_As(g_ROM.mFileName, ".mpk", "SaveGames/");
-		FILE * fp = fopen(gSaveFileName.string().c_str(), "rb");
-		if (fp != nullptr)
+		std::fstream file(gSaveFileName, std::ios::in |std::ios::out |std::ios::binary);
+		if (file.is_open())
 		{
 			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gSaveFileName.string().c_str());
-			fread(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
-			fclose(fp);
+			file.read(reinterpret_cast<char*>(g_pMemoryBuffers[MEM_MEMPACK]), MemoryRegionSizes[MEM_MEMPACK]);
 			gMempackDirty = false;
 		}
 		else
@@ -142,11 +145,11 @@ void Save_Flush()
 	if (gSaveDirty && g_ROM.settings.SaveType != SAVE_TYPE_UNKNOWN)
 	{
 		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName.string().c_str());
+		std::fstream fp(gSaveFileName, std::ios::in | std::ios::out | std::ios::binary);
 
-		FILE * fp = fopen(gSaveFileName.string().c_str(), "wb");
-		if (fp != nullptr)
+		if (fp.is_open())
 		{
-			u8 buffer[2048];
+			std::vector<u8> buffer(2048);
 			u8 * src = (u8*)g_pMemoryBuffers[MEM_SAVE];
 
 			for (u32 d = 0; d < gSaveSize; d += sizeof(buffer))
@@ -155,9 +158,10 @@ void Save_Flush()
 				{
 					buffer[i^U8_TWIDDLE] = src[d+i];
 				}
-				fwrite(buffer, 1, sizeof(buffer), fp);
+				fp.write(reinterpret_cast<char*>(buffer.data()), buffer.size());
+				// fwrite(buffer, 1, sizeof(buffer), fp);
 			}
-			fclose(fp);
+			// fclose(fp);
 		}
 		gSaveDirty = false;
 	}
@@ -165,12 +169,10 @@ void Save_Flush()
 	if (gMempackDirty)
 	{
 		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName.string().c_str());
-
-		FILE * fp = fopen(gMempackFileName.string().c_str(), "wb");
-		if (fp != nullptr)
+		std::ofstream fp(gMempackFileName, std::ios::in | std::ios::out | std::ios::binary);
+		if (fp.is_open())
 		{
-			fwrite(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
-			fclose(fp);
+			fp.write(reinterpret_cast<char*>(g_pMemoryBuffers[MEM_MEMPACK]), MemoryRegionSizes[MEM_MEMPACK]);	
 		}
 		gMempackDirty = false;
 	}

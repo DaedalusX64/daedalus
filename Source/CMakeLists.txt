@@ -21,6 +21,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
 	option(DAEDALUS_LOG "Enable various logging" ON)
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
 if(NOT WIN32)
 	add_compile_options("-Wall")
 	add_compile_options("-Wextra")
@@ -29,6 +30,7 @@ else()
 	message("Release Build")
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Show the build type in the UI
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
 endif()
 	#Determine Dynarec compatibility and link in appropriate Dynarec
 	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
@@ -74,8 +76,7 @@ endif()
 
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
-	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM `Support" OFF) ## Probably should be a default option. 
-	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
+	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF) ## Probably should be a default option. 
 	option(DAEDALUS_LOG "Log stuff " OFF) ## NEeds to be off on the PSP unless debugging
 
 	# Additional Debug Options
@@ -83,6 +84,7 @@ endif()
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
 	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" OFF)
 	option(DAEDALUS_DEBUG_DYNAREC "Enable Various Debugging options for the Dynarec" OFF)
+	option(LOG_ABORTED_TRACES "Log aborted DynaRec Traces to file" OFF)
 	option(DAEDALUS_ENABLE_SYNCHRONISATION "Enable for sync testing" OFF)
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
 	option(DAEDALUS_PROFILE_EXECUTION "Keep track of various execution stats" OFF)
@@ -91,6 +93,7 @@ endif()
 	option(DAEDALUS_DEBUG_AUDIO "Output some Audio Samples to raw file" OFF)
 	# Additional PSP Options
 	option(DAEDALUS_PSP_GPROF "PSP Profiling, needs Silent enabled" OFF)
+
 
 
 	## Enable specific options per platform based on Release build ## XXX need to handle GPROF

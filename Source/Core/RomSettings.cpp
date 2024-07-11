@@ -22,12 +22,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <cstring> 
 
 #include <set>
 #include <map>
+#include <fstream>
+#include <filesystem>
+#include <iostream>
 
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
@@ -35,7 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/RomDB.h"
 #include "Utility/IniFile.h"
 #include "System/IO.h"
-#include <filesystem>
 
 namespace
 {
@@ -131,7 +131,7 @@ class IRomSettingsDB : public CRomSettingsDB
 
 	private:
 
-		void			OutputSectionDetails( const RomID & id, const RomSettings & settings, FILE * fh );
+		void			OutputSectionDetails( const RomID & id, const RomSettings & settings, std::ostream &fh );
 
 	private:
 	using SettingsMap = std::map<RomID, RomSettings>;
@@ -166,10 +166,10 @@ IRomSettingsDB::IRomSettingsDB() :	mDirty( false ) {}
 
 IRomSettingsDB::~IRomSettingsDB()
 {
-	if ( mDirty )
-	{
-		Commit();
-	}
+	// if ( mDirty )
+	// {
+	// 	Commit();
+	// }
 }
 
 
@@ -323,118 +323,115 @@ bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path &filename )
 	return true;
 }
 
+// //	Write out the .ini file, keeping the original comments intact
+void IRomSettingsDB::Commit(){}
+// 	mFilename = "roms.ini";
 
-//	Write out the .ini file, keeping the original comments intact
-void IRomSettingsDB::Commit()
+
+// 	std::filesystem::path filename_tmp = "roms.ini.tmp";
+
+// 	std::fstream fh_src(mFilename, std::ios::in);
+// 	if (!fh_src)
+// 	{
+// 		std::cerr << mFilename << " : Does not exist";
+// 		return;
+// 	}
+// 	std::fstream fh_dst(filename_tmp, std::ios::out);
+
+
+// 	//	Keep track of visited sections in a set
+// 	std::set<RomID>		visited;
+
+// 	std::string line;
+//    while (std::getline(fh_src, line))
+// 	{
+// 		if (line[0] == '{')
+// 		{
+// 			const char * const trim_chars = "{}\n\r"; //remove first and last character
+// 			char buffer[1024 + 1];
+// 			std::strncpy(buffer, line.c_str(), sizeof(buffer) -1);
+// 			buffer[sizeof(buffer) - 1 ] = '\0';
+
+// 			// Start of section
+// 			trim( buffer, trim_chars );
+
+// 			RomID id( RomIDFromString( buffer ) );
+
+// 			// Avoid duplicated entries for this id
+// 			if ( visited.find( id ) != visited.end() )
+// 				continue;
+
+// 			visited.insert( id );
+
+// 			SettingsMap::const_iterator	it( mSettings.find( id ) );
+// 			if( it != mSettings.end() )
+// 			{
+// 				// Output this CRC
+// 				OutputSectionDetails( id, it->second, fh_dst );
+// 			}
+// 			else
+// 			{
+// 				// Do what? This should never happen, unless the user
+// 				// replaces the inifile while Daedalus is running!
+// 			}
+// 		}
+// 		else if (line[0] == '/')
+// 		{
+// 			// Skip Comment
+// 			fh_dst << line << '\n';
+// 			continue;
+// 		}
+// 	}
+// 	for (const auto& [id, settings] : mSettings)
+// 	{
+// 		// Skip any that have not been done.
+// 		if ( visited.find( id) == visited.end() )
+// 		{
+// 			OutputSectionDetails( id, settings, fh_dst );
+// 		}
+// 	}
+
+
+// 	// Create the new file
+// 	std::filesystem::remove(mFilename);
+// 	std::filesystem::rename(filename_tmp, mFilename);
+
+// 	mDirty = false;
+
+// 	}
+
+
+void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings & settings, std::ostream &out )
 {
-	
-	std::filesystem::path filename_tmp = "roms.ini.tmp";
+	// Generate the CRC-ID for this rom
+    out << "{" << std::hex << std::uppercase << id.CRC[0] << std::hex << std::uppercase << id.CRC[1] << "-"
+        << std::dec << std::setfill('0') << std::setw(2) << id.CountryID << "}\n";
+    
+    out << "Name=" << settings.GameName << "\n";
+    
+    if (!settings.Comment.empty())             out << "Comment=" << settings.Comment << "\n";
+    if (!settings.Info.empty())                out << "Info=" << settings.Info << "\n";
+    if (!settings.Preview.empty())             out << "Preview=" << settings.Preview << "\n";
+    if (!settings.PatchesEnabled)              out << "PatchesEnabled=no\n";
+    if (!settings.SpeedSyncEnabled)            out << "SpeedSyncEnabled=" << settings.SpeedSyncEnabled << "\n";
+    if (!settings.DynarecSupported)            out << "DynarecSupported=no\n";
+    if (settings.DynarecLoopOptimisation)      out << "DynarecLoopOptimisation=yes\n";
+    if (settings.DynarecDoublesOptimisation)   out << "DynarecDoublesOptimisation=yes\n";
+    if (!settings.DoubleDisplayEnabled)        out << "DoubleDisplayEnabled=no\n";
+    if (settings.CleanSceneEnabled)            out << "CleanSceneEnabled=yes\n";
+    if (settings.ClearDepthFrameBuffer)        out << "ClearDepthFrameBuffer=yes\n";
+    if (settings.AudioRateMatch)               out << "AudioRateMatch=yes\n";
+    if (settings.VideoRateMatch)               out << "VideoRateMatch=yes\n";
+    if (settings.FogEnabled)                   out << "FogEnabled=yes\n";
+    if (settings.MemoryAccessOptimisation)     out << "MemoryAccessOptimisation=yes\n";
+    if (settings.CheatsEnabled)                out << "CheatsEnabled=yes\n";
 
-	FILE * fh_src = fopen(mFilename.string().c_str(), "r");
-	if (fh_src == nullptr)
-	{
-		return;
-	}
+    if (settings.ExpansionPakUsage != PAK_STATUS_UNKNOWN) 
+        out << "ExpansionPakUsage=" << ROM_GetExpansionPakUsageName(settings.ExpansionPakUsage) << "\n";
+    if (settings.SaveType != SAVE_TYPE_UNKNOWN) 
+        out << "SaveType=" << ROM_GetSaveTypeName(settings.SaveType) << "\n";
 
-	FILE * fh_dst = fopen(filename_tmp.string().c_str(), "w");
-	if (fh_dst == nullptr)
-	{
-		fclose(fh_src);
-		return;
-	}
-
-	//
-	//	Keep track of visited sections in a set
-	//
-	std::set<RomID>		visited;
-
-	char buffer[1024+1];
-	while (fgets(buffer, 1024, fh_src))
-	{
-		if (buffer[0] == '{')
-		{
-			const char * const trim_chars = "{}\n\r"; //remove first and last character
-
-			// Start of section
-			trim( buffer, trim_chars );
-
-			RomID id( RomIDFromString( buffer ) );
-
-			// Avoid duplicated entries for this id
-			if ( visited.find( id ) != visited.end() )
-				continue;
-
-			visited.insert( id );
-
-			SettingsMap::const_iterator	it( mSettings.find( id ) );
-			if( it != mSettings.end() )
-			{
-				// Output this CRC
-				OutputSectionDetails( id, it->second, fh_dst );
-			}
-			else
-			{
-				// Do what? This should never happen, unless the user
-				// replaces the inifile while Daedalus is running!
-			}
-		}
-		else if (buffer[0] == '/')
-		{
-			// Comment
-			fputs(buffer, fh_dst);
-			continue;
-		}
-
-	}
-
-	// Input buffer done-  process any new entries!
-	for ( SettingsMap::const_iterator it = mSettings.begin(); it != mSettings.end(); ++it )
-	{
-		// Skip any that have not been done.
-		if ( visited.find( it->first ) == visited.end() )
-		{
-			OutputSectionDetails( it->first, it->second, fh_dst );
-		}
-	}
-
-	fclose( fh_dst );
-	fclose( fh_src );
-
-	// Create the new file
-	std::filesystem::remove(mFilename);
-	std::filesystem::rename(filename_tmp, mFilename);
-
-	mDirty = false;
-}
-
-void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings & settings, FILE * fh )
-{
-	// Generate the CRC-ID for this rom:
-	fprintf(fh, "{%08x%08x-%02x}\n", id.CRC[0], id.CRC[1], id.CountryID );
-
-	fprintf(fh, "Name=%s\n", settings.GameName.c_str());
-
-	if( !settings.Comment.empty() )				fprintf(fh, "Comment=%s\n", settings.Comment.c_str());
-	if( !settings.Info.empty() )				fprintf(fh, "Info=%s\n", settings.Info.c_str());
-	if( !settings.Preview.empty() )				fprintf(fh, "Preview=%s\n", settings.Preview.c_str());
-	if( !settings.PatchesEnabled )				fprintf(fh, "PatchesEnabled=no\n");
-	if( !settings.SpeedSyncEnabled )			fprintf(fh, "SpeedSyncEnabled=%d\n", settings.SpeedSyncEnabled);
-	if( !settings.DynarecSupported )			fprintf(fh, "DynarecSupported=no\n");
-	if( !settings.DynarecLoopOptimisation )		fprintf(fh, "DynarecLoopOptimisation=yes\n");
-	if( !settings.DynarecDoublesOptimisation )	fprintf(fh, "DynarecDoublesOptimisation=yes\n");
-	if( !settings.DoubleDisplayEnabled )		fprintf(fh, "DoubleDisplayEnabled=no\n");
-	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");
-	if( settings.ClearDepthFrameBuffer )		fprintf(fh, "ClearDepthFrameBuffer=yes\n");
-	if( settings.AudioRateMatch )				fprintf(fh, "AudioRateMatch=yes\n");
-	if( settings.VideoRateMatch )				fprintf(fh, "VideoRateMatch=yes\n");
-	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n");
-	if( settings.MemoryAccessOptimisation )		fprintf(fh, "MemoryAccessOptimisation=yes\n");
-	if( settings.CheatsEnabled )				fprintf(fh, "CheatsEnabled=yes\n");
-
-	if ( settings.ExpansionPakUsage != PAK_STATUS_UNKNOWN )	fprintf(fh, "ExpansionPakUsage=%s\n", ROM_GetExpansionPakUsageName( settings.ExpansionPakUsage ) );
-	if ( settings.SaveType != SAVE_TYPE_UNKNOWN )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
-
-	fprintf(fh, "\n");			// Spacer
+    out << "\n";  // Spacer
 }
 
 

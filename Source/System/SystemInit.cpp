@@ -150,7 +150,7 @@ static const std::array<SysEntityEntry, 17> gSysInitTable =
 	{"DebugConsole",		CDebugConsole::Create,		CDebugConsole::Destroy},
 #endif
 #ifdef DAEDALUS_LOG
-	{"Logger",				Debug_InitLogging,			Debug_FinishLogging},
+	{"Logger",				Debug_InitLogging},
 #endif
 #ifdef DAEDALUS_ENABLE_PROFILING
 	{"Profiler",			Profiler_Init,				Profiler_Fini},

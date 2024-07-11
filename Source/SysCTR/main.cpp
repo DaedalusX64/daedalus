@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <iostream> 
+#include <fstream> 
 
 #include <3ds.h>
 #include <GL/picaGL.h>
@@ -51,30 +52,31 @@ void log2file(const char *format, ...) {
 	done = vsprintf(msg, format, arg);
 	va_end(arg);
 	snprintf(msg, sizeof(msg),  "%s\n", msg);
-	FILE *log = fopen("sdmc:/DaedalusX64.log", "a+");
-	if (log != NULL) {
-		fwrite(msg, 1, strlen(msg), log);
-		fclose(log);
+	std::ofstream log("sdmc:/DaedalusX64.log", std::ios::out);
+	if (log.is_open) {
+		log.write(reinterpret_cast<char*>(msg), strlen(msg));
+		log.close();
 	}
 }
 #endif
 
 static void CheckDSPFirmware()
-{
-	FILE *firmware = fopen("sdmc:/3ds/dspfirm.cdc", "rb");
+{	
+	std::filesystem::path firmwarePath = "sdmc:/3ds/dspfirm.cdc";
+	std::ifstream firmware(firmwarePath, std::ios::binary |  std::ios::in);
 
-	if(firmware != NULL)
+	if(firmware.is_open())
 	{
-		fclose(firmware);
+		firmware.close();
 		return;
 	}
-
+	else
+	{
 	gfxInitDefault();
 	consoleInit(GFX_BOTTOM, NULL);
 
-	printf("DSP Firmware not found!\n\n");
-	printf("Press START to exit\n");
-
+	std::cout << "DSP Firmware not found " << std::endl;
+	std::cout << "Press START to exit" << std::endl;
 	while(aptMainLoop())
 	{
 		hidScanInput();
@@ -82,7 +84,9 @@ static void CheckDSPFirmware()
 		if(hidKeysDown() == KEY_START)
 			exit(1);
 	}
-}
+	}
+
+}	
 
 static void Initialize()
 {

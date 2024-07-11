@@ -17,6 +17,7 @@
 #include <stdarg.h>
 #include <string>
 #include <vector>
+#include <fstream>
 #include <filesystem>
 
 #include "Debug/DBGConsole.h"
@@ -223,8 +224,8 @@ static const char * GetContentTypeForFilename(const char * filename)
 
 static void ServeFile(WebDebugConnection * connection, const char * filename)
 {
-	FILE * fh = fopen(filename, "rb");
-	if (!fh)
+	std::fstream fh(filename, std::ios::in | std::ios::binary);
+	if (!fh.is_open())
 	{
 		Generate404(connection, filename);
 		return;
@@ -236,15 +237,15 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 	size_t len_read;
 	char buf[kBufSize];
 	do
-	{
-		len_read = fread(buf, 1, kBufSize, fh);
+		len_read = fh.read(reinterpret_cast<char*>(buf), kBufSize).gcount();	
+		// len_read = fread(buf, 1, kBufSize, fh);
 		if (len_read > 0)
 			connection->Write(buf, len_read);
 	}
 	while (len_read == kBufSize);
 
 	connection->EndResponse();
-	fclose(fh);
+	// fclose(fh);
 }
 
 bool ServeResource(WebDebugConnection * connection, const char * resource_path)

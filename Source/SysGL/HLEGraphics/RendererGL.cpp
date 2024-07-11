@@ -86,6 +86,8 @@ bool loadShader(const std::filesystem::path& shader_path)
 {
 	std::ifstream shader_file(shader_path);
 
+	if (shader_file.is_open())
+	{
 	if (!shader_file)
 	{
 		std::cerr << "ERROR: Could not load shader source" << shader_path << std::endl;
@@ -107,14 +109,19 @@ bool loadShader(const std::filesystem::path& shader_path)
 	gN64FragmentLibrary  = shader_code;
 
 	return true;
+	}
 }
 
 bool initgl()
 {
+	std::filesystem::path p = baseDir;
 	std::filesystem::path shader_path = "n64.psh";
-	loadShader(shader_path);
+	p /= shader_path;
+
 	
-	std::cout << "Loading Shader File: " << shader_path << std::endl;
+	loadShader(p);
+	
+	std::cout << "Loading Shader File: " << p << std::endl;
 	// Only do software emulation of mirror_s/mirror_t if we're not doing accurate UV handling
 	gRDPStateManager.SetEmulateMirror(!gAccurateUVPipe);
 

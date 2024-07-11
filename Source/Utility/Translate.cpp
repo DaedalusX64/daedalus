@@ -20,11 +20,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
-#include <stdio.h>
 
 #include <vector>
 #include <iostream>
 #include <string>
+#include <format>
+#include <fstream> 
+#include <sstream>
 
 #include "System/IO.h"
 #include "Utility/StringUtil.h"
@@ -53,12 +55,10 @@ std::vector<std::string> gLanguage;
 //*****************************************************************************
 //
 //*****************************************************************************
-u32 HashString(const char* s)
-{
+u32 HashString(const std::string& s) {
     u32 hash = 0;
-    while (*s)
-    {
-        hash = hash * 101  +  *s++;
+    for (char c : s) {
+        hash = hash * 101 + c;
     }
     return hash;
 }
@@ -199,39 +199,35 @@ const char * Translate_NameFromIndex( u32 idx )
 // Restores escape characters which were removed when parsing
 // Which are needed by line-breaking and back-slash
 //*****************************************************************************
-const char * Restore(char *s, u32 len)
-{
-	for (u32 i = 0; i < len; i++)
-	{
-		if (s[i] == '\\')
-		{
-			if( s[i+1] == 'n' )
-			{
-				s[i+1] = '\b';	s[i] = '\n';
-				i++;
-			}
-			else if( s[i+1] == '\\' )
-			{
-				s[i+1] = '\b';	s[i] = '\\';
-				i++;
-			}
-		}
-	}
-	return s;
+std::string Restore(std::string s, size_t len) {
+    for (size_t i = 0; i < len; i++) {
+        if (s[i] == '\\') {
+            if (s[i + 1] == 'n') {
+                s[i + 1] = '\b'; 
+                s[i] = '\n';
+                i++;
+            } else if (s[i + 1] == '\\') {
+                s[i + 1] = '\b'; 
+                s[i] = '\\';
+                i++;
+            }
+        }
+    }
+    return s;
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void Translate_Dump(const char *string, bool dump)
+void Translate_Dump(const std::string string, bool dump)
 {
 	if(dump)
 	{
-		FILE * fh = fopen( "hash.txt", "a" );
-		if(fh)
+	std::fstream fh("hash.txt", std::ios::in);
+
+	if (fh.is_open())
 		{
-			fprintf( fh,  "%08x,%s\n", HashString(string), string );
-			fclose(fh);
+			fh << std::format("{:08x},{}\n", HashString(string), string);
 		}
 	}
 }
@@ -247,10 +243,9 @@ bool Translate_Read(u32 idx, const std::filesystem::path& dir)
 	if( idx > gLanguage.size() )
 		return false;
 
-	char line[1024];
+	std::string line;
 
 	char *string;
-	FILE *stream;
 
 	u32 count = 0;
 	u32 hash  = 0;
@@ -258,45 +253,52 @@ bool Translate_Read(u32 idx, const std::filesystem::path& dir)
 
 	// Build path where we'll load the translation file(s)
 	
+	std::filesystem::path path = baseDir / dir;
 	std::filesystem::path language = gLanguage[ idx ].c_str();
+	std::filesystem::path ext  = ".lng";
+	path /= language;
+	path += ext;
 	
-	std::filesystem::path path = dir / language;
 
+	std::cout << "Language Path: " << path << std::endl;
+	std::fstream stream(path, std::ios::in);
 
-	stream = fopen(path.string().c_str(),"r");
-
-	if( stream == NULL )
+	if (!stream.is_open())
 	{
 		return false;
 	}
 
-	while( fgets(line, 1023, stream) )
-	{
-		// Strip spaces from end of lines
-		Tidy(line);
 
-		// Handle comments
-		if (line[0] == '/')
-			continue;
+  while (std::getline(stream, line)) {
+        // Strip spaces from end of lines
+        line.erase(line.find_last_not_of(" \t\n\r\f\v") + 1);
 
-		string = strchr(line,',');
-		if( string != NULL )
-		{
-			string++;
-			len = strlen( string );
-			sscanf( line,"%08x", &hash );
-			if( count < std::size(text) )
-			{
-				// Write translated string and hash to array
-				text[count].hash = hash;
-				Translate_Dump( string, hash == TRANSLATE_DUMP_VALUE );
+        // Handle comments
+        if (line.empty() || line[0] == '/')
+            continue;
 
-				text[count].translated = (char*)malloc_volatile(len+1); // Leave space for terminator
-				strcpy( text[count].translated, Restore( string, len ) );
-				count++;
-			}
-		}
-	}
-	fclose(stream);
+        size_t commaPos = line.find(',');
+        if (commaPos != std::string::npos) {
+            std::string hashString = line.substr(0, commaPos);
+            std::string string = line.substr(commaPos + 1);
+
+            unsigned int hash;
+            std::stringstream ss;
+            ss << std::hex << hashString;
+            ss >> hash;
+			constexpr size_t TEXT_ARRAY_SIZE = 1024; 
+            size_t len = string.length();
+            if (count < TEXT_ARRAY_SIZE) {
+                // Write translated string and hash to array
+                text[count].hash = hash;
+                Translate_Dump(string, hash == TRANSLATE_DUMP_VALUE);
+
+                text[count].translated = (char*)malloc(len + 1); // Leave space for terminator
+                strcpy(text[count].translated, Restore(string, len).c_str());
+                count++;
+            }
+        }
+    }
+
 	return true;
 }

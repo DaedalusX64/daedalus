@@ -21,12 +21,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
-#include <stdio.h>
 
-#include <string>
+#include <cstring>
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+
 
 #include "Utility/IniFile.h"
 #include "Utility/StringUtil.h"
@@ -318,46 +320,49 @@ bool IIniFile::Open( const std::filesystem::path &filename )
 	const u32	BUFFER_LEN = 1024;
 	char		readinfo[BUFFER_LEN+1];
 	const char	trim_chars[]="{}[]"; //remove first and last character
+	std::ifstream inifile(filename);
 
-	FILE * fh( fopen( filename.string().c_str(), "r" ) );
-	if (fh == NULL)
-	{
+	if (!inifile)
+	{	
+		std::cerr << "INI File: " << filename << " not found" << std::endl;
 		return false;
 	}
+	std::cout << "Loading INI File: " << filename << std::endl;
 
 	//
 	//	By default start with the default section
 	//
 	mpDefaultSection = new IIniFileSection( "" );
-	IIniFileSection * p_current_section( mpDefaultSection );
+	IIniFileSection * p_current_section = mpDefaultSection;
 	readinfo[BUFFER_LEN] = '\0';
 
-	// XXXX Using fgets needs reworking...
-	while (fgets( readinfo, BUFFER_LEN, fh ) != NULL)
+	std::string line;
+	while (std::getline(inifile, line))
 	{
-		Tidy(readinfo);			// Strip spaces from end of lines
+		std::strncpy(readinfo, line.c_str(), BUFFER_LEN);
+		readinfo[BUFFER_LEN] = '\0';
 
-		// Handle comments
+		Tidy(readinfo); // Strip Spaces from end of line
+
+		// Handle Comments
 		if (readinfo[0] == '/')
 			continue;
-
-		// Check that the line isn't empty
-		if (*readinfo != 0)
+	
+		// Check that line isn't empty
+		if (*readinfo != 0 )
 		{
-			// Check for a section heading
 			if (readinfo[0] == '{' || readinfo[0] == '[')
 			{
-				trim(readinfo,trim_chars);
+				trim(readinfo, trim_chars);
 
-				p_current_section = new IIniFileSection( readinfo );
-
-				mSections.push_back( p_current_section );
+				p_current_section = new IIniFileSection(readinfo);
+				mSections.push_back(p_current_section);
 			}
 			else
 			{
-				char *key, *value;
-
-				char *	equals_idx = strchr(readinfo, '=');
+				char* key;
+				char* value;
+				char* equals_idx = std::strchr(readinfo, '=');
 				if( equals_idx != NULL)
 				{
 					*equals_idx = '\0';
@@ -369,7 +374,6 @@ bool IIniFile::Open( const std::filesystem::path &filename )
 					key = &readinfo[0];
 					value = NULL;
 				}
-
 				Tidy( key );
 				Tidy( value );
 				#ifdef DAEDALUS_ENABLE_ASSERTS
@@ -381,7 +385,6 @@ bool IIniFile::Open( const std::filesystem::path &filename )
 			}
 		}
 	}
-	fclose(fh);
 	return true;
 }
 

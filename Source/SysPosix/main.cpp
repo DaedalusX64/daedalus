@@ -190,7 +190,7 @@ int main(int argc, char **argv)
 		DisplayRomsAndChoose(show_splash);
 		show_splash = false;
 
-		CRomDB::Get()->Commit();
+		// CRomDB::Get()->Commit();
 		CPreferences::Get()->Commit();
 
 		CPU_Run();
