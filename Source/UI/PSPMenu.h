@@ -9,14 +9,17 @@
 
 // 720p is 1.5x multipler
 // 1440 is 5.3x multilier
-#ifdef DAEDALUS_POSIX
-const s16 SCREEN_WIDTH {1920}; // 4 x PSP Resolution
-const s16 SCREEN_HEIGHT {1080}; // 7 x PSP Resolution
-constexpr s16 multipler = 4;
-#elif defined(PSP)
+#ifdef DAEDALUS_PSP
+
 const s16 SCREEN_WIDTH {480};
 const s16 SCREEN_HEIGHT {272};
 constexpr s16 multipler = 1;
+
+#else
+const s16 SCREEN_WIDTH {1920}; // 4 x PSP Resolution
+const s16 SCREEN_HEIGHT {1080}; // 7 x PSP Resolution
+constexpr s16 multipler = 4;
+
 #endif
 // to do adjust values to suit multiple screens
 const s16 MENU_TOP {10 * multipler};
