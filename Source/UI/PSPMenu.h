@@ -6,36 +6,57 @@
 #include <filesystem>
 
 // User Interface Variables
+
+// 720p is 1.5x multipler
+// 1440 is 5.3x multilier
+#ifdef DAEDALUS_POSIX
+const s16 SCREEN_WIDTH {1920}; // 4 x PSP Resolution
+const s16 SCREEN_HEIGHT {1080}; // 7 x PSP Resolution
+constexpr s16 multipler = 4;
+#elif defined(PSP)
 const s16 SCREEN_WIDTH {480};
 const s16 SCREEN_HEIGHT {272};
-
+constexpr s16 multipler = 1;
+#endif
 // to do adjust values to suit multiple screens
-const s16 MENU_TOP {5};
-const s16 TITLE_HEADER {10};
+const s16 MENU_TOP {10 * multipler};
+const s16 TITLE_HEADER {20 * multipler};
 
+const s16 LIST_TEXT_LEFT {13 * multipler};
+const s16 LIST_TEXT_WIDTH {(SCREEN_WIDTH - LIST_TEXT_LEFT) * multipler};
+#ifdef DAEDALUS_PSP
 const s16 BELOW_MENU_MIN {33}; // Rename this as it's confusing
+const s16 LIST_TEXT_HEIGHT {216 * multipler}; // This affects Category and Romlist height.. Probably need to separate
+const s16 LIST_TEXT_TOP = 30;
+#else
+const s16 BELOW_MENU_MIN {50}; // Rename this as it's confusing
+const s16 LIST_TEXT_HEIGHT {210 * multipler}; // This affects Category and Romlist height.. Probably need to separate
+const s16 LIST_TEXT_TOP = {80};
+#endif
 
-const s16 LIST_TEXT_LEFT {13};
-const s16 LIST_TEXT_WIDTH {SCREEN_WIDTH - LIST_TEXT_LEFT};
-const s16 LIST_TEXT_HEIGHT {216};
-
-const s16 PREVIEW_IMAGE_LEFT {309};
-const s16 PREVIEW_IMAGE_BOTTOM {140};
-const s16 PREVIEW_IMAGE_RIGHT {464};
+const s16 PREVIEW_IMAGE_LEFT {309 * multipler};
+const s16 PREVIEW_IMAGE_BOTTOM {140 * multipler};
+const s16 PREVIEW_IMAGE_RIGHT {464 * multipler};
 const s16 PREVIEW_IMAGE_WIDTH {PREVIEW_IMAGE_RIGHT - PREVIEW_IMAGE_LEFT};
 const s16 PREVIEW_IMAGE_HEIGHT {PREVIEW_IMAGE_BOTTOM - BELOW_MENU_MIN};
 
 const s16 DESCRIPTION_AREA_TOP {0};
-const s16 DESCRIPTION_AREA_LEFT {16};
+const s16 DESCRIPTION_AREA_LEFT {16 * multipler};
 const s16 DESCRIPTION_AREA_RIGHT {SCREEN_WIDTH - 16};
 const s16 DESCRIPTION_AREA_BOTTOM {SCREEN_HEIGHT - 10};
 
-const s16 ROM_INFO_TEXT_X {318};
-const s16 ROM_INFO_TEXT_Y {154};
-const s16 BATTERY_INFO {200};
+const s16 ROM_INFO_TEXT_X {318 * multipler};
+const s16 ROM_INFO_TEXT_Y {154 * multipler};
 
-const s16 CATEGORY_TEXT_TOP {BELOW_MENU_MIN + LIST_TEXT_HEIGHT + 5};
-const s16 CATEGORY_TEXT_LEFT {LIST_TEXT_LEFT};
+const s16 BATTERY_INFO {200 * multipler};
+
+#ifdef DAEDALUS_PSP
+const s16 CATEGORY_TEXT_TOP {BELOW_MENU_MIN + LIST_TEXT_HEIGHT + 5 * multipler};
+#else
+const s16 CATEGORY_TEXT_TOP {BELOW_MENU_MIN + LIST_TEXT_HEIGHT + 10 * multipler};
+#endif 
+
+const s16 CATEGORY_TEXT_LEFT {1 * multipler};
 
 const char		gCategoryLetters[] = "#abcdefghijklmnopqrstuvwxyz?";
 
@@ -109,11 +130,11 @@ const char * const	INSTRUCTIONS_TEXT = "Adjust the minimum and maximum deadzone 
 const char * const		TITLE_TEXT = "Adjust Stick Deadzone"; // Make more sane
 
 
-const u32				TITLE_Y = 10;
+const u32				TITLE_Y = 10 * multipler;
 
 const u32				HALF_WIDTH( SCREEN_WIDTH / 2 );
 const u32				CENTRE_X( SCREEN_WIDTH / 2 );
-const u32				DISPLAY_WIDTH( 128 );
+const u32				DISPLAY_WIDTH( 128 * multipler);
 const u32				DISPLAY_RADIUS( DISPLAY_WIDTH / 2 );
 
 const u32				PSP_CIRCLE_X = DISPLAY_RADIUS + ((HALF_WIDTH - DISPLAY_WIDTH) / 2);

@@ -21,9 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <format> 
 
 #include "Base/Types.h"
-
+#include "UI/PSPMenu.h"
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
 #include "Graphics/ColourValue.h"
@@ -347,7 +348,7 @@ void IRomSelectorComponent::RenderPreview()
 	c32	clrORANGE = c32( 255, 128, 0, 0 );
 	c32	clrYELLOW = c32( 255, 255, 0, 0 );
 
-
+	// Preview Image
 	v2	tl( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN );
 	v2	wh( PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT );
 
@@ -359,7 +360,7 @@ void IRomSelectorComponent::RenderPreview()
 		{
 			colour = c32( 255, 255, 255, u8( mPreviewLoadedTime * 255.f / PREVIEW_FADE_TIME ) );
 		}
-
+		
 		mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::Black );
 		mpContext->RenderTexture( mpPreviewTexture, tl, wh, colour );
 	}
@@ -370,26 +371,25 @@ void IRomSelectorComponent::RenderPreview()
 		mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_CENTRE, BELOW_MENU_MIN+PREVIEW_IMAGE_HEIGHT/2, "No Preview Available", c32::White );
 	}
 
-
+		// Description Area
 	u32		font_height( mpContext->GetFontHeight() );
 	u32		line_height( font_height + 1 );
 
-	s32 y = BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 1 + font_height;
 
+	s32 y = BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 1 + font_height;
+	
 	if( mCurrentSelection < mRomsList.size() )
 	{
 		SRomInfo *	p_rominfo( mRomsList[ mCurrentSelection ] );
 
 		const char *	cic_name( ROM_GetCicName( p_rominfo->mCicType ) );
 		const char *	country( ROM_GetCountryNameFromID( p_rominfo->mRomID.CountryID ) );
-		u32				rom_size( p_rominfo->mRomSize );
 
-		char buffer[ 32 ];
-		snprintf( buffer, sizeof(buffer), "%d MB", rom_size / (1024*1024) );
+		std::string rom_size = std::format("{} MB", p_rominfo->mRomSize  / (1024 * 1024));
 
 		DrawInfoText( mpContext, y, "Boot:", cic_name );	y += line_height;
 		DrawInfoText( mpContext, y, "Country:", country );	y += line_height;
-		DrawInfoText( mpContext, y, "Size:", buffer );	y += line_height;
+		DrawInfoText( mpContext, y, "Size:", rom_size.c_str());	y += line_height;
 
 		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) ); y += line_height;
 		DrawInfoText( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) ); y += line_height;
@@ -412,7 +412,7 @@ void IRomSelectorComponent::RenderRomList()
 
 	s32		x,y;
 	x = LIST_TEXT_LEFT;
-	y = BELOW_MENU_MIN + mCurrentScrollOffset + font_height;
+	y = LIST_TEXT_TOP + mCurrentScrollOffset + font_height;
 
 #ifdef DAEDALUS_PSP
 	sceGuEnable(GU_SCISSOR_TEST);
@@ -534,11 +534,11 @@ void IRomSelectorComponent::Render()
 
 	if(mRomDelete)
 	{
-		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_TEXT_TOP + mpContext->GetFontHeight(),"(X) -> Confirm", color);
+		mpContext->DrawTextAlign(0,SCREEN_WIDTH,AT_RIGHT,CATEGORY_TEXT_TOP + mpContext->GetFontHeight(),"(X) -> Confirm", color);
 	}
 	else
 	{
-		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_TEXT_TOP + mpContext->GetFontHeight(),	message[(count >> 8) % std::size( message )], color);
+		mpContext->DrawTextAlign(0,SCREEN_WIDTH,AT_RIGHT,CATEGORY_TEXT_TOP + mpContext->GetFontHeight(),	message[(count >> 8) % std::size( message )], color);
 	}
 
 	count++;

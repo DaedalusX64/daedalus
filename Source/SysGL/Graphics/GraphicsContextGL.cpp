@@ -11,8 +11,7 @@
 #include "Graphics/ColourValue.h"
 #include "UI/DrawText.h"
 
-static u32 SCR_WIDTH = 640;
-static u32 SCR_HEIGHT = 480;
+#include "UI/PSPMenu.h"
 
 SDL_Window * gWindow = nullptr;
 SDL_Renderer * gSdlRenderer = nullptr;
@@ -100,7 +99,7 @@ bool GraphicsContextGL::Initialise()
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	//Create window
-	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
 
 	//Create context
 	gContext = SDL_GL_CreateContext( gWindow );
