@@ -192,23 +192,23 @@ void ISavestateSelectorComponent::LoadSlots() {
         if (mPVExists[i] == 1) {
 
 // Get the last write time of the file
-auto last_write_time = std::filesystem::last_write_time(filename_ss);
+// auto last_write_time = std::filesystem::last_write_time(filename_ss);
 
-// Convert last_write_time to system_clock's time_point
-auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-    last_write_time - decltype(last_write_time)::clock::now() + std::chrono::system_clock::now()
-);
+// // Convert last_write_time to system_clock's time_point
+// auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+//     last_write_time - decltype(last_write_time)::clock::now() + std::chrono::system_clock::now()
+// // );
 
-// Convert the time_point to a time_t to use with std::localtime
-std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
+// // Convert the time_point to a time_t to use with std::localtime
+// std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
 
-// Convert the time_t to a local time and format it
-std::tm* timeinfo = std::localtime(&tt);
+// // Convert the time_t to a local time and format it
+// std::tm* timeinfo = std::localtime(&tt);
 
-// Format the date string
-std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
+// // Format the date string
+// std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
 
-            str << date_string;
+//             str << date_string;
             mSlotEmpty[i] = false;
         } else {
             str << Translate_String("Empty");
