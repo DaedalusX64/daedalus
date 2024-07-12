@@ -52,7 +52,7 @@ namespace
 	bool			sRomFixed	= false;
 	bool			sRomWritten	= false;
 	u32				sRomValue	= 0;
-	std::unique_ptr<ROMFileCache> spRomFileCache	= nullptr;
+	std::shared_ptr<ROMFileCache> spRomFileCache	= nullptr;
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 	static bool		DECOMPRESS_ROMS	= true;
@@ -335,7 +335,7 @@ u32		RomBuffer::GetRomSize() { return sRomSize; }
 
 namespace
 {
-	void	CopyBytesRaw( std::unique_ptr<ROMFileCache> p_cache, u8 * p_dst, u32 rom_offset, u32 length )
+	void	CopyBytesRaw( std::shared_ptr<ROMFileCache> p_cache, u8 * p_dst, u32 rom_offset, u32 length )
 	{
 		// Read the cached bytes into our scratch buffer, and return that
 		u32		dst_offset( 0 );
@@ -383,7 +383,7 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 	{
 		DAEDALUS_ASSERT( spRomFileCache != nullptr, "How come we have no file cache?" );
 
-		CopyBytesRaw( std::move(spRomFileCache), reinterpret_cast< u8 * >( p_dst ), rom_start, length );
+		CopyBytesRaw( spRomFileCache, reinterpret_cast< u8 * >( p_dst ), rom_start, length );
 	}
 }
 
@@ -421,7 +421,7 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 		{
 			// Read the cached bytes into our scratch buffer, and return that
 			DAEDALUS_ASSERT( spRomFileCache != nullptr, "How come we have no file cache?" );
-			CopyBytesRaw( std::move(spRomFileCache), sScratchBuffer, rom_start, SCRATCH_BUFFER_LENGTH );
+			CopyBytesRaw( spRomFileCache, sScratchBuffer, rom_start, SCRATCH_BUFFER_LENGTH );
 
 			return sScratchBuffer;
 		}
