@@ -40,8 +40,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace
 {
-const u32				BACKGROUND_WIDTH = 480;
-const u32				BACKGROUND_HEIGHT = 272;
+const u32				BACKGROUND_WIDTH = SCREEN_WIDTH;
+const u32				BACKGROUND_HEIGHT = SCREEN_HEIGHT;
 
 const u32		MS_PER_COLOUR_CYCLE = 1200;
 
@@ -340,7 +340,7 @@ s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width [[maybe_unused]], u3
 	u32					length = strlen( text );
 	std::vector<u32>	lengths;
 	bool				match = false;
-	//DrawTextUtilities::WrapText( mCurrentFont, width, Translate_Strings( text, length ), length, lengths, match );
+	// DrawTextUtilities::WrapText( mCurrentFont, width, Translate_Strings( text, length ), length, lengths, match );
 
 	s32 x( left );
 	s32 y( VerticalAlign( vertical_align, top, height, lengths.size() * font_height ) );

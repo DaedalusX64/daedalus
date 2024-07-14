@@ -208,7 +208,7 @@ void ISavestateSelectorComponent::LoadSlots() {
 // // Format the date string
 // std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
 
-//             str << date_string;
+            str << date_string;
             mSlotEmpty[i] = false;
         } else {
             str << Translate_String("Empty");
@@ -349,6 +349,7 @@ void	ISavestateSelectorComponent::Render()
 
 			if( mPVExists[ mElements.GetSelectedIndex() ] == 1 )
 			{
+				// Render Preview Image
 				v2	tl( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2 );
 				v2	wh( PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4 );
 
@@ -367,8 +368,9 @@ void	ISavestateSelectorComponent::Render()
 				mpContext->DrawRect( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2, PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4, c32::Black );
 				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_CENTRE, BELOW_MENU_MIN+PREVIEW_IMAGE_HEIGHT/2, "No Preview Available", c32::White );
 			}
-
+			// Render Text 
 			const char *p_description( element->GetDescription() );
+
 			mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 									 DESCRIPTION_AREA_TOP,
 									 DESCRIPTION_AREA_RIGHT - DESCRIPTION_AREA_LEFT,
@@ -382,12 +384,12 @@ void	ISavestateSelectorComponent::Render()
 	{
 		const char * title_text( mAccessType == AT_SAVING ? SAVING_STATUS_TEXT : LOADING_STATUS_TEXT );
 
-		s32 y( ( mpContext->GetScreenHeight() - font_height ) / 2 + font_height );
+		s32 y = mpContext->GetScreenHeight() - (font_height / 2);
 		mpContext->DrawTextAlign( 0, mpContext->GetScreenWidth(), AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() );
 	}
 
 	if(deleteButtonTriggered)
-	  mpContext->DrawTextAlign(0,480,AT_CENTRE,135,"Press Triangle to delete this savestate",DrawTextUtilities::TextRed,DrawTextUtilities::TextWhite);
+	  mpContext->DrawTextAlign(0,SCREEN_HEIGHT,AT_CENTRE,135,"Press Delete Button to delete this savestate",DrawTextUtilities::TextRed,DrawTextUtilities::TextWhite);
 }
 
 

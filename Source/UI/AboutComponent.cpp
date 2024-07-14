@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "UIContext.h"
 #include "UIScreen.h"
-
+#include <iostream>
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
 #include "Utility/MathUtil.h"
@@ -77,40 +77,42 @@ void	IAboutComponent::Update( float elapsed_time [[maybe_unused]], const v2 & st
 
 
 void	IAboutComponent::Render()
-{
+{	
+	// // Render Logo	
+	// if(mpTexture != NULL)
+	// {	
+	// 	s16	width =  mpTexture->GetWidth();
+	// 	s16	height =  mpTexture->GetHeight();
 
-		s16 text_top( 38 );
+	// 	f32	desired_height = LIST_TEXT_TOP;
+	// 	f32	scale  = desired_height / static_cast<f32>(height);
+	// 	v2	wh( static_cast<f32>(width) * scale, static_cast<f32>(height) * scale );
+	// 	v2	tl( static_cast<f32>( (SCREEN_WIDTH - wh.x)/2 ), (SCREEN_HEIGHT / 2));
 
-	if(mpTexture != NULL)
-	{
-		s16		w( mpTexture->GetWidth() );
-		s16		h( mpTexture->GetHeight() );
-
-		f32		desired_height = 60.0f;
-		f32		scale( desired_height / f32( h ) );
-
-		v2		wh( f32( w ) * scale, f32( h ) * scale );
-		v2		tl( f32( (SCREEN_WIDTH - wh.x)/2 ), f32( text_top ) );
-
-		mpContext->RenderTexture( mpTexture, tl, wh, c32::White );
-
-		text_top += u32( wh.y + 10.0f );
-	}
-
-	s16			y;
-	const s16	line_height( mpContext->GetFontHeight() + 2 );
-
-	y = text_top;
-
-	std::string	version = DAEDALUS_VERSION_TEXT + DAEDALUS_CONFIG_VERSION;
+	// 	mpContext->RenderTexture( mpTexture, tl, wh, c32::White );
 
 
-std::string	date = DATE_TEXT + __DATE__;
+	// }
+	s16 text_top = SCREEN_HEIGHT / 4;
+
+	const s16	line_height =  mpContext->GetFontHeight() + 2;
+	// Render the text in the middle of the screen
+	s16 y = text_top + 20;
+
+	std::string	version = DAEDALUS_VERSION_TEXT;
+
+
+	std::string	date = DATE_TEXT + __DATE__;
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, version.data(), DrawTextUtilities::TextWhite ); y += line_height;
+
+	// Spacer
+	y += line_height;
+
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, date.data(), DrawTextUtilities::TextWhite ); y += line_height;
 
 	// Spacer
 	y += line_height;
+
 
 	for( size_t i = 0; i < std::size( INFO_TEXT ); ++i )
 	{
