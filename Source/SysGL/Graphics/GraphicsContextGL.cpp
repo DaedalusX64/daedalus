@@ -80,7 +80,9 @@ bool GraphicsContextGL::Initialise()
 		return false;
 	}
 
+
     // Decide GL+GLSL versions
+
 #if defined(__APPLE__)
     // GL 3.2 Core + GLSL 150
     const char* glsl_version = "#version 150";
@@ -95,8 +97,10 @@ bool GraphicsContextGL::Initialise()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 #endif
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
 
 	//Create window
 	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
@@ -208,10 +212,12 @@ void GraphicsContextGL::EndFrame()
 void GraphicsContextGL::UpdateFrame( bool wait_for_vbl [[maybe_unused]] )
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	if (gSdlRenderer == nullptr) {
 		SDL_GL_SwapWindow(gWindow);
 	}
 
+	
 //	if( gCleanSceneEnabled ) //TODO: This should be optional
 //	{
 	//	ClearColBuffer( c32(0xff000000) ); // ToDo : Use gFillColor instead?
