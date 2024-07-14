@@ -282,7 +282,7 @@ namespace
 		virtual const char *	GetSettingName() const
 		{
 			if ( gGlobalPreferences.DisplayFramerate )
-				return "None";
+				return "FS + VB + SYNC";
 			else
 				return "None";
 		}
@@ -342,7 +342,7 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.RumblePak,"Controller add-on", "Enable either MemPak or RumblePak.", "RumblePak", "MemPak" ) );
 	mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
 
-#if DEADALUS_PSP
+#if DAEDALUS_PSP
 	if (PSP_IS_SLIM) 
 		mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, "ROM Buffering Mode", "File Cache, faster ROM boot but can stutter due to MS reads. ROM Buffer, no stutter but long boot time loading whole ROM into memory. Takes effect only @ ROM boot.", "File Cache", "ROM Buffer" ) );
 #endif
@@ -362,7 +362,7 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 IGlobalSettingsComponent::~IGlobalSettingsComponent() {}
 
 
-void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	IGlobalSettingsComponent::Update( float elapsed_time [[maybe_unused]], const v2 & stick [[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{
@@ -382,7 +382,7 @@ void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32
 			if( new_buttons & PSP_CTRL_LEFT )
 			{
 				element->OnPrevious();
-			}
+			} 
 			if( new_buttons & PSP_CTRL_RIGHT )
 			{
 				element->OnNext();

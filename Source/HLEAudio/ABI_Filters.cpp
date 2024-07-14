@@ -4,7 +4,7 @@
 #include <string.h>
 #include <algorithm>
 
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/HLEAudioInternal.h"
@@ -148,7 +148,7 @@ void FILTER2(AudioHLECommand command) {
   memmove(gAudioHLEState.Buffer + (command.cmd0 & 0xffff), outbuff, cnt);
 }
 
-void POLEF(AudioHLECommand command)
+void POLEF(AudioHLECommand command [[maybe_unused]])
 
 {
 #ifdef DEBUG_AUDIO

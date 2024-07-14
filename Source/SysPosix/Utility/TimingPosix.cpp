@@ -21,33 +21,32 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include "System/Timing.h"
 
-#include <stdio.h>
-#include <sys/time.h>
+
+#include <chrono>
 
 namespace NTiming {
-bool GetPreciseFrequency( u64 * p_freq )
+using u64 = uint64_t;
+
+// Get the frequency in microseconds per second (which is 1,000,000)
+bool GetPreciseFrequency(u64* p_freq)
 {
-	*p_freq = 1 * 1000 * 1000;  // Microseconds
-	return true;
+    *p_freq = std::chrono::microseconds::period::den;  // 1,000,000 microseconds in a second
+    return true;
 }
 
-bool GetPreciseTime( u64 * p_time )
+// Get the precise current time in microseconds since epoch
+bool GetPreciseTime(u64* p_time)
 {
-	timeval		tv;
-	if(::gettimeofday( &tv, NULL ) == 0)
-	{
-		*p_time = u64(tv.tv_sec) * 1000000LL + u64(tv.tv_usec);
-		return true;
-	}
-
-	*p_time = 0;
-	return false;
+    auto now = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch());
+    *p_time = duration.count();
+    return true;
 }
 
-u64 ToMilliseconds( u64 ticks )
+// Convert ticks (microseconds) to milliseconds
+u64 ToMilliseconds(u64 ticks)
 {
-	return (ticks*1000LL) / 1000000LL;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::microseconds(ticks)).count();
 }
 
-} // NTiming
-
+} // namespace NTiming

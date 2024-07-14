@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include "AdjustDeadzoneScreen.h"
 
-#include <stdio.h>
 #include <algorithm>
 
 
@@ -30,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Math/Vector2.h"
 #include "DrawTextUtilities.h"
 #include "Interface/Preferences.h"
@@ -93,7 +92,7 @@ IAdjustDeadzoneScreen::IAdjustDeadzoneScreen( CUIContext * p_context )
 IAdjustDeadzoneScreen::~IAdjustDeadzoneScreen() {}
 
 
-void	IAdjustDeadzoneScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	IAdjustDeadzoneScreen::Update( float elapsed_time[[maybe_unused]], const v2 & stick [[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(new_buttons & PSP_CTRL_DOWN)
 	{

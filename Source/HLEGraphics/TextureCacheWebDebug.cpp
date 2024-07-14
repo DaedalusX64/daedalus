@@ -12,7 +12,7 @@
 
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-static void TextureHandler(void * arg, WebDebugConnection * connection)
+static void TextureHandler(void * arg [[maybe_unused]], WebDebugConnection * connection [[maybe_unused]])
 {
 	const char * params = connection->GetQueryString();
 	if (!params)
@@ -38,7 +38,7 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 			for (size_t i = 0; i < textures.size(); ++i)
 			{
 				CTextureCache::STextureInfoSnapshot & snap = textures[i];
-				if ((CNativeTexture*)snap.Texture == ptr)
+				if ((snap.Texture.get() == ptr))
 				{
 					texture = snap.Texture;
 					break;
@@ -63,7 +63,7 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
+static void TextureCacheHandler(void * arg [[maybe_unused]], WebDebugConnection * connection)
 {
 	connection->BeginResponse(200, -1, "text/html" );
 
@@ -118,8 +118,8 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 				ti.GetPitch(),
 				ti.GetWidth(),
 				ti.GetHeight(),
-				(CNativeTexture *)snap.Texture,
-				(CNativeTexture *)snap.Texture,
+				static_cast<void*>(snap.Texture.get()),
+				static_cast<void*>(snap.Texture.get()),
 				snap.Texture->GetWidth(),
 				snap.Texture->GetHeight()
 			);

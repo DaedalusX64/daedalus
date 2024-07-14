@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/DMA.h"
 #include "Core/ROM.h"
 #include "Core/Save.h"
+#include <cstring>
 
 u32 FlashStatus[2];
 u32 FlashRAM_Offset = 0;

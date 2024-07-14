@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 
 #include <stddef.h>		// offsetof
+#include <cstring>
+#include <fstream>
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -176,9 +178,9 @@ void Patch_PatchAll()
 	}
 #ifdef DUMPOSFUNCTIONS
 	FILE *fp;
-	IO::Filename path;
+	std::filesystem::path path;
 	Dump_GetDumpDirectory(path, "");
-	IO::Path::Append(path, "n64.cfg");
+	path / "n64.cfg";
 	fp = fopen(path, "w");
 #endif
 	for (u32 i = 0; i < nPatchSymbols; i++)
@@ -186,10 +188,10 @@ void Patch_PatchAll()
 		if (g_PatchSymbols[i]->Found)
 		{
 #ifdef DUMPOSFUNCTIONS
-			IO::Filename buf;
-			PatchSymbol * ps = g_PatchSymbols[i];
+			std::filesystem::path buf;
+			auto ps = g_PatchSymbols[i];
 			Dump_GetDumpDirectory(buf, "oshle");
-			IO::Path::Append(buf, ps->Name);
+			buf / ps->Name;
 
 			Dump_Disassemble(PHYS_TO_K0(ps->Location), PHYS_TO_K0(ps->Location) + ps->Signatures->NumOps * sizeof(OpCode),
 				buf);
@@ -205,7 +207,7 @@ void Patch_PatchAll()
 #endif
 }
 
-void Patch_ApplyPatch(u32 i)
+void Patch_ApplyPatch(u32 i [[maybe_unused]])
 {
 #ifdef DAEDALUS_ENABLE_DYNAREC
 	u32 pc = g_PatchSymbols[i]->Location;
@@ -760,7 +762,7 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 
 	const u32 * code_base( g_pu32RamBase );
 
-	PatchCrossRef dummy_cr = {static_cast<u32>(~0), PX_JUMP, nullptr };
+	PatchCrossRef dummy_cr = {static_cast<u32>(~0), PX_JUMP, nullptr, nullptr};
 
 	if (pcr == nullptr)
 		pcr = &dummy_cr;
@@ -949,32 +951,31 @@ static void Patch_FlushCache()
 {
 
 	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "SaveGames/Cache");
+	std::ofstream fp(name, std::ios::binary);
 
-	FILE *fp = fopen(name.string().c_str(), "wb");
-
-	if (fp != nullptr)
+	if (fp.is_open())
 	{
 		u32 data = MAGIC_HEADER;
-		fwrite(&data, 1, sizeof(data), fp);
+		fp.write(reinterpret_cast<char*>(&data), sizeof(data));
 
 		for (u32 i = 0; i < nPatchSymbols; i++)
 		{
 			if (g_PatchSymbols[i]->Found )
 			{
 				data = g_PatchSymbols[i]->Location;
-				fwrite(&data, 1, sizeof(data), fp);
+				fp.write(reinterpret_cast<char*>(&data), sizeof(data));
 				for(data = 0; ;data++)
 				{
 					if (g_PatchSymbols[i]->Signatures[data].Function ==
 						g_PatchSymbols[i]->Function)
 						break;
 				}
-				fwrite(&data, 1, sizeof(data), fp);
+				fp.write(reinterpret_cast<char*>(&data), sizeof(data));
 			}
 			else
 			{
 				data = 0;
-				fwrite(&data, 1, sizeof(data), fp);
+				fp.write(reinterpret_cast<char*>(&data), sizeof(data));
 			}
 
 
@@ -990,11 +991,8 @@ static void Patch_FlushCache()
 			{
 				data = 0;
 			}
-
-			fwrite(&data, 1, sizeof(data), fp);
+			fp.write(reinterpret_cast<char*>(&data), sizeof(data));
 		}
-
-		fclose(fp);
 	}
 }
 
@@ -1003,28 +1001,28 @@ static bool Patch_GetCache()
 {
 
 	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "SaveGames/Cache");
-	FILE *fp = fopen(name.string().c_str(), "rb");
+	std::fstream fp(name, std::ios::in |std::ios::binary);
 
-	if (fp != nullptr)
+	if(fp.is_open())
 	{
 		DBGConsole_Msg(0, "Read from OSHLE cache: %s", name.string().c_str());
 		u32 data;
 
-		fread(&data, 1, sizeof(data), fp);
+		fp.read(reinterpret_cast<char*>(&data), sizeof(data));
+
 		if (data != MAGIC_HEADER)
 		{
-			fclose(fp);
 			return false;
 		}
 
 		for (u32 i = 0; i < nPatchSymbols; i++)
 		{
-			fread(&data, 1, sizeof(data), fp);
+			fp.read(reinterpret_cast<char*>(&data), sizeof(data));
 			if (data != 0)
 			{
 				g_PatchSymbols[i]->Found = true;
 				g_PatchSymbols[i]->Location = data;
-				fread(&data, 1, sizeof(data), fp);
+				fp.read(reinterpret_cast<char*>(&data), sizeof(data));
 				g_PatchSymbols[i]->Function = g_PatchSymbols[i]->Signatures[data].Function;
 			}
 			else
@@ -1033,7 +1031,7 @@ static bool Patch_GetCache()
 
 		for (u32 i = 0; i < nPatchVariables; i++)
 		{
-			fread(&data, 1, sizeof(data), fp);
+			fp.read(reinterpret_cast<char*>(&data), sizeof(data));
 			if (data != 0)
 			{
 				g_PatchVariables[i]->Found = true;
@@ -1046,7 +1044,6 @@ static bool Patch_GetCache()
 			}
 		}
 
-		fclose(fp);
 		return true;
 	}
 

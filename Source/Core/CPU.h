@@ -156,7 +156,7 @@ extern struct SCPUState gCPUState;
 //
 //*****************************************************************************
 bool	CPU_RomOpen();
-//void	CPU_RomClose();
+void	CPU_RomClose();
 void	CPU_Step();
 void	CPU_Skip();
 bool	CPU_Run();

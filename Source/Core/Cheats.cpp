@@ -262,7 +262,7 @@ void CheatCodes_Delete(u32 index)
 //*****************************************************************************
 //
 //*****************************************************************************
-bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
+bool CheatCodes_Read(const char *rom_name, const char *file [[maybe_unused]], u8 countryID)
 {
 	char			current_rom_name[64];
 	static char		last_rom_name[128];

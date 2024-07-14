@@ -32,12 +32,12 @@ public:
 
 	v3 operator*( float s ) const
 	{
-		return std::move(v3( x * s, y * s, z * s ));
+		return v3( x * s, y * s, z * s );
 	}
 
 	inline friend v3 operator*( float s, const v3 & v )
 	{
-		return std::move(v3( v.x * s, v.y * s, v.z * s ));
+		return v3( v.x * s, v.y * s, v.z * s );
 	}
 
 	v3 operator/( float s ) const

@@ -35,8 +35,8 @@ public:
 
 	virtual bool			IsSelectable() const						{ return false; }
 
-	virtual u32				GetHeight( CUIContext * context ) const		{ return mHeight; }
-	virtual void			Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType halign, s32 y, bool selected ) const {}
+	virtual u32				GetHeight( CUIContext * context [[maybe_unused]] ) const		{ return mHeight; }
+	virtual void			Draw( CUIContext * context [[maybe_unused]], s32 min_x [[maybe_unused]], [[maybe_unused]] s32 max_x [[maybe_unused]], EAlignType halign [[maybe_unused]], s32 y [[maybe_unused]], bool selected [[maybe_unused]] ) const {}
 
 	virtual const char *	GetDescription() const	{ return ""; }
 

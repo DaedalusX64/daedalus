@@ -1,4 +1,4 @@
-add_library(System OBJECT CompressedStream.cpp DataSink.cpp SystemInit.cpp)
+add_library(System OBJECT CompressedStream.cpp SystemInit.cpp)
 
 target_include_directories(System PUBLIC ${ZLIB_INCLUDE_DIRS})
 

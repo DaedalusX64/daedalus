@@ -649,7 +649,7 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
+void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command [[maybe_unused]] )
 {
 	DL_PF( "    S2DEX_ObjRendermode (Ignored)" );
 }
@@ -657,7 +657,7 @@ void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
+void DLParser_S2DEX_SelectDl( MicroCodeCommand command  [[maybe_unused]])
 {
 	DL_PF( "    S2DEX_SelectDl (Ignored)" );
 	DAEDALUS_ERROR("S2DEX_SelectDl: Check me");

@@ -28,7 +28,7 @@
 
 struct SRomInfo
 {
-	std::string		mFilename;
+	std::filesystem::path	mFilename;
 
 	RomID			mRomID;
 	u32				mRomSize;
@@ -50,13 +50,12 @@ static std::vector<SRomInfo> PopulateRomList()
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
 	
-	if(IO::FindFileOpen( DAEDALUS_CTR_PATH("Roms/"), &find_handle, find_data ))
-	{
-		do 
-		{
-			const char* rom_filename( find_data.Name );
-
-			if(IsRomfilename( rom_filename ))
+	// if(IO::FindFileOpen( DAEDALUS_CTR_PATH("Roms/"), &find_handle, find_data ))
+	// {
+	// 	do 
+	// 	{
+			const std::filesystem::path rom_filename( find_data.Name );
+			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
 				SRomInfo info;
 
@@ -89,10 +88,10 @@ static std::vector<SRomInfo> PopulateRomList()
 				roms.push_back(info);
 			}
 
-		} while(IO::FindFileNext( find_handle, find_data ));
+		// } while(IO::FindFileNext( find_handle, find_data ));
 
-		IO::FindFileClose( find_handle );
-	}
+		// IO::FindFileClose( find_handle );
+	// }
 
 	std::stable_sort(roms.begin(), roms.end());
 
@@ -183,10 +182,12 @@ std::string UI::DrawRomSelector()
 		{
 			std::shared_ptr<CNativeTexture>	previewTexture = nullptr;
 
-			IO::Filename preview_filename;
-			IO::Path::Combine(preview_filename, DAEDALUS_CTR_PATH("Resources/Preview/"), roms.at(currentItem).mSettings.Preview.c_str() );
 
-			previewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_5650 );
+			std::filesystem::path preview_file =roms.at(currentItem).mSettings.Preview.c_str();
+			std::filesystem::path preview_path = "Resources/Preview";
+			preview_path /= preview_file;
+			
+			previewTexture = CNativeTexture::CreateFromPng( preview_path, TexFmt_5650 );
 
 			pglSelectScreen(GFX_TOP, GFX_LEFT);
 			glDisable(GL_SCISSOR_TEST);

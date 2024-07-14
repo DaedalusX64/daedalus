@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Math/Vector2.h"
 #include "DrawTextUtilities.h"
 
@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Translate.h"
 #include "PSPMenu.h"
 
-#include <string>
+#include <cstring>
 
 class IAboutComponent : public CAboutComponent
 {
@@ -73,7 +73,7 @@ IAboutComponent::IAboutComponent( CUIContext * p_context )
 
 IAboutComponent::~IAboutComponent() {}
 
-void	IAboutComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons ) {}
+void	IAboutComponent::Update( float elapsed_time [[maybe_unused]], const v2 & stick [[maybe_unused]], u32 old_buttons [[maybe_unused]], u32 new_buttons [[maybe_unused]] ) {}
 
 
 void	IAboutComponent::Render()
@@ -112,7 +112,7 @@ std::string	date = DATE_TEXT + __DATE__;
 	// Spacer
 	y += line_height;
 
-	for( size_t i = 0; i < ARRAYSIZE( INFO_TEXT ); ++i )
+	for( size_t i = 0; i < std::size( INFO_TEXT ); ++i )
 	{
 		const char * str( INFO_TEXT[ i ] );
 

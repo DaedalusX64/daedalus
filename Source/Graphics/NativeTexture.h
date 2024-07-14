@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/Vector2.h"
 #include <memory>
+#include <filesystem>
 
 #ifdef DAEDALUS_GL
 #include "SysGL/GL.h"
@@ -44,7 +45,7 @@ class CNativeTexture
 
 	public:
 		static	std::shared_ptr<CNativeTexture>		Create( u32 width, u32 height, ETextureFormat texture_format );
-		static	std::shared_ptr<CNativeTexture>		CreateFromPng( const char * p_filename, ETextureFormat texture_format );
+		static	std::shared_ptr<CNativeTexture>		CreateFromPng( const std::filesystem::path p_filename, ETextureFormat texture_format );
 
 		void							InstallTexture() const;
 

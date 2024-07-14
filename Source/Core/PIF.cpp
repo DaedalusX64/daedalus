@@ -86,7 +86,9 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 // Stuff to handle controllers
 
 #include <time.h>
-
+#include <cstring>
+#include <fstream>
+#include <sstream>
 
 #include "Base/Types.h"
 
@@ -97,7 +99,7 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 #include "Core/Save.h"
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Ultra/ultra_os.h"
 #include "Interface/Preferences.h"
 
@@ -113,7 +115,16 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 #endif
 
 #ifdef DAEDALUS_DEBUG_PIF
-	#define DPF_PIF( ... )		{ if ( mDebugFile ) { fprintf( mDebugFile, __VA_ARGS__ ); fprintf( mDebugFile, "\n" ); } }
+
+	#define DPF_PIF(...) \
+    do { \
+        if (mDebugFile.is_open()) { \
+            std::ostringstream oss; \
+            oss << __VA_ARGS__; \
+            oss << std::endl; \
+            mDebugFile << oss.str(); \
+        } \
+    } while (false)
 #else
 	#define DPF_PIF( ... )
 #endif
@@ -230,7 +241,7 @@ class	IController : public CController
 		u8 *			mMemPack[ NUM_CONTROLLERS ];
 
 #ifdef DAEDALUS_DEBUG_PIF
-		FILE *			mDebugFile;
+		std::ofstream		mDebugFile;
 #endif
 
 };
@@ -257,11 +268,9 @@ IController::IController() :
 	mpEepromData( nullptr )
 {
 #ifdef DAEDALUS_DEBUG_PIF
-#ifdef DAEDALUS_VITA
-	mDebugFile = fopen( "ux0:data/controller.txt", "w" );
-#else
-	mDebugFile = fopen( "controller.txt", "w" );
-#endif
+	std::filesystem::path controller_path = baseDir;
+	controller_path /= "controller.txt";
+	mDebugFile.open(controller_path, std::ios::out);
 #endif
 
 #ifdef DAEDALUS_VITA
@@ -287,15 +296,7 @@ IController::IController() :
 
 // Destructor
 
-IController::~IController()
-{
-#ifdef DAEDALUS_DEBUG_PIF
-	if( mDebugFile != nullptr )
-	{
-		fclose( mDebugFile );
-	}
-#endif
-}
+IController::~IController() {}
 
 
 // Called whenever a new rom is opened
@@ -354,7 +355,7 @@ void IController::Process()
 	DPF_PIF("**                                         **");
 #endif
 
-	u32 count = 0, channel = 0;
+	u32 count = 0, channel [[maybe_unused]] = 0;
 
 	u32 *tmp {(u32*)mpPifRam};
 	if ((tmp[0] == 0xFFFFFFFF) &&
@@ -481,7 +482,7 @@ void IController::DumpInput() const
 
 // i points to start of command
 
-bool	IController::ProcessController(u8 *cmd, u32 channel)
+bool	IController::ProcessController(u8 *cmd, u32 channel )
 {
 	cmd[1] &= 0x3F;
 
@@ -687,9 +688,8 @@ void	IController::CommandReadRumblePack(u8 *cmd)
 //
 //
 
-void	IController::CommandWriteRumblePack(u32 channel, u8 *cmd)
+void	IController::CommandWriteRumblePack(u32 channel [[maybe_unused]], u8 *cmd)
 {
-	DAEDALUS_USE(channel);
 	u16 addr = (cmd[3] << 8) | (cmd[4] & 0xE0);
 
 	if ( addr == 0xC000 ) {

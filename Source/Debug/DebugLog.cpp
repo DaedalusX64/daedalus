@@ -25,81 +25,42 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 
 #include "System/IO.h"
+#include <fstream>
+#include <format>
+#include <iostream> 
 
 #ifdef DAEDALUS_LOG
 
-//*****************************************************************************
-//
-//*****************************************************************************
-static bool			g_bLog = false;
-static FILE *		g_hOutputLog	= NULL;
 
-//*****************************************************************************
-//
-//*****************************************************************************
+static bool			g_bLog = true;
+std::ofstream	g_hOutputLog;;
+
+
 bool Debug_InitLogging()
 {
-	const char* log_filename = "daedalus.txt";
-
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	if ( CDebugConsole::IsAvailable() )
-	{
-		CDebugConsole::Get()->Msg( 0, "Creating Dump file '%s'", log_filename);
-	}
-#endif
-	g_hOutputLog = fopen( log_filename, "w" );
-
-	return g_hOutputLog != NULL;
+	std::filesystem::path path = baseDir;
+	const std::filesystem::path log_filename = "daedalus.txt";
+	path /= log_filename;
+	std::cout << "Creating Dump File: " << path << std::endl;
+	g_hOutputLog.open( log_filename);
+	// Is always going to return true
+	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void Debug_FinishLogging()
+
+void Debug_FinishLogging() {}
+
+
+void Debug_Print(const char* format, ...)
 {
-	if( g_hOutputLog )
-	{
-		fclose( g_hOutputLog );
-		g_hOutputLog = NULL;
-	}
+        va_list args;
+        va_start(args, format);
+        std::string formattedString = std::vformat(format, std::make_format_args(args));
+        va_end(args);
+		
+        g_hOutputLog << formattedString << '\n';
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void Debug_Print( const char * format, ... )
-{
-	if(g_bLog && format != NULL )
-	{
-		char buffer[1024+1];
-		char * p = buffer;
-		va_list va;
-		// Parse the buffer:
-		// Format the output
-		va_start(va, format);
-		// Don't use wvsprintf as it doesn't handle floats!
-		vsprintf(p, format, va);
-		va_end(va);
-
-		fprintf( g_hOutputLog, "%s\n", p );
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-bool		Debug_GetLoggingEnabled()
-{
-	return g_bLog && (g_hOutputLog != NULL);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void		Debug_SetLoggingEnabled( bool enabled )
-{
-	g_bLog = enabled;
-}
 
 
 #endif // DAEDALUS_LOG

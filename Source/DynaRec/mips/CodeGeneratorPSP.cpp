@@ -20,10 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
-#include <limits.h>
-#include <stdio.h>
-
 #include <algorithm>
+#include <limits>
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -34,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "DynaRec/AssemblyUtils.h"
 #include "DynaRec/Trace.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Ultra/ultra_R4300.h"
 #include "CodeGeneratorPSP.h"
 #include "Base/Macros.h"
@@ -1335,7 +1333,7 @@ void	CCodeGeneratorPSP::GetFloatVar( EPspFloatReg dst_reg, const f32 * p_var )
 void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspReg * p_reg, s16 * p_offset )
 {
 	s32		base_pointer_offset( reinterpret_cast< const u8 * >( p_address ) - mpBasePointer );
-	if( (base_pointer_offset > SHRT_MIN) & (base_pointer_offset < SHRT_MAX) )
+	if( (base_pointer_offset > std::numeric_limits<short>::lowest()) & (base_pointer_offset < std::numeric_limits<short>::max()) )
 	{
 		*p_reg = mBaseRegister;
 		*p_offset = base_pointer_offset;
@@ -1358,7 +1356,7 @@ void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspRe
 
 		s32		long_offset( address - ((s32)hi_bits<<16) );
 		#ifdef DAEDALUS_ENABLE_ASSERTS
-		DAEDALUS_ASSERT( long_offset >= SHRT_MIN && long_offset <= SHRT_MAX, "Offset is out of range!" );
+		DAEDALUS_ASSERT( long_offset >= std::numeric_limits<short>::lowest() && long_offset <= std::numeric_limits<short>::max(), "Offset is out of range!" );
 		#endif
 		s16		offset( (s16)long_offset );
 		#ifdef DAEDALUS_ENABLE_ASSERTS

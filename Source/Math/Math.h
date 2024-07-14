@@ -148,12 +148,6 @@ Check above notes for cycles/comparison
 // #define sincosf(x,s,c)	std::sincosf(x, s, c)
 #else 
 
-#ifdef DAEDALUS_W32
-inline f64 trunc(f64 x)				{ return (x>0) ? floor(x) : ceil(x); }
-inline f32 truncf(f32 x)			{ return (x>0) ? floorf(x) : ceilf(x); }
-inline f64 round(f64 x)				{ return floor(x + 0.5); }
-inline f32 roundf(f32 x)			{ return floorf(x + 0.5f); }
-#endif
 
 inline void sincosf(float x, float * s, float * c)
 {

@@ -22,15 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RomFile/RomFileCompressed.h"
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-
-#include "Base/MathUtil.h"
+#include <vector>
+#include "Utility/MathUtil.h"
 
 #include "Debug/DBGConsole.h"
 
 #include "System/IO.h"
 #include "Base/Macros.h"
 #include "Utility/Stream.h"
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -63,17 +62,17 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 	#endif
 
 	mFoundRom = false;
-	mZipFile = unzOpen(mFilename);
+	mZipFile = unzOpen(mFilename.c_str());
 	if (mZipFile == NULL)
 	{
 
-		messages << "Couldn't open " << mFilename;
+		messages << "Couldn't open " << mFilename.c_str();
 		return false;
 	}
 
     s32				err;
 	unz_file_info	file_info;
-	IO::Filename	rom_filename;
+	std::vector<char> rom_filename(256);
 
 	err = unzGoToFirstFile(mZipFile);
 	if (err != UNZ_OK)
@@ -87,7 +86,7 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 		do
 		{
 			err = unzGetCurrentFileInfo(mZipFile, &file_info,
-										rom_filename, rom_filename.size(),
+										rom_filename.data(), rom_filename.size(),
 										NULL, 0,
 										NULL, 0);
 			if (err != UNZ_OK)
@@ -124,7 +123,7 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 												#ifdef DAEDALUS_DEBUG_CONSOLE
 							if (!SetHeaderMagic( magic ))
 							{
-								DBGConsole_Msg(0, "Bad header magic for [C%s]", rom_filename);
+								DBGConsole_Msg(0, "Bad header magic for [C%s]", rom_filename.data());
 							}
 							#endif
 							break;

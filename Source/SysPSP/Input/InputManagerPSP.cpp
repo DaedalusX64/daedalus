@@ -5,17 +5,15 @@
 #include <stack>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <cstring> 
 
 #include <pspctrl.h>
-#include <psptypes.h>
-#include <pspkernel.h>
-#include <algorithm>
-
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 
 #include "Utility/IniFile.h"
 #include "System/IO.h"
@@ -281,9 +279,9 @@ class IInputManager : public CInputManager
 
 	private:
 		void								SwapJoyStick(OSContPad *pPad, SceCtrlData *pad);
-		void								LoadControllerConfigs( const std::filesystem::path p_dir );
+		void								LoadControllerConfigs( const std::filesystem::path& p_dir );
 		CControllerConfig *					BuildDefaultConfig();
-		CControllerConfig *					BuildControllerConfig( const std::filesystem::path filename );
+		CControllerConfig *					BuildControllerConfig( const std::filesystem::path& filename );
 
 	private:
 		CControllerConfig *					mpControllerConfig;
@@ -513,7 +511,7 @@ bool IsIdentifierChar( char c )
 
 u32 GetMaskFromIdentifier( const char * identifier )
 {
-	for( u32 i = 0; i < ARRAYSIZE( gButtonNameMappings ); ++i )
+	for( u32 i = 0; i < std::size( gButtonNameMappings ); ++i )
 	{
 		if( strcmp( gButtonNameMappings[ i ].ButtonName, identifier ) == 0 )
 		{
@@ -753,40 +751,20 @@ CButtonMapping *	CButtonMappingExpressionEvaluator::Parse( const char * expressi
 //*****************************************************************************
 //
 //*****************************************************************************
-void	IInputManager::LoadControllerConfigs( const std::filesystem::path p_dir )
-{
-	IO::FindHandleT		find_handle;
-	IO::FindDataT		find_data;
-	if(IO::FindFileOpen( p_dir.c_str(), &find_handle, find_data ))
-	{
-		do
-		{
-			const std::filesystem::path filename( find_data.Name );
-			const char * last_period( strrchr( filename.c_str(), '.' ) );
-			if(last_period != NULL)
-			{
-				if( strcasecmp(last_period, ".ini") == 0 )
-				{
-					std::string		full_path;
+void IInputManager::LoadControllerConfigs(const std::filesystem::path& p_dir) {
+    namespace fs = std::filesystem;
 
-					full_path = p_dir;
-					full_path += filename;
+    for (const auto& entry : fs::directory_iterator(p_dir)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".ini") {
+            std::string full_path = entry.path().string();
+            CControllerConfig* p_config = BuildControllerConfig(full_path.c_str());
 
-					CControllerConfig *	p_config( BuildControllerConfig( full_path.c_str() ) );
-
-					if( p_config != NULL )
-					{
-						mControllerConfigs.push_back( p_config );
-					}
-				}
-			}
-		}
-		while(IO::FindFileNext( find_handle, find_data ));
-
-		IO::FindFileClose( find_handle );
-	}
+            if (p_config != nullptr) {
+                mControllerConfigs.push_back(p_config);
+            }
+        }
+    }
 }
-
 //*****************************************************************************
 //	Build a default controller configuration
 //	We do this in case the user deletes all the config files (or they're all
@@ -826,7 +804,7 @@ CControllerConfig *	IInputManager::BuildDefaultConfig()
 //*****************************************************************************
 //
 //*****************************************************************************
-CControllerConfig *	IInputManager::BuildControllerConfig( const std::filesystem::path filename )
+CControllerConfig *	IInputManager::BuildControllerConfig( const std::filesystem::path& filename )
 {
 	auto p_ini_file = CIniFile::Create( filename );
 

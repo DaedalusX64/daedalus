@@ -24,11 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioBuffer.h"
 #include "System/Thread.h"
+#include <cstring>
+#include <fstream>
 
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Utility/CacheUtil.h"
-#include <pspkernel.h>
-#include <pspsdk.h>
 #endif
 
 CAudioBuffer::CAudioBuffer(u32 buffer_size)
@@ -59,13 +59,17 @@ void CAudioBuffer::AddSamples(const Sample *samples, u32 num_samples,
 #ifdef DAEDALUS_ENABLE_ASSERTS
   DAEDALUS_ASSERT(frequency <= output_freq, "Input frequency is too high");
 #endif
-// static FILE * fh = nullptr;
-// if( !fh )
-//{
-//	fh = fopen( "audio_in.raw", "wb" );
-// }
-// fwrite( samples, sizeof( Sample ), num_samples, fh );
-// fflush( fh );
+
+#ifdef DAEDALUS_DEBUG_AUDIO
+std::ofstream fh;
+ 
+ if (!fh.is_open())
+ {
+  fh.open("audio_in.raw",  std::ios::binary);
+fh.write(reinterpret_cast<const char*>(samples), sizeof(Sample) * num_samples);
+fh.flush();
+ }
+#endif 
 // clear the Cache
 #ifdef DAEDALUS_PSP
 // sceKernelDcacheWritebackInvalidateAll();
@@ -176,14 +180,16 @@ u32 CAudioBuffer::Drain(Sample *samples, u32 num_samples) {
     samples_required--;
   }
 
-  // static FILE * fh = nullptr;
-  // if( !fh )
-  //{
-  //	fh = fopen( "audio_out.raw", "wb" );
-  // }
-  // fwrite( samples, sizeof( Sample ), (num_samples-samples_required), fh );
-  // fflush( fh );
+#ifdef DAEDALUS_DEBUG_AUDIO
+std::ofstream fh;
 
+ if (!fh.is_open())
+ {
+  fh.open("audio_out.raw",  std::ios::binary);
+  fh.write(reinterpret_cast<const char*>(samples), sizeof(Sample) * num_samples - samples_required);
+  fh.flush();
+ }
+#endif 
   mReadPtr = read_ptr; // No need to invalidate, as this is uncached
 // clear the Cache
 #ifdef DAEDALUS_PSP

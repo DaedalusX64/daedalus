@@ -24,14 +24,14 @@
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 #include <crtdbg.h>
-#include <varargs.h>
+#include <stdarg.h>
 #include <stdio.h>
 
 DaedalusAssertHook gAssertHook = NULL;
 
 #ifdef _DEBUG
 
-EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... )
+EAssertResult DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... )
 {
 	va_list va;
 	va_start(va, msg);
@@ -57,7 +57,7 @@ EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression,
 
 #else
 
-EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... )
+EAssertResult DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... )
 {
 	va_list va;
 	va_start(va, msg);

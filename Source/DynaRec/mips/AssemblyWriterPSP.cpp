@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Ultra/ultra_R4300.h"
 
-#include <limits.h>
+#include <limits>
 
 
 //	Get the opcodes for loading a 32 bit constant into the specified
@@ -37,7 +37,7 @@ void	CAssemblyWriterPSP::GetLoadConstantOps( EPspReg reg, s32 value, PspOpCode *
 	PspOpCode	op1 {};
 	PspOpCode	op2 {};
 
-	if ( value >= SHRT_MIN && value <= SHRT_MAX )
+	if ( value >= std::numeric_limits<short>::lowest() && value <= std::numeric_limits<short>::max() )
 	{
 		// ORI
 		op1.op = OP_ADDIU;

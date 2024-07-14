@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <new>
 
 #include <3ds.h>
+#include <cstring>
 
 #include "Core/FramerateLimiter.h"
 #include "Config/ConfigOptions.h"

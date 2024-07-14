@@ -46,7 +46,7 @@ template<> bool CSingleton< CTextureCache >::Create()
 
 CTextureCache::CTextureCache()
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-:	mDebugMutex("TextureCache")
+:	mDebugMutex()
 #endif
 {
 	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );

@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/SaveState.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "DrawTextUtilities.h"
 #include "AboutComponent.h"
 #include "GlobalSettingsComponent.h"
@@ -58,8 +58,8 @@ namespace
 	};
 	const s16 NUM_MENU_OPTIONS {MO_ABOUT+1};
 
-	const EMenuOption	MO_FIRST_OPTION = MO_GLOBAL_SETTINGS;
-	const EMenuOption	MO_LAST_OPTION = MO_ABOUT;
+	const EMenuOption	MO_FIRST_OPTION [[maybe_unused]] = MO_GLOBAL_SETTINGS;
+	const EMenuOption	MO_LAST_OPTION [[maybe_unused]] = MO_ABOUT;
 
 	const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
 	{
@@ -136,12 +136,12 @@ IMainMenuScreen::IMainMenuScreen( CUIContext * p_context )
 		mOptionComponents[ i ] = nullptr;
 	}
 
-	mSelectedRomComponent = CSelectedRomComponent::Create( mpContext, new CMemberFunctor< IMainMenuScreen >( this, &IMainMenuScreen::OnStartEmulation ) );
+	mSelectedRomComponent = CSelectedRomComponent::Create( mpContext, [this]() { this->OnStartEmulation(); });
 
 	mOptionComponents[ MO_GLOBAL_SETTINGS ]	= CGlobalSettingsComponent::Create( mpContext );
-	mOptionComponents[ MO_ROMS ]			= CRomSelectorComponent::Create( mpContext, new CMemberFunctor1< IMainMenuScreen, const char * >( this, &IMainMenuScreen::OnRomSelected ) );
+	mOptionComponents[ MO_ROMS ] 			= CRomSelectorComponent::Create( mpContext, [this](const char *rom ) { this->OnRomSelected(rom); } );
 	mOptionComponents[ MO_SELECTED_ROM ]	= mSelectedRomComponent;
-	mOptionComponents[ MO_SAVESTATES ]		= CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_LOADING, new CMemberFunctor1< IMainMenuScreen, const char * >( this, &IMainMenuScreen::OnSavestateSelected ), 0 );
+	mOptionComponents[ MO_SAVESTATES ]		= CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_LOADING,[this](const char* savestate) { this->OnSavestateSelected(savestate); }, std::filesystem::path());
 	mOptionComponents[ MO_ABOUT ]			= CAboutComponent::Create( mpContext );
 
 }

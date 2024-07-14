@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RomSettings.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "DrawTextUtilities.h"
 #include "UIContext.h"
 #include "UIScreen.h"
@@ -40,7 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "PauseOptionsComponent.h"
 #include "PauseScreen.h"
 
-#include "Utility/Functor.h"
 #include "Utility/Translate.h"
 #include "PSPMenu.h"
 
@@ -55,8 +54,8 @@ namespace {
 		NUM_MENU_OPTIONS,
 	};
 
-	const EMenuOption	MO_FIRST_OPTION = MO_GLOBAL_SETTINGS;
-	const EMenuOption	MO_LAST_OPTION = MO_ABOUT;
+	const EMenuOption	MO_FIRST_OPTION [[maybe_unused]]= MO_GLOBAL_SETTINGS;
+	const EMenuOption	MO_LAST_OPTION  [[maybe_unused]] = MO_ABOUT;
 
 	const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
 	{
@@ -178,7 +177,7 @@ EMenuOption		IPauseScreen::GetNextValidOption() const
 }
 
 
-bool	IPauseScreen::IsOptionValid( EMenuOption option ) const
+bool	IPauseScreen::IsOptionValid( EMenuOption option [[maybe_unused]] ) const
 {
 	return true;
 }

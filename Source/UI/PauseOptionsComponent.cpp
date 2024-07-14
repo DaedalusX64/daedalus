@@ -41,7 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UISetting.h"
 #include "UICommand.h"
 #include "UISpacer.h"
-#include "Utility/Functor.h"
 #include "System/IO.h"
 
 #include <functional>
@@ -73,8 +72,8 @@ class IPauseOptionsComponent : public CPauseOptionsComponent
 #ifdef DAEDALUS_DIALOGS
 				void				ExitConfirmation();
 #endif
-				void				OnSaveStateSlotSelected( const char * filename );
-				void				OnLoadStateSlotSelected( const char * filename );
+				void				OnSaveStateSlotSelected( const std::filesystem::path& filename );
+				void				OnLoadStateSlotSelected( const std::filesystem::path& filename );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				void				DebugDisplayList();
@@ -123,9 +122,9 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context,  std::fu
 #endif
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
-		//mElements.Add( new CUICommandImpl( new CStaticFunctor( CPU_DumpFragmentCache ), "Dump Fragment Cache", "Dump the contents of the dynarec fragment cache to disk." ) );
-	//	mElements.Add( new CUICommandImpl( new CStaticFunctor( CPU_ResetFragmentCache ), "Clear Fragment Cache", "Clear the contents of the dynarec fragment cache." ) );
-	//	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ProfileNextFrame ), "Profile Frame", "Profile the next frame on resume." ) );
+	//mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::CPU_DumpFragmentCache, this ), "Dump Fragment Cache", "Dump the contents of the dynarec fragment cache to disk." ) );
+	//	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::CPU_ResetFragmentCache, this ), "Clear Fragment Cache", "Clear the contents of the dynarec fragment cache." ) );
+	//	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::IPauseOptionsComponent::ProfileNextFrame, this ), "Profile Frame", "Profile the next frame on resume." ) );
 #endif
 
 	mElements.Add( new CUISpacer( 16 ) );
@@ -141,7 +140,7 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context,  std::fu
 IPauseOptionsComponent::~IPauseOptionsComponent() {}
 
 
-void	IPauseOptionsComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	IPauseOptionsComponent::Update( float elapsed_time [[maybe_unused]], const v2 & stick [[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{
@@ -238,9 +237,12 @@ void	IPauseOptionsComponent::CheatOptions()
 
 void	IPauseOptionsComponent::SaveState()
 {
-	CSavestateSelectorComponent *	component( CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_SAVING, new CMemberFunctor1< IPauseOptionsComponent, const char * >( this, &IPauseOptionsComponent::OnSaveStateSlotSelected ), g_ROM.settings.GameName.c_str() ) );
+auto onSaveStateSlotSelected = [this](const char* slot) { this->OnSaveStateSlotSelected(slot);
+};
 
-	CUIComponentScreen *			screen( CUIComponentScreen::Create( mpContext, component, SAVING_TITLE_TEXT ) );
+auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelectorComponent::AT_SAVING, onSaveStateSlotSelected, g_ROM.settings.GameName.c_str());
+
+	auto screen( CUIComponentScreen::Create( mpContext, component, SAVING_TITLE_TEXT ) );
 	screen->Run();
 	delete screen;
 	(mOnResume)();
@@ -249,7 +251,12 @@ void	IPauseOptionsComponent::SaveState()
 
 void	IPauseOptionsComponent::LoadState()
 {
-	CSavestateSelectorComponent *	component( CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_LOADING, new CMemberFunctor1< IPauseOptionsComponent, const char * >( this, &IPauseOptionsComponent::OnLoadStateSlotSelected ), g_ROM.settings.GameName.c_str() ) );
+auto onLoadStateSlotSelected = [this](const char* slot) {
+    this->OnLoadStateSlotSelected(slot);
+};
+
+auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelectorComponent::AT_LOADING, onLoadStateSlotSelected, g_ROM.settings.GameName.c_str());
+
 	CUIComponentScreen *			screen( CUIComponentScreen::Create( mpContext, component, LOADING_TITLE_TEXT ) );
 	screen->Run();
 	delete screen;
@@ -257,7 +264,7 @@ void	IPauseOptionsComponent::LoadState()
 }
 
 
-void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
+void	IPauseOptionsComponent::OnSaveStateSlotSelected( const std::filesystem::path& filename )
 {
 	std::filesystem::remove( filename ); // Ensure that we're re-creating the file
 	CPU_RequestSaveState( filename );
@@ -267,7 +274,7 @@ void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
 }
 
 
-void	IPauseOptionsComponent::OnLoadStateSlotSelected( const char * filename )
+void	IPauseOptionsComponent::OnLoadStateSlotSelected( const std::filesystem::path& filename )
 {
 	CPU_RequestLoadState( filename );
 }

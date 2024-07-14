@@ -12,9 +12,9 @@ add_library(Core OBJECT
                         JpegTask.cpp 
                         Memory.cpp 
                         PIF.cpp 
-                        PrintOpCode.cpp 
-                        R4300.cpp 
-                        Registers.cpp
+                        PrintOpCode.cpp
+                        R4300.cpp
+                        Registers.cpp 
                         ROM.cpp
                         ROMBuffer.cpp 
                         ROMImage.cpp 

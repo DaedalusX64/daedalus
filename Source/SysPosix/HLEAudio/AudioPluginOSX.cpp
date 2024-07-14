@@ -50,7 +50,7 @@ EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
 pthread_t Asyncthread;
 int  Asyncthreadreturn;
 
-void* Audio_UcodeEntry(void* arg) {
+void* Audio_UcodeEntry(void* arg [[maybe_unused]]) {
     Audio_Ucode();
     return nullptr;
 }

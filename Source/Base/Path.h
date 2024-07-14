@@ -23,6 +23,6 @@
 #include <filesystem>
 
 // This file is just for setting the BaseDir as extern.
-extern const std::filesystem::path baseDir; 
+// extern const std::filesystem::path baseDir; 
 
 #endif // PATH_PATHBASE_H_

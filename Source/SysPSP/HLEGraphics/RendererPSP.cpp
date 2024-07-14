@@ -14,7 +14,7 @@
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/TextureCache.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "SysPSP/HLEGraphics/RendererPSP.h"
 #include "Ultra/ultra_gbi.h"
 #include "System/IO.h"
@@ -1197,16 +1197,17 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 	{
 		if (mUnhandledCombinerStates.find( mux ) == mUnhandledCombinerStates.end())
 		{
-			IO::Filename filepath;
-			Dump_GetDumpDirectory(filepath, g_ROM.settings.GameName.c_str());
-			IO::Path::Append(filepath, "missing_mux.txt");
+			std::filesystem::path filepath;
 
-			FILE * fh = fopen(filepath, mUnhandledCombinerStates.empty() ? "w" : "a");
+			Dump_GetDumpDirectory(filepath.c_str(), g_ROM.settings.GameName.c_str());
+			filepath /= "missing.mux";
+
+			FILE * fh = fopen(filepath.c_str(), mUnhandledCombinerStates.empty() ? "w" : "a");
 			if (fh != nullptr)
 			{
 				DLDebug_PrintMux( fh, mux );
 				fclose(fh);
-			}
+			}	
 
 			mUnhandledCombinerStates.insert( mux );
 		}

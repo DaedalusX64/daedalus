@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/HLEAudioInternal.h"
@@ -21,8 +21,8 @@ void ADDMIXER(AudioHLECommand command) {
   u32 InBuffer = (command.cmd1 >> 16);
   u32 OutBuffer = command.cmd1 & 0xffff;
 
-  s16 *inp = (s16 *)(gAudioHLEState.Buffer + InBuffer);
-  s16 *outp = (s16 *)(gAudioHLEState.Buffer + OutBuffer);
+  s16 *inp [[maybe_unused]] = (s16 *)(gAudioHLEState.Buffer + InBuffer);
+  s16 *outp [[maybe_unused]] = (s16 *)(gAudioHLEState.Buffer + OutBuffer);
   for (u32 cntr = 0; cntr < Count; cntr += 2) {
     // s32 temp = Saturate<s16>( *outp + *inp );
     //  *outp = temp;		// Added this - correct??
@@ -88,7 +88,7 @@ void INTERLEAVE2(AudioHLECommand command) {
   }
 }
 
-void INTERLEAVE3(AudioHLECommand command) {
+void INTERLEAVE3(AudioHLECommand command [[maybe_unused]]) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "INTERLEAVE3");
 #endif

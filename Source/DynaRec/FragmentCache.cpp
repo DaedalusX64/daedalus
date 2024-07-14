@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <algorithm>
 #include <cstring>
+#include <fstream>
 
 #include "DynaRec/AssemblyUtils.h"
 #include "DynaRec/CodeBufferManager.h"
@@ -393,59 +394,51 @@ void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 	std::sort( all_fragments.begin(), all_fragments.end(), SDescendingCyclesSort() );
 
 	std::filesystem::path filename = "fragments.html";
-	std::filesystem::path fragments_dir = "fragments";
-	// std::filesystem::exists(fragments_dir);
+	std::filesystem::path fragments_dir = baseDir /= "fragments";
 	fragments_dir /= filename;
 
-	FILE * fh( fopen( filename.c_str(), "w" ) );
-	if(fh)
-	{
-		fputs( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">", fh );
-		fputs( "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fh );
-		fputs( "<head><title>Fragments</title>\n", fh );
-		fputs( "<link rel=\"stylesheet\" href=\"default.css\" type=\"text/css\" media=\"all\" />\n", fh );
-		fputs( "</head><body>\n", fh );
 
+	std::ofstream fh(filename);
+    if (fh.is_open())
+	 {
+        fh << "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n";
+        fh << "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n";
+        fh << "<head><title>Fragments</title>\n";
+        fh << "<link rel=\"stylesheet\" href=\"default.css\" type=\"text/css\" media=\"all\" />\n";
+        fh << "</head><body>\n";
 
-		fputs( "<h1>Fragments</h1>\n", fh );
-		fputs( "<div align=\"center\"><table>\n", fh );
-		fputs( "<tr><th>Address</th><th>Loops</th><th>Cycle Count</th><th>Cycle %</th><th>Hit Count</th><th>Input Bytes</th><th>Output Bytes</th><th>Expansion Ratio</th></tr>\n", fh );
+        fh << "<h1>Fragments</h1>\n";
+        fh << "<div align=\"center\"><table>\n";
+        fh << "<tr><th>Address</th><th>Loops</th><th>Cycle Count</th><th>Cycle %</th><th>Hit Count</th><th>Input Bytes</th><th>Output Bytes</th><th>Expansion Ratio</th></tr>\n";
 
-		for(FragmentList::const_iterator it = all_fragments.begin(); it != all_fragments.end(); ++it)
-		{
-			const CFragment * fragment( *it );
+        for (auto it = all_fragments.begin(); it != all_fragments.end(); ++it) {
+            const CFragment* fragment = *it;
 
-			if (fragment->GetCyclesExecuted() == 0)
-				continue;
+            if (fragment->GetCyclesExecuted() == 0)
+                continue;
 
-			fputs( "<tr>", fh );
-			fprintf( fh, "<td><a href=\"fragments//%08x.html\">0x%08x</a></td>", fragment->GetEntryAddress(), fragment->GetEntryAddress() );
-			fprintf( fh, "<td>%s</td>", fragment->GetEntryAddress() == fragment->GetExitAddress() ? "*" : "&nbsp;" );
-			fprintf( fh, "<td>%d</td>", fragment->GetCyclesExecuted() );
-			fprintf( fh, "<td>%#.2f%%</td>", f32( fragment->GetCyclesExecuted() * 100.0f ) / f32( total_cycles ) );
-			fprintf( fh, "<td>%d</td>", fragment->GetHitCount() );
-			fprintf( fh, "<td>%d</td>", fragment->GetInputLength() );
-			fprintf( fh, "<td>%d</td>", fragment->GetOutputLength() );
-			fprintf( fh, "<td>%#.2f</td>", f32( fragment->GetOutputLength() ) / f32( fragment->GetInputLength() ) );
-			fputs( "</tr>\n", fh );
+            fh << "<tr>";
+            fh << "<td><a href=\"fragments//" << std::hex << std::setw(8) << std::setfill('0') << fragment->GetEntryAddress() << ".html\">"
+               << "0x" << std::hex << std::setw(8) << std::setfill('0') << fragment->GetEntryAddress() << "</a></td>";
+            fh << "<td>" << (fragment->GetEntryAddress() == fragment->GetExitAddress() ? "*" : "&nbsp;") << "</td>";
+            fh << "<td>" << fragment->GetCyclesExecuted() << "</td>";
+            fh << "<td>" << std::fixed << std::setprecision(2) << (static_cast<float>(fragment->GetCyclesExecuted()) * 100.0f / total_cycles) << "%</td>";
+            fh << "<td>" << fragment->GetHitCount() << "</td>";
+            fh << "<td>" << fragment->GetInputLength() << "</td>";
+            fh << "<td>" << fragment->GetOutputLength() << "</td>";
+            fh << "<td>" << std::fixed << std::setprecision(2) << (static_cast<float>(fragment->GetOutputLength()) / fragment->GetInputLength()) << "</td>";
+            fh << "</tr>\n";
 
-			IO::Filename	fragment_path;
-			char			fragment_name[ 32+1 ];
-			snprintf( fragment_name, sizeof(fragment_name), "%08x.html", fragment->GetEntryAddress() );
-			IO::Path::Combine( fragment_path, fragments_dir.string().c_str(), fragment_name );
+            std::string fragment_name = fragments_dir + "/" + std::to_string(fragment->GetEntryAddress()) + ".html";
+            std::ofstream fragment_fh(fragment_name);
+            if (fragment_fh.is_open()) {
+                fragment->DumpFragmentInfoHtml(fragment_fh, total_cycles);
+                fragment_fh.close();
+            }
+        }
 
-			FILE * fragment_fh( fopen( fragment_path, "w" ) );
-			if( fragment_fh != nullptr )
-			{
-				fragment->DumpFragmentInfoHtml( fragment_fh, total_cycles );
-				fclose( fragment_fh );
-			}
-		}
-
-		fputs( "</table></div>\n", fh );
-		fputs( "</body></html>\n", fh );
-
-		fclose( fh );
+        fh << "</table></div>\n";
+        fh << "</body></html>\n";
 	}
 }
 #endif // DAEDALUS_DEBUG_DYNAREC

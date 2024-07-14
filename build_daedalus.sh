@@ -30,7 +30,9 @@ case "$1" in
 esac
 
 if [[ $1 = "DEBUG" ]] || [[ $2 = "DEBUG" ]]; then
-    CMAKEDEFINES+=" -DDEBUG=1"
+    CMAKEDEFINES+=" -DCMAKE_BUILD_TYPE=Debug -DDEBUG=1 "
+else
+    CMAKEDEFINES+=" -DCMAKE_BUILD_TYPE=Release"
 fi
     # Use the custom define to do initial build then parse cmake after
     $CMAKE $CMAKEDEFINES -S . -B build 

@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/DLDebug.h"
 #include "Math/Math.h"			// VFPU Math
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Ultra/ultra_gbi.h"
 #include "Ultra/ultra_os.h"		// System type
 #include "Utility/Profiler.h"
@@ -975,7 +975,7 @@ void BaseRenderer::PrepareTrisUnclipped( TempVerts * temp_verts ) const
 	//
 	//	http://forums.ps2dev.org/viewtopic.php?t=4703
 	//
-	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > ARRAYSIZE(mIndexBuffer) );
+	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > std::size(mIndexBuffer) );
 
 #ifdef DAEDALUS_PSP_USE_VFPU
 	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, mIndexBuffer );

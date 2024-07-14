@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 #include "Core/DMA.h"
 #include "Debug/DBGConsole.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Interface/Preferences.h"
 #include "RomFile/RomFile.h"
 #include "RomFile/RomFileCache.h"
@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Stream.h"
 #include "System/IO.h"
 
+#include <cstring> 
 
 #ifdef DAEDALUS_PSP
 #include "Graphics/GraphicsContext.h"
@@ -47,11 +48,11 @@ namespace
 {
 	bool			sRomLoaded	= false;
 	u8 *			spRomData	= nullptr;
-	u32				sRomSize	= 0;
+	u32				sRomSize [[maybe_unused]]	= 0;
 	bool			sRomFixed	= false;
 	bool			sRomWritten	= false;
 	u32				sRomValue	= 0;
-	ROMFileCache *	spRomFileCache	= nullptr;
+	std::shared_ptr<ROMFileCache> spRomFileCache	= nullptr;
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 	static bool		DECOMPRESS_ROMS	= true;
@@ -60,7 +61,7 @@ namespace
 	const u32		SCRATCH_BUFFER_LENGTH = 16;
 	u8				sScratchBuffer[ SCRATCH_BUFFER_LENGTH ];
 
-	bool		ShouldLoadAsFixed( u32 rom_size )
+	bool		ShouldLoadAsFixed( u32 rom_size [[maybe_unused]] )
 	{
 #if	defined(DAEDALUS_PSP)
 		if (PSP_IS_SLIM && !gGlobalPreferences.LargeROMBuffer)
@@ -73,20 +74,19 @@ namespace
 		else
 			return rom_size <  8 * 1024 * 1024;
 #else
-		DAEDALUS_USE(rom_size);
 		return true;
 #endif
 	}
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-	std::shared_ptr<ROMFile> DecompressRom( std::shared_ptr<ROMFile> p_rom_file, const char * temp_filename, COutputStream & messages )
+	std::shared_ptr<ROMFile> DecompressRom( std::shared_ptr<ROMFile> p_rom_file, const std::filesystem::path &temp_filename, COutputStream & messages )
 	{
-		auto p_new_file = nullptr;
-		FILE *		fh( fopen( temp_filename, "wb" ) );
 
+		FILE *		fh( fopen( temp_filename.c_str(), "wb" ) );
+		auto p_new_file = ROMFile::Create( temp_filename );
 		if( fh == nullptr )
 		{
-			messages << "Unable to create temporary rom '" << temp_filename << "' for decompression\n";
+			messages << "Unable to create temporary rom '" << temp_filename.c_str() << "' for decompression\n";
 		}
 		else
 		{
@@ -137,24 +137,23 @@ namespace
 
 			if( failed )
 			{
-				messages << "Failed to decompress rom to '" << temp_filename << "' - out of disk space?\n";
+				messages << "Failed to decompress rom to '" << temp_filename.c_str() << "' - out of disk space?\n";
 			}
 			else
 			{
 				//
 				//	Open the newly created file
 				//
-				p_new_file = ROMFile::Create( temp_filename );
+
 				if( p_new_file == nullptr )
 				{
-					messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
+					messages << "Failed to open temporary rom '" << temp_filename.c_str() << "' we just created\n";
 				}
 				else
 				{
 					if( !p_new_file->Open( messages ) )
 					{
-						messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
-						delete p_new_file;
+						messages << "Failed to open temporary rom '" << temp_filename.c_str() << "' we just created\n";
 						p_new_file = nullptr;
 					}
 				}
@@ -166,9 +165,7 @@ namespace
 #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::Create()
 {
 	// Create memory heap used for either ROM Cache or ROM buffer
@@ -177,21 +174,17 @@ bool RomBuffer::Create()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void RomBuffer::Destroy()
 {
 
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::Open()
 {
 	CNullOutputStream messages;
-	const std::filesystem::path filename   = g_ROM.mFileName;
+	const std::filesystem::path &filename   = g_ROM.mFileName;
 	auto p_rom_file = ROMFile::Create( filename.c_str() );
 	if(p_rom_file == nullptr)
 	{
@@ -224,7 +217,7 @@ bool RomBuffer::Open()
 			return false;
 		}
 #else
-		u32 offset( 0 );
+		u32 offset = 0;
 		u32 length_remaining( sRomSize );
 		const u32 TEMP_BUFFER_SIZE = 128 * 1024;
 
@@ -295,7 +288,6 @@ bool RomBuffer::Open()
 					#ifdef DAEDALUS_DEBUG_CONSOLE
 					DBGConsole_Msg( 0, "Decompression [gsuccessful]. Booting using decompressed rom" );
 					#endif
-					delete p_rom_file;
 					p_rom_file = p_new_file;
 				}
 				#ifdef DAEDALUS_DEBUG_CONSOLE
@@ -307,8 +299,8 @@ bool RomBuffer::Open()
 			}
 		}
 #endif
-		spRomFileCache = new ROMFileCache();
-		spRomFileCache->Open( p_rom_file );
+		spRomFileCache = std::make_unique<ROMFileCache>();
+		spRomFileCache->Open(std::move(p_rom_file ));
 		sRomFixed = false;
 	}
 
@@ -317,9 +309,7 @@ bool RomBuffer::Open()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	RomBuffer::Close()
 {
 	if (spRomData)
@@ -331,8 +321,6 @@ void	RomBuffer::Close()
 	if (spRomFileCache)
 	{
 		spRomFileCache->Close();
-		delete spRomFileCache;
-		spRomFileCache = nullptr;
 	}
 
 	sRomSize   = 0;
@@ -347,7 +335,7 @@ u32		RomBuffer::GetRomSize() { return sRomSize; }
 
 namespace
 {
-	void	CopyBytesRaw( ROMFileCache * p_cache, u8 * p_dst, u32 rom_offset, u32 length )
+	void	CopyBytesRaw( std::shared_ptr<ROMFileCache> p_cache, u8 * p_dst, u32 rom_offset, u32 length )
 	{
 		// Read the cached bytes into our scratch buffer, and return that
 		u32		dst_offset( 0 );
@@ -384,9 +372,7 @@ namespace
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 {
 	if( sRomFixed )
@@ -401,27 +387,21 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	RomBuffer::SaveRomValue( u32 value )
 {
 	sRomWritten = true;
 	sRomValue	= value;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	RomBuffer::PutRomBytesRaw( u32 rom_start, const void * p_src, u32 length )
 {
 	DAEDALUS_ASSERT( sRomFixed, "Cannot put rom bytes when the data isn't fixed" );
 	memcpy( (u8*)spRomData + rom_start, p_src, length );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void * RomBuffer::GetAddressRaw( u32 rom_start )
 {
 	if (sRomWritten)
@@ -450,9 +430,7 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 	return nullptr;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_offset, u32 length )
 {
 	if( sRomFixed )
@@ -498,9 +476,7 @@ bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u32 src_size, u32 length )
 {
 	if( sRomFixed )
@@ -517,17 +493,13 @@ bool RomBuffer::CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool RomBuffer::IsRomAddressFixed()
 {
 	return sRomFixed;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 const void * RomBuffer::GetFixedRomBaseAddress()
 {
 	DAEDALUS_ASSERT( sRomLoaded, "The rom isn't loaded" );

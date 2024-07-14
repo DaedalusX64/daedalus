@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 
 #include <stack>
-#include <string>
+#include <cstring>
 #include <vector>
 #include <3ds.h>
 #include <filesystem>
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Math/Math.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Utility/IniFile.h"
 #include "System/IO.h"
 #include "Base/Macros.h"
@@ -315,8 +315,8 @@ bool IInputManager::Initialise()
 		mControllerConfigs.push_back( p_default_z_config );
 	}
 
-	char ControllerConfigs[128];
-	IO::Path::Combine(ControllerConfigs, baseDir.string().c_str(), "CoontrollerConfigs");
+	// char ControllerConfigs[128];
+	std::filesystem::path ControllerConfigs  = "ControllerConfigs";
 	LoadControllerConfigs(ControllerConfigs);
 
 	SetConfiguration(0);
@@ -414,36 +414,25 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 
 void	IInputManager::LoadControllerConfigs( const std::filesystem::path p_dir )
 {
-	IO::FindHandleT		find_handle;
-	IO::FindDataT		find_data;
-	if(IO::FindFileOpen( p_dir.c_str(), &find_handle, find_data ))
-	{
-		do
-		{
-			const std::filesystem::path filename( find_data.Name );
-			const char * last_period( strrchr( filename.c_str(), '.' ) );
-			if(last_period != NULL)
-			{
-				if( strcmp(last_period, ".ini") == 0 )
-				{
-					std::string		full_path;
+  for (const auto& entry : std::filesystem::directory_iterator(p_dir))
+    {
+        if (entry.is_regular_file())
+        {
+            const std::filesystem::path filename = entry.path().filename();
+            const std::string extension = filename.extension().string();
 
-					full_path = p_dir;
-					full_path += filename;
+            if (extension == ".ini")
+            {
+                std::filesystem::path full_path = p_dir / filename;
+                CControllerConfig* p_config = BuildControllerConfig(full_path.string().c_str());
 
-					CControllerConfig *	p_config( BuildControllerConfig( full_path.c_str() ) );
-
-					if( p_config != NULL )
-					{
-						mControllerConfigs.push_back( p_config );
-					}
-				}
-			}
-		}
-		while(IO::FindFileNext( find_handle, find_data ));
-
-		IO::FindFileClose( find_handle );
-	}
+                if (p_config != nullptr)
+                {
+                    mControllerConfigs.push_back(p_config);
+                }
+            }
+        }
+    }
 }
 
 //*****************************************************************************
@@ -505,7 +494,7 @@ bool IsIdentifierChar( char c )
 
 u32 GetMaskFromIdentifier( const char * identifier )
 {
-	for( u32 i = 0; i < ARRAYSIZE( gButtonNameMappings ); ++i )
+	for( u32 i = 0; i < std::size( gButtonNameMappings ); ++i )
 	{
 		if( strcmp( gButtonNameMappings[ i ].ButtonName, identifier ) == 0 )
 		{

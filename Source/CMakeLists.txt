@@ -2,7 +2,7 @@
 # Created and Maintained by Wally 
 # Yes right now this is a mess, hoping to simplify things further in future but please deal with it for now :)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # Below is related to Macros within the project, a lot of these could be deprecated and deleted.
 # For now they will remain here so they're visible and can be switched on and off as desired.
@@ -10,23 +10,27 @@ set(CMAKE_CXX_STANDARD 20)
 #TODO: Separate SDL Options
 list(APPEND plat_main )
 
+
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
-if(DEBUG)
-	set(CMAKE_BUILD_TYPE Debug)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	message("Debug Build")
+
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
-	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
+	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Show the build type in the UI
 	option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
 	option(DAEDALUS_LOG "Enable various logging" ON)
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
 if(NOT WIN32)
 	add_compile_options("-Wall")
 	add_compile_options("-Wextra")
 endif()
 else()
-	set(CMAKE_BUILD_TYPE Release)
+	message("Release Build")
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
+	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Show the build type in the UI
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
 endif()
 	#Determine Dynarec compatibility and link in appropriate Dynarec
 	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
@@ -49,6 +53,9 @@ endif()
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
 		message("AMD64 Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "riscv64")
+		message("No Dynarec avaliable for Riscv64")
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
@@ -69,8 +76,7 @@ endif()
 
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
 	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
-	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM `Support" OFF) ## Probably should be a default option. 
-	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
+	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF) ## Probably should be a default option. 
 	option(DAEDALUS_LOG "Log stuff " OFF) ## NEeds to be off on the PSP unless debugging
 
 	# Additional Debug Options
@@ -78,12 +84,16 @@ endif()
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
 	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" OFF)
 	option(DAEDALUS_DEBUG_DYNAREC "Enable Various Debugging options for the Dynarec" OFF)
+	option(LOG_ABORTED_TRACES "Log aborted DynaRec Traces to file" OFF)
 	option(DAEDALUS_ENABLE_SYNCHRONISATION "Enable for sync testing" OFF)
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
 	option(DAEDALUS_PROFILE_EXECUTION "Keep track of various execution stats" OFF)
 	option(DUMPOSFUNCTIONS "Dump OSHLE Functions" OFF)
+	option(DAEDALUS_FRAMERATE_ANALYSIS "Output a CSV file containing framerate analysis" OFF)
+	option(DAEDALUS_DEBUG_AUDIO "Output some Audio Samples to raw file" OFF)
 	# Additional PSP Options
 	option(DAEDALUS_PSP_GPROF "PSP Profiling, needs Silent enabled" OFF)
+
 
 
 	## Enable specific options per platform based on Release build ## XXX need to handle GPROF
@@ -107,10 +117,12 @@ endif()
 		option(DAEDALUS_POSIX "Posix specific options" ON)
 		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 		option(DAEDALUS_128BIT_MULT "128 Bit Multiplication, not supported on PSP" ON)
-		option(DAEDALUS_DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)")
+		option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)" ON)
 		option(DAEDALUS_GL "OpenGL Renderer" ON)
 	elseif(WIN32)
 		option(DAEDALUS_SDL "SDL Build" ON)
+		option(DAED_USE_VIRTUAL_ALLOC "Use Windows Memory specifiers" ON) # We probably need to remove and simplfy this using modern C++
+		option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)" ON)
 		option(DAEDALUS_W32 "Windows specific Options" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
@@ -130,14 +142,6 @@ endif()
 	list(APPEND include_dirs "${PROJECT_SOURCE_DIR}/Source")
 	include_directories( BEFORE ${include_dirs})
 
-## Generic defines for certain things that Windows requires.
-if(NOT WIN32)
-	add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
-	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
-else()
-	add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=__stdcall)
-	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=__cdecl)
-endif()
 
 if(UNIX)
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)

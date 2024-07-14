@@ -3,7 +3,7 @@ add_library(Audio_POSIX OBJECT AudioPluginSDL.cpp)
 elseif( APPLE)
 add_library(Audio_POSIX OBJECT AudioPluginOSX.cpp)
 else() ## No Audio available
-add_library(Audio_POSIX OBJECT AudioPluginSDL.cpp)
+add_library(Audio_POSIX OBJECT AudioPluginNone.cpp)
 endif()
 
 

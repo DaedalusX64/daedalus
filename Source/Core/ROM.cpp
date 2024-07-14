@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 
 #include <stdio.h>
+#include <cstring>
 
 #include "Core/Cheats.h"
 #include "Core/CPU.h"
@@ -34,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "Interface/RomDB.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "OSHLE/patch.h"			// Patch_ApplyPatches
 #include "Ultra/ultra_os.h"		// System type
 #include "Ultra/ultra_R4300.h"
@@ -49,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Stream.h"
 #include "Debug/Synchroniser.h"
 
-#if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
+#if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE)
 // This isn't really the most appropriate place. Need to check with
 // the graphics plugin really
 u32 g_dwNumFrames = 0;
@@ -545,7 +546,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	return true;
 }
 
-bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_name )
+bool ROM_GetRomName( const std::filesystem::path &filename, std::string & game_name )
 {
 	auto p_rom_file = ROMFile::Create( filename );
 	if (p_rom_file == nullptr)
@@ -586,7 +587,7 @@ bool ROM_GetRomName( const std::filesystem::path filename, std::string & game_na
 	return true;
 }
 
-bool ROM_GetRomDetailsByFilename( const std::filesystem::path filename, RomID * id, u32 * rom_size, ECicType * boot_type )
+bool ROM_GetRomDetailsByFilename( const std::filesystem::path &filename, RomID * id, u32 * rom_size, ECicType * boot_type )
 {
 	return CRomDB::Get()->QueryByFilename( filename.c_str(), id, rom_size, boot_type );
 }

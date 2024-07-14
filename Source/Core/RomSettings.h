@@ -94,7 +94,7 @@ class CRomSettingsDB : public CSingleton< CRomSettingsDB >
 	public:
 		virtual					~CRomSettingsDB() {}
 
-		virtual bool			OpenSettingsFile( const std::filesystem::path filename ) = 0;
+		virtual bool			OpenSettingsFile( const std::filesystem::path &filename ) = 0;
 		virtual void			Commit() = 0;
 
 		virtual bool			GetSettings( const RomID & id, RomSettings * settings ) const = 0;

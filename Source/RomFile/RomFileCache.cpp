@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include "Debug/DBGConsole.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "RomFile/RomFile.h"
 #include "RomFile/RomFileCache.h"
 #include "RomFile/RomFileMemory.h"
@@ -62,7 +62,7 @@ struct SChunkInfo
 //
 //*****************************************************************************
 ROMFileCache::ROMFileCache()
-:	mpROMFile( NULL )
+:	mpROMFile( nullptr )
 ,	mChunkMapEntries( 0 )
 ,	mpChunkMap( NULL )
 ,	mMRUIdx( 0 )

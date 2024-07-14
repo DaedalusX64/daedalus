@@ -33,10 +33,10 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 	public:
 		virtual ~CDebugConsole();
 
-		virtual void DAEDALUS_VARARG_CALL_TYPE	Msg( u32 type, const char * format, ... ) = 0;
+		virtual void Msg( u32 type, const char * format, ... ) = 0;
 
 		virtual void							MsgOverwriteStart() = 0;
-		virtual void DAEDALUS_VARARG_CALL_TYPE	MsgOverwrite( u32 type, const char * format, ... ) = 0;
+		virtual void MsgOverwrite( u32 type, const char * format, ... ) = 0;
 		virtual void							MsgOverwriteEnd() = 0;
 };
 

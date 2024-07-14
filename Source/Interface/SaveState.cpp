@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include <stdio.h>
+#include <cstring>
 
 #include "Interface/SaveState.h"
 #include "Core/Memory.h"
@@ -29,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/R4300.h"
 #include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "OSHLE/patch.h"
 #include "Ultra/ultra_R4300.h"
 #include "System/SystemInit.h"

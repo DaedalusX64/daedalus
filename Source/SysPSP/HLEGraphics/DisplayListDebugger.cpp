@@ -50,7 +50,7 @@
 #include <algorithm>
 
 #include "Math/Math.h"	// VFPU Math
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 
 #include <pspctrl.h>
 #include <pspgu.h>

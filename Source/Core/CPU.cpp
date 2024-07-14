@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string>
 #include <vector>
 #include "System/Mutex.h"
+#include <cstring>
 
 #include "Config/ConfigOptions.h"
 #include "Core/Cheats.h"
@@ -54,9 +55,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Thread.h"
 
 
-#ifdef DAEDALUS_W32
-#include "HLEAudio/AudioPlugin.h"
-#endif
 
 extern void R4300_Init();
 
@@ -307,7 +305,7 @@ static const char * const kRegisterNames[] =
 	"s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
 	"t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
 };
-DAEDALUS_STATIC_ASSERT(ARRAYSIZE(kRegisterNames) == 32);
+DAEDALUS_STATIC_ASSERT(std::size(kRegisterNames) == 32);
 
 void SCPUState::Dump()
 {
@@ -394,6 +392,15 @@ bool CPU_RomOpen()
 	return true;
 }
 
+void CPU_RomClose()
+{
+#ifdef DAEDALUS_ENABLE_DYNAREC
+	#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+		//This will dump the fragment cache on exit to ROMs menu
+		//CPU_DumpFragmentCache();
+	#endif
+#endif
+}
 
 static bool	CPU_IsStateSimple()
 {
@@ -656,10 +663,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			gVerticalInterrupts++;
 
 			FramerateLimiter_Limit();
-#ifdef DAEDALUS_W32
-			if (gAudioPlugin != nullptr)
-				gAudioPlugin->Update(false);
-#endif
+
 			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_VI);
 			R4300_Interrupt_UpdateCause3();
 

@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_gbi.h"
 
 #include <random>
+#include <cstring> 
 
 // Limit cache ucode entries to 6
 // In theory we should never reach this max

@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SYSPSP_UI_UICOMMAND_H_
 
 #include "UIElement.h"
-#include "Utility/Functor.h"
 
 #include <string>
 #include <functional>

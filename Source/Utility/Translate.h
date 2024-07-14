@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UTILITY_TRANSLATE_H_
 
 #include "Base/Types.h"
+#include <filesystem>
 
 bool		 Translate_Init();
 //
@@ -31,9 +32,9 @@ const char * Translate_Strings(const char *original, u32 & len);
 // Translate a single string
 //
 const char * Translate_String(const char *original);
-bool		 Translate_Read(u32 idx, const char * dir);
+bool		 Translate_Read(u32 idx, const std::filesystem::path& dir);
 void		 Translate_Unload();
-void		 Translate_Load( const char * p_dir );
+void		 Translate_Load( const std::filesystem::path& p_dir );
 const char * Translate_Name(u32 idx);
 u32			 Translate_Number();
 u32			 Translate_IndexFromName( const char * name );

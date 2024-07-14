@@ -18,8 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <algorithm>
-#include <stdio.h>
-
+#include <fstream>
 
 #include "Base/Types.h"
 #include "Core/Dynamo.h"
@@ -130,7 +129,7 @@ void  CPU_InvalidateICacheRange( u32 address, u32 length )
 //	TranslateOp:	Use this to translate breakpoints/patches to original op
 //					before execution.
 //*****************************************************************************
-template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
+template< bool TraceEnabled > inline void CPU_EXECUTE_OP()
 {
 
 	u8 * p_Instruction = 0;
@@ -306,11 +305,16 @@ bool SortByHitCount( const SAddressHitCount & a, const SAddressHitCount & b )
 //*****************************************************************************
 void	CPU_DumpFragmentCache()
 {
-	std::filesystem::create_directory("DynarecDump");
-	
+	std::filesystem::path& dynarecDump = baseDir;
+	dynarecDump /= "DynarecDump";
+	std::filesystem::create_directory(dynarecDump);
 
-	FILE  * fh( fopen( "DynarecDump/hot_trace_map.html", "w" ) );
-	if( fh != nullptr )
+	dynarecDump /= "hot_trace_map.html";
+
+	
+	std::ofstream fh(dynarecDump, std::ios::in);
+
+	if (fh.is_open())
 	{
 		std::vector< SAddressHitCount >	hit_counts;
 
@@ -323,14 +327,14 @@ void	CPU_DumpFragmentCache()
 
 		std::sort( hit_counts.begin(), hit_counts.end(), SortByHitCount );
 
-		fputs( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">", fh );
-		fputs( "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n", fh );
-		fputs( "<head><title>Hot Trace Map</title>\n", fh );
-		fputs( "<link rel=\"stylesheet\" href=\"default.css\" type=\"text/css\" media=\"all\" />\n", fh );
-		fputs( "</head><body>\n", fh );
-		fputs( "<h1>Hot Trace Map</h1>\n", fh );
-		fputs( "<div align=\"center\"><table>\n", fh );
-		fputs( "<tr><th>Address</th><th>Hit Count</th><th>Abort Reason</th></tr>\n", fh );
+		fh <<  "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
+		fh <<  "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n";
+		fh <<  "<head><title>Hot Trace Map</title>\n";
+		fh <<  "<link rel=\"stylesheet\" href=\"default.css\" type=\"text/css\" media=\"all\" />\n";
+		fh <<  "</head><body>\n";
+		fh <<  "<h1>Hot Trace Map</h1>\n";
+		fh <<  "<div align=\"center\"><table>\n";
+		fh <<  "<tr><th>Address</th><th>Hit Count</th><th>Abort Reason</th></tr>\n";
 
 		for( u32 i = 0; i < hit_counts.size(); ++i )
 		{
@@ -340,20 +344,19 @@ void	CPU_DumpFragmentCache()
 
 			fprintf( fh, "<tr><td>%08x</td><td>%d</td>\n", info.Address, info.HitCount );
 
-			fputs( "<td>", fh );
-			if(abort_reason & CPU_CHECK_EXCEPTIONS)		{ fputs( " Exception", fh ); }
-			if(abort_reason & CPU_CHECK_INTERRUPTS)		{ fputs( " Interrupt", fh ); }
-			if(abort_reason & CPU_STOP_RUNNING)			{ fputs( " StopRunning", fh ); }
-			if(abort_reason & CPU_CHANGE_CORE)			{ fputs( " ChangeCore", fh ); }
-			fputs( "</td></tr>\n", fh );
+			fh << "<td>";
+			if(abort_reason & CPU_CHECK_EXCEPTIONS)		{ fh <<  " Exception"; }
+			if(abort_reason & CPU_CHECK_INTERRUPTS)		{ fh <<  " Interrupt"; }
+			if(abort_reason & CPU_STOP_RUNNING)			{ fh <<  " StopRunning"; }
+			if(abort_reason & CPU_CHANGE_CORE)			{ fh << " ChangeCore"; }
+			fh << "/td></tr>\n";
 
 			//if( info.HitCount >= gHotTraceThreshold )
 		}
-		fputs( "</table></div>\n", fh );
-		fputs( "</body></html>\n", fh );
+		fh << "</table></div>\n";
+		fh << "</body></html>\n";
 
-		fclose(fh);
-	}
+	}	
 
 	gFragmentCache.DumpStats( "DynarecDump/" );
 }
@@ -537,8 +540,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 					{
 						if(gAbortedTraceReasons.find( gCPUState.CurrentPC ) != gAbortedTraceReasons.end() )
 						{
-							u32 reason( gAbortedTraceReasons[ gCPUState.CurrentPC ] );
-							DAEDALUS_USE( reason );
+							u32 reason [[maybe_unused]] = gAbortedTraceReasons[ gCPUState.CurrentPC ];
 							//DBGConsole_Msg( 0, "Hot trace at [R%08x] has count of %d! (reason is %x) size %d", gCPUState.CurrentPC, trace_count, reason, gHotTraceCountMap.size( ) );
 							DAED_LOG( DEBUG_DYNAREC_CACHE, "Hot trace at %08x has count of %d! (reason is %x) size %d", gCPUState.CurrentPC, trace_count, reason, gHotTraceCountMap.size( ) );
 						}
@@ -595,6 +597,6 @@ void Dynamo_SelectCore()
 
 void CPU_ResetFragmentCache() {}
 void Dynamo_Reset() {}
-void  CPU_InvalidateICacheRange( u32 address, u32 length ) {}
+void  CPU_InvalidateICacheRange( u32 address [[maybe_unused]], u32 length [[maybe_unused]] ) {}
 
 #endif //DAEDALUS_ENABLE_DYNAREC

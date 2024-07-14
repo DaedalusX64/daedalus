@@ -25,17 +25,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <algorithm>
 
 
-template< typename T >
-inline T Saturate( s32 x );
+template< typename T > constexpr inline T Saturate( s32 x );
 
-template<> inline s16 Saturate( s32 x )
+template<> constexpr inline s16 Saturate( s32 x )
 {
-	return s16( std::clamp< s32 >( x, -32768, 32767 ) );
+	return static_cast<s16>( std::clamp< s32 >( x, -32768, 32767 ) );
 }
 
-template<> inline s8 Saturate( s32 x )
+template<> constexpr inline s8 Saturate( s32 x )
 {
-	return s8( std::clamp< s32 >( x, -128, 127 ) );
+	return static_cast<s8>( std::clamp< s32 >( x, -128, 127 ) );
 }
 
 
@@ -71,23 +70,16 @@ inline bool IsAligned( u32 x, u32 r )
 
 inline u32 GetNextPowerOf2( u32 x )
 {
-	u32 n = 1;
-	while ( n < x )
-	{
-		n = n<<1;
-	}
+    x--;
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+    x++;
 
-/*
-	v--;
-	v |= v >> 1;
-	v |= v >> 2;
-	v |= v >> 4;
-	v |= v >> 8;
-	v |= v >> 16;
-	v++;
-*/
 
-	return n;
+	return x;
 }
 
 #endif // MATH_MATHUTIL_H_

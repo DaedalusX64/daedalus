@@ -11,8 +11,7 @@
 #include "Graphics/ColourValue.h"
 #include "UI/DrawText.h"
 
-static u32 SCR_WIDTH = 640;
-static u32 SCR_HEIGHT = 480;
+#include "UI/PSPMenu.h"
 
 SDL_Window * gWindow = nullptr;
 SDL_Renderer * gSdlRenderer = nullptr;
@@ -41,7 +40,7 @@ public:
 	virtual void GetScreenSize(u32 * width, u32 * height) const;
 	virtual void ViewportType(u32 * width, u32 * height) const;
 
-	virtual void SetDebugScreenTarget( ETargetSurface buffer ) {}
+	virtual void SetDebugScreenTarget( ETargetSurface buffer [[maybe_unused]] ) {}
 	virtual void DumpNextScreen() {}
 	virtual void DumpScreenShot() {}
 	virtual void UItoGL();
@@ -63,10 +62,6 @@ GraphicsContextGL::~GraphicsContextGL()
 	SDL_Quit();
 }
 
-static void error_callback(int error, const char* description)
-{
-	fprintf(stderr, "Error: %d - %s\n", error, description);
-}
 
 extern bool initgl();
 bool GraphicsContextGL::Initialise()
@@ -85,6 +80,9 @@ bool GraphicsContextGL::Initialise()
 		return false;
 	}
 
+
+    // Decide GL+GLSL versions
+
 #if defined(__APPLE__)
     // GL 3.2 Core + GLSL 150
     const char* glsl_version = "#version 150";
@@ -99,11 +97,13 @@ bool GraphicsContextGL::Initialise()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 #endif
+
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+
 	//Create window
-	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
 
 	//Create context
 	gContext = SDL_GL_CreateContext( gWindow );
@@ -209,14 +209,14 @@ void GraphicsContextGL::EndFrame()
 	HandleEndOfFrame();
 }
 
-void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
+void GraphicsContextGL::UpdateFrame( bool wait_for_vbl [[maybe_unused]] )
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 	if (gSdlRenderer == nullptr) {
 		SDL_GL_SwapWindow(gWindow);
 	}
+
 	
 //	if( gCleanSceneEnabled ) //TODO: This should be optional
 //	{

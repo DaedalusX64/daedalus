@@ -233,7 +233,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 				u8 r = ((value>>24)&0xFF);
 				u8 g = ((value>>16)&0xFF);
 				u8 b = ((value>>8)&0xFF);
-				u8 a = 255;
+				u8 a [[maybe_unused]] = 255;
 				gRenderer->SetLightCol(light_idx, r, g, b);
 			}
 		}
@@ -301,7 +301,7 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI1_EndDL( MicroCodeCommand command )
+void DLParser_GBI1_EndDL( MicroCodeCommand command [[maybe_unused]] )
 {
 	DLParser_PopDL();
 }
@@ -309,7 +309,7 @@ void DLParser_GBI1_EndDL( MicroCodeCommand command )
 //*****************************************************************************
 // When the depth is less than the z value provided, branch to given address
 //*****************************************************************************
-void DLParser_GBI1_BranchZ( MicroCodeCommand command )
+void DLParser_GBI1_BranchZ( MicroCodeCommand command [[maybe_unused]] )
 {
 	// Zelda games do W checking instead of Z
 	if (g_ROM.ZELDA_HACK) 
@@ -473,21 +473,21 @@ void DLParser_GBI1_Reserved( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI1_Noop( MicroCodeCommand command )
+void DLParser_GBI1_Noop( MicroCodeCommand command [[maybe_unused]] )
 {
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI1_SpNoop( MicroCodeCommand command )
+void DLParser_GBI1_SpNoop( MicroCodeCommand command [[maybe_unused]] )
 {
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI1_RDPHalf_Cont( MicroCodeCommand command )
+void DLParser_GBI1_RDPHalf_Cont( MicroCodeCommand command [[maybe_unused]] )
 {
 	//DBGConsole_Msg( 0, "Unexpected RDPHalf_Cont: %08x %08x", command.inst.cmd0, command.inst.cmd1 );
 }
@@ -495,7 +495,7 @@ void DLParser_GBI1_RDPHalf_Cont( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI1_RDPHalf_2( MicroCodeCommand command )
+void DLParser_GBI1_RDPHalf_2( MicroCodeCommand command [[maybe_unused]] )
 {
 //	DBGConsole_Msg( 0, "Unexpected RDPHalf_2: %08x %08x", command.inst.cmd0, command.inst.cmd1 );
 }

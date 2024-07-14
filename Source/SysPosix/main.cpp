@@ -52,6 +52,8 @@ static CTimer gTimer;
 void HandleEndOfFrame()
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#include "HLEGraphics/DisplayListDebugger.h"
+#include "Debug/DebugLog.h"
 	if (DLDebugger_IsDebugging())
 		return;
 	DPF(DEBUG_FRAME, "********************************************");
@@ -69,16 +71,17 @@ void HandleEndOfFrame()
 	sceCtrlPeekBufferPositive(&pad, 1);
 
 	// If KernelButtons.prx not found. Use select for pause instead
-	if (oldButtons != pad.Buttons)
+	if(oldButtons != pad.Buttons)
 	{
 		// if( gCheatsEnabled && (pad.Buttons & PSP_CTRL_SELECT) )
 		// {
 		// 	CheatCodes_Activate( GS_BUTTON );
 		// }
 
-		if (pad.Buttons & PSP_CTRL_SELECT)
-			activate_pause_menu = true;
+		if(pad.Buttons & PSP_CTRL_SELECT)
+				activate_pause_menu = true;
 	}
+
 
 	if (activate_pause_menu)
 	{
@@ -118,8 +121,6 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	Translate_Init();
-
 	if (argc > 1)
 	{
 		bool batch_test = false;
@@ -142,17 +143,22 @@ int main(int argc, char **argv)
 					{
 						const char *relative_path = argv[i + 1];
 						++i;
-
-						char *dir = realpath(relative_path, nullptr);
-						CRomDB::Get()->AddRomDirectory(dir);
-						free(dir);
-					}
+						try 
+						{ 
+							std::filesystem::path dir = std::filesystem::absolute(relative_path);
+							CRomDB::Get()->AddRomDirectory(dir.string().c_str());
+						}
+						catch (const std::filesystem::filesystem_error& e) 
+						{
+                    std::cerr << "Error resolving path: " << e.what() << std::endl;
+						}
+                	}
 				}
 			}
-			else
-			{
-				filename = arg;
-			}
+					else
+					{
+						filename = arg;
+					}
 		}
 
 		if (batch_test)
@@ -177,14 +183,14 @@ int main(int argc, char **argv)
 			System_Close();
 		}
 	}
-
+	Translate_Init();
 	bool show_splash = true;
 	for (;;)
 	{
 		DisplayRomsAndChoose(show_splash);
 		show_splash = false;
 
-		CRomDB::Get()->Commit();
+		// CRomDB::Get()->Commit();
 		CPreferences::Get()->Commit();
 
 		CPU_Run();

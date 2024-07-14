@@ -22,11 +22,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include "Interface/Preferences.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <fstream>
 
 #include <string>
 #include <set>
+#include <format>
 #include <map>
 
 #include "Utility/IniFile.h"
@@ -39,17 +39,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/IO.h"
 #include "Base/Path.h"
 
-#ifdef DAEDALUS_PSP
 #include "Utility/Translate.h"
-#endif
 
 // Audio is disabled on the PSP by default, but enabled on other platforms.
 #ifdef DAEDALUS_PSP
 static const EAudioPluginMode      kDefaultAudioPluginMode      = APM_DISABLED;
 static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_DISABLED;
-#elif defined(DAEDALUS_W32)
-static const EAudioPluginMode      kDefaultAudioPluginMode      = APM_ENABLED_ASYNC;
-static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_EVERY_FRAME;
 #else
 static const EAudioPluginMode      kDefaultAudioPluginMode = APM_ENABLED_SYNC;
 static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_EVERY_FRAME;
@@ -80,7 +75,7 @@ class IPreferences : public CPreferences
 		void					SetRomPreferences( const RomID & id, const SRomPreferences & preferences );
 
 	private:
-		void					OutputSectionDetails( const RomID & id, const SRomPreferences & preferences, FILE * fh );
+		void					OutputSectionDetails( const RomID & id, const SRomPreferences & preferences, std::ofstream& fh );
 
 	private:
 	using PreferencesMap = std::map<RomID, SRomPreferences>;
@@ -108,8 +103,8 @@ CPreferences::~CPreferences()
 IPreferences::IPreferences()
 :	mDirty( false )
 {
-	char ini_filename[128];
-	IO::Path::Combine(ini_filename, baseDir.string().c_str(), "preferences.ini");
+		std::filesystem::path ini_filename = baseDir;
+	ini_filename /= "preferences.ini";
 	OpenPreferencesFile( ini_filename );
 }
 
@@ -148,6 +143,7 @@ bool IPreferences::OpenPreferencesFile( const std::filesystem::path  &filename )
 #define INT_SETTING( b, nm, def )	if( section->FindProperty( #nm, &property ) ) {	b.nm = property->GetIntValue( def.nm ); }
 #define FLOAT_SETTING( b, nm, def ) if( section->FindProperty( #nm, &property ) ) {	b.nm = property->GetFloatValue( def.nm ); }
 
+
 		const SGlobalPreferences	defaults;
 
 		BOOL_SETTING( gGlobalPreferences, DisplayFramerate, defaults );
@@ -162,12 +158,10 @@ bool IPreferences::OpenPreferencesFile( const std::filesystem::path  &filename )
 		FLOAT_SETTING( gGlobalPreferences, StickMinDeadzone, defaults );
 		FLOAT_SETTING( gGlobalPreferences, StickMaxDeadzone, defaults );
 //		INT_SETTING( gGlobalPreferences, Language, defaults );
-#ifdef DAEDALUS_PSP
 		if( section->FindProperty( "Language", &property ) )
 		{
 			gGlobalPreferences.Language = Translate_IndexFromName( property->GetValue() );
 		}
-#endif
 		if( section->FindProperty( "GuiColor", &property ) )
 		{
 			u32 value( property->GetIntValue(defaults.GuiColor) );
@@ -275,12 +269,11 @@ bool IPreferences::OpenPreferencesFile( const std::filesystem::path  &filename )
 		{
 			preferences.ZoomX = (f32)atof( property->GetValue() );
 		}
-#ifdef DAEDALUS_PSP
+
 		if( section->FindProperty( "Controller", &property ) )
 		{
 			preferences.ControllerIndex = CInputManager::Get()->GetConfigurationFromName( property->GetValue() );
 		}
-#endif
 		if( section->FindProperty( "MemoryAccessOptimisation", &property ) )
 		{
 			preferences.MemoryAccessOptimisation = property->GetBooleanValue( false );
@@ -297,50 +290,48 @@ bool IPreferences::OpenPreferencesFile( const std::filesystem::path  &filename )
 	return true;
 }
 
-void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences & preferences, FILE * fh )
+void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences & preferences, std::ofstream& fh )
 {
 	// Generate the CRC-ID for this rom:
 	RomSettings		settings;
 	CRomSettingsDB::Get()->GetSettings( id, &settings );
 
-	fprintf(fh, "{%08x%08x-%02x}\t// %s\n", id.CRC[0], id.CRC[1], id.CountryID, settings.GameName.c_str() );
-	fprintf(fh, "PatchesEnabled=%d\n",             preferences.PatchesEnabled);
-	fprintf(fh, "SpeedSyncEnabled=%d\n",           preferences.SpeedSyncEnabled);
-	fprintf(fh, "DynarecEnabled=%d\n",             preferences.DynarecEnabled);
-	fprintf(fh, "DynarecLoopOptimisation=%d\n",    preferences.DynarecLoopOptimisation);
-	fprintf(fh, "DynarecDoublesOptimisation=%d\n", preferences.DynarecDoublesOptimisation);
-	fprintf(fh, "DoubleDisplayEnabled=%d\n",       preferences.DoubleDisplayEnabled);
-	fprintf(fh, "CleanSceneEnabled=%d\n",          preferences.CleanSceneEnabled);
-	fprintf(fh, "ClearDepthFrameBuffer=%d\n",	   preferences.ClearDepthFrameBuffer);
-	fprintf(fh, "AudioRateMatch=%d\n",             preferences.AudioRateMatch);
-	fprintf(fh, "VideoRateMatch=%d\n",             preferences.VideoRateMatch);
-	fprintf(fh, "FogEnabled=%d\n",                 preferences.FogEnabled);
-	fprintf(fh, "CheckTextureHashFrequency=%d\n",  GetTexureHashFrequencyAsFrames( preferences.CheckTextureHashFrequency ) );
-	fprintf(fh, "Frameskip=%d\n",                  GetFrameskipValueAsInt( preferences.Frameskip ) );
-	fprintf(fh, "AudioEnabled=%d\n",               preferences.AudioEnabled);
-	fprintf(fh, "ZoomX=%f\n",                      preferences.ZoomX );
-	fprintf(fh, "MemoryAccessOptimisation=%d\n",   preferences.MemoryAccessOptimisation);
-	fprintf(fh, "CheatsEnabled=%d\n",              preferences.CheatsEnabled);
-#ifdef DAEDALUS_PSP
-	fprintf(fh, "Controller=%s\n",                CInputManager::Get()->GetConfigurationName( preferences.ControllerIndex ));
-#endif
-	fprintf(fh, "\n");			// Spacer
+fh << std::hex << std::setfill('0');
+fh << "{" << std::setw(8) << id.CRC[0] << std::setw(8) << id.CRC[1] << "-" << std::setw(2) << static_cast<int>(id.CountryID) << "}\t// " << settings.GameName << "\n";
+fh << "PatchesEnabled=" << preferences.PatchesEnabled << "\n";
+fh << "SpeedSyncEnabled=" << preferences.SpeedSyncEnabled << "\n";
+fh << "DynarecEnabled=" << preferences.DynarecEnabled << "\n";
+fh << "DynarecLoopOptimisation=" << preferences.DynarecLoopOptimisation << "\n";
+fh << "DynarecDoublesOptimisation=" << preferences.DynarecDoublesOptimisation << "\n";
+fh << "DoubleDisplayEnabled=" << preferences.DoubleDisplayEnabled << "\n";
+fh << "CleanSceneEnabled=" << preferences.CleanSceneEnabled << "\n";
+fh << "ClearDepthFrameBuffer=" << preferences.ClearDepthFrameBuffer << "\n";
+fh << "AudioRateMatch=" << preferences.AudioRateMatch << "\n";
+fh << "VideoRateMatch=" << preferences.VideoRateMatch << "\n";
+fh << "FogEnabled=" << preferences.FogEnabled << "\n";
+fh << "CheckTextureHashFrequency=" << GetTexureHashFrequencyAsFrames(preferences.CheckTextureHashFrequency) << "\n";
+fh << "Frameskip=" << GetFrameskipValueAsInt(preferences.Frameskip) << "\n";
+fh << "AudioEnabled=" << preferences.AudioEnabled << "\n";
+fh << "ZoomX=" << preferences.ZoomX << "\n";
+fh << "MemoryAccessOptimisation=" << preferences.MemoryAccessOptimisation << "\n";
+fh << "CheatsEnabled=" << preferences.CheatsEnabled << "\n";
+fh << "Controller=" << CInputManager::Get()->GetConfigurationName(preferences.ControllerIndex) << "\n";
+fh << "\n"; // Spacer
 }
 
 // Write out the .ini file, keeping the original comments intact
 void IPreferences::Commit()
 {
-	FILE * fh( fopen(mFilename.string().c_str(), "w") );
-	if (fh != NULL)
+	std::ofstream fh(mFilename);
+	if (fh.is_open())
 	{
 		const SGlobalPreferences	defaults;
 
-#define OUTPUT_BOOL( b, nm, def )		fprintf( fh, "%s=%s\n", #nm, b.nm ? "yes" : "no" );
-#define OUTPUT_FLOAT( b, nm, def )		fprintf( fh, "%s=%f\n", #nm, b.nm );
-#define OUTPUT_INT( b, nm, def )		fprintf( fh, "%s=%d\n", #nm, b.nm );
-#ifdef DAEDALUS_PSP
-#define OUTPUT_LANGUAGE( b, nm, def )	fprintf( fh, "%s=%s\n", #nm, Translate_NameFromIndex( b.nm ) );
-#endif
+#define OUTPUT_BOOL(b, nm, def) fh << std::format("{}={}\n", #nm, b.nm ? "yes" : "no")
+#define OUTPUT_FLOAT(b, nm, def) fh << std::format("{}={:.6f}\n", #nm, b.nm)
+#define OUTPUT_INT(b, nm, def) fh << #nm << "=" << static_cast<int>(b.nm) << "\n"
+#define OUTPUT_LANGUAGE(b, nm, def) fh << std::format("{}={}\n", #nm, Translate_NameFromIndex(b.nm))
+
 		OUTPUT_BOOL( gGlobalPreferences, DisplayFramerate, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, ForceLinearFilter, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, RumblePak, defaults );
@@ -350,24 +341,23 @@ void IPreferences::Commit()
 #endif
 		OUTPUT_BOOL( gGlobalPreferences, BatteryWarning, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, LargeROMBuffer, defaults );
-		OUTPUT_INT( gGlobalPreferences, GuiColor, defaults )
+		OUTPUT_INT( gGlobalPreferences, GuiColor, defaults );
 		OUTPUT_FLOAT( gGlobalPreferences, StickMinDeadzone, defaults );
 		OUTPUT_FLOAT( gGlobalPreferences, StickMaxDeadzone, defaults );
-#ifdef DAEDALUS_PSP
 		OUTPUT_LANGUAGE( gGlobalPreferences, Language, defaults );
-#endif
 		OUTPUT_INT( gGlobalPreferences, ViewportType, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, TVEnable, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, TVLaced, defaults );
 		OUTPUT_INT( gGlobalPreferences, TVType, defaults );
-		fprintf( fh, "\n\n" ); //Spacer to go before Rom Settings
+		fh << "\n\n";
+		// fprintf( fh, "\n\n" ); //Spacer to go before Rom Settings
 
 		for ( PreferencesMap::const_iterator it = mPreferences.begin(); it != mPreferences.end(); ++it )
 		{
 			OutputSectionDetails( it->first, it->second, fh );
 		}
 
-		fclose( fh );
+		// fclose( fh );
 		mDirty = false;
 	}
 }
@@ -498,9 +488,8 @@ void SRomPreferences::Apply() const
 	gAudioPluginEnabled         = AudioEnabled;
 //	gAdaptFrequency             = AudioAdaptFrequency;
 	gControllerIndex            = ControllerIndex;							//Used during ROM initialization
-#ifdef DAEDALUS_PSP
+
 	CInputManager::Get()->SetConfiguration( ControllerIndex );  //Used after initialization
-#endif
 }
 
 

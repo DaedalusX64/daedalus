@@ -8,12 +8,12 @@ TTF_Font *gFonts[] =
 		nullptr,
 		nullptr,
 };
-DAEDALUS_STATIC_ASSERT(ARRAYSIZE(gFonts) == CDrawText::NUM_FONTS);
+DAEDALUS_STATIC_ASSERT(std::size(gFonts) == CDrawText::NUM_FONTS);
 
 void CDrawText::Initialise()
 {
-    gFonts[CDrawText::F_REGULAR] = TTF_OpenFont("Resources/OpenSans.ttf", 12);
-    gFonts[CDrawText::F_LARGE_BOLD] = TTF_OpenFont("Resources/OpenSans.ttf", 22);
+    gFonts[CDrawText::F_REGULAR] = TTF_OpenFont("Resources/OpenSans.ttf", 48);
+    gFonts[CDrawText::F_LARGE_BOLD] = TTF_OpenFont("Resources/OpenSans.ttf", 48);
     TTF_SetFontStyle(gFonts[CDrawText::F_LARGE_BOLD], TTF_STYLE_BOLD);
 
     if (gFonts[0] == 0)

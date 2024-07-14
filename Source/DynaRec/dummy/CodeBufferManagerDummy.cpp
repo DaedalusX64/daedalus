@@ -82,7 +82,7 @@ void Dynarec_SetCPUStuffToDo()
 
 
 extern "C" {
-void _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit )
+void _EnterDynaRec( const void * p_function [[maybe_unused]], const void * p_base_pointer [[maybe_unused]], const void * p_rebased_mem [[maybe_unused]], u32 mem_limit [[maybe_unused]] )
 {
 	DAEDALUS_ASSERT(false, "Unimplemented");
 }

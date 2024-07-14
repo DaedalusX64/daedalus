@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <iostream> 
 #include <sstream>
+#include <format>
 
 #include "Core/CPU.h"
 #include "Core/ROM.h"
@@ -47,7 +48,7 @@ static s32 get_saveslot_from_keysym(s32 keysym)
     }
 }
 
-static void PollKeyboard(void * arg)
+static void PollKeyboard(void * arg [[maybe_unused]])
 {
 	SDL_Event event;
 	while (SDL_PollEvent( &event) != 0)
@@ -79,35 +80,10 @@ static void PollKeyboard(void * arg)
 					toggle_fullscreen = false;
 				}
 			}
-
-			s32 idx = -1;
-			if ((idx = get_saveslot_from_keysym(event.key.keysym.scancode)) >= 0)
-			{
-				std::ostringstream filename_ss;
-				filename_ss << "saveslot" << idx << ".ss";
-
-				std::filesystem::path path_sub = IO::Path::FindFileName(g_ROM.settings.GameName.c_str());
-				std::filesystem::path path_ss = "SaveStates/";
-				std::filesystem::path filename = path_ss /= path_sub /= filename_ss.str();
-
-				std::cout << "SaveState Name:" << filename << std::endl;
-
-				bool ctrl_down = event.key.keysym.mod & ( KMOD_LCTRL | KMOD_RCTRL );
-				if (ctrl_down)
-				{
-					CPU_RequestSaveState(filename);
-				}
-				else
-				{
-					if (std::filesystem::exists(filename))
-					{
-						CPU_RequestLoadState(filename);
-					}
-				}
-			}
 		}
 	}
 }
+
 
 bool UI_Init()
 {

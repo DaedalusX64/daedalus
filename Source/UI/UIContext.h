@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/ColourValue.h"
 #include "UIAlignment.h"
 #include "Interface/Preferences.h"
+#include <cstring>
 
 class CNativeTexture;
 class v2;
@@ -116,6 +117,7 @@ class CUIContext
 	#include <psprtc.h>
 	#include <psppower.h>
 #else
+
 #include "Ultra/ultra_os.h"
 
   #define PSP_CTRL_DOWN   D_JPAD
