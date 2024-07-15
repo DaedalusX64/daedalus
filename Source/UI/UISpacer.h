@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_UISPACER_H_
-#define SYSPSP_UI_UISPACER_H_
+#ifndef UI_UISPACER_H_
+#define UI_UISPACER_H_
 
 #include "UIElement.h"
 
@@ -45,4 +45,4 @@ private:
 };
 
 
-#endif // SYSPSP_UI_UISPACER_H_
+#endif // UI_UISPACER_H_

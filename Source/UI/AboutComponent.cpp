@@ -78,50 +78,35 @@ void	IAboutComponent::Update( float elapsed_time [[maybe_unused]], const v2 & st
 
 void	IAboutComponent::Render()
 {	
-	// // Render Logo	
-	// if(mpTexture != NULL)
-	// {	
-	// 	s16	width =  mpTexture->GetWidth();
-	// 	s16	height =  mpTexture->GetHeight();
-
-	// 	f32	desired_height = LIST_TEXT_TOP;
-	// 	f32	scale  = desired_height / static_cast<f32>(height);
-	// 	v2	wh( static_cast<f32>(width) * scale, static_cast<f32>(height) * scale );
-	// 	v2	tl( static_cast<f32>( (SCREEN_WIDTH - wh.x)/2 ), (SCREEN_HEIGHT / 2));
-
-	// 	mpContext->RenderTexture( mpTexture, tl, wh, c32::White );
-
-
-	// }
 	s16 text_top = SCREEN_HEIGHT / 4;
 
 	const s16	line_height =  mpContext->GetFontHeight() + 2;
-	// Render the text in the middle of the screen
 	s16 y = text_top + 20;
 
-	std::string	version = DAEDALUS_VERSION_TEXT;
 
+	std::string	version = "DA";
 
 	std::string	date = DATE_TEXT + __DATE__;
-	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, version.data(), DrawTextUtilities::TextWhite ); y += line_height;
 
-	// Spacer
-	y += line_height;
+	// Make the Tile bold 
+	mpContext->SetFontStyle( CUIContext::FS_HEADING );
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, version.data(), DrawTextUtilities::TextWhite ); y += line_height;
+	
+	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
+		
+	y += line_height; // Spacer
 
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, date.data(), DrawTextUtilities::TextWhite ); y += line_height;
 
-	// Spacer
-	y += line_height;
 
+	y += line_height; // Spacer
 
-	for( size_t i = 0; i < std::size( INFO_TEXT ); ++i )
+	for (const auto& str : INFO_TEXT)
 	{
-		const char * str( INFO_TEXT[ i ] );
-
-		mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, str, DrawTextUtilities::TextWhite );
+		mpContext->DrawTextAlign(LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, str, DrawTextUtilities::TextWhite);
 		y += line_height;
 	}
 
-	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, URL_TEXT_1, DrawTextUtilities::TextRed, c32( 255,255,255,160 ) );	y += line_height;
-	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, URL_TEXT_2, DrawTextUtilities::TextRed, c32( 255,255,255,255 ) );	y += line_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, URL_TEXT_1, DrawTextUtilities::TextGreen, c32( 255,255,255,160 ) );	y += line_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, URL_TEXT_2, DrawTextUtilities::TextBlue, c32( 255,255,255,255 ) );	y += line_height;
 }

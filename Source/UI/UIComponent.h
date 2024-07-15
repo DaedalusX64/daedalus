@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_UICOMPONENT_H_
-#define SYSPSP_UI_UICOMPONENT_H_
+#ifndef UI_UICOMPONENT_H_
+#define UI_UICOMPONENT_H_
 
 #include "Base/Types.h"
 
@@ -65,4 +65,4 @@ class CUIComponentScreen : public CUIScreen
 		std::string					mTitle;
 };
 
-#endif // SYSPSP_UI_UICOMPONENT_H_
+#endif // UI_UICOMPONENT_H_

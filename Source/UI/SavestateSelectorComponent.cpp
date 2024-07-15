@@ -154,8 +154,8 @@ void ISavestateSelectorComponent::LoadFolders() {
 			if (entry.is_directory()) 
 			{
 				std::string directoryName = entry.path().filename().string();
-				if (directoryName.size() > 2)
-				{
+				// if (directoryName.size() > 2)
+				// {
 					std::string_view str = directoryName;
 					auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
 					std::function<void()> functor = onSelected;
@@ -163,7 +163,7 @@ void ISavestateSelectorComponent::LoadFolders() {
 					mElements.Add(element);
 					mElementTitle.push_back(directoryName);
 					folderIndex++; 
-				}
+				// }
 			}
 			else
 			{

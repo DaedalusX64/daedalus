@@ -37,7 +37,7 @@ u32		CUISetting::GetHeight( CUIContext * context ) const
 
 void	CUISetting::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType halign [[maybe_unused]], s32 y, bool selected ) const
 {
-	bool		read_only( IsReadOnly() );
+	bool		read_only = IsReadOnly();
 
 	c32	colour;
 	if( selected )

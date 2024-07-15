@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_MAINMENUSCREEN_H_
-#define SYSPSP_UI_MAINMENUSCREEN_H_
+#ifndef UI_MAINMENUSCREEN_H_
+#define UI_MAINMENUSCREEN_H_
 
 class CUIContext;
 
@@ -35,4 +35,4 @@ class CMainMenuScreen
 
 void DisplayRomsAndChoose(bool show_splash);
 
-#endif // SYSPSP_UI_MAINMENUSCREEN_H_
+#endif // UI_MAINMENUSCREEN_H_

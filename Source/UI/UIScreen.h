@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_UISCREEN_H_
-#define SYSPSP_UI_UISCREEN_H_
+#ifndef UI_UISCREEN_H_
+#define UI_UISCREEN_H_
 
 #include "Base/Types.h"
 
@@ -45,4 +45,4 @@ class CUIScreen
 
 };
 
-#endif // SYSPSP_UI_UISCREEN_H_
+#endif // UI_UISCREEN_H_

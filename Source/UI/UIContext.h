@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_UICONTEXT_H_
-#define SYSPSP_UI_UICONTEXT_H_
+#ifndef UI_UICONTEXT_H_
+#define UI_UICONTEXT_H_
 
 #include "Graphics/ColourValue.h"
 #include "UIAlignment.h"
@@ -100,7 +100,7 @@ class CUIContext
 		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour ) = 0;
 		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour ) = 0;
 
-		virtual s32					DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align ) = 0;
+		virtual s32					DrawTextArea( s32 left, s32 top, u32 width, u32 height, const std::string text, c32 colour, EVerticalAlign vertical_align ) = 0;
 
 		virtual u32					GetFontHeight() const = 0;
 		virtual u32					GetTextWidth( const char * text ) const = 0;
@@ -144,4 +144,4 @@ class CUIContext
 #endif
 //##########################################################################################################
 
-#endif // SYSPSP_UI_UICONTEXT_H_
+#endif // UI_UICONTEXT_H_

@@ -1,5 +1,5 @@
-#ifndef SYSPSP_UI_PSPMENU_H_
-#define SYSPSP_UI_PSPMENU_H_
+#ifndef UI_PSPMENU_H_
+#define UI_PSPMENU_H_
 
 #include "Base/Types.h"
 #include <string>
@@ -171,4 +171,4 @@ const char * const		gNoRomsText[] =
 const f32				PREVIEW_SCROLL_WAIT = 0.500f;		// seconds to wait for scrolling to stop before loading preview (prevent thrashing)
 const f32				PREVIEW_FADE_TIME = 0.50f;			// seconds
 
-#endif //SYSPSP_UI_PSPMENU_H_
+#endif //UI_PSPMENU_H_

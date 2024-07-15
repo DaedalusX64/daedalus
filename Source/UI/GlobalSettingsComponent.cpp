@@ -200,28 +200,28 @@ namespace
 
 		virtual	void			OnSelected()
 		{
-			if(gShowDialog.Render( mpContext,"Reset HLE cache?", false) )
+			if(gShowDialog->Render( mpContext,"Reset HLE cache?", false) )
 			{
 		
-				if(gShowDialog.Render( mpContext,"Reset settings?", false) )
+				if(gShowDialog->Render( mpContext,"Reset settings?", false) )
 				{
 					std::filesystem::remove("preferences.ini");
 					std::filesystem::remove("rom.db");
 					ThreadSleepMs(1000);	//safety wait for s
 
-					gShowDialog.Render( mpContext,"Daedalus will exit now",true);
+					gShowDialog->Render( mpContext,"Daedalus will exit now",true);
 
 					sceKernelExitGame();
 				}
 			}
-			if(gShowDialog.Render( mpContext,"Reset settings?", false) )
+			if(gShowDialog->Render( mpContext,"Reset settings?", false) )
 			{
 				std::filesystem::remove("preferences.ini");
 				std::filesystem::remove("rom.db");
 
 				ThreadSleepMs(1000);	//safety wait for s
 
-				gShowDialog.Render( mpContext,"Daedalus will exit now",true);
+				gShowDialog->Render( mpContext,"Daedalus will exit now",true);
 
 				sceKernelExitGame();
 			}
@@ -376,7 +376,7 @@ void	IGlobalSettingsComponent::Update( float elapsed_time [[maybe_unused]], cons
 		}
 
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto element =   mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -400,10 +400,10 @@ void	IGlobalSettingsComponent::Render()
 {
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
+	auto	element =  mElements.GetSelectedElement();
 	if( element != NULL )
 	{
-		const char *		p_description( element->GetDescription() );
+		const auto	p_description =  element->GetDescription();
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,
 								 DESCRIPTION_AREA_RIGHT - DESCRIPTION_AREA_LEFT,

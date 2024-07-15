@@ -17,7 +17,8 @@ namespace DrawTextUtilities
 	const c32 TextBlueDisabled = c32(80, 80, 178);
 	const c32 TextRed = c32(255, 0, 0);
 	const c32 TextRedDisabled = c32(208, 208, 208);
-
+	const c32 TextGreen = c32(0, 255, 0);
+	const c32 TextYellow = c32(0, 255, 255);
 	static c32 COLOUR_SHADOW_HEAVY = c32(0x80000000);
 	static c32 COLOUR_SHADOW_LIGHT = c32(0x50000000);
 

@@ -300,14 +300,13 @@ void	IRomPreferencesScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	u32		font_height( mpContext->GetFontHeight() );
-	u32		line_height( font_height + 2 );
-	s32		y;
+	u32		font_height = mpContext->GetFontHeight();
+	u32		line_height = font_height + 2;
 
-	const char * const title_text = "Rom Preferences";
+	const auto title_text = "Rom Preferences";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-	u32		heading_height( mpContext->GetFontHeight() );
-	y = MENU_TOP + heading_height;
+	u32		heading_height = mpContext->GetFontHeight();
+	auto y = MENU_TOP + heading_height;
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
@@ -319,10 +318,10 @@ void	IRomPreferencesScreen::Render()
 
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
-	if( element != NULL )
+	auto	element = mElements.GetSelectedElement();
+	if( element != nullptr )
 	{
-		const char *		p_description( element->GetDescription() );
+		const auto	 p_description = element->GetDescription();
 
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,
@@ -335,15 +334,11 @@ void	IRomPreferencesScreen::Render()
 }
 
 
-//
-
 void	IRomPreferencesScreen::Run()
 {
 	CUIScreen::Run();
 }
 
-
-//
 
 void	IRomPreferencesScreen::OnConfirm()
 {
@@ -356,8 +351,6 @@ void	IRomPreferencesScreen::OnConfirm()
 	mIsFinished = true;
 }
 
-
-//
 
 void	IRomPreferencesScreen::OnCancel()
 {
