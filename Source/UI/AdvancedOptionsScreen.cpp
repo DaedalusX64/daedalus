@@ -69,9 +69,9 @@ class IAdvancedOptionsScreen : public CAdvancedOptionsScreen, public CUIScreen
 
 CAdvancedOptionsScreen::~CAdvancedOptionsScreen() {}
 
-CAdvancedOptionsScreen *	CAdvancedOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
+std::unique_ptr<CAdvancedOptionsScreen>	CAdvancedOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
-	return new IAdvancedOptionsScreen( p_context, rom_id );
+	return std::make_unique<IAdvancedOptionsScreen>( p_context, rom_id );
 }
 
 

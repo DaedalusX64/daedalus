@@ -407,7 +407,7 @@ void	ISavestateSelectorComponent::OnSlotSelected( u32 slot_idx )
 
 void	ISavestateSelectorComponent::OnFolderSelected( u32 index )
 {
-		 current_slot_path = mElementTitle[index].c_str();
+	current_slot_path = mElementTitle[index].c_str();
 	mElementTitle.clear();
 	LoadSlots();
 	isDeletionAllowed=true;

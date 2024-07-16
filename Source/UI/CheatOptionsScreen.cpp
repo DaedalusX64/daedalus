@@ -134,9 +134,9 @@ class CCheatNotFound : public CUISetting
 
 CCheatOptionsScreen::~CCheatOptionsScreen() {}
 
-CCheatOptionsScreen *	CCheatOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
+std::unique_ptr<CCheatOptionsScreen>	CCheatOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
-	return new ICheatOptionsScreen( p_context, rom_id );
+	return std::make_unique<ICheatOptionsScreen>( p_context, rom_id );
 }
 
 

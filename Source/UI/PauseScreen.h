@@ -28,7 +28,7 @@ class CPauseScreen
 	public:
 		virtual ~CPauseScreen();
 
-		static CPauseScreen *	Create( CUIContext * p_context );
+		static std::unique_ptr<CPauseScreen>	Create( CUIContext * p_context );
 
 		virtual void				Run() = 0;
 };

@@ -219,9 +219,9 @@ CRomPreferencesScreen::~CRomPreferencesScreen()
 
 //
 
-CRomPreferencesScreen *	CRomPreferencesScreen::Create( CUIContext * p_context, const RomID & rom_id )
+std::unique_ptr<CRomPreferencesScreen>	CRomPreferencesScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
-	return new IRomPreferencesScreen( p_context, rom_id );
+	return std::make_unique<IRomPreferencesScreen>( p_context, rom_id );
 }
 
 

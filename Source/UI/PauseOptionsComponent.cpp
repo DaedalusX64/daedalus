@@ -216,7 +216,6 @@ void	IPauseOptionsComponent::EditPreferences()
 {
 	auto	edit_preferences = CRomPreferencesScreen::Create( mpContext, g_ROM.mRomID );
 	edit_preferences->Run();
-	delete edit_preferences;
 }
 
 
@@ -224,14 +223,12 @@ void	IPauseOptionsComponent::AdvancedOptions()
 {
 	auto advanced_options = CAdvancedOptionsScreen::Create( mpContext, g_ROM.mRomID );
 	advanced_options->Run();
-	delete advanced_options;
 }
 
 void	IPauseOptionsComponent::CheatOptions()
 {
 	auto cheat_options = CCheatOptionsScreen::Create( mpContext, g_ROM.mRomID );
 	cheat_options->Run();
-	delete cheat_options;
 }
 
 
@@ -244,7 +241,6 @@ auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelect
 
 	auto screen( CUIComponentScreen::Create( mpContext, component, SAVING_TITLE_TEXT ) );
 	screen->Run();
-	delete screen;
 	(mOnResume)();
 }
 
@@ -259,7 +255,6 @@ auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelect
 
 	auto screen =  CUIComponentScreen::Create( mpContext, component, LOADING_TITLE_TEXT );
 	screen->Run();
-	delete screen;
 	(mOnResume)();
 }
 

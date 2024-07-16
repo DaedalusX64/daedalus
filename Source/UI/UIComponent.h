@@ -45,15 +45,16 @@ class CUIComponent
 //
 #include "UIScreen.h"
 #include <string>
+#include <memory>
 
 class CUIComponentScreen : public CUIScreen
 {
-	private:
-		CUIComponentScreen( CUIContext * p_context, CUIComponent * component, const char * title );
+
 	public:
+	CUIComponentScreen( CUIContext * p_context, CUIComponent * component, const char * title );
 		virtual ~CUIComponentScreen();
 
-		static CUIComponentScreen *	Create( CUIContext * p_context, CUIComponent * component, const char * title );
+		static std::unique_ptr<CUIComponentScreen>	Create( CUIContext * p_context, CUIComponent * component, const char * title );
 
 		// CUIScreen
 		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );

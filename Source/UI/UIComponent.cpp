@@ -45,9 +45,9 @@ CUIComponentScreen::~CUIComponentScreen()
 	delete mComponent;
 }
 
-CUIComponentScreen *	CUIComponentScreen::Create( CUIContext * p_context, CUIComponent * component, const char * title )
+std::unique_ptr<CUIComponentScreen>	CUIComponentScreen::Create( CUIContext * p_context, CUIComponent * component, const char * title )
 {
-	return new CUIComponentScreen( p_context, component, title );
+	return std::make_unique<CUIComponentScreen>( p_context, component, title );
 }
 
 

@@ -157,7 +157,6 @@ void	ISelectedRomComponent::EditPreferences()
 {
 	auto	edit_preferences = CRomPreferencesScreen::Create( mpContext, mRomID );
 	edit_preferences->Run();
-	delete edit_preferences;
 }
 
 
@@ -165,14 +164,12 @@ void	ISelectedRomComponent::AdvancedOptions()
 {
 	auto advanced_options = CAdvancedOptionsScreen::Create( mpContext, mRomID );
 	advanced_options->Run();
-	delete advanced_options;
 }
 
 void	ISelectedRomComponent::CheatOptions()
 {
 	auto	cheat_options = CCheatOptionsScreen::Create( mpContext, mRomID );
 	cheat_options->Run();
-	delete cheat_options;
 }
 
 
