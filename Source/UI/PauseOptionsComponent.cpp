@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "CheatOptionsScreen.h"
 #include "Dialogs.h"
 #include "PauseOptionsComponent.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "RomPreferencesScreen.h"
 #include "UIContext.h"
 #include "UIScreen.h"

@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DrawTextUtilities.h"
 #include "AdvancedOptionsScreen.h"
 #include "CheatOptionsScreen.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "RomPreferencesScreen.h"
 #include "SelectedRomComponent.h"
 #include "UIContext.h"

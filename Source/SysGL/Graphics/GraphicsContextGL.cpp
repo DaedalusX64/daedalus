@@ -11,7 +11,7 @@
 #include "Graphics/ColourValue.h"
 #include "UI/DrawText.h"
 
-#include "UI/PSPMenu.h"
+#include "UI/Menu.h"
 
 SDL_Window * gWindow = nullptr;
 SDL_Renderer * gSdlRenderer = nullptr;

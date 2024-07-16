@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include "CheatOptionsScreen.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "UISetting.h"

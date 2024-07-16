@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIContext.h"
 #include "UIElement.h"
 #include "UIScreen.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "SavestateSelectorComponent.h"
 #include "System/IO.h"
 #include "Utility/Stream.h"

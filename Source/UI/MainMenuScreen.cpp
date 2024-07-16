@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "AboutComponent.h"
 #include "GlobalSettingsComponent.h"
 #include "MainMenuScreen.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "RomSelectorComponent.h"
 #include "SelectedRomComponent.h"
 #include "SavestateSelectorComponent.h"

@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativeTexture.h"
 #include "Math/Math.h"	// VFPU Math
 #include "DrawTextUtilities.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "SplashScreen.h"
 #include "UIContext.h"
 #include "UIScreen.h"

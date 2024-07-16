@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <format> 
 
 #include "Base/Types.h"
-#include "UI/PSPMenu.h"
+#include "UI/Menu.h"
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
 #include "Graphics/ColourValue.h"
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/MathUtil.h"
 #include "Math/Vector2.h"
 #include "DrawTextUtilities.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "RomSelectorComponent.h"
 #include "UIContext.h"
 #include "UIScreen.h"
