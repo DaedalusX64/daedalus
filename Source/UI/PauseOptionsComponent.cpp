@@ -196,7 +196,7 @@ void	IPauseOptionsComponent::Render()
 
 void IPauseOptionsComponent::ExitConfirmation()
 {
-	if(gShowDialog.Render( mpContext,"Return to main menu?", false) )
+	if(gShowDialog->Render( mpContext,"Return to main menu?", false) )
 	{
 		(mOnReset)();
 	}

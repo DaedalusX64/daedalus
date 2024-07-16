@@ -32,7 +32,7 @@ void CDrawText::Destroy()
 //*************************************************************************************
 //
 //*************************************************************************************
-u32 CDrawText::Render(EFont font, s32 x, s32 y, float scale, const char *p_str, u32 length, c32 colour)
+u32 CDrawText::Render(EFont font, s32 x, s32 y, float scale, const std::string p_str, u32 length, c32 colour)
 {
 	return Render(font, x, y, scale, p_str, length, colour, c32(0, 0, 0, 160));
 }
@@ -40,7 +40,7 @@ u32 CDrawText::Render(EFont font, s32 x, s32 y, float scale, const char *p_str, 
 //*************************************************************************************
 //
 //*************************************************************************************
-u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_str, u32 length, c32 colour, c32 drop_colour)
+u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const std::string p_str, u32 length, c32 colour, c32 drop_colour)
 {
 	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
 
@@ -49,7 +49,7 @@ u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_
 	{
         SDL_Color c {colour.GetR(), colour.GetG(), colour.GetB()};
         SDL_Color dc {drop_colour.GetR(), drop_colour.GetG(), drop_colour.GetB()};
-        SDL_Surface *surface = TTF_RenderUTF8_Blended(font, p_str, c);
+        SDL_Surface *surface = TTF_RenderUTF8_Blended(font, p_str.c_str(), c);
         SDL_Texture* Message = SDL_CreateTextureFromSurface(gSdlRenderer, surface);
 
         SDL_Rect Message_rect; //create a rect
@@ -67,34 +67,34 @@ u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_
         return Message_rect.w;
     }
 
-	return strlen(p_str) * 16; // Guess. Better off just returning 0?
+	return p_str.length() * 16; // Guess. Better off just returning 0?
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-s32 CDrawText::GetTextWidth(EFont font_type, const char *p_str, u32 length)
+s32 CDrawText::GetTextWidth(EFont font_type, const std::string p_str, u32 length)
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
 #endif
-	TTF_Font *font(gFonts[font_type]);
+	TTF_Font *font = gFonts[font_type];
 	if (font)
 	{
         int w, h;
         if (p_str[length] == '\0')
-            TTF_SizeText(font, p_str, &w, &h);
+            TTF_SizeText(font, p_str.c_str(), &w, &h);
         else
         {
             char buf[128];
-            memcpy(buf, p_str, length);
+            memcpy(buf, p_str.c_str(), length);
             buf[length] = '\0';
             TTF_SizeText(font, buf, &w, &h);
         }
         return w;
 	}
 
-	return strlen(p_str) * 16; // Return a reasonable value. Better off just returning 0?
+	return p_str.length() * 16; // Return a reasonable value. Better off just returning 0?
 }
 
 

@@ -66,11 +66,11 @@ u32 HashString(const std::string& s) {
 //*****************************************************************************
 //
 //*****************************************************************************
-const char * Translate_Strings(const char *original, u32 & len)
+const char * Translate_Strings(const std::string original, u32 & len)
 {
 	u32 hash = HashString(original);
 	if( hash == 0 )
-		return original;
+		return original.c_str();
 
 	for( u32 i=0; i < std::size(text); i++ )
 	{
@@ -85,10 +85,10 @@ const char * Translate_Strings(const char *original, u32 & len)
 				return text[i].translated;
 			}
 			else
-				return original;
+				return original.c_str();
 		}
 	}
-	return original;
+	return original.c_str();
 }
 
 //*****************************************************************************
