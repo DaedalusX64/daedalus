@@ -1,9 +1,9 @@
 add_library(Graphics_PSP OBJECT 
                                 DrawTextPSP.cpp 
-                                GraphicsContext.cpp 
+                                GraphicsContextPSP.cpp 
                                 NativeTexturePSP.cpp 
                                 VideoMemoryManager.cpp
-                                UIContext.cpp
+                                UIContextPSP.cpp
             )
 
             
