@@ -30,7 +30,7 @@ class CRomSelectorComponent : public CUIComponent
 		CRomSelectorComponent( CUIContext * p_context );
 		virtual ~CRomSelectorComponent();
 
-		static std::unique_ptr<CRomSelectorComponent>	Create( CUIContext * p_context, std::function<void(const char *)> on_rom_selected );
+		static CRomSelectorComponent *	Create( CUIContext * p_context, std::function<void(const char *)> on_rom_selected );
 };
 
 #endif // UI_ROMSELECTORCOMPONENT_H_

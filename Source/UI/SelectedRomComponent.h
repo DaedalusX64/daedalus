@@ -32,7 +32,7 @@ class CSelectedRomComponent : public CUIComponent
 		CSelectedRomComponent( CUIContext * p_context );
 		virtual ~CSelectedRomComponent();
 
-		static std::unique_ptr<CSelectedRomComponent>	Create( CUIContext * p_context, std::function<void()> on_start_emulation );
+		static CSelectedRomComponent *	Create( CUIContext * p_context, std::function<void()> on_start_emulation );
 
 		virtual void					SetRomID( const RomID & rom_id ) = 0;
 };

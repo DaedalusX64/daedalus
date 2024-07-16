@@ -209,9 +209,9 @@ CRomSelectorComponent::CRomSelectorComponent( CUIContext * p_context )
 CRomSelectorComponent::~CRomSelectorComponent() {}
 
 
-std::unique_ptr<CRomSelectorComponent>	CRomSelectorComponent::Create( CUIContext * p_context, std::function<void(const char*)> on_rom_selected )
+CRomSelectorComponent *	CRomSelectorComponent::Create( CUIContext * p_context, std::function<void(const char*)> on_rom_selected )
 {
-	return std::make_unique<IRomSelectorComponent>( p_context, on_rom_selected );
+	return new IRomSelectorComponent( p_context, on_rom_selected );
 }
 
 //*************************************************************************************

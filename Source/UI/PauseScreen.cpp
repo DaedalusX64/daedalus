@@ -102,15 +102,15 @@ class IPauseScreen : public CPauseScreen, public CUIScreen
 
 		EMenuOption					mCurrentOption;
 
-		std::unique_ptr<CUIComponent>				mOptionComponents[ NUM_MENU_OPTIONS ];
+		CUIComponent *				mOptionComponents[ NUM_MENU_OPTIONS ];
 };
 
 
 CPauseScreen::~CPauseScreen() {}
 
-std::unique_ptr<CPauseScreen>	CPauseScreen::Create( CUIContext * p_context )
+CPauseScreen *	CPauseScreen::Create( CUIContext * p_context )
 {
-	return std::make_unique<IPauseScreen>( p_context );
+	return new IPauseScreen( p_context );
 }
 
 
@@ -136,13 +136,19 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 	#endif
 }
 
-IPauseScreen::~IPauseScreen() {}
+IPauseScreen::~IPauseScreen()
+{
+	for( auto i = 0; i < NUM_MENU_OPTIONS; ++i )
+	{
+		delete mOptionComponents[ i ];
+	}
+}
 
 
 EMenuOption		IPauseScreen::GetPreviousValidOption() const
 {
 	bool			looped = false;
-	EMenuOption	 current_option = mCurrentOption; 
+	EMenuOption	 current_option = mCurrentOption;
 
 	do
 	{

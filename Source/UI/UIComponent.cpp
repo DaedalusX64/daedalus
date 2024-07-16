@@ -32,19 +32,22 @@ CUIComponent::CUIComponent( CUIContext * p_context )
 
 CUIComponent::~CUIComponent() {}
 
-CUIComponentScreen::CUIComponentScreen( CUIContext * p_context, std::unique_ptr<CUIComponent> component, const char * title )
+CUIComponentScreen::CUIComponentScreen( CUIContext * p_context, CUIComponent * component, const char * title )
 :	CUIScreen( p_context )
-,	mComponent( std::move(component) )
+,	mComponent( component )
 ,	mTitle( title )
 {
 }
 
 
-CUIComponentScreen::~CUIComponentScreen() {}
-
-CUIComponentScreen *	CUIComponentScreen::Create( CUIContext * p_context, std::unique_ptr<CUIComponent> component, const char * title )
+CUIComponentScreen::~CUIComponentScreen()
 {
-	return new CUIComponentScreen( p_context, std::move(component), title );
+	delete mComponent;
+}
+
+CUIComponentScreen *	CUIComponentScreen::Create( CUIContext * p_context, CUIComponent * component, const char * title )
+{
+	return new CUIComponentScreen( p_context, component, title );
 }
 
 

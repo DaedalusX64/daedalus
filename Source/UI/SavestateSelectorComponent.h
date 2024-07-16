@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "UIComponent.h"
 #include <functional>
-#include <memory>
+
 class CSavestateSelectorComponent : public CUIComponent
 {
 	public:
@@ -32,11 +32,11 @@ class CSavestateSelectorComponent : public CUIComponent
 
 		enum EAccessType
 		{
-			AT_LOADING,
 			AT_SAVING,
+			AT_LOADING,
 		};
 
-		static std::unique_ptr<CSavestateSelectorComponent>	Create( CUIContext * p_context, EAccessType access_type, std::function<void( const char *)> on_savestate_selected, const std::filesystem::path& running_rom );
+		static CSavestateSelectorComponent *	Create( CUIContext * p_context, EAccessType access_type, std::function<void( const char *)> on_savestate_selected, const std::filesystem::path& running_rom );
 		void LoadState();
 		void SaveState();
 };

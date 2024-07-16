@@ -31,7 +31,7 @@ class CPauseOptionsComponent : public CUIComponent
 		CPauseOptionsComponent( CUIContext * p_context );
 		virtual ~CPauseOptionsComponent();
 
-		static std::unique_ptr<CPauseOptionsComponent>	Create( CUIContext * p_context, std::function<void()> on_resume, std::function<void()> on_reset);
+		static CPauseOptionsComponent *	Create( CUIContext * p_context, std::function<void()> on_resume, std::function<void()> on_reset);
 };
 
 #endif // UI_PAUSEOPTIONSCOMPONENT_H_

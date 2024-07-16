@@ -314,9 +314,9 @@ CGlobalSettingsComponent::CGlobalSettingsComponent( CUIContext * p_context )
 CGlobalSettingsComponent::~CGlobalSettingsComponent() {}
 
 
-std::unique_ptr<CGlobalSettingsComponent>	CGlobalSettingsComponent::Create( CUIContext * p_context )
+CGlobalSettingsComponent *	CGlobalSettingsComponent::Create( CUIContext * p_context )
 {
-	return std::make_unique<IGlobalSettingsComponent>( p_context );
+	return new IGlobalSettingsComponent( p_context );
 }
 
 IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )

@@ -93,9 +93,9 @@ CSavestateSelectorComponent::CSavestateSelectorComponent( CUIContext * p_context
 {}
 
 
-std::unique_ptr<CSavestateSelectorComponent>	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType accetype, std::function<void( const char *)>  on_slot_selected, const std::filesystem::path& running_rom )
+CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType accetype, std::function<void( const char *)>  on_slot_selected, const std::filesystem::path& running_rom )
 {
-	return std::make_unique<ISavestateSelectorComponent>( p_context, accetype, on_slot_selected, running_rom );
+	return new ISavestateSelectorComponent( p_context, accetype, on_slot_selected, running_rom );
 }
 
 namespace

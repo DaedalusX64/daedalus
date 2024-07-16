@@ -66,7 +66,7 @@ u32 HashString(const std::string& s) {
 //*****************************************************************************
 //
 //*****************************************************************************
-const char * Translate_Strings(const std::string& original, u32 & len)
+const char * Translate_Strings(const std::string original, u32 & len)
 {
 	u32 hash = HashString(original);
 	if( hash == 0 )

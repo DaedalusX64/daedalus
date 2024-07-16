@@ -93,8 +93,9 @@ void HandleEndOfFrame()
 
 		if (p_context != NULL)
 		{
-			auto pause = CPauseScreen::Create(p_context);
+			CPauseScreen *pause(CPauseScreen::Create(p_context));
 			pause->Run();
+			delete pause;
 			delete p_context;
 		}
 
