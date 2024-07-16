@@ -28,7 +28,7 @@ bool		 Translate_Init();
 //
 // Translate multiple strings
 //
-const char * Translate_Strings(const std::string original, u32 & len);
+const char * Translate_Strings(const std::string& original, u32 & len);
 //
 // Translate a single string
 //

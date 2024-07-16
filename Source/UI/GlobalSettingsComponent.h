@@ -22,14 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UI_GLOBALSETTINGSCOMPONENT_H_
 
 #include "UIComponent.h"
-
+#include <memory> 
 class CGlobalSettingsComponent : public CUIComponent
 {
 	public:
 		CGlobalSettingsComponent( CUIContext * p_context );
 		virtual ~CGlobalSettingsComponent();
 
-		static CGlobalSettingsComponent *	Create( CUIContext * p_context );
+		static std::unique_ptr<CGlobalSettingsComponent>	Create( CUIContext * p_context );
 };
 
 #endif // UI_GLOBALSETTINGSCOMPONENT_H_

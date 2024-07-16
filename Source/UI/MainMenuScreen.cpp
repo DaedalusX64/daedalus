@@ -109,8 +109,8 @@ class IMainMenuScreen : public CMainMenuScreen, public CUIScreen
 		s32							mCurrentOption;
 		f32							mCurrentDisplayOption;
 
-		CUIComponent *				mOptionComponents[ NUM_MENU_OPTIONS ];
-		CSelectedRomComponent *		mSelectedRomComponent;
+		std::unique_ptr<CUIComponent>				mOptionComponents[ NUM_MENU_OPTIONS ];
+		std::unique_ptr<CSelectedRomComponent>		mSelectedRomComponent;
 
 		std::string					mRomFilename;
 		RomID						mRomID;
@@ -140,19 +140,13 @@ IMainMenuScreen::IMainMenuScreen( CUIContext * p_context )
 
 	mOptionComponents[ MO_GLOBAL_SETTINGS ]	= CGlobalSettingsComponent::Create( mpContext );
 	mOptionComponents[ MO_ROMS ] 			= CRomSelectorComponent::Create( mpContext, [this](const char *rom ) { this->OnRomSelected(rom); } );
-	mOptionComponents[ MO_SELECTED_ROM ]	= mSelectedRomComponent;
+	mOptionComponents[ MO_SELECTED_ROM ]	= std::move(mSelectedRomComponent);
 	mOptionComponents[ MO_SAVESTATES ]		= CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_LOADING,[this](const char* savestate) { this->OnSavestateSelected(savestate); }, std::filesystem::path());
 	mOptionComponents[ MO_ABOUT ]			= CAboutComponent::Create( mpContext );
 
 }
 
-IMainMenuScreen::~IMainMenuScreen()
-{
-	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
-	{
-		delete mOptionComponents[ i ];
-	}
-}
+IMainMenuScreen::~IMainMenuScreen() {}
 
 EMenuOption	IMainMenuScreen::AsMenuOption( s32 option )
 {

@@ -22,13 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UI_ABOUTCOMPONENT_H_
 
 #include "UIComponent.h"
+#include <memory>
 
 class CAboutComponent : public CUIComponent
 {
 	public:
 		CAboutComponent( CUIContext * p_context );
 		virtual ~CAboutComponent();
-		static CAboutComponent *	Create( CUIContext * p_context );
+		static std::unique_ptr<CAboutComponent>	Create( CUIContext * p_context );
 };
 
 

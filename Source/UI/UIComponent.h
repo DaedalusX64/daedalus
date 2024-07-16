@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UI_UICOMPONENT_H_
 
 #include "Base/Types.h"
+#include <memory>
 
 class v2;
 class CUIContext;
@@ -49,11 +50,11 @@ class CUIComponent
 class CUIComponentScreen : public CUIScreen
 {
 	private:
-		CUIComponentScreen( CUIContext * p_context, CUIComponent * component, const char * title );
+		CUIComponentScreen( CUIContext * p_context, std::unique_ptr<CUIComponent> component, const char * title );
 	public:
 		virtual ~CUIComponentScreen();
 
-		static CUIComponentScreen *	Create( CUIContext * p_context, CUIComponent * component, const char * title );
+		static CUIComponentScreen *	Create( CUIContext * p_context, std::unique_ptr<CUIComponent> component, const char * title );
 
 		// CUIScreen
 		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
@@ -61,7 +62,7 @@ class CUIComponentScreen : public CUIScreen
 		virtual bool				IsFinished() const;
 
 	private:
-		CUIComponent *				mComponent;
+		std::unique_ptr<CUIComponent>				mComponent;
 		std::string					mTitle;
 };
 
