@@ -122,10 +122,10 @@ const char * const		TITLE_TEXT = "Adjust Stick Deadzone"; // Make more sane
 
 const u32				TITLE_Y = 10 * multipler;
 
-const u32				HALF_WIDTH( SCREEN_WIDTH / 2 );
-const u32				CENTRE_X( SCREEN_WIDTH / 2 );
-const u32				DISPLAY_WIDTH( 128 * multipler);
-const u32				DISPLAY_RADIUS( DISPLAY_WIDTH / 2 );
+const u32				HALF_WIDTH = SCREEN_WIDTH / 2;
+const u32				CENTRE_X = SCREEN_WIDTH / 2 ;
+const u32				DISPLAY_WIDTH = 128 * multipler;
+const u32				DISPLAY_RADIUS = DISPLAY_WIDTH / 2;
 
 const u32				PSP_CIRCLE_X = DISPLAY_RADIUS + ((HALF_WIDTH - DISPLAY_WIDTH) / 2);
 const u32				PSP_CIRCLE_Y = 120;

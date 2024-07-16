@@ -57,6 +57,6 @@ void	CUISetting::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType ha
 	context->DrawText( min_x, y, mName, colour );
 
 	// And the current setting on the right
-	const char * setting_name( GetSettingName() );
+	const char * setting_name = GetSettingName();
 	context->DrawTextAlign( min_x, max_x, AT_RIGHT, y, setting_name, colour );
 }

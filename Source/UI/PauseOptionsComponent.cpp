@@ -178,7 +178,7 @@ void	IPauseOptionsComponent::Render()
 
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
-	auto	element = mElements.GetSelectedElement();
+	auto element = mElements.GetSelectedElement();
 	if( element != nullptr )
 	{
 		const auto	p_description = element->GetDescription();

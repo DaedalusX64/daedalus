@@ -274,7 +274,7 @@ void	IRomPreferencesScreen::Update( float elapsed_time[[maybe_unused]], const v2
 			mElements.SelectNext();
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )

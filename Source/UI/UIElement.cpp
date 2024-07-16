@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIElement.h"
 
 #include "UIContext.h"
+#include "PSPMenu.h"
 
 CUIElement::~CUIElement()
 {}
@@ -41,14 +42,13 @@ CUIElementBag::~CUIElementBag()
 
 void CUIElementBag::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType halign, s32 y ) const
 {
-	constexpr s32 MINTOP = 25; //Only draw text below
-	constexpr s32 MAXBOT = 247;	//Only draw text above
+	constexpr s32 MAXBOT = SCREEN_HEIGHT - 25;	//Only draw text above
 
 	for( auto i = 0; i < mElements.size(); ++i )
 	{
-		const auto	element = mElements[ i ];
+		const auto element = mElements[ i ];
 
-		if (y > MINTOP && y < MAXBOT ) element->Draw( context, min_x, max_x, halign, y, i == mSelectedIdx );
+		if (y > LIST_TEXT_TOP && y < MAXBOT ) element->Draw( context, min_x, max_x, halign, y, i == mSelectedIdx );
 		y += element->GetHeight( context );
 	}
 }
