@@ -70,7 +70,7 @@ const char * Translate_Strings(const std::string& original, u32 & len)
 {
 	u32 hash = HashString(original);
 	if( hash == 0 )
-		return original.c_str();
+		return original.data();
 
 	for( u32 i=0; i < std::size(text); i++ )
 	{
@@ -85,10 +85,10 @@ const char * Translate_Strings(const std::string& original, u32 & len)
 				return text[i].translated;
 			}
 			else
-				return original.c_str();
+				return original.data();
 		}
 	}
-	return original.c_str();
+	return original.data();
 }
 
 //*****************************************************************************
