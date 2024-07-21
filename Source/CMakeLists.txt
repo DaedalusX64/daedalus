@@ -110,7 +110,9 @@ endif()
 		option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
 		option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
 		option(DAEDALUS_SIM_DOUBLES "Simulate Doubles" ON)
+		option(INTRAFONT "Use Native Fonts" ON) #If this is off, SDL will be enabled
 		option(DAEDALUS_SDL "Enable SDL" OFF)
+
 	elseif(UNIX)
 		option(DAEDALUS_SDL "SDL Build" ON)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
@@ -235,12 +237,13 @@ link_libraries(ZLIB::ZLIB)
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries})
 
 	# --- Post Build ---
+	## PRX Builds add about 600kb to the binary as they're not stripped at this point.. 
 	if(PSP)
 		create_pbp_file(
 			TARGET daedalus
+			PREVIEW_PATH NULL
 			ICON_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/icon0.png
 			BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png
-			PREVIEW_PATH NULL
 			TITLE DaedalusX64
 			BUILD_PRX
 			)

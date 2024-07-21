@@ -36,7 +36,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP
 #include "Graphics/GraphicsContext.h"
-#include "intraFont.h"
+#ifdef INTRAFONT
+ #include "intraFont.h"
+#endif
+
 extern bool PSP_IS_SLIM;
 #endif
 
@@ -220,10 +223,10 @@ bool RomBuffer::Open()
 		u32 offset = 0;
 		u32 length_remaining( sRomSize );
 		const u32 TEMP_BUFFER_SIZE = 128 * 1024;
-
+		#ifdef INTRAFONT
 		intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
 		intraFontSetStyle( ltn8, 1.5f, 0xFFFFFFFF, 0, 0.f, INTRAFONT_ALIGN_CENTER );
-
+		#endif
 		while( offset < sRomSize )
 		{
 			u32 length_to_process( std::min( length_remaining, TEMP_BUFFER_SIZE ) );
@@ -238,12 +241,14 @@ bool RomBuffer::Open()
 
 			CGraphicsContext::Get()->BeginFrame();
 			CGraphicsContext::Get()->ClearToBlack();
+			#ifdef INTRAFONT
 			intraFontPrintf( ltn8, 480/2, (272>>1), "Buffering ROM %d%%...", offset * 100 / sRomSize );
+			#endif
 			CGraphicsContext::Get()->EndFrame();
 			CGraphicsContext::Get()->UpdateFrame( false );
 		}
 
-		intraFontUnload( ltn8 );
+		// intraFontUnload( ltn8 );
 #endif
 		spRomData = p_bytes;
 		sRomFixed = true;

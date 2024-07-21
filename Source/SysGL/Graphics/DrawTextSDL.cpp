@@ -1,5 +1,17 @@
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL.h>
+
+// XXX Temporary
+#ifdef DAEDALUS_PSP
+ SDL_Renderer * gSdlRenderer;
+#else
 #include "SysGL/GL.h"
+#endif
+
 #include "UI/DrawText.h"
+
+
+
 
 static float scaleX = 1.0f, scaleY = 1.0f;
 
@@ -12,8 +24,14 @@ DAEDALUS_STATIC_ASSERT(std::size(gFonts) == CDrawText::NUM_FONTS);
 
 void CDrawText::Initialise()
 {
-    gFonts[CDrawText::F_REGULAR] = TTF_OpenFont("Resources/OpenSans.ttf", 48);
-    gFonts[CDrawText::F_LARGE_BOLD] = TTF_OpenFont("Resources/OpenSans.ttf", 48);
+    #ifdef DAEDALUS_PSP
+        // I dunno, maybe 8?
+        gFonts[CDrawText::F_REGULAR] = TTF_OpenFont("Resources/OpenSans.ttf", 8);
+        gFonts[CDrawText::F_LARGE_BOLD] = TTF_OpenFont("Resources/OpenSans.ttf", 8);
+     #else
+        gFonts[CDrawText::F_REGULAR] = TTF_OpenFont("Resources/OpenSans.ttf", 48);
+        gFonts[CDrawText::F_LARGE_BOLD] = TTF_OpenFont("Resources/OpenSans.ttf", 48);
+    #endif
     TTF_SetFontStyle(gFonts[CDrawText::F_LARGE_BOLD], TTF_STYLE_BOLD);
 
     if (gFonts[0] == 0)
@@ -29,17 +47,13 @@ void CDrawText::Destroy()
     TTF_CloseFont(gFonts[CDrawText::F_LARGE_BOLD]);
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 u32 CDrawText::Render(EFont font, s32 x, s32 y, float scale, const std::string p_str, u32 length, c32 colour)
 {
 	return Render(font, x, y, scale, p_str, length, colour, c32(0, 0, 0, 160));
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const std::string p_str, u32 length, c32 colour, c32 drop_colour)
 {
 	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
@@ -70,9 +84,7 @@ u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const std::str
 	return p_str.length() * 16; // Guess. Better off just returning 0?
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 s32 CDrawText::GetTextWidth(EFont font_type, const std::string p_str, u32 length)
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
@@ -98,9 +110,7 @@ s32 CDrawText::GetTextWidth(EFont font_type, const std::string p_str, u32 length
 }
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 s32 CDrawText::GetFontHeight(EFont font_type)
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
