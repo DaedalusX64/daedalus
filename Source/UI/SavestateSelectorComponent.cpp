@@ -210,7 +210,7 @@ void ISavestateSelectorComponent::LoadSlots() {
         }
 
         // Create UI elements based on slot availability
-        CUIElement* element;
+        CUIElement* element = nullptr;
         if (mAccessType == AT_LOADING && mSlotEmpty[i]) {
             element = new CUICommandDummy(str.c_str(), description_text);
         } else {
