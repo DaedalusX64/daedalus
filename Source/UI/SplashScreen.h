@@ -28,7 +28,7 @@ class CSplashScreen
 	public:
 		virtual ~CSplashScreen();
 
-		static CSplashScreen *	Create( CUIContext * p_context );
+		static std::unique_ptr<CSplashScreen> Create( CUIContext * p_context );
 
 		virtual void				Run() = 0;
 };

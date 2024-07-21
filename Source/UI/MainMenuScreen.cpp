@@ -119,9 +119,9 @@ class IMainMenuScreen : public CMainMenuScreen, public CUIScreen
 
 CMainMenuScreen::~CMainMenuScreen() {}
 
-CMainMenuScreen *	CMainMenuScreen::Create( CUIContext * p_context )
+std::unique_ptr<CMainMenuScreen>	CMainMenuScreen::Create( CUIContext * p_context )
 {
-	return new IMainMenuScreen( p_context );
+	return std::make_unique<IMainMenuScreen>( p_context );
 }
 
 
@@ -375,12 +375,10 @@ void DisplayRomsAndChoose(bool show_splash)
 		{
 			auto p_splash = CSplashScreen::Create( p_context );
 			p_splash->Run();
-			delete p_splash;
 		}
 
 		auto p_main_menu = CMainMenuScreen::Create( p_context );
 		p_main_menu->Run();
-		delete p_main_menu;
 	}
 
 	delete p_context;

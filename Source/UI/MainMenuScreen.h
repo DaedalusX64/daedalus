@@ -28,7 +28,7 @@ class CMainMenuScreen
 	public:
 		virtual ~CMainMenuScreen();
 
-		static CMainMenuScreen *	Create( CUIContext * p_context );
+		static std::unique_ptr<CMainMenuScreen>	Create( CUIContext * p_context );
 
 		virtual void				Run() = 0;
 };

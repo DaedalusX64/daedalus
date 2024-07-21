@@ -59,9 +59,9 @@ class ISplashScreen : public CSplashScreen, public CUIScreen
 CSplashScreen::~CSplashScreen() {}
 
 
-CSplashScreen *	CSplashScreen::Create( CUIContext * p_context )
+std::unique_ptr<CSplashScreen>	CSplashScreen::Create( CUIContext * p_context )
 {
-	return new ISplashScreen( p_context );
+	return std::make_unique<ISplashScreen>( p_context );
 }
 
 
