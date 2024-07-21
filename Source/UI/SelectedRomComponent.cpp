@@ -81,13 +81,13 @@ ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, std::funct
 :	CSelectedRomComponent( p_context )
 ,	OnStartEmulation( on_start_emulation )
 {
-	mElements.Add( new CUICommandImpl( std::bind(&ISelectedRomComponent::EditPreferences, this ), "Edit Preferences", "Edit various preferences for this rom." ) );
-	mElements.Add( new CUICommandImpl( std::bind(&ISelectedRomComponent::AdvancedOptions, this ), "Advanced Options", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl( std::bind(&ISelectedRomComponent::CheatOptions, this ), "Cheats", "Enable and select cheats for this rom." ) );
+	mElements.Add( std::make_unique<CUICommandImpl>( std::bind(&ISelectedRomComponent::EditPreferences, this ), "Edit Preferences", "Edit various preferences for this rom." ) );
+	mElements.Add( std::make_unique<CUICommandImpl>( std::bind(&ISelectedRomComponent::AdvancedOptions, this ), "Advanced Options", "Edit advanced options for this rom." ) );
+	mElements.Add( std::make_unique<CUICommandImpl>( std::bind(&ISelectedRomComponent::CheatOptions, this ), "Cheats", "Enable and select cheats for this rom." ) );
 
-	mElements.Add( new CUISpacer( 16 ) );
+	mElements.Add(std::make_unique<CUISpacer>( 16 ) );
 
-	u32 i = mElements.Add( new CUICommandImpl( std::bind(&ISelectedRomComponent::StartEmulation, this ), "Start Emulation", "Start emulating the selected rom." ) );
+	u32 i = mElements.Add(std::make_unique<CUICommandImpl>( std::bind(&ISelectedRomComponent::StartEmulation, this ), "Start Emulation", "Start emulating the selected rom." ) );
 
 	mElements.SetSelected( i );
 }

@@ -33,10 +33,6 @@ CUIElementBag::CUIElementBag()
 
 CUIElementBag::~CUIElementBag()
 {
-	for( u32 i = 0; i < mElements.size(); ++i )
-	{
-		delete mElements[ i ];
-	}
 }
 
 
@@ -46,7 +42,7 @@ void CUIElementBag::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType
 
 	for( auto i = 0; i < mElements.size(); ++i )
 	{
-		const auto element = mElements[ i ];
+		const auto& element = mElements[ i ];
 
 		if (y > LIST_TEXT_TOP && y < MAXBOT ) element->Draw( context, min_x, max_x, halign, y, i == mSelectedIdx );
 		y += element->GetHeight( context );
@@ -60,7 +56,7 @@ void	CUIElementBag::DrawCentredVertically( CUIContext * context, s32 min_x, s32 
 
 	for( auto i = 0; i < mElements.size(); ++i )
 	{
-		const auto	element = mElements[ i ];
+		const auto&	element = mElements[ i ];
 
 		total_height += element->GetHeight( context );
 	}
@@ -70,7 +66,7 @@ void	CUIElementBag::DrawCentredVertically( CUIContext * context, s32 min_x, s32 
 
 	for( auto i = 0; i < mElements.size(); ++i )
 	{
-		const auto element = mElements[ i ];
+		const auto& element = mElements[ i ];
 
 		element->Draw( context, min_x, max_x, AT_CENTRE, y, i == mSelectedIdx );
 		y += element->GetHeight( context );

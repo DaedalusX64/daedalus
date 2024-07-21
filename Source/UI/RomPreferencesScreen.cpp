@@ -233,19 +233,19 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
  		mRomName = settings.GameName;
 	}
 
-	mElements.Add( new CTextureHashFrequency( &mRomPreferences.CheckTextureHashFrequency, "Texture Update Check",	"Whether to check for texture updates between frames. Disable this to improve framerate at the expense of graphics quality in some ROMs." ) );
-	mElements.Add( new CAdjustFrameskipSetting( &mRomPreferences.Frameskip, "Frameskip", "This determines how many frames are skipped before rendering a new frame. Increasing this value should give a small speedup, at the expense of more jerky graphics." ) );
-	mElements.Add( new CZoomSetting( &mRomPreferences.ZoomX, "Zoom", "Increase screen size, the value will override the default screen size, 100% is default." ) );
-	mElements.Add( new CFSkipSetting( &mRomPreferences.SpeedSyncEnabled, "Limit Framerate", "Limit the refresh rate to 50/25Hz (PAL) or 60/30Hz (NTSC)." ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecEnabled, "Dynamic Recompilation", "Dynamic recompilation gives a considerable speed-up for the ROM emulation.", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.PatchesEnabled, "High Level Emulation", "Whether to use replicated OS function calls (faster) instead of emulating the real ones (slower) (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
-	mElements.Add( new CAudioSetting( &mRomPreferences.AudioEnabled, "Audio", "Whether or not to enable audio emulation, and whether to process the audio asynchronously(fast/buggy) or synchronously(slow)." ) );
-	mElements.Add( new CAdjustControllerSetting( &mRomPreferences.ControllerIndex, "Controller" ) );
+	mElements.Add(std::make_unique<CTextureHashFrequency>( &mRomPreferences.CheckTextureHashFrequency, "Texture Update Check",	"Whether to check for texture updates between frames. Disable this to improve framerate at the expense of graphics quality in some ROMs." ) );
+	mElements.Add(std::make_unique<CAdjustFrameskipSetting>( &mRomPreferences.Frameskip, "Frameskip", "This determines how many frames are skipped before rendering a new frame. Increasing this value should give a small speedup, at the expense of more jerky graphics." ) );
+	mElements.Add(std::make_unique<CZoomSetting>( &mRomPreferences.ZoomX, "Zoom", "Increase screen size, the value will override the default screen size, 100% is default." ) );
+	mElements.Add(std::make_unique<CFSkipSetting>( &mRomPreferences.SpeedSyncEnabled, "Limit Framerate", "Limit the refresh rate to 50/25Hz (PAL) or 60/30Hz (NTSC)." ) );
+	mElements.Add(std::make_unique<CBoolSetting>( &mRomPreferences.DynarecEnabled, "Dynamic Recompilation", "Dynamic recompilation gives a considerable speed-up for the ROM emulation.", "Enabled", "Disabled" ) );
+	mElements.Add(std::make_unique<CBoolSetting>( &mRomPreferences.PatchesEnabled, "High Level Emulation", "Whether to use replicated OS function calls (faster) instead of emulating the real ones (slower) (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
+	mElements.Add(std::make_unique<CAudioSetting>( &mRomPreferences.AudioEnabled, "Audio", "Whether or not to enable audio emulation, and whether to process the audio asynchronously(fast/buggy) or synchronously(slow)." ) );
+	mElements.Add(std::make_unique<CAdjustControllerSetting>( &mRomPreferences.ControllerIndex, "Controller" ) );
 
 //	mElements.Add( new CUISpacer( 16 ) );
 
-	mElements.Add( new CUICommandImpl(std::bind(&IRomPreferencesScreen::OnConfirm, this ), "Save & Return", "Confirm changes to settings and return." ) );
-	mElements.Add( new CUICommandImpl(std::bind(&IRomPreferencesScreen::OnCancel, this ), "Cancel", "Cancel changes to settings and return." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IRomPreferencesScreen::OnConfirm, this ), "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IRomPreferencesScreen::OnCancel, this ), "Cancel", "Cancel changes to settings and return." ) );
 
 }
 

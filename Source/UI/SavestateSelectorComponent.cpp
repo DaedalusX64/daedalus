@@ -158,8 +158,8 @@ void ISavestateSelectorComponent::LoadFolders() {
 					std::string str = directoryName;
 					auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
 					std::function<void()> functor = onSelected;
-					auto element = new CUICommandImpl(functor, str, description_text);
-					mElements.Add(element);
+					auto element = std::make_unique<CUICommandImpl>(functor, str, description_text);
+					mElements.Add(std::move(element));
 					mElementTitle.push_back(directoryName);
 					folderIndex++; 
 				}
@@ -210,16 +210,16 @@ void ISavestateSelectorComponent::LoadSlots() {
         }
 
         // Create UI elements based on slot availability
-        CUIElement* element = nullptr;
+        std::unique_ptr<CUIElement> element = nullptr;
         if (mAccessType == AT_LOADING && mSlotEmpty[i]) {
-            element = new CUICommandDummy(str.c_str(), description_text);
+            element = std::make_unique<CUICommandDummy>(str.c_str(), description_text);
         } else {
             auto onSelected = [this, i]() { OnSlotSelected(i); };
             std::function<void()> functor = onSelected;
-            element = new CUICommandImpl(functor, str.c_str(), description_text);
+            element = std::make_unique<CUICommandImpl>(functor, str.c_str(), description_text);
         }
 
-        mElements.Add(element);
+        mElements.Add(std::move(element));
     }
 }
 
