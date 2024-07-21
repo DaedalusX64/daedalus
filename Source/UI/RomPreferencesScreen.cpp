@@ -210,14 +210,8 @@ class IRomPreferencesScreen : public CRomPreferencesScreen, public CUIScreen
 };
 
 
-//
+CRomPreferencesScreen::~CRomPreferencesScreen() {}
 
-CRomPreferencesScreen::~CRomPreferencesScreen()
-{
-}
-
-
-//
 
 std::unique_ptr<CRomPreferencesScreen>	CRomPreferencesScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
@@ -259,7 +253,6 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 IRomPreferencesScreen::~IRomPreferencesScreen() {}
 
 
-//
 
 void	IRomPreferencesScreen::Update( float elapsed_time[[maybe_unused]], const v2 & stick[[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
@@ -293,9 +286,6 @@ void	IRomPreferencesScreen::Update( float elapsed_time[[maybe_unused]], const v2
 	}
 }
 
-
-//
-
 void	IRomPreferencesScreen::Render()
 {
 	mpContext->ClearBackground();
@@ -318,7 +308,7 @@ void	IRomPreferencesScreen::Render()
 
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y );
 
-	auto	element = mElements.GetSelectedElement();
+	auto element = mElements.GetSelectedElement();
 	if( element != nullptr )
 	{
 		const auto	 p_description = element->GetDescription();

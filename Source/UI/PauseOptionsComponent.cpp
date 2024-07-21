@@ -153,7 +153,7 @@ void	IPauseOptionsComponent::Update( float elapsed_time [[maybe_unused]], const 
 			mElements.SelectNext();
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto	element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )

@@ -84,7 +84,7 @@ void	IAboutComponent::Render()
 	s16 y = text_top + 20;
 
 
-	std::string	version = "Daedalus";
+	std::string	version = "DaedalusX64";
 
 	std::string	date = DATE_TEXT + __DATE__;
 

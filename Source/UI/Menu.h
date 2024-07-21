@@ -37,6 +37,7 @@ const s16 LIST_TEXT_HEIGHT {210 * multipler}; // This affects Category and Romli
 const s16 LIST_TEXT_TOP = {80};
 #endif
 
+const s16 ROM_LIST_TOP {LIST_TEXT_TOP * multipler};
 const s16 LIST_TEXT_LEFT {13 * multipler};
 const s16 LIST_TEXT_WIDTH {(SCREEN_WIDTH - LIST_TEXT_LEFT)};
 
@@ -50,6 +51,7 @@ const s16 DESCRIPTION_AREA_TOP {LIST_TEXT_TOP};
 const s16 DESCRIPTION_AREA_LEFT {16 * multipler};
 const s16 DESCRIPTION_AREA_RIGHT {SCREEN_WIDTH - 16};
 const s16 DESCRIPTION_AREA_BOTTOM {SCREEN_HEIGHT - 10};
+
 
 const s16 ROM_INFO_TEXT_X {318 * multipler};
 const s16 ROM_INFO_TEXT_Y {154 * multipler};

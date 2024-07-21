@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/ColourValue.h"
 
-#include "AdjustDeadzoneScreen.h"
+// #include "AdjustDeadzoneScreen.h"
 #include "GlobalSettingsComponent.h"
 #include "DrawTextUtilities.h"
 #include "Dialogs.h"
@@ -159,35 +159,6 @@ namespace
 		}
 	};
 
-	class CAdjustDeadzoneSetting : public CUISetting
-	{
-	public:
-		CAdjustDeadzoneSetting( CUIContext * p_context, const char * name, const char * description )
-			:	CUISetting( name, description )
-			,	mpContext( p_context )
-		{
-		}
-
-		virtual	void			OnSelected()
-		{
-			CAdjustDeadzoneScreen *	adjust_deadzone( CAdjustDeadzoneScreen::Create( mpContext ) );
-			adjust_deadzone->Run();
-			delete adjust_deadzone;
-		}
-
-		virtual const char *	GetSettingName() const
-		{
-			f32 min_deadzone( gGlobalPreferences.StickMinDeadzone );
-			f32 max_deadzone( gGlobalPreferences.StickMaxDeadzone );
-
-			static char buffer[ 10+10+1 ];
-			snprintf( buffer, sizeof(buffer), "%d/%d", s32( 100.0f * min_deadzone ), s32( 100.0f * max_deadzone ) );
-			return buffer;
-		}
-
-	private:
-		CUIContext *			mpContext;
-	};
 
 	class CResetSetting : public CUISetting
 	{
@@ -340,7 +311,7 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 #endif
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.ForceLinearFilter,"Force Linear Filter", "Enable to force linear filter, this can improve the look of textures", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.RumblePak,"Controller add-on", "Enable either MemPak or RumblePak.", "RumblePak", "MemPak" ) );
-	mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
+	// mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
 
 #if DAEDALUS_PSP
 	if (PSP_IS_SLIM) 

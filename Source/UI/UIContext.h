@@ -86,15 +86,15 @@ class CUIContext
 
 		virtual void				SetFontStyle( EFontStyle font_style ) = 0;
 
-				u32					DrawText( s32 x, s32 y, const char * text, c32 colour )																{ return DrawText( x, y, text, strlen( text ), colour ); }
-				u32					DrawText( s32 x, s32 y, const char * text, c32 colour, c32 drop_colour )											{ return DrawText( x, y, text, strlen( text ), colour, drop_colour ); }
+				u32					DrawText( s32 x, s32 y, const std::string text, c32 colour )																{ return DrawText( x, y, text,text.length(), colour ); }
+				u32					DrawText( s32 x, s32 y, const std::string  text, c32 colour, c32 drop_colour )											{ return DrawText( x, y, text, text.length(), colour, drop_colour ); }
 				u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, c32 colour )											{ return DrawTextScale( x, y, scale,text, text.length(), colour ); }
 				u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, c32 colour, c32 drop_colour )							{ return DrawTextScale( x, y, scale,text, text.length(), colour, drop_colour ); }
 				u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, c32 colour )					{ return DrawTextAlign( min_x, max_x, align_type, y, text, strlen( text ), colour ); }
 				u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, c32 colour, c32 drop_colour ) { return DrawTextAlign( min_x, max_x, align_type, y, text, strlen( text ), colour, drop_colour ); }
 
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour ) = 0;
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour ) = 0;
+		virtual u32					DrawText( s32 x, s32 y, const std::string  text, u32 length, c32 colour ) = 0;
+		virtual u32					DrawText( s32 x, s32 y, const std::string  text, u32 length, c32 colour, c32 drop_colour ) = 0;
 		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour ) = 0;
 		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour, c32 drop_colour ) = 0;
 		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour ) = 0;

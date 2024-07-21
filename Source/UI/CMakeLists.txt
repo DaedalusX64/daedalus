@@ -1,6 +1,6 @@
 add_library(UI OBJECT 
                             AboutComponent.cpp 
-                            AdjustDeadzoneScreen.cpp 
+                            # AdjustDeadzoneScreen.cpp 
                             AdvancedOptionsScreen.cpp 
                             CheatOptionsScreen.cpp 
                             ColourPulser.cpp 

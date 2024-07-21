@@ -397,17 +397,17 @@ RomID SaveState_GetRomID( const std::filesystem::path &filename )
 	return RomID( rom_header.CRC1, rom_header.CRC2, rom_header.CountryID );
 }
 
-const char* SaveState_GetRom( const std::filesystem::path &filename )
+const std::string SaveState_GetRom( const std::filesystem::path &filename )
 {
 	SaveState_istream_gzip stream( filename );
 
-	if( !stream.IsValid() )
-		return nullptr;
+	// if( !stream.IsValid() )
+	// 	return nullptr;
 
 	u32 value;
 	stream >> value;
 	if(value != SAVESTATE_PROJECT64_MAGIC_NUMBER)
-		return nullptr;
+		return std::string();
 
 	u32 ram_size;
 	stream >> ram_size;

@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "SysGL/GL.h"
+#include <iostream>
 
 #include "Graphics/GraphicsContext.h"
 

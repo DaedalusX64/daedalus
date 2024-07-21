@@ -247,8 +247,6 @@ void	IPauseScreen::Render()
 			snprintf(info, sizeof(info), "[%s]" ,
 			Translate_String("Battery is Charging"));
 	}
-#else
-	// snprintf(info, sizeof(info), "PAUSED");
 #endif
 
 	// Battery Info

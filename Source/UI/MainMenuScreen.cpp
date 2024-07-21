@@ -340,12 +340,7 @@ void	IMainMenuScreen::OnSavestateSelected( const char * savestate_filename )
 	}
 	else
 	{
-		const char * rom_filename = SaveState_GetRom(savestate_filename);
-		if( rom_filename == NULL )
-		{
-			// report error?
-			return;
-		}
+		const std::filesystem::path rom_filename = SaveState_GetRom(savestate_filename);
 
 		System_Open(rom_filename);
 
@@ -363,7 +358,6 @@ void	IMainMenuScreen::OnStartEmulation()
 {
 	System_Open(mRomFilename.c_str());
 	mIsFinished = true;
-
 }
 
 void DisplayRomsAndChoose(bool show_splash)

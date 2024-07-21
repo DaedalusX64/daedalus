@@ -35,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UICommand.h"
 #include "UISpacer.h"
 
-//
 
 class ISelectedRomComponent : public CSelectedRomComponent
 {
@@ -64,16 +63,12 @@ class ISelectedRomComponent : public CSelectedRomComponent
 		RomID						mRomID;
 };
 
-
-//
-
 CSelectedRomComponent::CSelectedRomComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
 {}
 
 
-CSelectedRomComponent::~CSelectedRomComponent()
-{}
+CSelectedRomComponent::~CSelectedRomComponent() {}
 
 
 CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, std::function<void()> on_start_emulation )
@@ -114,7 +109,7 @@ void	ISelectedRomComponent::Update( float elapsed_time[[maybe_unused]], const v2
 			mElements.SelectNext();
 		}
 
-		auto	element = mElements.GetSelectedElement();
+		auto element = mElements.GetSelectedElement();
 		if( element != nullptr )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -138,7 +133,7 @@ void	ISelectedRomComponent::Render()
 {
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
-	auto	element = mElements.GetSelectedElement();
+	auto element = mElements.GetSelectedElement();
 	if( element != NULL )
 	{
 		const auto p_description = element->GetDescription();
@@ -155,7 +150,7 @@ void	ISelectedRomComponent::Render()
 
 void	ISelectedRomComponent::EditPreferences()
 {
-	auto	edit_preferences = CRomPreferencesScreen::Create( mpContext, mRomID );
+	auto edit_preferences = CRomPreferencesScreen::Create( mpContext, mRomID );
 	edit_preferences->Run();
 }
 
@@ -168,7 +163,7 @@ void	ISelectedRomComponent::AdvancedOptions()
 
 void	ISelectedRomComponent::CheatOptions()
 {
-	auto	cheat_options = CCheatOptionsScreen::Create( mpContext, mRomID );
+	auto cheat_options = CCheatOptionsScreen::Create( mpContext, mRomID );
 	cheat_options->Run();
 }
 
