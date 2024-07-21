@@ -207,8 +207,8 @@ bool RomBuffer::Open()
 	if( ShouldLoadAsFixed( sRomSize ) )
 	{
 		// Now, allocate memory for rom - round up to a 4 byte boundry
-		u32		size_aligned( AlignPow2( sRomSize, 4 ) );
-		u8 *	p_bytes( (u8*)CROMFileMemory::Get()->Alloc( size_aligned ) );
+		u32		size_aligned =  AlignPow2( sRomSize, 4 );
+		u8 *	p_bytes =  (u8*)CROMFileMemory::Get()->Alloc( size_aligned );
 
 #ifndef DAEDALUS_PSP
 		if( !p_rom_file->LoadData( sRomSize, p_bytes, messages ) )
@@ -247,8 +247,9 @@ bool RomBuffer::Open()
 			CGraphicsContext::Get()->EndFrame();
 			CGraphicsContext::Get()->UpdateFrame( false );
 		}
-
-		// intraFontUnload( ltn8 );
+	#ifdef INTRAFONT
+		 intraFontUnload( ltn8 );
+	#endif
 #endif
 		spRomData = p_bytes;
 		sRomFixed = true;
