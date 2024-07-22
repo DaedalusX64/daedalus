@@ -36,7 +36,7 @@ class CSavestateSelectorComponent : public CUIComponent
 			AT_LOADING,
 		};
 
-		static std::unique_ptr<CSavestateSelectorComponent>	Create( CUIContext * p_context, EAccessType access_type, std::function<void( const char *)> on_savestate_selected, const std::filesystem::path& running_rom );
+		static CSavestateSelectorComponent *	Create( CUIContext * p_context, EAccessType access_type, std::function<void( const char *)> on_savestate_selected, const std::filesystem::path& running_rom );
 		void LoadState();
 		void SaveState();
 };

@@ -41,7 +41,7 @@ public:
     virtual u32 GetHeight(CUIContext *context) const = 0;
     virtual void Draw(CUIContext *context, s32 min_x, s32 max_x, EAlignType halign, s32 y, bool selected) const = 0;
 
-    virtual const char *GetDescription() const = 0;
+    virtual const std::string GetDescription() const = 0;
 
 private:
 };

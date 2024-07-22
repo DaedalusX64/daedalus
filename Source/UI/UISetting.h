@@ -27,15 +27,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 class CUISetting : public CUIElement
 {
 public:
-	CUISetting( const char * name, const char * description );
+	CUISetting( const std::string& name, const std::string& description );
 	virtual ~CUISetting() {}
 
 	virtual const char *	GetSettingName() const = 0;
 
 	virtual	void			OnSelected()			{ OnNext(); }
 
-	virtual const char *	GetName() const			{ return mName; }
-	virtual const char *	GetDescription() const	{ return mDescription; }
+	virtual const std::string&	GetName() const			{ return mName; }
+	virtual const std::string	GetDescription() const	{ return mDescription; }
 
 	virtual bool			IsReadOnly() const		{ return false; }
 	//virtual bool			IsSelectable() const	{ return !IsReadOnly(); }		// We actually want to be able to read the descriptions of various settings, so don't do this.
@@ -44,8 +44,8 @@ public:
 	virtual void			Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType halign, s32 y, bool selected ) const;
 
 private:
-	const char *			mName;
-	const char *			mDescription;
+	const std::string&		mName;
+	const std::string&			mDescription;
 };
 
 
@@ -53,7 +53,7 @@ class CBoolSetting : public CUISetting
 {
 public:
 
-	CBoolSetting( bool * p_bool, const char * name, const char * description, const char * true_text, const char * false_text, bool read_only = false )
+	CBoolSetting( bool * p_bool, const std::string& name, const std::string& description, const char * true_text, const char * false_text, bool read_only = false )
 		:	CUISetting( name, description )
 		,	mBool( p_bool )
 		,	mTrueText( true_text )

@@ -300,17 +300,13 @@ void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const 
 
 void IRomSelectorComponent::RenderPreview()
 {
-	c32	clrGREY = c32( 195, 195, 195, 0 );
-	c32	clrORANGE = c32( 255, 128, 0, 0 );
-	c32	clrYELLOW = c32( 255, 255, 0, 0 );
-
 	// Preview Image
 	v2	tl( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN );
 	v2	wh( PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT );
 
 	if( mpPreviewTexture != NULL )
 	{
-		c32	colour( c32::White );
+		c32	colour = c32::White;
 
 		if ( mPreviewLoadedTime < PREVIEW_FADE_TIME )
 		{
