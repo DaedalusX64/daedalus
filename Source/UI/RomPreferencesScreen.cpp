@@ -45,7 +45,7 @@ namespace
 	class CTextureHashFrequency : public CUISetting
 	{
 	public:
-		CTextureHashFrequency( ETextureHashFrequency * setting, const char * name, const char * description )
+		CTextureHashFrequency( ETextureHashFrequency * setting, const std::string name, const char * description )
 			:	CUISetting( name, description )
 			,	mSetting( setting )
 		{

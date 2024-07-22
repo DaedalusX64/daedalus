@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIContext.h"
 
 
-CUISetting::CUISetting( const std::string& name, const std::string& description )
+CUISetting::CUISetting( const std::string name, const std::string description )
 	:	mName( name )
 	,	mDescription( description )
 {}

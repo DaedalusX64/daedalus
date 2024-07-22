@@ -118,15 +118,15 @@ class IUIContext : public CUIContext
 		virtual u32					DrawText( s32 x, s32 y, const std::string, u32 length, c32 colour, c32 drop_colour );
 		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour );
 		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour, c32 drop_colour );
-		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour );
-		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour );
+		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour );
+		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour, c32 drop_colour );
 		virtual s32					DrawTextArea( s32 left, s32 top, u32 width, u32 height, const std::string& text, c32 colour, EVerticalAlign vertical_align );
 
 		virtual u32					GetFontHeight() const;
 		virtual u32					GetTextWidth( const char * text ) const;
 
 	private:
-				s32					AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length, EAlignType align_type );
+				s32					AlignText( s32 min_x, s32 max_x, const std::string p_str, u32 length, EAlignType align_type );
 
 	private:
 		CDrawText::EFont			mCurrentFont;
@@ -301,7 +301,7 @@ u32		IUIContext::GetTextWidth( const char * text ) const
 	return CDrawText::GetTextWidth( mCurrentFont, text );
 }
 
-s32		IUIContext::AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length, EAlignType align_type )
+s32		IUIContext::AlignText( s32 min_x, s32 max_x, const std::string p_str, u32 length, EAlignType align_type )
 {
 	s32		x;
 
@@ -351,13 +351,13 @@ u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const std::string text
 	return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour, drop_colour );
 }
 
-u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour )
+u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour )
 {
 
 	return CDrawText::Render( mCurrentFont, AlignText( min_x, max_x, text, length, align_type ), y, 1.0f, text, length, colour );
 }
 
-u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour )
+u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour, c32 drop_colour )
 {
 
 	return CDrawText::Render( mCurrentFont, AlignText( min_x, max_x, text, length, align_type ), y, 1.0f, text, length, colour, drop_colour );
