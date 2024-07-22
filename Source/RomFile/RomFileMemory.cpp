@@ -42,9 +42,9 @@ public:
 	virtual void	Free(void * ptr);
 
 private:
-// #ifdef DAEDALUS_PSP
-	std::unique_ptr<CMemoryHeap>	mRomMemoryHeap;
-// #endif
+#ifdef DAEDALUS_PSP
+	CMemoryHeap *	mRomMemoryHeap;
+#endif
 };
 
 
