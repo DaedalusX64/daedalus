@@ -160,11 +160,10 @@ const char * const		gRomsDirectories[] =
 
 
 
-const char * const		gNoRomsText[] =
+const std::string		gNoRomsText[] =
 {
   "Daedalus could not find any roms to load.",
-  "You can add roms to the Roms Folder withint he DaedalusX64 Folder"
-  "or the Roms directory within the DaedalusX64 folder.",
+  "You can add roms to the Roms Folder within the DaedalusX64 Folder"
   "Daedalus recognises a number of different filetypes,",
   "including .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.",
 };
