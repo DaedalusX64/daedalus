@@ -104,7 +104,7 @@ endif()
 
 	if(PSP) 
 		message("PSP")
-		option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
+		option(DAEDALUS_DIALOGS "Enable UI Dialogs" OFF)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_PSP "PSP specific Options" ON)
 		option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
@@ -237,7 +237,7 @@ link_libraries(ZLIB::ZLIB)
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries})
 
 	# --- Post Build ---
-	## PRX Builds add about 600kb to the binary as they're not stripped at this point.. 
+	## PRX Builds add about 600kb to the binary as they're not stripped at this point. Maybe we 
 	if(PSP)
 		create_pbp_file(
 			TARGET daedalus
