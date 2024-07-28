@@ -30,7 +30,7 @@ else()
 	message("Release Build")
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Show the build type in the UI
-	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
 endif()
 	#Determine Dynarec compatibility and link in appropriate Dynarec
 	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
