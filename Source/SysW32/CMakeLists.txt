@@ -1,7 +1,5 @@
 add_subdirectory(Debug)
-add_subdirectory(HLEAudio)
 add_subdirectory(Utility)
-
 
 install(FILES ${PROJECT_BINARY_DIR}/../Data/roms.ini DESTINATION DaedalusX64)
 install(FILES ${PROJECT_BINARY_DIR}/../Data/readme.txt DESTINATION DaedalusX64)

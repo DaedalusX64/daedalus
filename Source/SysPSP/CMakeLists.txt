@@ -1,6 +1,5 @@
 add_subdirectory(Debug)
 add_subdirectory(Graphics)
-add_subdirectory(HLEAudio)
 add_subdirectory(HLEGraphics)
 add_subdirectory(Input)
 add_subdirectory(PRX)
