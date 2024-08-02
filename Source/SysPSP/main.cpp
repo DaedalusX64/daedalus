@@ -197,9 +197,7 @@ void HandleEndOfFrame()
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 		CGraphicsContext::Get()->ClearAllSurfaces();
 
-		CDrawText::Initialise();
-
-		CUIContext *	p_context( CUIContext::Create() );
+		auto	p_context = CUIContext::Create();
 
 		if(p_context != NULL)
 		{
@@ -208,7 +206,6 @@ void HandleEndOfFrame()
 			delete p_context;
 		}
 
-		CDrawText::Destroy();
 
 		// Commit the preferences database before starting to run
 		// CPreferences::Get()->Commit();
