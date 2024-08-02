@@ -8,8 +8,10 @@ add_library(Utility OBJECT
                             Profiler.cpp  
                             Stream.cpp 
                             StringUtil.cpp
-                            Translate.cpp
                             Timer.cpp
+                            Timing.cpp
+                            Translate.cpp
+
             )
 
 

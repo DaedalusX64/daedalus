@@ -7,9 +7,7 @@ add_library(Utility_PSP OBJECT
                                 FastMemcpyPSP.cpp 
                                 ModulePSP.cpp
                                 VolatileMemPSP.cpp
-                                ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/TimingPosix.cpp 
                                 ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/ThreadPosix.cpp
-                                # ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/IOPosix.cpp
             )
 
             
