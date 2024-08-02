@@ -234,7 +234,7 @@ void	IPauseOptionsComponent::CheatOptions()
 
 void	IPauseOptionsComponent::SaveState()
 {
-auto onSaveStateSlotSelected = [this](const char* slot) { this->OnSaveStateSlotSelected(slot);
+auto onSaveStateSlotSelected = [this](const std::filesystem::path slot) { this->OnSaveStateSlotSelected(slot);
 };
 
 auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelectorComponent::AT_SAVING, onSaveStateSlotSelected, g_ROM.settings.GameName.c_str());
@@ -247,7 +247,7 @@ auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelect
 
 void	IPauseOptionsComponent::LoadState()
 {
-auto onLoadStateSlotSelected = [this](const char* slot) {
+auto onLoadStateSlotSelected = [this](const std::filesystem::path slot) {
     this->OnLoadStateSlotSelected(slot);
 };
 
