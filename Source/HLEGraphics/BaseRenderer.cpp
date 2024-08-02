@@ -326,12 +326,6 @@ void BaseRenderer::InitViewport()
 	mN64ToScreenTranslate.x  = (f32)display_x - roundf(0.55f * (gZoomX - 1.0f) * fViWidth);
 	mN64ToScreenTranslate.y  = (f32)display_y - roundf(0.55f * (gZoomX - 1.0f) * fViHeight);
 
-	if( gRumblePakActive )
-	{
-	    mN64ToScreenTranslate.x += (FastRand() & 3);
-		mN64ToScreenTranslate.y += (FastRand() & 3);
-	}
-
 #ifndef DAEDALUS_CTR
 		if (gRumblePakActive)
 		{
@@ -339,6 +333,7 @@ void BaseRenderer::InitViewport()
 			mN64ToScreenTranslate.y += (FastRand() & 3);
 		}
 #endif
+
 
 
 #if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
