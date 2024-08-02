@@ -33,6 +33,7 @@
 #include "Utility/MathUtil.h"
 #include "RomFile/RomFile.h"
 #include "Utility/Stream.h"
+#include "Utility/Paths.h"
 #include <filesystem>
 
 static const u64 ROMDB_MAGIC_NO	= 0x42444D5244454144LL; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
@@ -166,11 +167,7 @@ template<> bool	CSingleton< CRomDB >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	mpInstance = std::make_shared<IRomDB>();
-	std::filesystem::path p = baseDir;
-	p /= "rom.db";
-
-	/*ret = */mpInstance->OpenDB( p );
-
+	mpInstance->OpenDB(setBasePath("rom.db"));
 	return true;
 }
 

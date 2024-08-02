@@ -24,7 +24,7 @@
 #define UTILITY_INIFILE_H_
 
 #include "Base/Types.h"
-#include "System/IO.h"
+#include "Utility/Paths.h"
 
 //*****************************************************************************
 //

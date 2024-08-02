@@ -16,7 +16,7 @@
 #include "Utility/MathUtil.h"
 
 #include "Utility/IniFile.h"
-#include "System/IO.h"
+
 #include "Base/Macros.h"
 #include "Interface/Preferences.h"
 #include "Utility/Stream.h"

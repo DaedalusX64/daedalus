@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 #include "Debug/DBGConsole.h"
 
-#include "System/IO.h"
+
 #include <fstream>
 #include <format>
 #include <iostream> 
@@ -38,9 +38,8 @@ std::ofstream	g_hOutputLog;;
 
 bool Debug_InitLogging()
 {
-	std::filesystem::path path = baseDir;
 	const std::filesystem::path log_filename = "daedalus.txt";
-	path /= log_filename;
+	std::filesystem::path path = setBasePath(log_filename);
 	std::cout << "Creating Dump File: " << path << std::endl;
 	g_hOutputLog.open( log_filename);
 	// Is always going to return true

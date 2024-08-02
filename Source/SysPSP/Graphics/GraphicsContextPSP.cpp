@@ -34,7 +34,7 @@
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/PngUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"
-#include "System/IO.h"
+
 #include "UI/DrawText.h"
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"

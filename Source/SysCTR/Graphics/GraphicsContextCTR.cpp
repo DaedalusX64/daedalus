@@ -10,7 +10,7 @@
 #include "Debug/Dump.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/PngUtil.h"
-#include "System/IO.h"
+
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 

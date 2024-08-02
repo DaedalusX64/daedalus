@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-
+#include <iostream>
 
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 
@@ -53,6 +53,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Endian.h"
 #include "Utility/FastMemcpy.h"
 #include "Utility/Profiler.h"
+#include "Utility/Paths.h"
 
 #ifdef DAEDALUS_PSP
 #include "Graphics/GraphicsContext.h"
@@ -63,7 +64,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DUMPOSFUNCTIONS
 #include "Debug/Dump.h"
-#include "System/IO.h"
+
 
 static const char * const gEventStrings[23] =
 {
@@ -961,9 +962,11 @@ fail_find:
 
 static void Patch_FlushCache()
 {
-
-	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "SaveGames/Cache");
-	std::ofstream fp(name, std::ios::binary);
+	std::filesystem::path path = setBasePath("SaveGames/Cache");
+	std::filesystem::path name = g_ROM.mFileName.filename();
+	name.replace_extension("hle");
+	path /= name;
+	std::ofstream fp(path, std::ios::binary);
 
 	if (fp.is_open())
 	{
@@ -1011,8 +1014,12 @@ static void Patch_FlushCache()
 
 static bool Patch_GetCache()
 {
+	std::filesystem::path name = setBasePath("SaveGames/Cache");
+	std::filesystem::path romName = g_ROM.mFileName;
+	romName.replace_extension(".hle");
+	name /= romName;
+	std::cout << name << std::endl;
 
-	std::filesystem::path name = Save_As(g_ROM.mFileName, ".hle", "SaveGames/Cache");
 	std::fstream fp(name, std::ios::in |std::ios::binary);
 
 	if(fp.is_open())

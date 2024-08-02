@@ -28,11 +28,11 @@
 #include "UI/UserInterface.h"
 #include "UI/RomSelector.h"
 
-#include "System/IO.h"
+
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
-#include "Base/Path.h"
+
 
 #include "Utility/Timer.h"
 #include "RomFile/RomFile.h"
@@ -136,8 +136,8 @@ int main(int argc, char* argv[])
 	// Set the default path
 
 	std::string rom = UI::DrawRomSelector();
-	std::filesystem::path RomPath = baseDir / "Roms" / std::string(rom);
-
+	std::filesystem::path RomPath = setBasePath("Roms");
+	RomPath /= rom;
 	System_Open(RomPath.string().c_str());
 	CPU_Run();
 	System_Close();

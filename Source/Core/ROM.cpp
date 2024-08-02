@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/GraphicsPlugin.h"
 #include "Utility/CRC.h"
 #include "Core/FramerateLimiter.h"
-#include "System/IO.h"
+
 #include "Base/Macros.h"
 #include "Interface/Preferences.h"
 #include "RomFile/RomFile.h"

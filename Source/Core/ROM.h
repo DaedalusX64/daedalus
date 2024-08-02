@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CORE_ROM_H_
 
 #include "Core/ROMImage.h"
-#include "System/IO.h"
+
 #include <string>
 #include <filesystem>
 class RomID

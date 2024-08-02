@@ -268,8 +268,8 @@ IController::IController() :
 	mpEepromData( nullptr )
 {
 #ifdef DAEDALUS_DEBUG_PIF
-	std::filesystem::path controller_path = baseDir;
-	controller_path /= "controller.txt";
+
+	std::filesystem::path controller_path = setBasePath("controller.txt");
 	mDebugFile.open(controller_path, std::ios::out);
 #endif
 

@@ -4,6 +4,7 @@ add_library(Utility OBJECT
                             Hash.cpp 
                             IniFile.cpp 
                             MemoryHeap.cpp  
+                            Paths.cpp
                             Profiler.cpp  
                             Stream.cpp 
                             StringUtil.cpp

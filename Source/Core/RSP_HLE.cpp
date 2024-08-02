@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/AudioPlugin.h"
 #include "HLEGraphics/GraphicsPlugin.h"
 #include "Test/BatchTest.h"
-#include "System/IO.h"
+
 #include "Core/PrintOpCode.h"
 #include "Utility/Profiler.h"
 
@@ -63,8 +63,7 @@ static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u
 	std::string filename = std::format("task_dump_{}_crc_0x{}.txt", name, crc);
 	// snprintf(filename, sizeof(filename), "task_dump_%s_crc_0x%08x.txt", name, crc);
 
-	std::filesystem::path filepath = baseDir;
-	filepath /= "rsp_dumps";
+	std::filesystem::path filepath = setBasePath("rsp_dumps");
 	std::filesystem::create_directory(filepath);
 	filepath /= filename;
 

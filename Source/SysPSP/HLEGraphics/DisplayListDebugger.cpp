@@ -40,7 +40,7 @@
 #include "Core/ROM.h"
 #include "Debug/Dump.h"
 
-#include "System/IO.h"
+
 #include "Interface/Preferences.h"
 #include "Utility/Timer.h"
 #include "System/Timing.h"

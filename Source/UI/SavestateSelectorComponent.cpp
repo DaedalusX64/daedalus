@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIScreen.h"
 #include "Menu.h"
 #include "SavestateSelectorComponent.h"
-#include "System/IO.h"
+#include "Utility/Paths.h"
 #include "Utility/Stream.h"
 #include "Utility/Translate.h"
 
@@ -103,9 +103,9 @@ namespace
 	   void MakeSaveSlotPath(std::filesystem::path& path, std::filesystem::path& png_path, u32 slot_idx, const std::filesystem::path& slot_path)
     {
 		//XXXX Todo Add support for alternative directories
-		std::filesystem::create_directory("SaveStates");
-        std::filesystem::path save_directory = "SaveStates";
+        std::filesystem::path save_directory = setBasePath("SaveStates");
         std::filesystem::path full_directory = save_directory / slot_path;
+		std::filesystem::create_directory(full_directory);
 
         std::string filename_png = std::format("saveslot{}.ss.png", slot_idx);
         std::string filename_ss = std::format("saveslot{}.ss", slot_idx);

@@ -331,8 +331,8 @@ void	CTraceRecorder::AbortTrace()
 	if( mTracing )
 	{
 #ifdef LOG_ABORTED_TRACES
-		std::filesystem::path path = baseDir;
-		path /= "aborted_traces.txt";
+
+		std::filesystem::path path = setBasePath("aborted_traces.txt"):;
 		std::fstream fh(path);
 		if (fh.is_open())
 		{
