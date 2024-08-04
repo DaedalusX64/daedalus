@@ -47,14 +47,14 @@ static std::vector<SRomInfo> PopulateRomList()
 	std::vector<SRomInfo> roms = {};
 
 	std::string			full_path;
-	IO::FindHandleT		find_handle;
-	IO::FindDataT		find_data;
+	// IO::FindHandleT		find_handle;
+	// IO::FindDataT		find_data;
 	
 	// if(IO::FindFileOpen( DAEDALUS_CTR_PATH("Roms/"), &find_handle, find_data ))
 	// {
 	// 	do 
 	// 	{
-			const std::filesystem::path rom_filename( find_data.Name );
+			const std::filesystem::path rom_filename;
 			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
 				SRomInfo info;

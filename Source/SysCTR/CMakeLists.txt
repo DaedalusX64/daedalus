@@ -1,7 +1,6 @@
 add_subdirectory(Debug)
 add_subdirectory(Graphics)
 add_subdirectory(HLEGraphics)
-add_subdirectory(Input)
 add_subdirectory(UI)
 add_subdirectory(Utility)
 
