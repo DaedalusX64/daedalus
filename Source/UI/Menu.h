@@ -1,9 +1,10 @@
-#ifndef SYSPSP_UI_PSPMENU_H_
-#define SYSPSP_UI_PSPMENU_H_
+#ifndef UI_PSPMENU_H_
+#define UI_PSPMENU_H_
 
 #include "Base/Types.h"
 #include <string>
 #include <filesystem>
+
 
 // User Interface Variables
 
@@ -25,17 +26,20 @@ constexpr s16 multipler = 4;
 const s16 MENU_TOP {10 * multipler};
 const s16 TITLE_HEADER {20 * multipler};
 
-const s16 LIST_TEXT_LEFT {13 * multipler};
-const s16 LIST_TEXT_WIDTH {(SCREEN_WIDTH - LIST_TEXT_LEFT) * multipler};
+
 #ifdef DAEDALUS_PSP
 const s16 BELOW_MENU_MIN {33}; // Rename this as it's confusing
 const s16 LIST_TEXT_HEIGHT {216 * multipler}; // This affects Category and Romlist height.. Probably need to separate
 const s16 LIST_TEXT_TOP = 30;
 #else
-const s16 BELOW_MENU_MIN {50}; // Rename this as it's confusing
+const s16 BELOW_MENU_MIN {80}; // Rename this as it's confusing
 const s16 LIST_TEXT_HEIGHT {210 * multipler}; // This affects Category and Romlist height.. Probably need to separate
 const s16 LIST_TEXT_TOP = {80};
 #endif
+
+const s16 ROM_LIST_TOP {LIST_TEXT_TOP * multipler};
+const s16 LIST_TEXT_LEFT {13 * multipler};
+const s16 LIST_TEXT_WIDTH {(SCREEN_WIDTH - LIST_TEXT_LEFT)};
 
 const s16 PREVIEW_IMAGE_LEFT {309 * multipler};
 const s16 PREVIEW_IMAGE_BOTTOM {140 * multipler};
@@ -43,10 +47,11 @@ const s16 PREVIEW_IMAGE_RIGHT {464 * multipler};
 const s16 PREVIEW_IMAGE_WIDTH {PREVIEW_IMAGE_RIGHT - PREVIEW_IMAGE_LEFT};
 const s16 PREVIEW_IMAGE_HEIGHT {PREVIEW_IMAGE_BOTTOM - BELOW_MENU_MIN};
 
-const s16 DESCRIPTION_AREA_TOP {0};
+const s16 DESCRIPTION_AREA_TOP {LIST_TEXT_TOP};
 const s16 DESCRIPTION_AREA_LEFT {16 * multipler};
 const s16 DESCRIPTION_AREA_RIGHT {SCREEN_WIDTH - 16};
 const s16 DESCRIPTION_AREA_BOTTOM {SCREEN_HEIGHT - 10};
+
 
 const s16 ROM_INFO_TEXT_X {318 * multipler};
 const s16 ROM_INFO_TEXT_Y {154 * multipler};
@@ -72,15 +77,6 @@ enum ECategory
   NUM_CATEGORIES,
 };
 
-enum PspModel
-{
-    PSP_MODEL_STANDARD = 0,
-    PSP_MODEL_SLIM_AND_LITE = 1,
-    PSP_MODEL_BRITE = 8,
-    PSP_MODEL_GO = 4,
-    PSP_MODEL_STREET = 10
-};
-
 // Splash Screen
 
 const float	MAX_TIME  {0.8f}; // Rename to something more sane
@@ -103,27 +99,20 @@ const char * const		LOADING_TITLE_TEXT = "Select a Slot to Load From";
 // About components
 #define MAX_PSP_MODEL 11
 
-const std::string DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
+const std::string DAEDALUS_VERSION_TEXT = "DaedalusX64";
 const std::string		DATE_TEXT = "Built ";
 
 const char * const		URL_TEXT_1 = "https://github.com/daedalusx64/daedalus/";
-const char * const		URL_TEXT_2 = "https://discord.gg/AHWDYmB";
+const char * const		URL_TEXT_2 = "https://discord.gg/uxQ3JsEs9w";
 
 const char * const		INFO_TEXT[] =
 {
-  "Copyright (C) 2008-2023 DaedalusX64 Team",
+  "Copyright (C) 2008-2024 DaedalusX64 Team",
   "Copyright (C) 2001-2009 StrmnNrmn",
   "Audio HLE code by Azimer",
   "",
   "For news and updates visit:",
 };
-
-
-const char * const		pspModel[ MAX_PSP_MODEL ] =
-{
-  "PSP PHAT (01g)", "PSP 2000 (02g)", "PSP BRITE(03g)", "PSP BRITE (04g)", "PSP GO (05G)", "UNKNOWN PSP", "PSP BRITE (07g)", "UNKNOWN PSP",  "PSP BRITE (09g)", "UNKNOWN PSP", "PSP STREET (11g)"
-};
-
 
 
 // Adjust Dead Zone Screen
@@ -135,10 +124,10 @@ const char * const		TITLE_TEXT = "Adjust Stick Deadzone"; // Make more sane
 
 const u32				TITLE_Y = 10 * multipler;
 
-const u32				HALF_WIDTH( SCREEN_WIDTH / 2 );
-const u32				CENTRE_X( SCREEN_WIDTH / 2 );
-const u32				DISPLAY_WIDTH( 128 * multipler);
-const u32				DISPLAY_RADIUS( DISPLAY_WIDTH / 2 );
+const u32				HALF_WIDTH = SCREEN_WIDTH / 2;
+const u32				CENTRE_X = SCREEN_WIDTH / 2 ;
+const u32				DISPLAY_WIDTH = 128 * multipler;
+const u32				DISPLAY_RADIUS = DISPLAY_WIDTH / 2;
 
 const u32				PSP_CIRCLE_X = DISPLAY_RADIUS + ((HALF_WIDTH - DISPLAY_WIDTH) / 2);
 const u32				PSP_CIRCLE_Y = 120;
@@ -171,13 +160,10 @@ const char * const		gRomsDirectories[] =
 
 
 
-const char * const		gNoRomsText[] =
+const std::string		gNoRomsText[] =
 {
   "Daedalus could not find any roms to load.",
-  "You can add roms to the \\N64\\ directory on your memory stick,",
-  "(e.g. P:\\N64\\)",
-  "or the Roms directory within the Daedalus folder.",
-  "(e.g. P:\\PSP\\GAME\\Daedalus\\Roms\\)",
+  "You can add roms to the Roms Folder within the DaedalusX64 Folder"
   "Daedalus recognises a number of different filetypes,",
   "including .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.",
 };
@@ -186,4 +172,4 @@ const char * const		gNoRomsText[] =
 const f32				PREVIEW_SCROLL_WAIT = 0.500f;		// seconds to wait for scrolling to stop before loading preview (prevent thrashing)
 const f32				PREVIEW_FADE_TIME = 0.50f;			// seconds
 
-#endif //SYSPSP_UI_PSPMENU_H_
+#endif //UI_PSPMENU_H_

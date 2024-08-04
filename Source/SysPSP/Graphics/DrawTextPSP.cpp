@@ -41,9 +41,7 @@ intraFont *gFonts[] =
 };
 DAEDALUS_STATIC_ASSERT(std::size(gFonts) == CDrawText::NUM_FONTS);
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void CDrawText::Initialise()
 {
 	intraFontInit();
@@ -59,9 +57,7 @@ void CDrawText::Initialise()
 #endif
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void CDrawText::Destroy()
 {
 	for (u32 i = 0; i < NUM_FONTS; ++i)
@@ -71,18 +67,14 @@ void CDrawText::Destroy()
 	intraFontShutdown();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-u32 CDrawText::Render(EFont font, s32 x, s32 y, float scale, const char *p_str, u32 length, c32 colour)
+
+u32 CDrawText::Render(EFont font, s32 x, s32 y, float scale, const std::string p_str, u32 length, c32 colour)
 {
-	return Render(font, x, y, scale, p_str, length, colour, c32(0, 0, 0, 160));
+	return Render(font, x, y, scale, p_str.c_str(), length, colour, c32(0, 0, 0, 160));
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_str, u32 length, c32 colour, c32 drop_colour)
+
+u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const std::string p_str, u32 length, c32 colour, c32 drop_colour)
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
@@ -93,16 +85,14 @@ u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_
 		sceGuEnable(GU_BLEND);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		intraFontSetStyle(font, scale, colour.GetColour(), drop_colour.GetColour(), 0, INTRAFONT_ALIGN_LEFT);
-		return s32(intraFontPrintEx(font, x, y, Translate_Strings(p_str, length), length)) - x;
+		return static_cast<s32>(intraFontPrintEx(font, x, y, Translate_Strings(p_str, length), length)) - x;
 	}
 
-	return strlen(p_str) * 16; // Guess. Better off just returning 0?
+	return p_str.length() * 16; // Guess. Better off just returning 0?
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-s32 CDrawText::GetTextWidth(EFont font_type, const char *p_str, u32 length)
+
+s32 CDrawText::GetTextWidth(EFont font_type, const std::string p_str, u32 length)
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
@@ -111,21 +101,19 @@ s32 CDrawText::GetTextWidth(EFont font_type, const char *p_str, u32 length)
 	if (font)
 	{
 		intraFontSetStyle(font, 1.0f, 0xffffffff, 0xffffffff, 0, INTRAFONT_ALIGN_LEFT);
-		return s32(intraFontMeasureTextEx(font, Translate_Strings(p_str, length), length));
+		return static_cast<s32>(intraFontMeasureTextEx(font, Translate_Strings(p_str, length), length));
 	}
 
-	return strlen(p_str) * 16; // Return a reasonable value. Better off just returning 0?
+	return p_str.length() * 16; // Return a reasonable value. Better off just returning 0?
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 s32 CDrawText::GetFontHeight(EFont font_type)
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
 #endif
-	intraFont *font(gFonts[font_type]);
+	intraFont *font = gFonts[font_type];
 	if (font)
 	{
 		s32 pixels((s32(font->advancey) + 3) / 4);

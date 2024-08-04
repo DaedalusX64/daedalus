@@ -42,9 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/DisplayListDebugger.h"
 #endif
 
-#ifdef DAEDALUS_GL
-#include "SysGL/Interface/UI.h"
-#endif
 
 #include "Core/FramerateLimiter.h"
 #include "Debug/Synchroniser.h"
@@ -175,9 +172,6 @@ static const std::array<SysEntityEntry, 17> gSysInitTable =
 	{"TextureCacheWebDebug",TextureCache_RegisterWebDebug, 	NULL},
 	{"DLDebuggerWebDebug",	DLDebugger_RegisterWebDebug, 	NULL},
 #endif
-#endif
-#ifdef DAEDALUS_GL
-	{"UI",					UI_Init,				 	UI_Finalise},
 #endif
 }};
 

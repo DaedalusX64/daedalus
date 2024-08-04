@@ -20,10 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSPSP_GRAPHICS_DRAWTEXT_H_
 #define SYSPSP_GRAPHICS_DRAWTEXT_H_
 
-#include <string.h>
-
 #include <vector>
-
+#include <string>
 #include "Graphics/ColourValue.h"
 #include "UI/UIAlignment.h"
 
@@ -39,14 +37,14 @@ class CDrawText
 		};
 		static const u32 NUM_FONTS = F_LARGE_BOLD+1;
 
-		static u32		Render( EFont font, s32 x, s32 y, float scale, const char * p_str, u32 length, c32 colour );
-		static u32		Render( EFont font, s32 x, s32 y, float scale, const char * p_str, u32 length, c32 colour, c32 drop_colour );
-		static s32		GetTextWidth( EFont font, const char * p_str, u32 length );
+		static u32		Render( EFont font, s32 x, s32 y, float scale, const std::string p_str, u32 length, c32 colour );
+		static u32		Render( EFont font, s32 x, s32 y, float scale, const std::string p_str, u32 length, c32 colour, c32 drop_colour );
+		static s32		GetTextWidth( EFont font, const std::string p_str, u32 length );
 
 		// Versions of above functions which implicitly calc string length
-		static u32		Render( EFont font, s32 x, s32 y, float scale, const char * p_str, c32 colour )						{ return Render( font, x, y, scale, p_str, strlen( p_str ), colour ); }
-		static u32		Render( EFont font, s32 x, s32 y, float scale, const char * p_str, c32 colour, c32 drop_colour )	{ return Render( font, x, y, scale, p_str, strlen( p_str ), colour, drop_colour ); }
-		static s32		GetTextWidth( EFont font, const char * p_str )										{ return GetTextWidth( font, p_str, strlen( p_str ) ); }
+		static u32		Render( EFont font, s32 x, s32 y, float scale, const std::string p_str, c32 colour )						{ return Render( font, x, y, scale, p_str, p_str.length(), colour ); }
+		static u32		Render( EFont font, s32 x, s32 y, float scale, const std::string p_str, c32 colour, c32 drop_colour )	{ return Render( font, x, y, scale, p_str, p_str.length(), colour, drop_colour ); }
+		static s32		GetTextWidth( EFont font, const std::string p_str )										{ return GetTextWidth( font, p_str, p_str.length() ); }
 
 		static s32		GetFontHeight( EFont font );
 

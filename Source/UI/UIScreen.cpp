@@ -47,13 +47,13 @@ void	CUIScreen::Run()
 	// Simple rom chooser
 	while( !IsFinished() )
 	{
-		f32		elapsed_time( timer.GetElapsedSeconds() );
+		f32		elapsed_time = timer.GetElapsedSeconds();
 
 		u32 old_buttons = pad.Buttons;
 		sceCtrlPeekBufferPositive(&pad, 1);
 
-		s32		stick_x( pad.Lx - 128 );
-		s32		stick_y( pad.Ly - 128 );
+		s32		stick_x = pad.Lx - 128;
+		s32		stick_y = pad.Ly - 128;
 
 		if(stick_x >= -STICK_DEADZONE && stick_x <= STICK_DEADZONE)
 		{
@@ -65,8 +65,8 @@ void	CUIScreen::Run()
 		}
 
 		v2	stick;
-		stick.x = f32(stick_x) / 128.0f;
-		stick.y = f32(stick_y) / 128.0f;
+		stick.x = static_cast<f32>(stick_x) / 128.0f;
+		stick.y = static_cast<f32>(stick_y) / 128.0f;
 
 		mpContext->Update( elapsed_time );
 

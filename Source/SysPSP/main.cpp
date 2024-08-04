@@ -131,7 +131,7 @@ static bool	Initialize()
 		// Can't use extra memory if ME isn't available
 		PSP_IS_SLIM = true;
 		g32bitColorMode = true;
-		// sceGeEdramSetSize(4*1024*1024);
+		sceGeEdramSetSize(4*1024*1024);
 		HAVE_DVE = CModule::Load("Plugins/dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
@@ -203,9 +203,8 @@ void HandleEndOfFrame()
 
 		if(p_context != NULL)
 		{
-			CPauseScreen *	pause( CPauseScreen::Create( p_context ) );
+			auto	pause = CPauseScreen::Create( p_context );
 			pause->Run();
-			delete pause;
 			delete p_context;
 		}
 

@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_SAVESTATESELECTORCOMPONENT_H_
-#define SYSPSP_UI_SAVESTATESELECTORCOMPONENT_H_
+#ifndef UI_SAVESTATESELECTORCOMPONENT_H_
+#define UI_SAVESTATESELECTORCOMPONENT_H_
 
 #include "UIComponent.h"
 #include <functional>
@@ -41,4 +41,4 @@ class CSavestateSelectorComponent : public CUIComponent
 		void SaveState();
 };
 
-#endif // SYSPSP_UI_SAVESTATESELECTORCOMPONENT_H_
+#endif // UI_SAVESTATESELECTORCOMPONENT_H_

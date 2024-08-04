@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "UIContext.h"
 #include "UIScreen.h"
-
+#include <iostream>
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
 #include "Utility/MathUtil.h"
@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Macros.h"
 #include "Utility/Translate.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 
 #include <cstring>
 
@@ -77,49 +77,36 @@ void	IAboutComponent::Update( float elapsed_time [[maybe_unused]], const v2 & st
 
 
 void	IAboutComponent::Render()
-{
+{	
+	s16 text_top = SCREEN_HEIGHT / 4;
 
-		s16 text_top( 38 );
-
-	if(mpTexture != NULL)
-	{
-		s16		w( mpTexture->GetWidth() );
-		s16		h( mpTexture->GetHeight() );
-
-		f32		desired_height = 60.0f;
-		f32		scale( desired_height / f32( h ) );
-
-		v2		wh( f32( w ) * scale, f32( h ) * scale );
-		v2		tl( f32( (SCREEN_WIDTH - wh.x)/2 ), f32( text_top ) );
-
-		mpContext->RenderTexture( mpTexture, tl, wh, c32::White );
-
-		text_top += u32( wh.y + 10.0f );
-	}
-
-	s16			y;
-	const s16	line_height( mpContext->GetFontHeight() + 2 );
-
-	y = text_top;
-
-	std::string	version = DAEDALUS_VERSION_TEXT + DAEDALUS_CONFIG_VERSION;
+	const s16	line_height =  mpContext->GetFontHeight() + 2;
+	s16 y = text_top + 20;
 
 
-std::string	date = DATE_TEXT + __DATE__;
+	std::string	version = "DaedalusX64";
+
+	std::string	date = DATE_TEXT + __DATE__;
+
+	// Make the Tile bold 
+	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, version.data(), DrawTextUtilities::TextWhite ); y += line_height;
+	
+	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
+		
+	y += line_height; // Spacer
+
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, date.data(), DrawTextUtilities::TextWhite ); y += line_height;
 
-	// Spacer
-	y += line_height;
 
-	for( size_t i = 0; i < std::size( INFO_TEXT ); ++i )
+	y += line_height; // Spacer
+
+	for (const auto& str : INFO_TEXT)
 	{
-		const char * str( INFO_TEXT[ i ] );
-
-		mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, str, DrawTextUtilities::TextWhite );
+		mpContext->DrawTextAlign(LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, str, DrawTextUtilities::TextWhite);
 		y += line_height;
 	}
 
-	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, URL_TEXT_1, DrawTextUtilities::TextRed, c32( 255,255,255,160 ) );	y += line_height;
-	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, URL_TEXT_2, DrawTextUtilities::TextRed, c32( 255,255,255,255 ) );	y += line_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, URL_TEXT_1, DrawTextUtilities::TextGreen, c32( 255,255,255,160 ) );	y += line_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, URL_TEXT_2, DrawTextUtilities::TextBlue, c32( 255,255,255,255 ) );	y += line_height;
 }

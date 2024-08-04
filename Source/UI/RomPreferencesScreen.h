@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_ROMPREFERENCESSCREEN_H_
-#define SYSPSP_UI_ROMPREFERENCESSCREEN_H_
+#ifndef UI_ROMPREFERENCESSCREEN_H_
+#define UI_ROMPREFERENCESSCREEN_H_
 
 class CUIContext;
 class RomID;
@@ -29,9 +29,9 @@ class CRomPreferencesScreen
 	public:
 		virtual ~CRomPreferencesScreen();
 
-		static CRomPreferencesScreen *	Create( CUIContext * p_context, const RomID & rom_id );
+		static std::unique_ptr<CRomPreferencesScreen>	Create( CUIContext * p_context, const RomID & rom_id );
 
 		virtual void				Run() = 0;
 };
 
-#endif // SYSPSP_UI_ROMPREFERENCESSCREEN_H_
+#endif // UI_ROMPREFERENCESSCREEN_H_

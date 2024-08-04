@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIContext.h"
 #include "UIElement.h"
 #include "UIScreen.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "SavestateSelectorComponent.h"
 #include "System/IO.h"
 #include "Utility/Stream.h"
@@ -148,27 +148,21 @@ void ISavestateSelectorComponent::LoadFolders() {
         mPVExists[i] = 0;
         mLastPreviewLoad = ~0;
     }
-	// Don't use 
 		for( const auto& entry : std::filesystem::directory_iterator("SaveStates"))
 		{
 			if (entry.is_directory()) 
 			{
 				std::string directoryName = entry.path().filename().string();
-				if (directoryName.size() > 2)
+				if ((directoryName.size() > 2) && (directoryName != ".git"))
 				{
-					std::string_view str = directoryName;
+					std::string str = directoryName;
 					auto onSelected = [this, folderIndex]() { OnFolderSelected(folderIndex); };
 					std::function<void()> functor = onSelected;
-					CUIElement* element = new CUICommandImpl(functor, str.data(), description_text);
-					mElements.Add(element);
+					auto element = std::make_unique<CUICommandImpl>(functor, str, description_text);
+					mElements.Add(std::move(element));
 					mElementTitle.push_back(directoryName);
 					folderIndex++; 
 				}
-			}
-			else
-			{
-				CUIElement* element = new CUICommandDummy("There are no Savestates to load", "There are no Savestates to load");
-				mElements.Add(element);
 			}
 		}
 }
@@ -181,8 +175,7 @@ void ISavestateSelectorComponent::LoadSlots() {
     mLastPreviewLoad = ~0;
 
     for (u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i) {
-        COutputStringStream str;
-        str << Translate_String("Slot ") << (i + 1) << ": ";
+       std::string str = std::string("Slot ") + std::to_string(i + 1) + ": ";
 		 
         std::filesystem::path filename_ss;
         MakeSaveSlotPath(filename_ss, mPVFilename[i], i, current_slot_path);
@@ -191,13 +184,14 @@ void ISavestateSelectorComponent::LoadSlots() {
 
         if (mPVExists[i] == 1) {
 
-// Get the last write time of the file
+// This does not work on the PSP
+// // Get the last write time of the file
 // auto last_write_time = std::filesystem::last_write_time(filename_ss);
 
 // // Convert last_write_time to system_clock's time_point
 // auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
 //     last_write_time - decltype(last_write_time)::clock::now() + std::chrono::system_clock::now()
-// // );
+// );
 
 // // Convert the time_point to a time_t to use with std::localtime
 // std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
@@ -208,24 +202,24 @@ void ISavestateSelectorComponent::LoadSlots() {
 // // Format the date string
 // std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
 
-//             str << date_string;
+//             str += date_string;
             mSlotEmpty[i] = false;
-        } else {
-            str << Translate_String("Empty");
-            mSlotEmpty[i] = true;
+         } else {
+             str = "Empty";
+             mSlotEmpty[i] = true;
         }
 
         // Create UI elements based on slot availability
-        CUIElement* element;
+        std::unique_ptr<CUIElement> element = nullptr;
         if (mAccessType == AT_LOADING && mSlotEmpty[i]) {
-            element = new CUICommandDummy(str.c_str(), description_text);
+            element = std::make_unique<CUICommandDummy>(str.c_str(), description_text);
         } else {
             auto onSelected = [this, i]() { OnSlotSelected(i); };
             std::function<void()> functor = onSelected;
-            element = new CUICommandImpl(functor, str.c_str(), description_text);
+            element = std::make_unique<CUICommandImpl>(functor, str.c_str(), description_text);
         }
 
-        mElements.Add(element);
+        mElements.Add(std::move(element));
     }
 }
 
@@ -236,10 +230,8 @@ ISavestateSelectorComponent::~ISavestateSelectorComponent() {}
 
 void	ISavestateSelectorComponent::Update( float elapsed_time [[maybe_unused]], const v2 & stick [[maybe_unused]], [[maybe_unused]] u32 old_buttons, u32 new_buttons )
 {
-	//
 	//	Trigger the save on the first update AFTER mSelectedSlot was set.
 	//	This ensures we get at least one frame where we can display "Saving..." etc.
-	//
 	if( mSelectedSlot != INVALID_SLOT && !mIsFinished )
 	{
 		mIsFinished = true;
@@ -274,7 +266,7 @@ void	ISavestateSelectorComponent::Update( float elapsed_time [[maybe_unused]], c
 			    deleteButtonTriggered=false;
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto	element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -337,18 +329,19 @@ void	ISavestateSelectorComponent::deleteSlot(u32 slot_idx [[maybe_unused]])
 }
 void	ISavestateSelectorComponent::Render()
 {
-	const u32	font_height( mpContext->GetFontHeight() );
+	const u32	font_height = mpContext->GetFontHeight();
 
 	if( mSelectedSlot == INVALID_SLOT )
 	{
-		mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, BELOW_MENU_MIN - mElements.GetSelectedIndex()*(font_height+2) );
+		mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, BELOW_MENU_MIN + 30 - mElements.GetSelectedIndex()*(font_height+2) );
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 
 			if( mPVExists[ mElements.GetSelectedIndex() ] == 1 )
 			{
+				// Render Preview Image
 				v2	tl( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2 );
 				v2	wh( PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4 );
 
@@ -367,8 +360,9 @@ void	ISavestateSelectorComponent::Render()
 				mpContext->DrawRect( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2, PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4, c32::Black );
 				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_CENTRE, BELOW_MENU_MIN+PREVIEW_IMAGE_HEIGHT/2, "No Preview Available", c32::White );
 			}
+			// Render Text 
+			const std::string& p_description = element->GetDescription();
 
-			const char *p_description( element->GetDescription() );
 			mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 									 DESCRIPTION_AREA_TOP,
 									 DESCRIPTION_AREA_RIGHT - DESCRIPTION_AREA_LEFT,
@@ -380,14 +374,14 @@ void	ISavestateSelectorComponent::Render()
 	}
 	else
 	{
-		const char * title_text( mAccessType == AT_SAVING ? SAVING_STATUS_TEXT : LOADING_STATUS_TEXT );
+		const char * title_text = mAccessType == AT_SAVING ? SAVING_STATUS_TEXT : LOADING_STATUS_TEXT;
 
-		s32 y( ( mpContext->GetScreenHeight() - font_height ) / 2 + font_height );
+		s32 y = mpContext->GetScreenHeight() - (font_height / 2);
 		mpContext->DrawTextAlign( 0, mpContext->GetScreenWidth(), AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() );
 	}
 
 	if(deleteButtonTriggered)
-	  mpContext->DrawTextAlign(0,480,AT_CENTRE,135,"Press Triangle to delete this savestate",DrawTextUtilities::TextRed,DrawTextUtilities::TextWhite);
+	  mpContext->DrawTextAlign(0,SCREEN_HEIGHT,AT_CENTRE,135,"Press Delete Button to delete this savestate",DrawTextUtilities::TextRed,DrawTextUtilities::TextWhite);
 }
 
 
@@ -405,7 +399,7 @@ void	ISavestateSelectorComponent::OnSlotSelected( u32 slot_idx )
 
 void	ISavestateSelectorComponent::OnFolderSelected( u32 index )
 {
-		 current_slot_path = mElementTitle[index].c_str();
+	current_slot_path = mElementTitle[index].c_str();
 	mElementTitle.clear();
 	LoadSlots();
 	isDeletionAllowed=true;

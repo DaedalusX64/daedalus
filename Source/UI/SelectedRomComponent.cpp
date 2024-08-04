@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DrawTextUtilities.h"
 #include "AdvancedOptionsScreen.h"
 #include "CheatOptionsScreen.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "RomPreferencesScreen.h"
 #include "SelectedRomComponent.h"
 #include "UIContext.h"
@@ -35,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UICommand.h"
 #include "UISpacer.h"
 
-//
 
 class ISelectedRomComponent : public CSelectedRomComponent
 {
@@ -64,16 +63,12 @@ class ISelectedRomComponent : public CSelectedRomComponent
 		RomID						mRomID;
 };
 
-
-//
-
 CSelectedRomComponent::CSelectedRomComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
 {}
 
 
-CSelectedRomComponent::~CSelectedRomComponent()
-{}
+CSelectedRomComponent::~CSelectedRomComponent() {}
 
 
 CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, std::function<void()> on_start_emulation )
@@ -86,13 +81,13 @@ ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, std::funct
 :	CSelectedRomComponent( p_context )
 ,	OnStartEmulation( on_start_emulation )
 {
-	mElements.Add( new CUICommandImpl( std::bind(&ISelectedRomComponent::EditPreferences, this ), "Edit Preferences", "Edit various preferences for this rom." ) );
-	mElements.Add( new CUICommandImpl( std::bind(&ISelectedRomComponent::AdvancedOptions, this ), "Advanced Options", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl( std::bind(&ISelectedRomComponent::CheatOptions, this ), "Cheats", "Enable and select cheats for this rom." ) );
+	mElements.Add( std::make_unique<CUICommandImpl>( std::bind(&ISelectedRomComponent::EditPreferences, this ), "Edit Preferences", "Edit various preferences for this rom." ) );
+	mElements.Add( std::make_unique<CUICommandImpl>( std::bind(&ISelectedRomComponent::AdvancedOptions, this ), "Advanced Options", "Edit advanced options for this rom." ) );
+	mElements.Add( std::make_unique<CUICommandImpl>( std::bind(&ISelectedRomComponent::CheatOptions, this ), "Cheats", "Enable and select cheats for this rom." ) );
 
-	mElements.Add( new CUISpacer( 16 ) );
+	mElements.Add(std::make_unique<CUISpacer>( 16 ) );
 
-	u32 i = mElements.Add( new CUICommandImpl( std::bind(&ISelectedRomComponent::StartEmulation, this ), "Start Emulation", "Start emulating the selected rom." ) );
+	u32 i = mElements.Add(std::make_unique<CUICommandImpl>( std::bind(&ISelectedRomComponent::StartEmulation, this ), "Start Emulation", "Start emulating the selected rom." ) );
 
 	mElements.SetSelected( i );
 }
@@ -114,8 +109,8 @@ void	ISelectedRomComponent::Update( float elapsed_time[[maybe_unused]], const v2
 			mElements.SelectNext();
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
-		if( element != NULL )
+		auto element = mElements.GetSelectedElement();
+		if( element != nullptr )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
 			{
@@ -134,16 +129,14 @@ void	ISelectedRomComponent::Update( float elapsed_time[[maybe_unused]], const v2
 }
 
 
-//
-
 void	ISelectedRomComponent::Render()
 {
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
+	auto element = mElements.GetSelectedElement();
 	if( element != NULL )
 	{
-		const char *		p_description( element->GetDescription() );
+		const auto p_description = element->GetDescription();
 
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,
@@ -157,24 +150,21 @@ void	ISelectedRomComponent::Render()
 
 void	ISelectedRomComponent::EditPreferences()
 {
-	CRomPreferencesScreen *	edit_preferences( CRomPreferencesScreen::Create( mpContext, mRomID ) );
+	auto edit_preferences = CRomPreferencesScreen::Create( mpContext, mRomID );
 	edit_preferences->Run();
-	delete edit_preferences;
 }
 
 
 void	ISelectedRomComponent::AdvancedOptions()
 {
-	CAdvancedOptionsScreen *	advanced_options( CAdvancedOptionsScreen::Create( mpContext, mRomID ) );
+	auto advanced_options = CAdvancedOptionsScreen::Create( mpContext, mRomID );
 	advanced_options->Run();
-	delete advanced_options;
 }
 
 void	ISelectedRomComponent::CheatOptions()
 {
-	CCheatOptionsScreen *	cheat_options( CCheatOptionsScreen::Create( mpContext, mRomID ) );
+	auto cheat_options = CCheatOptionsScreen::Create( mpContext, mRomID );
 	cheat_options->Run();
-	delete cheat_options;
 }
 
 

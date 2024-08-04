@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIElement.h"
 
 #include "UIContext.h"
+#include "Menu.h"
 
 CUIElement::~CUIElement()
 {}
@@ -32,23 +33,18 @@ CUIElementBag::CUIElementBag()
 
 CUIElementBag::~CUIElementBag()
 {
-	for( u32 i = 0; i < mElements.size(); ++i )
-	{
-		delete mElements[ i ];
-	}
 }
 
 
 void CUIElementBag::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType halign, s32 y ) const
 {
-	const s32 MINTOP = 25; //Only draw text below
-	const s32 MAXBOT = 247;	//Only draw text above
+	constexpr s32 MAXBOT = SCREEN_HEIGHT - 25;	//Only draw text above
 
-	for( u32 i = 0; i < mElements.size(); ++i )
+	for( auto i = 0; i < mElements.size(); ++i )
 	{
-		const CUIElement *	element( mElements[ i ] );
+		const auto& element = mElements[ i ];
 
-		if (y > MINTOP && y < MAXBOT ) element->Draw( context, min_x, max_x, halign, y, i == mSelectedIdx );
+		if (y > LIST_TEXT_TOP && y < MAXBOT ) element->Draw( context, min_x, max_x, halign, y, i == mSelectedIdx );
 		y += element->GetHeight( context );
 	}
 }
@@ -56,21 +52,21 @@ void CUIElementBag::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType
 
 void	CUIElementBag::DrawCentredVertically( CUIContext * context, s32 min_x, s32 min_y, s32 max_x, s32 max_y ) const
 {
-	s32 total_height( 0 );
+	s32 total_height = 0;
 
-	for( u32 i = 0; i < mElements.size(); ++i )
+	for( auto i = 0; i < mElements.size(); ++i )
 	{
-		const CUIElement *	element( mElements[ i ] );
+		const auto&	element = mElements[ i ];
 
 		total_height += element->GetHeight( context );
 	}
 
-	s32		slack( (max_y - min_y) - total_height );
-	s32		y( min_y + (slack / 2) );
+	s32		slack = (max_y - min_y) - total_height;
+	s32		y = min_y + (slack / 2);
 
-	for( u32 i = 0; i < mElements.size(); ++i )
+	for( auto i = 0; i < mElements.size(); ++i )
 	{
-		const CUIElement *	element( mElements[ i ] );
+		const auto& element = mElements[ i ];
 
 		element->Draw( context, min_x, max_x, AT_CENTRE, y, i == mSelectedIdx );
 		y += element->GetHeight( context );
@@ -83,13 +79,13 @@ void	CUIElementBag::SelectNext()
 {
 	s32 new_selection = mSelectedIdx + 1;
 	u32 count = 0;
-	while( u32( new_selection ) != mSelectedIdx && count <= mElements.size())
+	while( static_cast<u32>( new_selection ) != mSelectedIdx && count <= mElements.size())
 	{
-		if( new_selection == s32( mElements.size() ) )
+		if( new_selection == static_cast<s32>( mElements.size() ) )
 			new_selection = 0;
 		if( mElements[ new_selection ]->IsSelectable() )
 		{
-			mSelectedIdx = u32( new_selection );
+			mSelectedIdx = static_cast<u32>( new_selection );
 			return;
 		}
 		new_selection++;
@@ -102,13 +98,13 @@ void CUIElementBag::SelectPrevious()
 {
 	s32 new_selection = mSelectedIdx - 1;
 	u32 count = 0;
-	while( u32( new_selection ) != mSelectedIdx && count <= mElements.size())
+	while( static_cast<u32>( new_selection ) != mSelectedIdx && count <= mElements.size())
 	{
 		if( new_selection == -1 )
-			new_selection = s32( mElements.size() ) - 1;
+			new_selection = static_cast<s32>( mElements.size() ) - 1;
 		if( mElements[ new_selection ]->IsSelectable() )
 		{
-			mSelectedIdx = u32( new_selection );
+			mSelectedIdx = static_cast<u32>( new_selection );
 			return;
 		}
 		new_selection--;

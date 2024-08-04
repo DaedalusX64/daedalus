@@ -22,12 +22,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 #include <filesystem>
+#include <string>
 
 bool		 Translate_Init();
 //
 // Translate multiple strings
 //
-const char * Translate_Strings(const char *original, u32 & len);
+const char * Translate_Strings(const std::string& original, u32 & len);
 //
 // Translate a single string
 //

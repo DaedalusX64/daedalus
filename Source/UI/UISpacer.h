@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_UISPACER_H_
-#define SYSPSP_UI_UISPACER_H_
+#ifndef UI_UISPACER_H_
+#define UI_UISPACER_H_
 
 #include "UIElement.h"
 
@@ -38,11 +38,11 @@ public:
 	virtual u32				GetHeight( CUIContext * context [[maybe_unused]] ) const		{ return mHeight; }
 	virtual void			Draw( CUIContext * context [[maybe_unused]], s32 min_x [[maybe_unused]], [[maybe_unused]] s32 max_x [[maybe_unused]], EAlignType halign [[maybe_unused]], s32 y [[maybe_unused]], bool selected [[maybe_unused]] ) const {}
 
-	virtual const char *	GetDescription() const	{ return ""; }
+	virtual const std::string	GetDescription() const	{ return ""; }
 
 private:
 	u32						mHeight;
 };
 
 
-#endif // SYSPSP_UI_UISPACER_H_
+#endif // UI_UISPACER_H_

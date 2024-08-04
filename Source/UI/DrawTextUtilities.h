@@ -17,6 +17,8 @@ namespace DrawTextUtilities
 	extern const c32	TextBlueDisabled;
 	extern const c32	TextRed;
 	extern const c32	TextRedDisabled;
+	extern const c32 	TextGreen;
+	extern const c32 	TextYellow;
 
 	void WrapText(CDrawText::EFont font, s32 width, const char *p_str, u32 length, std::vector<u32> &lengths, bool &match);
 }

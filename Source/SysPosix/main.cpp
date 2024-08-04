@@ -48,6 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_PROFILE_EXECUTION
 static CTimer gTimer;
 #endif
+bool isRunning = false;
 
 void HandleEndOfFrame()
 {
@@ -68,6 +69,7 @@ void HandleEndOfFrame()
 	static u32 oldButtons = 0;
 	SceCtrlData pad;
 	bool activate_pause_menu = false;
+
 	sceCtrlPeekBufferPositive(&pad, 1);
 
 	// If KernelButtons.prx not found. Use select for pause instead
@@ -83,19 +85,18 @@ void HandleEndOfFrame()
 	}
 
 
-	if (activate_pause_menu)
+	if (activate_pause_menu && isRunning == true)
 	{
 
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 		CGraphicsContext::Get()->ClearAllSurfaces();
 
-		CUIContext *p_context(CUIContext::Create());
+		auto p_context = CUIContext::Create();
 
 		if (p_context != NULL)
 		{
-			CPauseScreen *pause(CPauseScreen::Create(p_context));
+			auto pause = CPauseScreen::Create(p_context);
 			pause->Run();
-			delete pause;
 			delete p_context;
 		}
 
@@ -112,6 +113,7 @@ void HandleEndOfFrame()
 int main(int argc, char **argv)
 {
 	int result = 0;
+
 
 	// ReadConfiguration();
 
@@ -192,7 +194,7 @@ int main(int argc, char **argv)
 
 		// CRomDB::Get()->Commit();
 		CPreferences::Get()->Commit();
-
+		isRunning = true;
 		CPU_Run();
 		System_Close();
 	}

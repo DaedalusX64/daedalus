@@ -18,8 +18,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_ADVANCEDOPTIONSSCREEN_H_
-#define SYSPSP_UI_ADVANCEDOPTIONSSCREEN_H_
+#ifndef UI_ADVANCEDOPTIONSSCREEN_H_
+#define UI_ADVANCEDOPTIONSSCREEN_H_
+
+#include <memory>
 
 class CUIContext;
 class RomID;
@@ -29,9 +31,9 @@ class CAdvancedOptionsScreen
 	public:
 		virtual ~CAdvancedOptionsScreen();
 
-		static CAdvancedOptionsScreen *	Create( CUIContext * p_context, const RomID & rom_id );
+		static std::unique_ptr<CAdvancedOptionsScreen> Create( CUIContext * p_context, const RomID & rom_id );
 
 		virtual void				Run() = 0;
 };
 
-#endif // SYSPSP_UI_ADVANCEDOPTIONSSCREEN_H_
+#endif // UI_ADVANCEDOPTIONSSCREEN_H_

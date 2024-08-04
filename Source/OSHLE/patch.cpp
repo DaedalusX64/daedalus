@@ -56,7 +56,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP
 #include "Graphics/GraphicsContext.h"
+#ifdef INTRAFONT
 #include "intraFont.h"
+#endif
 #endif
 
 #ifdef DUMPOSFUNCTIONS
@@ -506,8 +508,10 @@ void Patch_RecurseAndFind()
 #else
 #ifdef DAEDALUS_PSP
 	// Load our font here, Intrafont used in UI is destroyed when emulation starts
+	#ifdef INTRAFONT
 	intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
 	intraFontSetStyle( ltn8, 1.0f, 0xFFFFFFFF, 0, 0.f, INTRAFONT_ALIGN_CENTER );
+	#endif
 #endif
 #endif
 
@@ -524,9 +528,11 @@ void Patch_RecurseAndFind()
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
 		CGraphicsContext::Get()->ClearToBlack();
-		//intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for os functions. This may take several seconds...");
+		#ifdef INTRAFONT
+		intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for os functions. This may take several seconds...");
 		intraFontPrintf( ltn8, 480/2, (272>>1), "OS HLE Patching: %d%%", i * 100 / (nPatchSymbols-1));
 		intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for %s", g_PatchSymbols[i]->Name );
+		#endif
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
 #endif
@@ -621,8 +627,10 @@ void Patch_RecurseAndFind()
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
 		CGraphicsContext::Get()->ClearToBlack();
+		#ifdef INTRAFONT
 		intraFontPrintf( ltn8, 480/2, (272>>1), "Symbols Identified: %d%%", 100 * nFound / (nPatchSymbols-1));
 		intraFontPrintf( ltn8, 480/2, (272>>1)+50, "Range 0x%08x -> 0x%08x", first, last );
+		#endif
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
 #endif
@@ -664,7 +672,9 @@ void Patch_RecurseAndFind()
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
 		CGraphicsContext::Get()->ClearToBlack();
+		#ifdef INTRAFONT
 		intraFontPrintf( ltn8, 480/2, 272>>1, "Variables Identified: %d%%", 100 * nFound / (nPatchVariables-1) );
+		#endif
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
 #endif
@@ -674,7 +684,9 @@ void Patch_RecurseAndFind()
 #ifndef DAEDALUS_DEBUG_CONSOLE
 #ifdef DAEDALUS_PSP
 	// Unload font after we done patching progress
+	#ifdef INTRAFONT
 	intraFontUnload( ltn8 );
+	#endif
 #endif
 #endif
 

@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativeTexture.h"
 #include "Math/Math.h"	// VFPU Math
 #include "DrawTextUtilities.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "SplashScreen.h"
 #include "UIContext.h"
 #include "UIScreen.h"
@@ -59,9 +59,9 @@ class ISplashScreen : public CSplashScreen, public CUIScreen
 CSplashScreen::~CSplashScreen() {}
 
 
-CSplashScreen *	CSplashScreen::Create( CUIContext * p_context )
+std::unique_ptr<CSplashScreen>	CSplashScreen::Create( CUIContext * p_context )
 {
-	return new ISplashScreen( p_context );
+	return std::make_unique<ISplashScreen>( p_context );
 }
 
 
@@ -93,12 +93,19 @@ void	ISplashScreen::Update( float elapsed_time , const v2 & stick[[maybe_unused]
 
 void	ISplashScreen::Render()
 {
-	f32	alpha( 255.0f * sinf( mElapsedTime * PI / MAX_TIME ) );
-	u8		a;
-	if( alpha >= 255.0f ) a = 255;
-	else if (alpha < 0.f) a = 0;
-	else	a = u8( alpha );
-
+	f32	alpha = 255.0f * sinf( mElapsedTime * PI / MAX_TIME );
+	u8		a = 0;
+	if( alpha >= 255.0f )
+	{ a = 255;
+	}
+	else if (alpha < 0.f)
+	{
+		 a = 0;
+	}
+	else	
+	{
+		a = static_cast<u8>( alpha );
+	}
 	c32		colour( 255, 255, 255, a );
 
 	mpContext->ClearBackground();

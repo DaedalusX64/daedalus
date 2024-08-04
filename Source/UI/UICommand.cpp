@@ -31,19 +31,10 @@ u32		CUICommand::GetHeight( CUIContext * context ) const
 
 void	CUICommand::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType halign, s32 y, bool selected ) const
 {
-	c32	colour;
-	if( !IsSelectable())
-	{
-		colour = DrawTextUtilities::TextWhiteDisabled;
-	}
-	else if( selected )
-	{
-		colour = context->GetSelectedTextColour();
-	}
-	else
-	{
-		colour = context->GetDefaultTextColour();
-	}
+	const c32	colour = !IsSelectable() ? DrawTextUtilities::TextWhiteDisabled : 
+						selected ? context ->GetSelectedTextColour() :
+						context->GetDefaultTextColour();
 
+	const auto font_height = context->GetFontHeight();
 	context->DrawTextAlign( min_x, max_x, halign, y + context->GetFontHeight(), mName.c_str(), colour );
 }

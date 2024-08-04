@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_UICOMPONENT_H_
-#define SYSPSP_UI_UICOMPONENT_H_
+#ifndef UI_UICOMPONENT_H_
+#define UI_UICOMPONENT_H_
 
 #include "Base/Types.h"
 
@@ -45,15 +45,16 @@ class CUIComponent
 //
 #include "UIScreen.h"
 #include <string>
+#include <memory>
 
 class CUIComponentScreen : public CUIScreen
 {
-	private:
-		CUIComponentScreen( CUIContext * p_context, CUIComponent * component, const char * title );
+
 	public:
+	CUIComponentScreen( CUIContext * p_context, CUIComponent * component, const char * title );
 		virtual ~CUIComponentScreen();
 
-		static CUIComponentScreen *	Create( CUIContext * p_context, CUIComponent * component, const char * title );
+		static std::unique_ptr<CUIComponentScreen>	Create( CUIContext * p_context, CUIComponent * component, const char * title );
 
 		// CUIScreen
 		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
@@ -65,4 +66,4 @@ class CUIComponentScreen : public CUIScreen
 		std::string					mTitle;
 };
 
-#endif // SYSPSP_UI_UICOMPONENT_H_
+#endif // UI_UICOMPONENT_H_

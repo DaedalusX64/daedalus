@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "CheatOptionsScreen.h"
 #include "Dialogs.h"
 #include "PauseOptionsComponent.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "RomPreferencesScreen.h"
 #include "UIContext.h"
 #include "UIScreen.h"
@@ -109,13 +109,13 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context,  std::fu
 ,	mOnResume( on_resume )
 ,	mOnReset( on_reset )
 {
-	mElements.Add( new CUISpacer( 10 ) );
-	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::EditPreferences, this), "Edit Preferences", "Edit various preferences for this rom."));
-	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::AdvancedOptions, this ), "Advanced Options", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::CheatOptions, this ), "Cheats", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::SaveState, this ), "Save State", "Save the current state." ) );
-	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::LoadState, this ), "Load/Delete State", "Restore or delete a previously saved state." ) );
-	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::TakeScreenshot,this ), "Take Screenshot", "Take a screenshot on resume." ) );
+	mElements.Add(std::make_unique<CUISpacer>( 10 ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::EditPreferences, this), "Edit Preferences", "Edit various preferences for this rom."));
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::AdvancedOptions, this ), "Advanced Options", "Edit advanced options for this rom." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::CheatOptions, this ), "Cheats", "Edit advanced options for this rom." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::SaveState, this ), "Save State", "Save the current state." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::LoadState, this ), "Load/Delete State", "Restore or delete a previously saved state." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::TakeScreenshot,this ), "Take Screenshot", "Take a screenshot on resume." ) );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		mElements.Add( new CUICommandImpl( std::bind(&IPauseOptionsComponent::DebugDisplayList, this ), "Debug Display List", "Debug display list on resume." ) );
@@ -127,13 +127,13 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context,  std::fu
 	//	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::IPauseOptionsComponent::ProfileNextFrame, this ), "Profile Frame", "Profile the next frame on resume." ) );
 #endif
 
-	mElements.Add( new CUISpacer( 16 ) );
-	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::OnResume, this ), "Resume Emulation", "Resume emulation." ) );
+	mElements.Add(std::make_unique<CUISpacer>( 16 ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::OnResume, this ), "Resume Emulation", "Resume emulation." ) );
 
 #ifdef DAEDALUS_DIALOGS
-	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::ExitConfirmation, this ), "Return to Main Menu", "Return to the main menu." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::ExitConfirmation, this ), "Return to Main Menu", "Return to the main menu." ) );
 #else
-	mElements.Add( new CUICommandImpl(std::bind(&IPauseOptionsComponent::OnReset, this ), "Return to Main Menu", "Return to the main menu." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::OnReset, this ), "Return to Main Menu", "Return to the main menu." ) );
 #endif
 }
 
@@ -153,7 +153,7 @@ void	IPauseOptionsComponent::Update( float elapsed_time [[maybe_unused]], const 
 			mElements.SelectNext();
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto	element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -178,10 +178,10 @@ void	IPauseOptionsComponent::Render()
 
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
-	if( element != NULL )
+	auto element = mElements.GetSelectedElement();
+	if( element != nullptr )
 	{
-		const char *		p_description( element->GetDescription() );
+		const auto	p_description = element->GetDescription();
 
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,
@@ -196,7 +196,7 @@ void	IPauseOptionsComponent::Render()
 
 void IPauseOptionsComponent::ExitConfirmation()
 {
-	if(gShowDialog.Render( mpContext,"Return to main menu?", false) )
+	if(gShowDialog->Render( mpContext,"Return to main menu?", false) )
 	{
 		(mOnReset)();
 	}
@@ -214,24 +214,21 @@ void IPauseOptionsComponent::OnReset()
 
 void	IPauseOptionsComponent::EditPreferences()
 {
-	CRomPreferencesScreen *	edit_preferences( CRomPreferencesScreen::Create( mpContext, g_ROM.mRomID ) );
+	auto	edit_preferences = CRomPreferencesScreen::Create( mpContext, g_ROM.mRomID );
 	edit_preferences->Run();
-	delete edit_preferences;
 }
 
 
 void	IPauseOptionsComponent::AdvancedOptions()
 {
-	CAdvancedOptionsScreen *	advanced_options( CAdvancedOptionsScreen::Create( mpContext, g_ROM.mRomID ) );
+	auto advanced_options = CAdvancedOptionsScreen::Create( mpContext, g_ROM.mRomID );
 	advanced_options->Run();
-	delete advanced_options;
 }
 
 void	IPauseOptionsComponent::CheatOptions()
 {
-	CCheatOptionsScreen *	cheat_options( CCheatOptionsScreen::Create( mpContext, g_ROM.mRomID ) );
+	auto cheat_options = CCheatOptionsScreen::Create( mpContext, g_ROM.mRomID );
 	cheat_options->Run();
-	delete cheat_options;
 }
 
 
@@ -244,7 +241,6 @@ auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelect
 
 	auto screen( CUIComponentScreen::Create( mpContext, component, SAVING_TITLE_TEXT ) );
 	screen->Run();
-	delete screen;
 	(mOnResume)();
 }
 
@@ -257,9 +253,8 @@ auto onLoadStateSlotSelected = [this](const char* slot) {
 
 auto component = CSavestateSelectorComponent::Create(mpContext, CSavestateSelectorComponent::AT_LOADING, onLoadStateSlotSelected, g_ROM.settings.GameName.c_str());
 
-	CUIComponentScreen *			screen( CUIComponentScreen::Create( mpContext, component, LOADING_TITLE_TEXT ) );
+	auto screen =  CUIComponentScreen::Create( mpContext, component, LOADING_TITLE_TEXT );
 	screen->Run();
-	delete screen;
 	(mOnResume)();
 }
 

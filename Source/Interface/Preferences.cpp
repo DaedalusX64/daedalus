@@ -350,14 +350,12 @@ void IPreferences::Commit()
 		OUTPUT_BOOL( gGlobalPreferences, TVLaced, defaults );
 		OUTPUT_INT( gGlobalPreferences, TVType, defaults );
 		fh << "\n\n";
-		// fprintf( fh, "\n\n" ); //Spacer to go before Rom Settings
 
 		for ( PreferencesMap::const_iterator it = mPreferences.begin(); it != mPreferences.end(); ++it )
 		{
 			OutputSectionDetails( it->first, it->second, fh );
 		}
 
-		// fclose( fh );
 		mDirty = false;
 	}
 }

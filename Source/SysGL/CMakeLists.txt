@@ -1,4 +1,4 @@
-file(GLOB SRC_FILES Graphics/*.cpp HLEGraphics/*.cpp Input/*.cpp Interface/*.cpp)
+file(GLOB SRC_FILES Graphics/*.cpp HLEGraphics/*.cpp Input/*.cpp)
 
 add_library(SysGL OBJECT ${SRC_FILES})
 

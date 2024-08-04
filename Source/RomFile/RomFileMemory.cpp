@@ -24,12 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/MemoryHeap.h"
 
 #include <stdlib.h>
+#include <iostream> 
 
 extern bool PSP_IS_SLIM;
 
-CROMFileMemory::~CROMFileMemory()
-{
-}
+CROMFileMemory::~CROMFileMemory() {}
 
 
 class IROMFileMemory : public CROMFileMemory
@@ -77,6 +76,9 @@ IROMFileMemory::IROMFileMemory()
 		mRomMemoryHeap = CMemoryHeap::Create( 4 * 1024 * 1024 );
 	}
 #endif
+// #ifdef DAEDALUS_POSIX
+// 	mRomMemoryHeap = CMemoryHeap::Create(21 * 1024 * 1024);
+// #endif
 }
 
 
@@ -99,6 +101,7 @@ bool IROMFileMemory::IsAvailable()
 
 void * IROMFileMemory::Alloc( u32 size )
 {
+	std::cout << "Allocating Memory" << std::endl;
 #ifdef DAEDALUS_PSP
 	return mRomMemoryHeap->Alloc( size );
 #else
@@ -112,6 +115,7 @@ void  IROMFileMemory::Free(void * ptr)
 #ifdef DAEDALUS_PSP
 	mRomMemoryHeap->Free( ptr );
 #else
+std::cout << "Freeing Memory" << std::endl;
 	free( ptr );
 #endif
 }
