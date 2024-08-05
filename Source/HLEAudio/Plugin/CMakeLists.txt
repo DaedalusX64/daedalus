@@ -1,6 +1,6 @@
 if(PSP)
 add_library(Audio_Plugin OBJECT PSP/AudioPluginPSP.cpp )
-elseif(DAEDLAUS_CTR)
+elseif(DAEDALUS_CTR)
 add_library(Audio_Plugin OBJECT CTR/AudioOutput.cpp CTR/AudioPluginCTR.cpp)
 elseif(WIN32)
 add_library(Audio_Plugin OBJECT Windows/AudioPluginW32.cpp)

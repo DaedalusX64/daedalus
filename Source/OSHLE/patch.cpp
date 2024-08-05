@@ -27,12 +27,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <cstring>
 #include <fstream>
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/DMA.h"
 #include "Core/Memory.h"
 #include "Core/R4300.h"
-#include "Core/Registers.h"
+#include "Debug/Registers.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"

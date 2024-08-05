@@ -203,7 +203,6 @@ find_package(ZLIB REQUIRED)
 link_libraries(ZLIB::ZLIB)
 
 		## Daedalus Core Build
-		add_subdirectory(Config)
 		add_subdirectory(Core)
 		add_subdirectory(Debug)
 		add_subdirectory(DynaRec)
@@ -216,7 +215,6 @@ link_libraries(ZLIB::ZLIB)
 		add_subdirectory(OSHLE)
 		add_subdirectory(RomFile)
 		add_subdirectory(System)
-		add_subdirectory(Test)
 		add_subdirectory(Utility)
 		add_subdirectory(UI)
 

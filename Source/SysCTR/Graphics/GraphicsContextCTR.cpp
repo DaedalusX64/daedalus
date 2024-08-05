@@ -4,7 +4,7 @@
 #include <3ds.h>
 #include <GL/picaGL.h>
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"

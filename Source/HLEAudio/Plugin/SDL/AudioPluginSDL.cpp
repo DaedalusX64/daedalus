@@ -3,8 +3,8 @@
 
 
 #include "Base/Types.h"
-#include "Config/ConfigOptions.h"
-#include "Core/FramerateLimiter.h"
+#include "Interface/ConfigOptions.h"
+#include "Utility/FramerateLimiter.h"
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioPlugin.h"

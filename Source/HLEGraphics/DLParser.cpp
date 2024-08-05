@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/ROM.h"
@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_rcp.h"
 #include "Ultra/ultra_sptask.h"
 #include "HLEGraphics/GraphicsPlugin.h"
-#include "Test/BatchTest.h"
+#include "Utility/BatchTest.h"
 #include "uCodes/UcodeDefs.h"
 #include "uCodes/Ucode.h"
 

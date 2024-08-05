@@ -9,7 +9,7 @@
 #include <cstring> 
 
 #include <pspctrl.h>
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math

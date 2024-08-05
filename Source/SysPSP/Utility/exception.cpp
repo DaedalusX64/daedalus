@@ -11,12 +11,12 @@
 #include <pspctrl.h>
 #include <kubridge.h>
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/ROM.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Debug/Dump.h"
-#include "Core/PrintOpCode.h"
+#include "Debug/PrintOpCode.h"
 
 
 PspDebugRegBlock *exception_regs;

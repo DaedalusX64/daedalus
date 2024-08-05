@@ -1,6 +1,6 @@
 if(DAEDALUS_PSP)
 add_library(Input OBJECT PSP/InputManagerPSP.cpp)
-elif(DAEDALUS_CTR)
+elseif(DAEDALUS_CTR)
 add_library(Input OBJECT CTR/InputManagerCTR.cpp)
 else()
 add_library(Input OBJECT SDL/InputManagerSDL.cpp)

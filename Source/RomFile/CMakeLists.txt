@@ -6,6 +6,8 @@ add_library(RomFile OBJECT
                     RomFileCompressed.cpp 
                     RomFileMemory.cpp 
                     RomFileUncompressed.cpp
+                    RomBuffer.cpp
+                    RomSettings.cpp
             )
 
             

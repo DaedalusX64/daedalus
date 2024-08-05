@@ -1,15 +1,15 @@
 
 #include "Base/Types.h"
 #include "HLEAudio/AudioPlugin.h"
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include <stdio.h>
 #include <SDL2/SDL.h>
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioBuffer.h"
 #include "HLEAudio/HLEAudioInternal.h"
-#include "Core/FramerateLimiter.h"
+#include "Utility/FramerateLimiter.h"
 #include "System/Thread.h"
 #include "System/Timing.h"
 

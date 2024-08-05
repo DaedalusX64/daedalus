@@ -1,7 +1,7 @@
 
 #include "Base/Types.h"
 #include "HLEAudio/AudioPlugin.h"
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 
 EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
 

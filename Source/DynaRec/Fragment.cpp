@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <algorithm>
 
-#include "Core/Registers.h"
+#include "Debug/Registers.h"
 #include "Core/CPU.h"			// Try to remove this cyclic dependency
 #include "Core/R4300.h"
 #include "Core/Interrupt.h"
@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/IndirectExitMap.h"
 #include "DynaRec/StaticAnalysis.h"
 #include "Base/Macros.h"
-#include "Core/PrintOpCode.h"
+#include "Debug/PrintOpCode.h"
 #include "Utility/Profiler.h"
 #include "Debug/Synchroniser.h"
 

@@ -28,8 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/Interrupt.h"
 #include "Core/R4300.h"
 #include "Core/ROM.h"
-#include "Config/ConfigOptions.h"
-#include "Core/Registers.h"			// For REG_?? defines
+#include "Interface/ConfigOptions.h"
+#include "Debug/Registers.h"			// For REG_?? defines
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "DynaRec/TraceRecorder.h"

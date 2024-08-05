@@ -28,18 +28,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <format>
 #include <cstring> 
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/Interrupt.h"
 #include "Core/Memory.h"
-#include "Core/ROMBuffer.h"
+#include "RomFile/ROMBuffer.h"
 #include "Debug/Dump.h"
 #include "Debug/DebugLog.h"
 #include "Debug/DBGConsole.h"
 #include "OSHLE/patch.h"		// For GetCorrectOp
 #include "Ultra/ultra_R4300.h"
 
-#include "Core/PrintOpCode.h"
+#include "Debug/PrintOpCode.h"
 
 
 const std::filesystem::path gDumpDir = "Dumps";

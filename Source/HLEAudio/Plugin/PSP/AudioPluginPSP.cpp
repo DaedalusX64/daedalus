@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspaudiolib.h>
 #include <pspaudio.h>
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/Interrupt.h"
 #include "Core/Memory.h"
@@ -46,7 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // #include "SysPSP/Utility/JobManager.h"
 #include "SysPSP/Utility/CacheUtil.h"
 // #include "SysPSP/Utility/JobManager.h"
-#include "Core/FramerateLimiter.h"
+#include "Utility/FramerateLimiter.h"
 #include "System/Thread.h"
 
 #ifdef DAEDALUS_PSP_USE_ME

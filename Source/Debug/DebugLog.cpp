@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fstream>
 #include <format>
 #include <iostream> 
-
+#include "Utility/Paths.h"
 #ifdef DAEDALUS_LOG
 
 
@@ -50,15 +50,15 @@ bool Debug_InitLogging()
 void Debug_FinishLogging() {}
 
 
-void Debug_Print(const char* format, ...)
-{
-        va_list args;
-        va_start(args, format);
-        std::string formattedString = std::vformat(format, std::make_format_args(args));
-        va_end(args);
+// void Debug_Print(const char* format, ...)
+// {
+//         va_list args;
+//         va_start(args, format);
+//         std::string formattedString = std::vformat(format, std::make_format_args(args));
+//         va_end(args);
 		
-        g_hOutputLog << formattedString << '\n';
-}
+//         g_hOutputLog << formattedString << '\n';
+// }
 
 
 

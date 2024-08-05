@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "Core/Save.h"
 #include "Core/PIF.h"
-#include "Core/ROMBuffer.h"
-#include "Core/RomSettings.h"
+#include "RomFile/ROMBuffer.h"
+#include "RomFile/RomSettings.h"
 
 #include "Interface/RomDB.h"
 #include "System/SystemInit.h"
@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 
-#include "Core/FramerateLimiter.h"
+#include "Utility/FramerateLimiter.h"
 #include "Debug/Synchroniser.h"
 #include "Base/Macros.h"
 #include "Utility/Profiler.h"

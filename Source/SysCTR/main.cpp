@@ -8,13 +8,13 @@
 #include <GL/picaGL.h>
 
 
-#include "Config/ConfigOptions.h"
-#include "Core/Cheats.h"
+#include "Interface/ConfigOptions.h"
+#include "Interface/Cheats.h"
 #include "Core/CPU.h"
 #include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/PIF.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Core/Save.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
@@ -23,7 +23,7 @@
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
 #include "System/SystemInit.h"
-#include "Test/BatchTest.h"
+#include "Utility/BatchTest.h"
 
 #include "UI/UserInterface.h"
 #include "UI/RomSelector.h"
@@ -136,6 +136,7 @@ int main(int argc, char* argv[])
 	// Set the default path
 
 	std::string rom = UI::DrawRomSelector();
+	std::filesystem::path rom;
 	std::filesystem::path RomPath = setBasePath("Roms");
 	RomPath /= rom;
 	System_Open(RomPath.string().c_str());

@@ -22,13 +22,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Core/CPU.h"			// For dubious use of PC/NewPC
-#include "Core/Registers.h"
+#include "Debug/Registers.h"
 #include "Debug/DBGConsole.h"
 #include "DynaRec/BranchType.h"
 #include "DynaRec/Fragment.h"
 #include "DynaRec/TraceRecorder.h"
 #include "Utility/Profiler.h"
-#include "Core/PrintOpCode.h"
+#include "Debug/PrintOpCode.h"
 #include <fstream> 
 
 namespace

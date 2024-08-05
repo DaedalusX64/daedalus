@@ -22,13 +22,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include "Core/CPU.h"
-#include "Core/Registers.h"					// For REG_?? defines
+#include "Debug/Registers.h"					// For REG_?? defines
 #include "Core/Memory.h"
 #include "Core/Interpret.h"
 #include "Core/Interrupt.h"
-#include "Core/ROMBuffer.h"
+#include "RomFile/ROMBuffer.h"
 #include "Core/R4300.h"
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "OSHLE/patch.h"				// GetCorrectOp

@@ -29,16 +29,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Mutex.h"
 #include <cstring>
 
-#include "Config/ConfigOptions.h"
-#include "Core/Cheats.h"
-#include "Core/Dynamo.h"
+#include "Interface/ConfigOptions.h"
+#include "Interface/Cheats.h"
+#include "DynaRec/Dynamo.h"
 #include "Core/Interpret.h"
 #include "Core/Interrupt.h"
 #include "Core/Memory.h"
 #include "Core/R4300.h"
-#include "Core/Registers.h"					// For REG_?? defines
+#include "Debug/Registers.h"					// For REG_?? defines
 #include "Core/ROM.h"
-#include "Core/ROMBuffer.h"
+#include "RomFile/ROMBuffer.h"
 #include "Core/RSP_HLE.h"
 #include "Core/Save.h"
 #include "Interface/SaveState.h"
@@ -47,10 +47,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_R4300.h"
 #include "System/SystemInit.h"
 #include "System/AtomicPrimitives.h"
-#include "Core/FramerateLimiter.h"
+#include "Utility/FramerateLimiter.h"
 #include "Utility/Hash.h"
 #include "Base/Macros.h"
-#include "Core/PrintOpCode.h"
+#include "Debug/PrintOpCode.h"
 #include "Debug/Synchroniser.h"
 #include "System/Thread.h"
 

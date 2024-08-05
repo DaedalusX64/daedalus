@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
 #include "Utility/IniFile.h"
-
+#include "Utility/Paths.h"
 
 namespace
 {
@@ -152,9 +152,7 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	#endif
 	mpInstance = std::make_shared<IRomSettingsDB>();
-
 	mpInstance->OpenSettingsFile( setBasePath("roms.ini") );
-
 	return true;
 }
 
@@ -219,9 +217,9 @@ static RomID	RomIDFromString( const char * str )
 
 bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path &filename )
 {
-	
-	std::filesystem::path mFilename = setBasePath(filename);
 
+	std::filesystem::path mFilename = setBasePath(filename);
+	
 	auto p_ini_file = CIniFile::Create(filename);
 	if( p_ini_file == nullptr )
 	{

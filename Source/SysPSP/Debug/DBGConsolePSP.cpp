@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 
 #include "Debug/DebugConsoleImpl.h"
-#include "Test/BatchTest.h"
+#include "Utility/BatchTest.h"
 
 static const char * const kTerminalSaveCursor			= "\033[s";
 static const char * const kTerminalRestoreCursor		= "\033[u";

@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <3ds.h>
 #include <filesystem>
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Math/Math.h"
 #include "Utility/MathUtil.h"

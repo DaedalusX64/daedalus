@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include "UI/Menu.h"
 #include "Core/ROM.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
 #include "Input/InputManager.h"
@@ -259,23 +259,6 @@ void	IRomSelectorComponent::UpdateROMList()
 		if( mRomCategoryMap.find( category ) == mRomCategoryMap.end() )
 		{
 			mRomCategoryMap[ category ] = i;
-		}
-	}
-}
-
-void	IRomSelectorComponent::AddRomDirectory(const std::filesystem::path &p_roms_dir, std::vector<SRomInfo*> & roms)
-{
-	
-	for (const auto& entry : std::filesystem::directory_iterator(p_roms_dir))
-	{
-		if (entry.is_regular_file())
-		{
-			const std::filesystem::path& rom_filename = entry.path().filename();
-			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
-			{
-				auto p_rom_info = new SRomInfo(entry);
-				roms.emplace_back( p_rom_info);
-			}
 		}
 	}
 }
