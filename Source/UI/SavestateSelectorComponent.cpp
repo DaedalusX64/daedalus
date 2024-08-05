@@ -78,6 +78,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		std::vector<std::string> 		mElementTitle;
 		bool					mSlotEmpty[ NUM_SAVESTATE_SLOTS ];
 		std::filesystem::path		mPVFilename[ NUM_SAVESTATE_SLOTS ];
+		std::filesystem::path		mPVScreenShot [ NUM_SAVESTATE_SLOTS ];
 		s8						mPVExists[ NUM_SAVESTATE_SLOTS ];	//0=skip, 1=file exists, -1=show no preview
 		std::shared_ptr<CNativeTexture>	mPreviewTexture;
 		u32						mLastPreviewLoad;
@@ -177,8 +178,8 @@ void ISavestateSelectorComponent::LoadSlots() {
     for (u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i) {
        std::string str = std::string("Slot ") + std::to_string(i + 1) + ": ";
 		 
-        std::filesystem::path filename_ss;
-        MakeSaveSlotPath(filename_ss, mPVFilename[i], i, current_slot_path);
+        // std::filesystem::path filename_ss;
+        MakeSaveSlotPath(mPVFilename [i], mPVScreenShot[i], i, current_slot_path);
 		// Is outputting filenames correctly
         mPVExists[i] = std::filesystem::exists(mPVFilename[i]) ? 1 : -1;
 
