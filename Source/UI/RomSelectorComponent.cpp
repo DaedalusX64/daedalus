@@ -235,7 +235,22 @@ IRomSelectorComponent::~IRomSelectorComponent()
 	mRomsList.clear();
 
 }
-
+void	IRomSelectorComponent::AddRomDirectory(const std::filesystem::path &p_roms_dir, std::vector<SRomInfo*> & roms)
+{
+	
+	for (const auto& entry : std::filesystem::directory_iterator(p_roms_dir))
+	{
+		if (entry.is_regular_file())
+		{
+			const std::filesystem::path& rom_filename = entry.path().filename();
+			if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
+			{
+				auto p_rom_info = new SRomInfo(entry);
+				roms.emplace_back( p_rom_info);
+			}
+		}
+	}
+}
 //Refresh ROM list
 
 void	IRomSelectorComponent::UpdateROMList()
