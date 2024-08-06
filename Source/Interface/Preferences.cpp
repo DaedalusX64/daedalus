@@ -23,12 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/Preferences.h"
 
 #include <fstream>
-
 #include <string>
 #include <set>
-#include <format>
 #include <map>
-
+#include <filesystem>
 #include "Utility/IniFile.h"
 #include "Utility/FramerateLimiter.h"
 
@@ -40,6 +38,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Utility/Translate.h"
+template <typename T>
+void OutputValue(std::ofstream& fh, const std::string& name, const T& value) {
+    fh << name << "=" << value << "\n";
+}
+
+template <>
+void OutputValue<bool>(std::ofstream& fh, const std::string& name, const bool& value) {
+    fh << name << "=" << (value ? "yes" : "no") << "\n";
+}
+
+template <>
+void OutputValue<float>(std::ofstream& fh, const std::string& name, const float& value) {
+    fh << name << "=" << std::fixed << std::setprecision(6) << value << "\n";
+}
+
+template <>
+void OutputValue<int>(std::ofstream& fh, const std::string& name, const int& value) {
+    fh << name << "=" << value << "\n";
+}
+
+void OutputLanguage(std::ofstream& fh, const std::string& name, int index) {
+    fh << name << "=" << Translate_NameFromIndex(index) << "\n";
+}
 
 // Audio is disabled on the PSP by default, but enabled on other platforms.
 #ifdef DAEDALUS_PSP
@@ -99,7 +120,7 @@ template<> bool	CSingleton< CPreferences >::Create()
 CPreferences::~CPreferences()
 {
 }
-#include <filesystem>
+
 IPreferences::IPreferences()
 :	mDirty( false )
 {
@@ -325,10 +346,10 @@ void IPreferences::Commit()
 	{
 		const SGlobalPreferences	defaults;
 
-#define OUTPUT_BOOL(b, nm, def) fh << std::format("{}={}\n", #nm, b.nm ? "yes" : "no")
-#define OUTPUT_FLOAT(b, nm, def) fh << std::format("{}={:.6f}\n", #nm, b.nm)
-#define OUTPUT_INT(b, nm, def) fh << #nm << "=" << static_cast<int>(b.nm) << "\n"
-#define OUTPUT_LANGUAGE(b, nm, def) fh << std::format("{}={}\n", #nm, Translate_NameFromIndex(b.nm))
+#define OUTPUT_BOOL(b, nm, def) OutputValue(fh, #nm, b.nm)
+#define OUTPUT_FLOAT(b, nm, def) OutputValue(fh, #nm, b.nm)
+#define OUTPUT_INT(b, nm, def) OutputValue(fh, #nm, b.nm)
+#define OUTPUT_LANGUAGE(b, nm, def) OutputLanguage(fh, #nm, b.nm)
 
 		OUTPUT_BOOL( gGlobalPreferences, DisplayFramerate, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, ForceLinearFilter, defaults );

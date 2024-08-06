@@ -218,7 +218,7 @@ static RomID	RomIDFromString( const char * str )
 bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path &filename )
 {
 
-	std::filesystem::path mFilename = setBasePath(filename);
+	std::filesystem::path mFilename = filename;
 	
 	auto p_ini_file = CIniFile::Create(filename);
 	if( p_ini_file == nullptr )

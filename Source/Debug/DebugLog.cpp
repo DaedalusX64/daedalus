@@ -41,7 +41,7 @@ bool Debug_InitLogging()
 	const std::filesystem::path log_filename = "daedalus.txt";
 	std::filesystem::path path = setBasePath(log_filename);
 	std::cout << "Creating Dump File: " << path << std::endl;
-	g_hOutputLog.open( log_filename);
+	g_hOutputLog.open( path);
 	// Is always going to return true
 	return true;
 }

@@ -963,6 +963,7 @@ fail_find:
 static void Patch_FlushCache()
 {
 	std::filesystem::path path = setBasePath("SaveGames/Cache");
+	std::filesystem::create_directories(path);
 	std::filesystem::path name = g_ROM.mFileName.filename();
 	name.replace_extension("hle");
 	path /= name;
@@ -1015,7 +1016,7 @@ static void Patch_FlushCache()
 static bool Patch_GetCache()
 {
 	std::filesystem::path name = setBasePath("SaveGames/Cache");
-	std::filesystem::path romName = g_ROM.mFileName;
+	std::filesystem::path romName = g_ROM.mFileName.filename();
 	romName.replace_extension(".hle");
 	name /= romName;
 	std::cout << name << std::endl;

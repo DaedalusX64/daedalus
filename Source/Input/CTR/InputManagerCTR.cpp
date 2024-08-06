@@ -316,7 +316,8 @@ bool IInputManager::Initialise()
 	}
 
 	// char ControllerConfigs[128];
-	std::filesystem::path ControllerConfigs  = "ControllerConfigs";
+
+	std::filesystem::path ControllerConfigs  = setBasePath("ControllerConfigs");
 	LoadControllerConfigs(ControllerConfigs);
 
 	SetConfiguration(0);
