@@ -318,6 +318,7 @@ bool IInputManager::Initialise()
 	// char ControllerConfigs[128];
 
 	std::filesystem::path ControllerConfigs  = setBasePath("ControllerConfigs");
+	std::filesystem::create_directory(ControllerConfigs);  // Failsafe, to prevent emu from crashing
 	LoadControllerConfigs(ControllerConfigs);
 
 	SetConfiguration(0);
