@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 
 #include "Debug/DebugConsoleImpl.h"
 #include "Utility/BatchTest.h"
@@ -58,20 +59,23 @@ template<> bool	CSingleton< CDebugConsole >::Create()
 CDebugConsole::~CDebugConsole()
 {
 }
-
-void IDebugConsole::Msg(u32 type, const char * format, ...)
+void IDebugConsole::Msg(u32 type, const char* format, ...)
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
-	char * temp = NULL;
-	va_list marker;
-	va_start( marker, format );
-	vprintf( format, marker );
-	va_end( marker );
-	printf("\n");
-
-	if (temp)
-		free(temp);
-	#endif
+    // Buffer to hold formatted string
+    char buffer[1024];
+    
+    // Initialize variable argument list
+    va_list args;
+    va_start(args, format);
+    
+    // Format the string
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    
+    // Clean up variable argument list
+    va_end(args);
+    
+    // Output the formatted string to std::cout
+    std::cout << buffer << std::endl;
 }
 
 void IDebugConsole::MsgOverwriteStart()

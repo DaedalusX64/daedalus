@@ -40,24 +40,42 @@
 
 bool isN3DS = false;
 bool shouldQuit = false;
-
+    std::streambuf* coutBuf = nullptr;
+    std::streambuf* cerrBuf = nullptr;
 EAudioPluginMode enable_audio = APM_ENABLED_ASYNC;
 
 #ifdef DAEDALUS_LOG
-void log2file(const char *format, ...) {
-	__gnuc_va_list arg;
-	int done;
-	va_start(arg, format);
-	char msg[512];
-	done = vsprintf(msg, format, arg);
-	va_end(arg);
-	snprintf(msg, sizeof(msg),  "%s\n", msg);
-	std::ofstream log("sdmc:/DaedalusX64.log", std::ios::out);
-	if (log.is_open) {
-		log.write(reinterpret_cast<char*>(msg), strlen(msg));
-		log.close();
-	}
+// void log2file(const char *format, ...) {
+// 	__gnuc_va_list arg;
+// 	int done;
+// 	va_start(arg, format);
+// 	char msg[512];
+// 	done = vsprintf(msg, format, arg);
+// 	va_end(arg);
+// 	snprintf(msg, sizeof(msg),  "%s\n", msg);
+// 	std::ofstream log("sdmc:/DaedalusX64.log", std::ios::out);
+// 	if (log.is_open()) {
+// 		log.write(reinterpret_cast<char*>(msg), strlen(msg));
+// 		log.close();
+// 	}
+// }
+void redirectOutputToLogFile(std::ofstream& logFile, std::streambuf*& coutBuf, std::streambuf*& cerrBuf) {
+    // Open the log file
+    logFile.open("sdmc:/3ds/DaedalusX64/daedalus.log");
+
+    // Check if the file opened successfully
+    if (!logFile.is_open()) {
+        std::cerr << "Failed to open log file." << std::endl;
+        return;
+    }
+
+    // Redirect stdout and stderr to the log file
+    coutBuf = std::cout.rdbuf();
+    cerrBuf = std::cerr.rdbuf();
+    std::cout.rdbuf(logFile.rdbuf());
+    std::cerr.rdbuf(logFile.rdbuf());
 }
+
 #endif
 
 static void CheckDSPFirmware()
@@ -90,6 +108,11 @@ static void CheckDSPFirmware()
 
 static void Initialize()
 {
+	    // Variables to store the original stream buffers
+
+
+
+
 	CheckDSPFirmware();
 	
 	_InitializeSvcHack();
@@ -126,18 +149,22 @@ extern u32 __ctru_heap_size;
 
 int main(int argc, char* argv[])
 {
+	    // File stream for logging
+    std::ofstream logFile;
+
+    // Redirect output to log file
+    redirectOutputToLogFile(logFile, coutBuf, cerrBuf);
 	char fullpath[512];
 
 	Initialize();
-	
+		std::cout << "Hello this is being logged" << std::endl;
 	while(shouldQuit == false)
 	{
-	
 	// Set the default path
 
 	std::string rom = UI::DrawRomSelector();
-	std::filesystem::path rom;
 	std::filesystem::path RomPath = setBasePath("Roms");
+	// std::filesystem::path rom = "Super Mario 64 (USA).z64";
 	RomPath /= rom;
 	System_Open(RomPath.string().c_str());
 	CPU_Run();
