@@ -11,7 +11,6 @@ add_library(Utility OBJECT
                             Stream.cpp 
                             StringUtil.cpp
                             Timer.cpp
-                            Timing.cpp
                             Translate.cpp
 
             )
