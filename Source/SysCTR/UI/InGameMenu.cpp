@@ -247,7 +247,7 @@ bool UI::DrawOptionsPage(RomID mRomID)
 
 		ImGui::Spacing();
 
-		const char* viewporOptions[] = { "4:3", "Widescreen (Streteched)", "Widescreen (Hack)" };
+		const char* viewporOptions[] = { "4:3", "Widescreen (Stretched)", "Widescreen (Hack)" };
 		ImGui::Text("Aspect Ratio");
 		currentSelection = (int)gGlobalPreferences.ViewportType;
 		ImGui::Combo("##viewport_combo", &currentSelection, viewporOptions, 3);
