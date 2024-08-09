@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interface/ConfigOptions.h"
 #include "Interface/Cheats.h"
-#include "DynaRec/Dynamo.h"
+#include "Core/Dynamo.h"
 #include "Core/Interpret.h"
 #include "Core/Interrupt.h"
 #include "Core/Memory.h"

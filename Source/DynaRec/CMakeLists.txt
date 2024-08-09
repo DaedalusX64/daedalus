@@ -15,7 +15,6 @@ endif()
 add_library(DynaRec OBJECT
                 ${SRC_FILES}
                 BranchType.cpp
-                Dynamo.cpp
                 DynaRecProfile.cpp
                 Fragment.cpp
                 FragmentCache.cpp 
