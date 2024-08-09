@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CORE_ROMIMAGE_H_
 
 #include "Base/Types.h"
+#include <sstream> 
+#include <string>
 
 //const u32 RAMROM_FONTDATA_SIZE		= 1152;
 //const u32 RAMROM_CLOCKRATE_MASK		= 0xfffffff0;
@@ -71,5 +73,7 @@ enum ECicType
 ECicType		ROM_GenerateCICType( const u8 * rom_base );
 
 const char *	ROM_GetCicName( ECicType cic_type );
+
+std::string ROM_GetCRC(const ROMHeader& header);
 
 #endif // CORE_ROMIMAGE_H_
