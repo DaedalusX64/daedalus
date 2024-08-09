@@ -34,7 +34,7 @@ else()
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" OFF)
 	message (${CMAKE_CXX_FLAGS_RELEASE})
 	if(DAEDALUS_CTR)
-	set( CMAKE_CXX_FLAGS_RELEASE  "-g -O3 -DNDEBUG")
+	set( CMAKE_CXX_FLAGS_RELEASE  "-O3 -DNDEBUG")
 	endif()
 	endif()
 	#Determine Dynarec compatibility and link in appropriate Dynarec
