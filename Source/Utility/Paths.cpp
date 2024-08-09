@@ -40,6 +40,10 @@ const std::filesystem::path baseDir = std::filesystem::current_path();
 std::filesystem::path setBasePath(const std::filesystem::path& path)
 {
     auto combinedPath = baseDir / path;
+    if (std::filesystem::is_directory(combinedPath))
+    {
+        std::filesystem::create_directories(combinedPath);
+    }
     std::cout << "Path set for:" << path << "to:" << combinedPath << std::endl;
     return combinedPath;
 }
