@@ -31,6 +31,7 @@ else()
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Show the build type in the UI
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
+
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" OFF)
 	message (${CMAKE_CXX_FLAGS_RELEASE})
 	if(DAEDALUS_CTR)
