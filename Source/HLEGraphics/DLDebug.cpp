@@ -11,7 +11,7 @@
 #include "Debug/Dump.h"
 #include "HLEGraphics/RDP.h"
 #include "Ultra/ultra_gbi.h"
-#include "System/IO.h"
+
 #include "Base/Macros.h"
 
 

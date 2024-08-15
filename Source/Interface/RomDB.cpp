@@ -33,6 +33,7 @@
 #include "Utility/MathUtil.h"
 #include "RomFile/RomFile.h"
 #include "Utility/Stream.h"
+#include "Utility/Paths.h"
 #include <filesystem>
 
 static const u64 ROMDB_MAGIC_NO	= 0x42444D5244454144LL; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
@@ -166,11 +167,7 @@ template<> bool	CSingleton< CRomDB >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	mpInstance = std::make_shared<IRomDB>();
-	std::filesystem::path p = baseDir;
-	p /= "rom.db";
-
-	/*ret = */mpInstance->OpenDB( p );
-
+	mpInstance->OpenDB(setBasePath("rom.db"));
 	return true;
 }
 
@@ -288,16 +285,17 @@ void IRomDB::AddRomEntry( const std::filesystem::path& filename, const RomID & i
 
 void IRomDB::AddRomDirectory(const std::filesystem::path& directory)
 {
-	DBGConsole_Msg(0, "Adding roms directory [C%s]", directory.c_str());
+	std::filesystem::path romdir = setBasePath(directory);
+	DBGConsole_Msg(0, "Adding roms directory [C%s]", romdir.c_str());
 
-	for (const auto& entry : std::filesystem::directory_iterator(directory))
+	for (const auto& entry : std::filesystem::directory_iterator(romdir))
 	{
 		if (entry.is_regular_file())
 		{
 			const std::filesystem::path rom_filename = entry.path().filename();
 			if (std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
-				std::filesystem::path rompath = directory / rom_filename;
+				std::filesystem::path rompath = romdir / rom_filename;
 				AddRomFile(rompath);
 			}
 		}

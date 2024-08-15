@@ -31,7 +31,13 @@ else()
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Show the build type in the UI
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
-endif()
+
+	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" OFF)
+	message (${CMAKE_CXX_FLAGS_RELEASE})
+	if(DAEDALUS_CTR)
+	set( CMAKE_CXX_FLAGS_RELEASE  "-O3 -DNDEBUG")
+	endif()
+	endif()
 	#Determine Dynarec compatibility and link in appropriate Dynarec
 	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
 	if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" )
@@ -75,7 +81,7 @@ endif()
 	# General options
 
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
-	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
+
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF) ## Probably should be a default option. 
 	option(DAEDALUS_LOG "Log stuff " OFF) ## NEeds to be off on the PSP unless debugging
 
@@ -112,10 +118,10 @@ endif()
 		option(DAEDALUS_SIM_DOUBLES "Simulate Doubles" ON)
 		option(INTRAFONT "Use Native Fonts" ON) #If this is off, SDL will be enabled
 		option(DAEDALUS_SDL "Enable SDL" OFF)
+		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) 
 
 	elseif(UNIX)
 		option(DAEDALUS_SDL "SDL Build" ON)
-		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
 		option(DAEDALUS_POSIX "Posix specific options" ON)
 		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 		option(DAEDALUS_128BIT_MULT "128 Bit Multiplication, not supported on PSP" ON)
@@ -126,15 +132,13 @@ endif()
 		option(DAED_USE_VIRTUAL_ALLOC "Use Windows Memory specifiers" ON) # We probably need to remove and simplfy this using modern C++
 		option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)" ON)
 		option(DAEDALUS_W32 "Windows specific Options" ON)
-		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 		option(DAEDALUS_BREAKPOINTS_ENABLED "Enable Breakpoints" OFF)
 		option(DAEDALUS_GL "OpenGL Renderer" ON)
 		enable_language(CXX ASM_MASM)
 	elseif(CTR)
+		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" OFF) ## Causes some weird black screen issues
 		option(DAEDALUS_CTR "3DS Specific Options" ON)
-		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
-		option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
 	endif()
 
 	# Needed below the options to post process
@@ -203,7 +207,6 @@ find_package(ZLIB REQUIRED)
 link_libraries(ZLIB::ZLIB)
 
 		## Daedalus Core Build
-		add_subdirectory(Config)
 		add_subdirectory(Core)
 		add_subdirectory(Debug)
 		add_subdirectory(DynaRec)
@@ -211,14 +214,15 @@ link_libraries(ZLIB::ZLIB)
 		add_subdirectory(HLEAudio)
 		add_subdirectory(HLEGraphics)
 		add_subdirectory(Interface)
+		add_subdirectory(Input)
 		add_subdirectory(Math)
 		add_subdirectory(OSHLE)
 		add_subdirectory(RomFile)
 		add_subdirectory(System)
-		add_subdirectory(Test)
 		add_subdirectory(Utility)
+	if(NOT CTR)
 		add_subdirectory(UI)
-
+	endif()
 	if(UNIX)
 		add_subdirectory(SysPosix)
 		add_subdirectory(SysGL)

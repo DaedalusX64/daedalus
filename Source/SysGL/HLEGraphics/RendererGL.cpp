@@ -18,8 +18,9 @@
 #include "SysGL/GL.h"
 #include "SysGL/HLEGraphics/RendererGL.h"
 
-#include "System/IO.h"
+
 #include "Base/Macros.h"
+#include "Utility/Paths.h"
 #include "Utility/Profiler.h"
 
 BaseRenderer * gRenderer   = NULL;
@@ -114,14 +115,10 @@ bool loadShader(const std::filesystem::path& shader_path)
 
 bool initgl()
 {
-	std::filesystem::path p = baseDir;
-	std::filesystem::path shader_path = "n64.psh";
-	p /= shader_path;
-
+	std::filesystem::path p = setBasePath("n64.psh");
 	
 	loadShader(p);
 	
-	std::cout << "Loading Shader File: " << p << std::endl;
 	// Only do software emulation of mirror_s/mirror_t if we're not doing accurate UV handling
 	gRDPStateManager.SetEmulateMirror(!gAccurateUVPipe);
 

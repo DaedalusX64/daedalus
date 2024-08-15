@@ -2,7 +2,7 @@
 #define UTILITY_DATASINK_H_
 
 #include <stdio.h>
-#include "System/IO.h"
+#include "Utility/Paths.h"
 class DataSink
 {
 public:

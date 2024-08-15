@@ -1,4 +1,6 @@
 add_library(Interface OBJECT
+                            ConfigOptions.cpp
+                            Cheats.cpp
                             Preferences.cpp
                             RomDB.cpp
                             SaveState.cpp                

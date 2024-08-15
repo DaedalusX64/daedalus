@@ -2,6 +2,8 @@ add_library(Debug OBJECT
                 DebugConsoleImpl.cpp 
                 DebugLog.cpp
                 Dump.cpp
+                PrintOpCode.cpp
+                Registers.cpp
                 Synchroniser.cpp
             )
 

@@ -17,7 +17,7 @@
 #include "Utility/MathUtil.h"
 #include "SysPSP/HLEGraphics/RendererPSP.h"
 #include "Ultra/ultra_gbi.h"
-#include "System/IO.h"
+
 #include "Utility/Profiler.h"
 
 

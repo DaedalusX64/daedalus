@@ -24,11 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 #include "Debug/DBGConsole.h"
 
-#include "System/IO.h"
+
 #include <fstream>
 #include <format>
 #include <iostream> 
-
+#include "Utility/Paths.h"
 #ifdef DAEDALUS_LOG
 
 
@@ -38,11 +38,10 @@ std::ofstream	g_hOutputLog;;
 
 bool Debug_InitLogging()
 {
-	std::filesystem::path path = baseDir;
 	const std::filesystem::path log_filename = "daedalus.txt";
-	path /= log_filename;
+	std::filesystem::path path = setBasePath(log_filename);
 	std::cout << "Creating Dump File: " << path << std::endl;
-	g_hOutputLog.open( log_filename);
+	g_hOutputLog.open( path);
 	// Is always going to return true
 	return true;
 }
@@ -51,15 +50,15 @@ bool Debug_InitLogging()
 void Debug_FinishLogging() {}
 
 
-void Debug_Print(const char* format, ...)
-{
-        va_list args;
-        va_start(args, format);
-        std::string formattedString = std::vformat(format, std::make_format_args(args));
-        va_end(args);
+// void Debug_Print(const char* format, ...)
+// {
+//         va_list args;
+//         va_start(args, format);
+//         std::string formattedString = std::vformat(format, std::make_format_args(args));
+//         va_end(args);
 		
-        g_hOutputLog << formattedString << '\n';
-}
+//         g_hOutputLog << formattedString << '\n';
+// }
 
 
 

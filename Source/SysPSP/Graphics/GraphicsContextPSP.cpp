@@ -26,7 +26,7 @@
 #include <pspdisplay.h>
 #include <pspdebug.h>
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
@@ -34,7 +34,7 @@
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/PngUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"
-#include "System/IO.h"
+
 #include "UI/DrawText.h"
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"

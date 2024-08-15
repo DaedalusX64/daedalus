@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef OSHLE_PATCH_H_
 #define OSHLE_PATCH_H_
 
-#include "Core/Registers.h"		// For SRHACK_???? etc
+#include "Debug/Registers.h"		// For SRHACK_???? etc
 #include "Core/CPU.h"		// Breakpoint stuff
 #include "Ultra/ultra_R4300.h"
 

@@ -31,8 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/Memory.h"
 #include "Core/Interrupt.h"
 #include "Core/R4300.h"
-#include "Core/Registers.h"		
-#include "Config/ConfigOptions.h"
+#include "Debug/Registers.h"		
+#include "Interface/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "DynaRec/DynaRecProfile.h"
@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/TraceRecorder.h"
 #include "OSHLE/patch.h"				// GetCorrectOp
 #include "Ultra/ultra_R4300.h"
-#include "System/IO.h"
+
 #include "Base/Macros.h"
 #include "Utility/Profiler.h"
 #include "Debug/Synchroniser.h"
@@ -305,8 +305,8 @@ bool SortByHitCount( const SAddressHitCount & a, const SAddressHitCount & b )
 //*****************************************************************************
 void	CPU_DumpFragmentCache()
 {
-	std::filesystem::path& dynarecDump = baseDir;
-	dynarecDump /= "DynarecDump";
+
+	std::filesystem::path dynarecDump = setBasePath("DynarecDump");
 	std::filesystem::create_directory(dynarecDump);
 
 	dynarecDump /= "hot_trace_map.html";

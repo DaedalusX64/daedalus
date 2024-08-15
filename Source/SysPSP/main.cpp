@@ -36,13 +36,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <kubridge.h>
 #include <pspsysmem.h>
 
-#include "Config/ConfigOptions.h"
-#include "Core/Cheats.h"
+#include "Interface/ConfigOptions.h"
+#include "Interface/Cheats.h"
 #include "Core/CPU.h"
 #include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/PIF.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Core/Save.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
@@ -60,8 +60,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <iostream>
 
 #include "System/SystemInit.h"
-#include "Test/BatchTest.h"
-#include "System/IO.h"
+#include "Utility/BatchTest.h"
+
 #include "Utility/ModulePSP.h"
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
@@ -197,9 +197,7 @@ void HandleEndOfFrame()
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 		CGraphicsContext::Get()->ClearAllSurfaces();
 
-		CDrawText::Initialise();
-
-		CUIContext *	p_context( CUIContext::Create() );
+		auto	p_context = CUIContext::Create();
 
 		if(p_context != NULL)
 		{
@@ -208,7 +206,6 @@ void HandleEndOfFrame()
 			delete p_context;
 		}
 
-		CDrawText::Destroy();
 
 		// Commit the preferences database before starting to run
 		// CPreferences::Get()->Commit();

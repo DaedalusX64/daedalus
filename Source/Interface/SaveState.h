@@ -23,7 +23,7 @@
 #ifndef CORE_SAVESTATE_H_
 #define CORE_SAVESTATE_H_
 
-#include "System/IO.h"
+#include "Utility/Paths.h"
 
 class RomID;
 

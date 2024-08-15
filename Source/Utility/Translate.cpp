@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fstream> 
 #include <sstream>
 
-#include "System/IO.h"
+#include "Utility/Paths.h"
 #include "Utility/StringUtil.h"
 #include "Utility/Translate.h"
 #include "Utility/VolatileMem.h"
@@ -253,11 +253,8 @@ bool Translate_Read(u32 idx, const std::filesystem::path& dir)
 
 	// Build path where we'll load the translation file(s)
 	
-	std::filesystem::path path = baseDir / dir;
-	std::filesystem::path language = gLanguage[ idx ].c_str();
-	std::filesystem::path ext  = ".lng";
-	path /= language;
-	path += ext;
+	const std::string languageFile = "Language/" + gLanguage[idx] + ".lng";
+	const std::filesystem::path& path = setBasePath(languageFile);
 	
 
 	std::cout << "Language Path: " << path << std::endl;

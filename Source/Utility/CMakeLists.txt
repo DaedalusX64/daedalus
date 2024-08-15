@@ -1,14 +1,18 @@
 add_library(Utility OBJECT
+                            BatchTest.cpp
                             CRC.cpp 
                             FastMemcpy.cpp 
+                            FramerateLimiter.cpp
                             Hash.cpp 
                             IniFile.cpp 
                             MemoryHeap.cpp  
+                            Paths.cpp
                             Profiler.cpp  
                             Stream.cpp 
                             StringUtil.cpp
-                            Translate.cpp
                             Timer.cpp
+                            Translate.cpp
+
             )
 
 

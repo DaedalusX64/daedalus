@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/FragmentCache.h"
 #include "Debug/DBGConsole.h"
 #include "Utility/Profiler.h"
-#include "System/IO.h"
+
 
 //Define to show hash table statistics cache hit/miss
 //#define HASH_TABLE_STATS
@@ -393,8 +393,9 @@ void CFragmentCache::DumpStats( const std::filesystem::path outputdir ) const
 
 	std::sort( all_fragments.begin(), all_fragments.end(), SDescendingCyclesSort() );
 
+
 	std::filesystem::path filename = "fragments.html";
-	std::filesystem::path fragments_dir = baseDir /= "fragments";
+	std::filesystem::path fragments_dir = setbasePath("fragments");
 	fragments_dir /= filename;
 
 

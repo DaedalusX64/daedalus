@@ -23,11 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <algorithm>
 #include <limits>
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/R4300.h"
-#include "Core/Registers.h"
+#include "Debug/Registers.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "DynaRec/AssemblyUtils.h"
@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_R4300.h"
 #include "CodeGeneratorPSP.h"
 #include "Base/Macros.h"
-#include "Core/PrintOpCode.h"
+#include "Debug/PrintOpCode.h"
 #include "Utility/Profiler.h"
 
 using namespace AssemblyUtils;

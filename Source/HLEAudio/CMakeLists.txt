@@ -1,3 +1,5 @@
+add_subdirectory(Plugin) # Plugin based Audio added here
+
 add_library(HLEAudio OBJECT
                     ABI1.cpp
                     ABI2.cpp

@@ -1,1 +1,0 @@
-add_library(BatchTest OBJECT BatchTest.cpp)
