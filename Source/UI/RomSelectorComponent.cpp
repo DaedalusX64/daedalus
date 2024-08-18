@@ -370,7 +370,7 @@ void IRomSelectorComponent::RenderRomList()
 		 std::string p_gamename;
 		if( mDisplayFilenames )
 		{
-			p_gamename = std::string(mRomsList[ i ]->mFilename);
+			p_gamename = std::string(mRomsList[ i ]->mFilename.string());
 		}
 		else
 		{

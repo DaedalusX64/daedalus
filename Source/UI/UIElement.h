@@ -21,8 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 #include <memory>
+#include <string>
 #include "Base/Types.h"
 #include "UIAlignment.h"
+
 
 class CUIContext;
 class c32;

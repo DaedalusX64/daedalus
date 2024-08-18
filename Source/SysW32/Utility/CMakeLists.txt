@@ -1,8 +1,6 @@
 add_library(Utility_Win OBJECT
                                 CondW32.cpp
-                               ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/IOPosix.cpp
                                 ThreadW32.cpp
-                            ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/TimingPosix.cpp
             )
 
             if(DEBUG)
