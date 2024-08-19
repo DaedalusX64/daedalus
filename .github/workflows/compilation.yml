@@ -75,33 +75,10 @@ jobs:
 
   build-ctr:
     runs-on: ubuntu-latest
-    container: devkitpro/devkitarm:latest
+    container: wally4000/daedalusx64:latest
+
     steps:
       - uses: actions/checkout@v4 
-
-      # Needed to build CIA files
-      - name: build makerom
-        run: |
-            apt-get update && \
-            apt-get -y install g++ libyaml-dev libmbedtls-dev
-            git clone https://github.com/wally4000/Project_CTR --depth=1
-            cd Project_CTR/
-            make
-            cp makerom/bin/makerom /usr/local/bin
-
-      - name: Build PicaGL
-        run: |
-            git clone -b revamp https://github.com/masterfeizz/picaGL --depth=1
-            cd picaGL
-            DEVKITARM='/opt/devkitpro/devkitARM' make 
-            DEVKITARM='/opt/devkitpro/devkitARM' make install
-
-      - name: Build imgui-picagl
-        run: |
-            git clone https://github.com/masterfeizz/imgui-picagl --depth=1
-            cd imgui-picagl
-            DEVKITARM='/opt/devkitpro/devkitARM' make 
-            DEVKITARM='/opt/devkitpro/devkitARM' make install
 
       - name: Compile project
         run: | 
