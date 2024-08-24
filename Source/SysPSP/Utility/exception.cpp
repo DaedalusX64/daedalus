@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <pspgu.h>
 #include <pspkernel.h>
@@ -176,7 +177,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 	const u32 RDRAM_base {(u32)g_pu8RamBase};
 	const u32 RDRAM_end {(u32)g_pu8RamBase + 8 * 1024 * 1024 - 1};
     SceCtrlData pad;
-	bool exit {false};
+	bool mustExit {false};
 
 	pspDebugScreenInit();
     pspDebugScreenSetBackColor(0x00FF0000);
@@ -190,7 +191,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 	u32 scroll_epc	{(u32)regs->epc};
 #endif
 
-	while( !exit )
+	while( !mustExit )
 	{
 		pspDebugScreenClear();
 		pspDebugScreenPrintf("Exception[%s] RDRAM[%08X:%08X]\n\n", codeTxt[(regs->cause >> 2) & 31], (int)RDRAM_base, (int)RDRAM_end );
@@ -244,12 +245,12 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 			if (pad.Buttons & PSP_CTRL_CROSS)
 			{
 				DumpInformation(regs);
-				exit = true;
+				mustExit = true;
 				update = true;
 			}
 			else if (pad.Buttons & PSP_CTRL_CIRCLE)
 			{
-				exit = true;
+				mustExit = true;
 				update = true;
 			}
 			else if (pad.Buttons & PSP_CTRL_UP)
@@ -274,12 +275,12 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 			if (pad.Buttons & PSP_CTRL_CROSS)
 			{
 				DumpInformation(regs);
-				exit = true;
+				mustExit = true;
 				update = true;
 			}
 			else if (pad.Buttons & PSP_CTRL_CIRCLE)
 			{
-				exit = true;
+				mustExit = true;
 				update = true;
 			}
 		}
@@ -287,7 +288,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 
 	}
 
-	sceKernelExitGame();
+	exit(1);
 }
 
 void initExceptionHandler()

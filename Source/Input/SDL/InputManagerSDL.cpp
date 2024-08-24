@@ -445,7 +445,3 @@ v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
 
 	return ProjectToUnitSquare( in * (scale / length) );
 }
-
-void sceKernelExitGame() {
-	// todo
-}

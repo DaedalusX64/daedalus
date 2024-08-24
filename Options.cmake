@@ -118,6 +118,8 @@ endif()
 if(DAEDALUS_PSP_GPROF)
     message("DAEDALUS_PSP_GPROF=ON")
     add_compile_definitions(DAEDALUS_PSP_GPROF)
+    add_compile_options(-pg)
+    add_link_options(-pg)
 endif()
 
 if(DAEDALUS_SIM_DOUBLES)

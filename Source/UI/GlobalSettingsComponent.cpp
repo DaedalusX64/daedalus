@@ -182,7 +182,7 @@ namespace
 
 					gShowDialog->Render( mpContext,"Daedalus will exit now",true);
 
-					sceKernelExitGame();
+					exit(0);
 				}
 			}
 			if(gShowDialog->Render( mpContext,"Reset settings?", false) )
@@ -194,7 +194,7 @@ namespace
 
 				gShowDialog->Render( mpContext,"Daedalus will exit now",true);
 
-				sceKernelExitGame();
+				exit(0);
 			}
 		}
 
