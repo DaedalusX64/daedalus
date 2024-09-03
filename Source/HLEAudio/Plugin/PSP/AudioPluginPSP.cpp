@@ -84,6 +84,7 @@ bool InitialiseMediaEngine()
 	else
 	{
 		printf("Media Engine already Initialised\n");
+		return true;
 	}
 }
 

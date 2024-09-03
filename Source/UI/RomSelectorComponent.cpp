@@ -562,12 +562,10 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 				mCurrentSelection++;
 			}
 		}
-#ifndef DAEDALUS_PSP_GPROF
 		if(new_buttons & PSP_CTRL_SELECT)
 		{
-			sceKernelExitGame();
+			exit(0);
 		}
-#endif
 		if(new_buttons & PSP_CTRL_CROSS && mRomDelete)	// DONT CHANGE ORDER
 		{
 			remove( mSelectedRom.c_str() );

@@ -86,11 +86,6 @@ extern "C"
 	/* Video Manager functions */
 	int pspDveMgrCheckVideoOut();
 	int pspDveMgrSetVideoOut(int, int, int, int, int, int, int);
-
-#ifdef DAEDALUS_PSP_GPROF
-	/* Profile with psp-gprof */
-	void gprof_cleanup();
-#endif
 }
 
 /* Kernel Exception Handler functions */
@@ -239,7 +234,6 @@ int main(int argc, char* argv[])
 			CPU_Run();
 			System_Close();
 			System_Finalize();
-			sceKernelExitGame();
 			return 0;
 		}
 #endif
@@ -260,6 +254,5 @@ int main(int argc, char* argv[])
 		System_Finalize();
 	}
 
-	sceKernelExitGame();
 	return 0;
 }

@@ -140,7 +140,6 @@ class CUIContext
   };
 
   void sceCtrlPeekBufferPositive(struct SceCtrlData*, int n);
-  void sceKernelExitGame();
 #endif
 //##########################################################################################################
 
