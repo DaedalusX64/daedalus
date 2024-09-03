@@ -254,8 +254,8 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 				Audio_Ucode();
 				result = PR_COMPLETED;
 				break;
-			}
 #endif
+			}
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_SYNC:
