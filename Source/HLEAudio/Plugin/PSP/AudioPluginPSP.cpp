@@ -242,13 +242,20 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 			break;
 		case APM_ENABLED_ASYNC:
 			{
+#ifdef DAEDALUS_PSP_USE_ME
 				sceKernelDcacheWritebackInvalidateAll();
 				if(BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL) < 0){
 						Audio_Ucode();
 						result = PR_COMPLETED;
 						break;
 				}
+#else
+				DAEDALUS_ERROR("Async audio is unimplemented");
+				Audio_Ucode();
+				result = PR_COMPLETED;
+				break;
 			}
+#endif
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_SYNC:
