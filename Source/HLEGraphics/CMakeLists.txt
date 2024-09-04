@@ -20,5 +20,9 @@ if(DAEDALUS_GL)
     target_include_directories(HLEGraphics PUBLIC ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
 endif(DAEDALUS_GL)
 
+if(DAEDALUS_PROFILE_HLEGRAPHICS)
+target_compile_options(HLEGraphics PRIVATE -pg)
+endif(DAEDALUS_PROFILE_HLEGRAPHICS)
+
 list(APPEND daed_libs "HLEGraphics")
 set(daed_libs ${daed_libs} PARENT_SCOPE)

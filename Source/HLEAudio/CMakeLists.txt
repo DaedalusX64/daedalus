@@ -16,5 +16,9 @@ add_library(HLEAudio OBJECT
                     HLEMain.cpp 
                     )
 
+if(DAEDALUS_PROFILE_HLEAUDIO)
+    target_compile_options(HLEAudio PRIVATE -pg)
+endif(DAEDALUS_PROFILE_HLEAUDIO)
+                    
 list(APPEND daed_libs "HLEAudio")
 set(daed_libs ${daed_libs} PARENT_SCOPE)

@@ -4,9 +4,16 @@ add_library(HLEGraphics_CTR OBJECT
                     ColourAdjuster.cpp
                     GraphicsPluginCTR.cpp
                     RendererCTR.cpp
+                    Combiner/BlendConstant.cpp
+                    Combiner/CombinerExpression.cpp
+                    Combiner/CombinerTree.cpp
+                    Combiner/RenderSettings.cpp
                     )
 
-                    add_subdirectory(Combiner)
+if(DAEDALUS_PROFILE_HLEGRAPHICS_CTR)
+     target_compile_options(HLEGraphics_CTR PRIVATE -pg)
+ endif(DAEDALUS_PROFILE_HLEGRAPHICS_CTR)
+                            
 
             
 list(APPEND daed_libs "HLEGraphics_CTR")
