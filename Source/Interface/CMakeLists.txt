@@ -7,5 +7,9 @@ add_library(Interface OBJECT
             )
 
             
+if(DAEDALUS_PROFILE_INTERFACE)
+target_compile_options(Interface PRIVATE -pg)
+endif(DAEDALUS_PROFILE_INTERFACE)
+
 list(APPEND daed_libs "Interface")
 set(daed_libs ${daed_libs} PARENT_SCOPE)

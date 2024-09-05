@@ -23,5 +23,9 @@ if(APPLE)
 set_source_files_properties(R4300.cpp PROPERTIES COMPILE_FLAGS -O0)
 endif(APPLE)
 
+if(DAEDALUS_PROFILE_CORE)
+target_compile_options(Core PRIVATE -pg)
+endif(DAEDALUS_PROFILE_CORE)
+
 list(APPEND daed_libs "Core")
 set(daed_libs ${daed_libs} PARENT_SCOPE)

@@ -10,6 +10,11 @@ add_library(Utility_PSP OBJECT
                                 ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/ThreadPosix.cpp
             )
 
+    if(DAEDALUS_PROFILE_UTILITY_PSP)
+        target_compile_options(RomFile PRIVATE -pg)
+endif(DAEDALUS_PROFILE_UTILITY_PSP)
+            
+
             
 list(APPEND daed_libs "Utility_PSP")
 set(daed_libs ${daed_libs} PARENT_SCOPE)
