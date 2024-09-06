@@ -139,7 +139,7 @@ else()
 
 # Profiler Options
 
-	option(DAEDALUS_PROFILE_AUDIOPLUGIN "" ON)
+	option(DAEDALUS_PROFILE_AUDIOPLUGIN "" OFF)
 	option(DAEDALUS_PROFILE_CORE "" OFF)
 	option(DAEDALUS_PROFILE_DEBUG "" OFF)
 	option(DAEDALUS_PROFILE_DYNAREC "" OFF)
@@ -171,7 +171,7 @@ else()
 	if(DAEDALUS_GPROF)
 	link_libraries(-pg)
 	endif()
-	
+
 	# Needed below the options to post process
 	include(${PROJECT_SOURCE_DIR}/Options.cmake) 
 
