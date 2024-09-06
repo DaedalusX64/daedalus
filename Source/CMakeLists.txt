@@ -1,4 +1,4 @@
-# DaedalusX64 CMake Build File 
+	# DaedalusX64 CMake Build File 
 # Created and Maintained by Wally 
 # Yes right now this is a mess, hoping to simplify things further in future but please deal with it for now :)
 
@@ -97,12 +97,8 @@ else()
 	option(DUMPOSFUNCTIONS "Dump OSHLE Functions" OFF)
 	option(DAEDALUS_FRAMERATE_ANALYSIS "Output a CSV file containing framerate analysis" OFF)
 	option(DAEDALUS_DEBUG_AUDIO "Output some Audio Samples to raw file" OFF)
-	# Additional PSP Options
-	option(DAEDALUS_PSP_GPROF "PSP Profiling, needs Silent enabled" OFF)
 
 
-
-	## Enable specific options per platform based on Release build ## XXX need to handle GPROF
 	# Handle specific options (These were all found in platforms.h and now belong here)
 	# PSP / Vita / CTR options are required as non-linux embedded platforms are not able to be reliably detected.
 	# Windows, Linux and macOS builds are auto detected.
@@ -142,7 +138,8 @@ else()
 	endif()
 
 # Profiler Options
-	option(DAEDALUS_PROFILE_AUDIOPLUGIN "" OFF)
+
+	option(DAEDALUS_PROFILE_AUDIOPLUGIN "" ON)
 	option(DAEDALUS_PROFILE_CORE "" OFF)
 	option(DAEDALUS_PROFILE_DEBUG "" OFF)
 	option(DAEDALUS_PROFILE_DYNAREC "" OFF)
@@ -171,7 +168,10 @@ else()
 	option(DAEDALUS_PROFILE_GRAPHICS_GL "" OFF)
 	option(DAEDALUS_PROFILE_UTILITY_POSIX "" OFF)
 
-
+	if(DAEDALUS_GPROF)
+	link_libraries(-pg)
+	endif()
+	
 	# Needed below the options to post process
 	include(${PROJECT_SOURCE_DIR}/Options.cmake) 
 
