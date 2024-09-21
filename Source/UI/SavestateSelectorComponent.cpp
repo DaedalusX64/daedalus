@@ -176,34 +176,20 @@ void ISavestateSelectorComponent::LoadSlots() {
     mLastPreviewLoad = ~0;
 
     for (u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i) {
-       std::string str = std::string("Slot ") + std::to_string(i + 1) + ": ";
+       std::string str = std::string("Slot ") + std::to_string(i + 1);
 		 
         // std::filesystem::path filename_ss;
         MakeSaveSlotPath(mPVFilename [i], mPVScreenShot[i], i, current_slot_path);
 		// Is outputting filenames correctly
         mPVExists[i] = std::filesystem::exists(mPVFilename[i]) ? 1 : -1;
 
+		// Don't show unused slots on loading
+		if (mAccessType == AT_LOADING && mPVExists[i]  != 1)
+		{
+			continue;
+		}
         if (mPVExists[i] == 1) {
 
-// This does not work on the PSP
-// // Get the last write time of the file
-// auto last_write_time = std::filesystem::last_write_time(filename_ss);
-
-// // Convert last_write_time to system_clock's time_point
-// auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-//     last_write_time - decltype(last_write_time)::clock::now() + std::chrono::system_clock::now()
-// );
-
-// // Convert the time_point to a time_t to use with std::localtime
-// std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
-
-// // Convert the time_t to a local time and format it
-// std::tm* timeinfo = std::localtime(&tt);
-
-// // Format the date string
-// std::strftime(date_string, sizeof(date_string), "%m/%d/%Y %H:%M:%S", timeinfo);
-
-//             str += date_string;
             mSlotEmpty[i] = false;
          } else {
              str = "Empty";
