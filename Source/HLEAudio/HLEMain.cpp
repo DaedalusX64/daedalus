@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "Base/Types.h"
-
+#include <cstring>
 
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
@@ -59,6 +59,7 @@ extern AudioHLEInstruction ABI1[0x20];
 //				 Yoshi Story, Pokemon Games, Zelda64, Zelda MoM
 //(miyamoto) 				 Most NCL or NOA games (Most commands)
 extern AudioHLEInstruction ABI2[0x20];
+
 // extern std::array<AudioHLEInstruction, 0x20> ABI2;
 //---------------------------------------------------------------------------------------------
 //
@@ -125,7 +126,7 @@ void Audio_Ucode() {
   }
 
   gAudioHLEState.LoopVal = 0;
-  // memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
+  memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
 
   u32 *p_alist = (u32 *)(g_pu8RamBase + (uintptr_t)pTask->t.data_ptr);
   u32 ucode_size = (pTask->t.data_size >> 3); // ABI5 can return 0 here!!!

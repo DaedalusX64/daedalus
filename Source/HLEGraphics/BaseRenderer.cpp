@@ -551,27 +551,6 @@ void BaseRenderer::FlushTris()
 		return;
 	}
 
-	// Hack for Pilotwings 64
-	/*static bool skipNext=false;
-	if( g_ROM.GameHacks == PILOT_WINGS )
-	{
-		if ( (g_DI.Address == g_CI.Address) && gRDPOtherMode.z_cmp+gRDPOtherMode.z_upd > 0 )
-		{
-			DAEDALUS_ERROR("Warning: using Flushtris to write Zbuffer" );
-			mNumIndices = 0;
-			mVtxClipFlagsUnion = 0;
-			skipNext = true;
-			return;
-		}
-		else if( skipNext )
-		{
-			skipNext = false;
-			mNumIndices = 0;
-			mVtxClipFlagsUnion = 0;
-			return;
-		}
-	}*/
-
 	//
 	// Check for depth source, this is for Nascar games, hopefully won't mess up anything
 	DAEDALUS_ASSERT( !gRDPOtherMode.depth_source, " Warning : Using depth source in flushtris" );

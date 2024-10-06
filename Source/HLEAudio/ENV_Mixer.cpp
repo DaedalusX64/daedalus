@@ -18,8 +18,7 @@ static u16 env[8];
 inline u16 Sample_Mask(u32 x) { return (u16)(x & 0xffff); }
 
 void ENVSETUP1(AudioHLECommand command) {
-  // fprintf (dfile, "ENVSETUP1: cmd0 = %08X, cmd1 = %08X\n", command.cmd0,
-  // command.cmd1);
+  // fprintf (dfile, "ENVSETUP1: cmd0 = %08X, cmd1 = %08X\n", command.cmd0,command.cmd1);
   gEnv_t3 = command.cmd0 & 0xFFFF;
   u32 tmp = (command.cmd0 >> 0x8) & 0xFF00;
   env[4] = Sample_Mask(tmp);
@@ -53,7 +52,7 @@ void ENVMIXER(AudioHLECommand command) {
   u8 flags(command.Abi1EnvMixer.Flags);
   u32 address(
       command.Abi1EnvMixer
-          .Address); // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+          .Address + gAudioHLEState.Segments[(command.cmd1>>24)&0xf]);
 
   gAudioHLEState.EnvMixer(flags, address);
 }
@@ -168,17 +167,15 @@ void ENVMIXER3(AudioHLECommand command) {
   s16 *aux1 = (s16 *)(gAudioHLEState.Buffer + 0xB40);
   s16 *aux2 = (s16 *)(gAudioHLEState.Buffer + 0xCB0);
   s16 *aux3 = (s16 *)(gAudioHLEState.Buffer + 0xE20);
-  s32 MainR;
-  s32 MainL;
-  s32 AuxR;
-  s32 AuxL;
-  s32 i1, o1, a1, a2, a3;
+  s32 MainL = 0, MainR = 0;
+  s32 AuxL = 0, AuxR = 0;
+  s32 i1 = 0, o1 = 0, a1 = 0, a2 = 0, a3 = 0;
 
-  s32 LAdder, LAcc, LVol;
-  s32 RAdder, RAcc, RVol;
-  s16 RSig, LSig; // Most significant part of the Ramp Value
-  s16 Wet, Dry;
-  s16 LTrg, RTrg;
+  s32 LAdder = 0, LAcc = 0, LVol = 0;
+  s32 RAdder = 0 , RAcc = 0, RVol = 0;
+  s16 LSig = 0, RSig = 0; // Most significant part of the Ramp Value
+  s16 Wet = 0, Dry = 0 ;
+  s16 LTrg = 0, RTrg = 0;
 
   gAudioHLEState.VolRight = (s16)command.cmd0;
 

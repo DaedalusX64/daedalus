@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include <string.h>
+#include <iostream>
+#include <algorithm>
 
 #include "Base/Types.h"
 
@@ -47,9 +49,9 @@ void UNKNOWN(AudioHLECommand command [[maybe_unused]]) {}
 
 AudioHLEState gAudioHLEState;
 
-void AudioHLEState::ClearBuffer(u16 addr, u16 count) {
-  // XXXX check endianness
-  memset(Buffer + (addr & 0xfffc), 0, (count + 3) & 0xfffc);
+void AudioHLEState::ClearBuffer(u16 addr, u16 count) 
+{
+std::fill(Buffer + (addr & 0xfffc), Buffer + ((addr & 0xfffc) + ((count + 3) & 0xfffc)), 0);
 }
 
 void AudioHLEState::EnvMixer(u8 flags, u32 address) {
@@ -61,30 +63,29 @@ void AudioHLEState::EnvMixer(u8 flags, u32 address) {
   save state just before the error", "AudioHLE Error", MB_OK);
   }*/
   // ------------------------------------------------------------
+
   s16 *inp = (s16 *)(Buffer + InBuffer);
   s16 *out = (s16 *)(Buffer + OutBuffer);
   s16 *aux1 = (s16 *)(Buffer + AuxA);
   s16 *aux2 = (s16 *)(Buffer + AuxC);
   s16 *aux3 = (s16 *)(Buffer + AuxE);
-  s32 MainR;
-  s32 MainL;
-  s32 AuxR;
-  s32 AuxL;
-  s32 i1, o1, a1, a2 = 0, a3 = 0;
+  s32 MainL = 0 , MainR = 0;
+  s32 AuxL = 0, AuxR = 0;
+  s32 i1 = 0, o1 = 0, a1 = 0, a2 = 0, a3 = 0;
   u16 AuxIncRate = 1;
-  s16 zero[8];
-  memset(zero, 0, 16);
-  s32 LVol, RVol;
-  s32 LAcc, RAcc;
-  s32 LTrg, RTrg;
-  s16 Wet, Dry;
+  s16 zero[8] = {};
+  s32 LVol = 0, RVol = 0 ;
+  s32 LAcc = 0 , RAcc = 0 ;
+  s32 LTrg = 0 , RTrg = 0;
+  s16 Wet = 0, Dry = 0;
   u32 ptr = 0;
-  s32 RRamp, LRamp;
-  s32 LAdderStart, RAdderStart, LAdderEnd, RAdderEnd;
-  s32 oMainR, oMainL, oAuxR, oAuxL;
+  s32 LRamp = 0, RRamp = 0;
+  s32 LAdderStart = 0 , RAdderStart = 0 , LAdderEnd = 0, RAdderEnd = 0;
+  s32 oMainL = 0 , oMainR = 0, oAuxL = 0 , oAuxR = 0;
 
   s16 *buff = (s16 *)(rdram + address);
-
+  const auto shift_val = 0x4000;
+  const auto right_shift_val = 15;
   // envmixcnt++;
 
   // fprintf (dfile,
@@ -122,10 +123,10 @@ void AudioHLEState::EnvMixer(u8 flags, u32 address) {
     aux2 = aux3 = zero;
   }
 
-  oMainL = (Dry * (LTrg >> 16) + 0x4000) >> 15;
-  oAuxL = (Wet * (LTrg >> 16) + 0x4000) >> 15;
-  oMainR = (Dry * (RTrg >> 16) + 0x4000) >> 15;
-  oAuxR = (Wet * (RTrg >> 16) + 0x4000) >> 15;
+  oMainL = (Dry * (LTrg >> 16) + shift_val) >> right_shift_val;
+  oAuxL = (Wet * (LTrg >> 16) + shift_val) >> right_shift_val;
+  oMainR = (Dry * (RTrg >> 16) + shift_val) >> right_shift_val;
+  oAuxR = (Wet * (RTrg >> 16) + shift_val) >> right_shift_val;
 
   for (s32 y = 0; y < Count; y += 0x10) {
     if (LAdderStart != LTrg) {
@@ -268,6 +269,7 @@ void AudioHLEState::EnvMixer(u8 flags, u32 address) {
   *(s32 *)(buff + 14) = RAdderEnd;   // 14-15
   *(s32 *)(buff + 16) = LAdderStart; // 12-13
   *(s32 *)(buff + 18) = RAdderStart; // 14-15
+
 }
 
 #if 1 // 1->fast, 0->original Azimer //Corn calc two sample (s16) at once so we
@@ -685,14 +687,14 @@ void AudioHLEState::SaveBuffer(u32 ram_dst, u16 dmem_src, u16 count) {
             (count + 3) & 0xFFFC);
   }
 }
-/*
+
 void	AudioHLEState::SetSegment( u8 segment, u32 address )
 {
         DAEDALUS_ASSERT( segment < 16, "Invalid segment" );
 
         Segments[segment&0xf] = address;
 }
-*/
+
 void AudioHLEState::SetLoop(u32 loopval) {
   LoopVal = loopval;
   // VolTrgLeft  = (s16)(LoopVal>>16);		// m_LeftVol

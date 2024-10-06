@@ -43,7 +43,7 @@ struct AudioHLEState {
   void LoadBuffer(u16 dram_dst, u32 ram_src, u16 count);
   void SaveBuffer(u32 ram_dst, u16 dmem_src, u16 count);
 
-  // void	SetSegment( u8 segment, u32 address );
+  void	SetSegment( u8 segment, u32 address );
   void SetLoop(u32 loopval);
   void SetBuffer(u8 flags, u16 in, u16 out, u16 count);
 
@@ -68,7 +68,7 @@ public:
   std::array<u16, 0x88> ADPCMTable;
   // u16 ADPCMTable[0x88];
 
-  // u32		Segments[16];		// 0x0320
+  u32		Segments[16];		// 0x0320
   //  T8 = 0x360
   u16 InBuffer;  // 0x0000(T8)
   u16 OutBuffer; // 0x0002(T8)

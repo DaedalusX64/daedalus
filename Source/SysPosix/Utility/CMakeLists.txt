@@ -1,6 +1,5 @@
 add_library(Utility_POSIX OBJECT 
                                 CondPosix.cpp 
-                                ThreadPosix.cpp 
             )
 
 if(DAEDALUS_PROFILE_UTILITY_POSIX)
