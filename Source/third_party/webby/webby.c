@@ -9,6 +9,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <sys/select.h>
 
 #if defined(__PS3__)
 #include "webby_ps3.h"
