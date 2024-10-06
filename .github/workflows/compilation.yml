@@ -63,7 +63,7 @@ jobs:
 
     - name: Prepare artifacts
       run: |
-        tar -zcvf daedalusX64-linux-amd64.tar.gz DaedalusX64
+        tar -zcvf daedalusX64-linux.tar.gz DaedalusX64
 
 
     - name: Upload artifacts
