@@ -6,8 +6,7 @@ add_library(Utility_PSP OBJECT
                                 exception.cpp 
                                 FastMemcpyPSP.cpp 
                                 ModulePSP.cpp
-                                VolatileMemPSP.cpp
-                                ${PROJECT_SOURCE_DIR}/Source/SysPosix/Utility/ThreadPosix.cpp
+                                VolatileMemPSP.cpp              
             )
 
     if(DAEDALUS_PROFILE_UTILITY_PSP)

@@ -11,6 +11,7 @@ const double kTimeoutInfinity = 0.f;
 
 // Cond wrapper derived from GLFW 2.7, see http://www.glfw.org/.
 
+// Displaylist Debugger
 Cond * CondCreate()
 {
 	pthread_cond_t * cond = (pthread_cond_t *)malloc( sizeof(pthread_cond_t) );
@@ -23,11 +24,13 @@ Cond * CondCreate()
 	return (Cond *)cond;
 }
 
+
 void CondDestroy(Cond * cond)
 {
 	// pthread_cond_destroy( (pthread_cond_t *)cond );
 	free( cond );
 }
+// Displaylist Debugger
 
 static void ComputeWait(double timeout, timespec * wait)
 {
@@ -45,6 +48,7 @@ static void ComputeWait(double timeout, timespec * wait)
 	wait->tv_sec = currenttime.tv_sec + dt_sec;
 }
 
+// Displaylist Debugger
 void CondWait(Cond * cond [[maybe_unused]], Mutex * mutex [[maybe_unused]], double timeout)
 {
 	if (timeout <= 0)
@@ -60,6 +64,7 @@ void CondWait(Cond * cond [[maybe_unused]], Mutex * mutex [[maybe_unused]], doub
 	}
 }
 
+// DisplayList Debugger
 void CondSignal(Cond * cond)
 {
 	pthread_cond_signal( (pthread_cond_t *)cond );

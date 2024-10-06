@@ -23,11 +23,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UTILITY_THREAD_H_
 
 #include "Base/Types.h"
+#include <thread>
 
 using DaedThread = u32 ( * )(void * arg);
 
 
-using ThreadHandle = intptr_t;
+using ThreadHandle = std::unique_ptr<std::thread>;  // Updated ThreadHandle type
+
+const ThreadHandle kInvalidThreadHandle = nullptr;  // nullptr works with std::unique_ptr
 
 extern const ThreadHandle	kInvalidThreadHandle;
 
@@ -45,12 +48,6 @@ enum EThreadPriority
 //
 ThreadHandle	CreateThread( const char * name, DaedThread function, void * argument );
 
-//
-//	Adjusts a thread's priority
-//
-void	SetThreadPriority( ThreadHandle handle, EThreadPriority pri );
-
-//
 //	Releases a handle to a thread. This doesn't stop the thread - it just frees resources
 //
 void	ReleaseThreadHandle( ThreadHandle handle );

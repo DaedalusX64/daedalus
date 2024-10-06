@@ -1,6 +1,5 @@
 add_library(Utility_Win OBJECT
                                 CondW32.cpp
-                                ThreadW32.cpp
             )
 
             if(DEBUG)
