@@ -17,11 +17,12 @@
 #include <stdarg.h>
 #include <string>
 #include <vector>
+#include <fstream>
 #include <filesystem>
 
 #include "Debug/DBGConsole.h"
-#include "Base/MathUtil.h"
-#include "System/IO.h"
+#include "Utility/MathUtil.h"
+
 #include "Base/Macros.h"
 #include "Utility/StringUtil.h"
 #include "System/Thread.h"
@@ -111,7 +112,7 @@ void WebDebugConnection::BeginResponse(int code, int content_length, const char 
 		{ "Content-Type", content_type },
 	};
 
-	WebbyBeginResponse(mConnection, code, content_length, headers, ARRAYSIZE(headers));
+	WebbyBeginResponse(mConnection, code, content_length, headers, std::size(headers));
 	mState = kResponding;
 }
 
@@ -223,8 +224,8 @@ static const char * GetContentTypeForFilename(const char * filename)
 
 static void ServeFile(WebDebugConnection * connection, const char * filename)
 {
-	FILE * fh = fopen(filename, "rb");
-	if (!fh)
+	std::fstream fh(filename, std::ios::in | std::ios::binary);
+	if (!fh.is_open())
 	{
 		Generate404(connection, filename);
 		return;
@@ -236,15 +237,15 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 	size_t len_read;
 	char buf[kBufSize];
 	do
-	{
-		len_read = fread(buf, 1, kBufSize, fh);
+		len_read = fh.read(reinterpret_cast<char*>(buf), kBufSize).gcount();	
+		// len_read = fread(buf, 1, kBufSize, fh);
 		if (len_read > 0)
 			connection->Write(buf, len_read);
 	}
 	while (len_read == kBufSize);
 
 	connection->EndResponse();
-	fclose(fh);
+	// fclose(fh);
 }
 
 bool ServeResource(WebDebugConnection * connection, const char * resource_path)
@@ -364,10 +365,10 @@ static int test_ws_frame(struct WebbyConnection *connection, const struct WebbyW
 	return 0;
 }
 
-static u32 DAEDALUS_THREAD_CALL_TYPE WebDebugThread(void * arg)
+static u32 WebDebugThread(void * arg)
 {
 	WebbyServer * server = static_cast<WebbyServer*>(arg);
-	int frame_counter = 0;
+	int frame_counter [[maybe_unused]] = 0;
 
 	while (gKeepRunning)
 	{
@@ -392,42 +393,31 @@ static u32 DAEDALUS_THREAD_CALL_TYPE WebDebugThread(void * arg)
 	return 0;
 }
 
-static void AddStaticContent(const char * dir, const char * root)
+static void AddStaticContent(const std::filesystem::path& dir, const std::filesystem::path& root)
 {
-	IO::FindHandleT find_handle;
-	IO::FindDataT   find_data;
 
-	if (IO::FindFileOpen(dir, &find_handle, find_data))
-	{
-		do
-		{
-			IO::Filename full_path;
-			IO::Path::Combine(full_path, dir, find_data.Name);
+    for (const auto& entry : std::filesystem::directory_iterator(dir))
+    {
+        std::filesystem::path full_path = entry.path();
+        std::filesystem::path resource_path = full_path.filename().string();
+		full_path /= resource_path;
+        if (std::filesystem::is_directory(full_path))
+        {
+            AddStaticContent(full_path, resource_path);
+        }
+        else if (std::filesystem::exists(full_path))
+        {
+            StaticResource resource;
+            resource.Resource = resource_path;
+            resource.FullPath = full_path;
 
-			std::string resource_path = root;
-			resource_path += '/';
-			resource_path += find_data.Name;
-
-			if (std::filesystem::is_directory(full_path))
-			{
-				AddStaticContent(full_path, resource_path.c_str());
-			}
-			else if (std::filesystem::exists(full_path))
-			{
-				StaticResource resource;
-				resource.Resource = resource_path;
-				resource.FullPath = full_path;
-
-				DBGConsole_Msg(0, " adding [M%s] -> [C%s]",
+			DBGConsole_Msg(0, " adding [M%s] -> [C%s]",
 					resource.Resource.c_str(), resource.FullPath.c_str());
 
-				gStaticResources.push_back(resource);
-			}
-		}
-		while (IO::FindFileNext(find_handle, find_data));
+            gStaticResources.push_back(resource);
+        }
+    }
 
-		IO::FindFileClose(find_handle);
-	}
 }
 
 bool WebDebug_Init()
@@ -472,10 +462,9 @@ bool WebDebug_Init()
 		return false;
 	}
 
-	IO::Filename data_path;
+	std::filesystem::path data_path = "Web";
 	std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
-	IO::Path::Combine(data_path, gDaedalusExePath.c_str(), "Web");
-	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path);
+	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path.c_str());
 	AddStaticContent(data_path, "");
 
 	gKeepRunning = true;

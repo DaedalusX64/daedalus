@@ -4,7 +4,7 @@
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
 #include "Math/Math.h"
-#include "Base/MathUtil.h" // Swap
+#include "Utility/MathUtil.h" // Swap
 
 #ifdef DAEDALUS_PSP
 #include <pspvfpu.h>

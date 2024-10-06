@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
 #include "Utility/FastMemcpy.h"
@@ -42,8 +42,8 @@ inline s32 FixedPointMul16(s32 a, s32 b) { return s32((a * b) >> 16); }
 
 inline s32 FixedPointMul15(s32 a, s32 b) { return s32((a * b) >> 15); }
 
-void SPNOOP(AudioHLECommand command) {}
-void UNKNOWN(AudioHLECommand command) {}
+void SPNOOP(AudioHLECommand command [[maybe_unused]]) {}
+void UNKNOWN(AudioHLECommand command [[maybe_unused]]) {}
 
 AudioHLEState gAudioHLEState;
 

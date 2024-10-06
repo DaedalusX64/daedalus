@@ -1,7 +1,7 @@
 // Profiler.cpp: implementation of the CProfiler class.
 //
 //////////////////////////////////////////////////////////////////////
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 #include <vector>
 #include <string>
 #include <stack>
@@ -13,7 +13,7 @@
 #include "Base/Types.h"
 
 
-#ifdef DAEDALUS_ENABLE_PROFILING
+
 
 #include "Debug/DBGConsole.h"
 #include "Utility/Hash.h"

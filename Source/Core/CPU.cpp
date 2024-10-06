@@ -27,17 +27,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string>
 #include <vector>
 #include "System/Mutex.h"
+#include <cstring>
 
-#include "Config/ConfigOptions.h"
-#include "Core/Cheats.h"
+#include "Interface/ConfigOptions.h"
+#include "Interface/Cheats.h"
 #include "Core/Dynamo.h"
 #include "Core/Interpret.h"
 #include "Core/Interrupt.h"
 #include "Core/Memory.h"
 #include "Core/R4300.h"
-#include "Core/Registers.h"					// For REG_?? defines
+#include "Debug/Registers.h"					// For REG_?? defines
 #include "Core/ROM.h"
-#include "Core/ROMBuffer.h"
+#include "RomFile/ROMBuffer.h"
 #include "Core/RSP_HLE.h"
 #include "Core/Save.h"
 #include "Interface/SaveState.h"
@@ -46,17 +47,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_R4300.h"
 #include "System/SystemInit.h"
 #include "System/AtomicPrimitives.h"
-#include "Core/FramerateLimiter.h"
+#include "Utility/FramerateLimiter.h"
 #include "Utility/Hash.h"
 #include "Base/Macros.h"
-#include "Core/PrintOpCode.h"
+#include "Debug/PrintOpCode.h"
 #include "Debug/Synchroniser.h"
 #include "System/Thread.h"
 
 
-#ifdef DAEDALUS_W32
-#include "HLEAudio/AudioPlugin.h"
-#endif
 
 extern void R4300_Init();
 
@@ -307,7 +305,7 @@ static const char * const kRegisterNames[] =
 	"s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
 	"t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
 };
-DAEDALUS_STATIC_ASSERT(ARRAYSIZE(kRegisterNames) == 32);
+DAEDALUS_STATIC_ASSERT(std::size(kRegisterNames) == 32);
 
 void SCPUState::Dump()
 {
@@ -394,6 +392,15 @@ bool CPU_RomOpen()
 	return true;
 }
 
+void CPU_RomClose()
+{
+#ifdef DAEDALUS_ENABLE_DYNAREC
+	#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+		//This will dump the fragment cache on exit to ROMs menu
+		//CPU_DumpFragmentCache();
+	#endif
+#endif
+}
 
 static bool	CPU_IsStateSimple()
 {
@@ -477,7 +484,7 @@ static void HandleSaveStateOperationOnVerticalBlank()
 		break;
 	case SSO_SAVE:
 		DBGConsole_Msg(0, "Saving '%s'\n", gSaveStateFilename.c_str());
-		SaveState_SaveToFile( gSaveStateFilename.c_str() );
+		SaveState_SaveToFile( gSaveStateFilename );
 		gSaveStateOperation = SSO_NONE;
 		break;
 	case SSO_LOAD:
@@ -487,7 +494,7 @@ static void HandleSaveStateOperationOnVerticalBlank()
 		// separate return code to check this case). In that case we
 		// stop the cpu and handle the load in
 		// HandleSaveStateOperationOnCPUStopRunning.
-		if (SaveState_LoadFromFile( gSaveStateFilename.c_str() ))
+		if (SaveState_LoadFromFile( gSaveStateFilename ))
 		{
 			CPU_ResetFragmentCache();
 			gSaveStateOperation = SSO_NONE;
@@ -512,11 +519,12 @@ static bool HandleSaveStateOperationOnCPUStopRunning()
 
 	gSaveStateOperation = SSO_NONE;
 
-	if (const char * rom_filename = SaveState_GetRom(gSaveStateFilename.c_str()))
+	std::string rom_filename = SaveState_GetRom(gSaveStateFilename);
+	if (!rom_filename.empty())
 	{
 		System_Close();
 		System_Open(rom_filename);
-		SaveState_LoadFromFile(gSaveStateFilename.c_str());
+		SaveState_LoadFromFile(gSaveStateFilename);
 	}
 	else
 	{
@@ -656,10 +664,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			gVerticalInterrupts++;
 
 			FramerateLimiter_Limit();
-#ifdef DAEDALUS_W32
-			if (gAudioPlugin != nullptr)
-				gAudioPlugin->Update(false);
-#endif
+
 			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_VI);
 			R4300_Interrupt_UpdateCause3();
 
@@ -673,7 +678,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			//   interrupt the dynamo tracer for instance)
 			// TODO(strmnnrmn): should register this with CPU_RegisterVblCallback.
 			 if ((gVerticalInterrupts & 0x3F) == 0) { // once every 60 VBLs
-			// 	Save_Flush();
+				Save_Flush();
 				for (size_t i = 0; i < gVblCallbacks.size(); ++i)
 				{
 					VblCallback & callback = gVblCallbacks[i];

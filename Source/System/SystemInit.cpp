@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "Core/Save.h"
 #include "Core/PIF.h"
-#include "Core/ROMBuffer.h"
-#include "Core/RomSettings.h"
+#include "RomFile/ROMBuffer.h"
+#include "RomFile/RomSettings.h"
 
 #include "Interface/RomDB.h"
 #include "System/SystemInit.h"
@@ -42,18 +42,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/DisplayListDebugger.h"
 #endif
 
-#ifdef DAEDALUS_GL
-#include "SysGL/Interface/UI.h"
-#endif
 
-#include "Core/FramerateLimiter.h"
+#include "Utility/FramerateLimiter.h"
 #include "Debug/Synchroniser.h"
 #include "Base/Macros.h"
 #include "Utility/Profiler.h"
 #include "Interface/Preferences.h"
-#ifdef DAEDALUS_PSP
 #include "Utility/Translate.h"
-#endif
+
 #include "Input/InputManager.h"		// CInputManager::Create/Destroy
 
 #include "Debug/DBGConsole.h"
@@ -151,7 +147,7 @@ static const std::array<SysEntityEntry, 17> gSysInitTable =
 	{"DebugConsole",		CDebugConsole::Create,		CDebugConsole::Destroy},
 #endif
 #ifdef DAEDALUS_LOG
-	{"Logger",				Debug_InitLogging,			Debug_FinishLogging},
+	{"Logger",				Debug_InitLogging},
 #endif
 #ifdef DAEDALUS_ENABLE_PROFILING
 	{"Profiler",			Profiler_Init,				Profiler_Fini},
@@ -159,9 +155,12 @@ static const std::array<SysEntityEntry, 17> gSysInitTable =
 	{"ROM Database",		CRomDB::Create,				CRomDB::Destroy},
 	{"ROM Settings",		CRomSettingsDB::Create,		CRomSettingsDB::Destroy},
 	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
+	#ifndef DAEDALUS_CTR
+	{"Language",			Translate_Init,				NULL},
+	#endif
 #ifdef DAEDALUS_PSP
 	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
-	{"Language",			Translate_Init,				NULL},
+
 #endif
 	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
 	{"Preference",			CPreferences::Create,		CPreferences::Destroy},
@@ -175,9 +174,6 @@ static const std::array<SysEntityEntry, 17> gSysInitTable =
 	{"TextureCacheWebDebug",TextureCache_RegisterWebDebug, 	NULL},
 	{"DLDebuggerWebDebug",	DLDebugger_RegisterWebDebug, 	NULL},
 #endif
-#endif
-#ifdef DAEDALUS_GL
-	{"UI",					UI_Init,				 	UI_Finalise},
 #endif
 }};
 
@@ -193,11 +189,11 @@ static const std::array<RomEntityEntry, 12> gRomInitTable =
 	{"Settings",			ROM_LoadFile,			ROM_UnloadFile},
 	{"InputManager",		CInputManager::Init,	CInputManager::Fini},
 	{"Memory",				Memory_Reset,			Memory_Cleanup},
-	{"Audio",				InitAudioPlugin},
+	{"Audio",				InitAudioPlugin, 		DisposeAudioPlugin},
 	{"Graphics",			InitGraphicsPlugin, 	DisposeGraphicsPlugin},
 	{"FramerateLimiter",	FramerateLimiter_Reset,	NULL},
 	//{"RSP", RSP_Reset, NULL},
-	{"CPU",					CPU_RomOpen},
+	{"CPU",					CPU_RomOpen,				CPU_RomClose},
 	{"ROM",					ROM_ReBoot,				ROM_Unload},
 	{"Controller",			CController::Reset,		CController::RomClose},
 	{"Save",				Save_Reset,				Save_Fini},

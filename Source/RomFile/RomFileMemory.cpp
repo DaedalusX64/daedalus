@@ -24,18 +24,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/MemoryHeap.h"
 
 #include <stdlib.h>
+#include <iostream> 
 
 extern bool PSP_IS_SLIM;
-//*****************************************************************************
-//
-//*****************************************************************************
-CROMFileMemory::~CROMFileMemory()
-{
-}
 
-//*****************************************************************************
-//
-//*****************************************************************************
+CROMFileMemory::~CROMFileMemory() {}
+
+
 class IROMFileMemory : public CROMFileMemory
 {
 public:
@@ -53,9 +48,7 @@ private:
 };
 
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 template<> bool CSingleton< CROMFileMemory >::Create()
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
@@ -66,9 +59,7 @@ template<> bool CSingleton< CROMFileMemory >::Create()
 	return mpInstance != NULL;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 IROMFileMemory::IROMFileMemory()
 {
 #ifdef DAEDALUS_PSP
@@ -85,11 +76,12 @@ IROMFileMemory::IROMFileMemory()
 		mRomMemoryHeap = CMemoryHeap::Create( 4 * 1024 * 1024 );
 	}
 #endif
+// #ifdef DAEDALUS_POSIX
+// 	mRomMemoryHeap = CMemoryHeap::Create(21 * 1024 * 1024);
+// #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 IROMFileMemory::~IROMFileMemory()
 {
 #ifdef DAEDALUS_PSP
@@ -97,9 +89,7 @@ IROMFileMemory::~IROMFileMemory()
 #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 /*
 bool IROMFileMemory::IsAvailable()
 {
@@ -108,11 +98,10 @@ bool IROMFileMemory::IsAvailable()
 	return mRomMemoryHeap != NULL;
 }
 */
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void * IROMFileMemory::Alloc( u32 size )
 {
+	std::cout << "Allocating Memory" << std::endl;
 #ifdef DAEDALUS_PSP
 	return mRomMemoryHeap->Alloc( size );
 #else
@@ -120,14 +109,13 @@ void * IROMFileMemory::Alloc( u32 size )
 #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void  IROMFileMemory::Free(void * ptr)
 {
 #ifdef DAEDALUS_PSP
 	mRomMemoryHeap->Free( ptr );
 #else
+std::cout << "Freeing Memory" << std::endl;
 	free( ptr );
 #endif
 }

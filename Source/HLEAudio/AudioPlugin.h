@@ -42,9 +42,7 @@ public:
   virtual void LenChanged() = 0;
   virtual u32 ReadLength() = 0;
   virtual EProcessResult ProcessAList() = 0;
-#ifdef DAEDALUS_W32
-  virtual void Update(bool wait) = 0;
-#endif
+
 };
 
 //

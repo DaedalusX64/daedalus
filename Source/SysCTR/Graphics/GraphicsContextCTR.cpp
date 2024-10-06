@@ -4,13 +4,13 @@
 #include <3ds.h>
 #include <GL/picaGL.h>
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/PngUtil.h"
-#include "System/IO.h"
+
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 

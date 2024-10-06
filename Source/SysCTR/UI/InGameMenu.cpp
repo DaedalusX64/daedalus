@@ -1,17 +1,19 @@
 #include <3ds.h>
 #include <GL/picaGL.h>
 #include <stdio.h>
+#include <format>
 
 #include "UserInterface.h"
 #include "InGameMenu.h"
+#include <iostream>
 
 
-#include "Config/ConfigOptions.h"
-#include "Core/Cheats.h"
+#include "Interface/ConfigOptions.h"
+#include "Interface/Cheats.h"
 #include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/PIF.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Core/Save.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
@@ -20,46 +22,70 @@
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
 #include "System/SystemInit.h"
-#include "Test/BatchTest.h"
-#include "System/IO.h"
+#include "Utility/BatchTest.h"
+
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
 #include "RomFile/RomFile.h"
 #include "Utility/Timer.h"
+#include "Utility/Paths.h"
 
 extern float gCurrentFramerate;
 extern EFrameskipValue gFrameskipValue;
 extern RomInfo g_ROM;
 
 static uint8_t currentPage = 0;
-#define DAEDALUS_CTR_PATH(p)	"sdmc:/3ds/DaedalusX64/" p
 
 
 static void ExecSaveState(int slot)
 {
-	IO::Filename full_path;
-	snprintf(full_path, sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	std::filesystem::path savePath = setBasePath("SaveStates");
+	std::string name = g_ROM.settings.GameName;
+	savePath /= name;
+	std::filesystem::create_directories(savePath);
 
-	CPU_RequestSaveState(full_path);
+	std::string filename = std::format("saveslot{}.ss", slot);
+	savePath /= filename;
+
+	std::cout << "Save Save Slot Path" << savePath << std::endl;
+	CPU_RequestSaveState(savePath);
 }
 
 static void LoadSaveState(int slot)
 {
-	IO::Filename full_path;
-	snprintf(full_path,sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	std::filesystem::path savePath = setBasePath("SaveStates");
+	std::string name = g_ROM.settings.GameName;
+	savePath /= name;
+	std::filesystem::create_directories(savePath);
 
-	CPU_RequestLoadState(full_path);
+	std::string filename = std::format("saveslot{}.ss", slot);
+	savePath /= filename;
+
+	std::cout << "Load Save Slot Path" << savePath << std::endl;
+	// snprintf(full_path),sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+
+	CPU_RequestLoadState(savePath);
 }
 
 static bool SaveStateExists(int slot)
 {
-	IO::Filename full_path;
-	snprintf(full_path, sizeof(full_path), "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+	std::filesystem::path savePath = setBasePath("SaveStates");
+	std::string name = g_ROM.settings.GameName;
+	savePath /= name;
+	std::filesystem::create_directories(savePath);
 
-	snprintf(full_path, sizeof(full_path),  "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+	std::string filename = std::format("saveslot{}.ss", slot);
+	savePath /= filename;
 
-	return std::filesystem::exists(full_path);
+	// std::string path = std::format("{}/{}{}.ss", "SaveStates", g_ROM.settings.GameName.c_str(), slot);
+	// full_path = path;
+		std::cout << "Slot Exists Path" << savePath << std::endl;
+	// snprintf(full_path, sizeof(full_path), "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
+
+	// snprintf(full_path, sizeof(full_path),  "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
+
+	return std::filesystem::exists(savePath);
 }
 
 static void DrawSaveStatePage()
@@ -240,7 +266,7 @@ bool UI::DrawOptionsPage(RomID mRomID)
 
 		ImGui::Spacing();
 
-		const char* viewporOptions[] = { "4:3", "Widescreen (Streteched)", "Widescreen (Hack)" };
+		const char* viewporOptions[] = { "4:3", "Widescreen (Stretched)", "Widescreen (Hack)" };
 		ImGui::Text("Aspect Ratio");
 		currentSelection = (int)gGlobalPreferences.ViewportType;
 		ImGui::Combo("##viewport_combo", &currentSelection, viewporOptions, 3);

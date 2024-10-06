@@ -1,0 +1,18 @@
+if(PSP)
+add_library(Audio_Plugin OBJECT PSP/AudioPluginPSP.cpp )
+elseif(DAEDALUS_CTR)
+add_library(Audio_Plugin OBJECT CTR/AudioOutput.cpp CTR/AudioPluginCTR.cpp)
+elseif(WIN32)
+add_library(Audio_Plugin OBJECT Windows/AudioPluginW32.cpp)
+elseif(APPLE AND NOT UNIX)
+add_library(Audio_Plugin OBJECT macOS/AudioPluginOSX.cpp )
+else()
+add_library(Audio_Plugin OBJECT SDL/AudioPluginSDL.cpp)
+endif()
+
+if(DAEDALUS_PROFILE_AUDIOPLUGIN)
+target_compile_options(Audio_Plugin PRIVATE -pg)
+endif(DAEDALUS_PROFILE_AUDIOPLUGIN)
+
+list(APPEND daed_libs "Audio_Plugin")
+set(daed_libs ${daed_libs} PARENT_SCOPE)

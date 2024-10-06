@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include <algorithm>
+#include <cstring> 
 
 #include "Core/CPU.h"
 #include "Core/DMA.h"
@@ -30,8 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/Interrupt.h"
 #include "Core/Memory.h"
 #include "Core/ROM.h"
-#include "Core/ROMBuffer.h"
-#include "Config/ConfigOptions.h"
+#include "RomFile/ROMBuffer.h"
+#include "Interface/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "Debug/DebugLog.h"

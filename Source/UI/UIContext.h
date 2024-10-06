@@ -18,12 +18,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_UICONTEXT_H_
-#define SYSPSP_UI_UICONTEXT_H_
+#ifndef UI_UICONTEXT_H_
+#define UI_UICONTEXT_H_
 
 #include "Graphics/ColourValue.h"
 #include "UIAlignment.h"
 #include "Interface/Preferences.h"
+#include <cstring>
 
 class CNativeTexture;
 class v2;
@@ -85,21 +86,21 @@ class CUIContext
 
 		virtual void				SetFontStyle( EFontStyle font_style ) = 0;
 
-				u32					DrawText( s32 x, s32 y, const char * text, c32 colour )																{ return DrawText( x, y, text, strlen( text ), colour ); }
-				u32					DrawText( s32 x, s32 y, const char * text, c32 colour, c32 drop_colour )											{ return DrawText( x, y, text, strlen( text ), colour, drop_colour ); }
-				u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, c32 colour )											{ return DrawTextScale( x, y, scale,text, strlen( text ), colour ); }
-				u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, c32 colour, c32 drop_colour )							{ return DrawTextScale( x, y, scale,text, strlen( text ), colour, drop_colour ); }
-				u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, c32 colour )					{ return DrawTextAlign( min_x, max_x, align_type, y, text, strlen( text ), colour ); }
-				u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, c32 colour, c32 drop_colour ) { return DrawTextAlign( min_x, max_x, align_type, y, text, strlen( text ), colour, drop_colour ); }
+				u32					DrawText( s32 x, s32 y, const std::string text, c32 colour )																{ return DrawText( x, y, text,text.length(), colour ); }
+				u32					DrawText( s32 x, s32 y, const std::string  text, c32 colour, c32 drop_colour )											{ return DrawText( x, y, text, text.length(), colour, drop_colour ); }
+				u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, c32 colour )											{ return DrawTextScale( x, y, scale,text, text.length(), colour ); }
+				u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, c32 colour, c32 drop_colour )							{ return DrawTextScale( x, y, scale,text, text.length(), colour, drop_colour ); }
+				u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, c32 colour )					{ return DrawTextAlign( min_x, max_x, align_type, y, text, text.length(), colour ); }
+				u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, c32 colour, c32 drop_colour ) { return DrawTextAlign( min_x, max_x, align_type, y, text, text.length(), colour, drop_colour ); }
 
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour ) = 0;
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour ) = 0;
-		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour ) = 0;
-		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour, c32 drop_colour ) = 0;
-		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour ) = 0;
-		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour ) = 0;
+		virtual u32					DrawText( s32 x, s32 y, const std::string  text, u32 length, c32 colour ) = 0;
+		virtual u32					DrawText( s32 x, s32 y, const std::string  text, u32 length, c32 colour, c32 drop_colour ) = 0;
+		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour ) = 0;
+		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour, c32 drop_colour ) = 0;
+		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour ) = 0;
+		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour, c32 drop_colour ) = 0;
 
-		virtual s32					DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align ) = 0;
+		virtual s32					DrawTextArea( s32 left, s32 top, u32 width, u32 height, const std::string& text, c32 colour, EVerticalAlign vertical_align ) = 0;
 
 		virtual u32					GetFontHeight() const = 0;
 		virtual u32					GetTextWidth( const char * text ) const = 0;
@@ -116,6 +117,7 @@ class CUIContext
 	#include <psprtc.h>
 	#include <psppower.h>
 #else
+
 #include "Ultra/ultra_os.h"
 
   #define PSP_CTRL_DOWN   D_JPAD
@@ -138,8 +140,7 @@ class CUIContext
   };
 
   void sceCtrlPeekBufferPositive(struct SceCtrlData*, int n);
-  void sceKernelExitGame();
 #endif
 //##########################################################################################################
 
-#endif // SYSPSP_UI_UICONTEXT_H_
+#endif // UI_UICONTEXT_H_

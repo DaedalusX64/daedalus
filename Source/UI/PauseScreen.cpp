@@ -28,10 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/CPU.h"
 #include "Core/ROM.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "DrawTextUtilities.h"
 #include "UIContext.h"
 #include "UIScreen.h"
@@ -40,9 +40,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "PauseOptionsComponent.h"
 #include "PauseScreen.h"
 
-#include "Utility/Functor.h"
 #include "Utility/Translate.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 
 extern void battery_info();
 
@@ -55,8 +54,8 @@ namespace {
 		NUM_MENU_OPTIONS,
 	};
 
-	const EMenuOption	MO_FIRST_OPTION = MO_GLOBAL_SETTINGS;
-	const EMenuOption	MO_LAST_OPTION = MO_ABOUT;
+	const EMenuOption	MO_FIRST_OPTION [[maybe_unused]]= MO_GLOBAL_SETTINGS;
+	const EMenuOption	MO_LAST_OPTION  [[maybe_unused]] = MO_ABOUT;
 
 	const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
 	{
@@ -109,9 +108,9 @@ class IPauseScreen : public CPauseScreen, public CUIScreen
 
 CPauseScreen::~CPauseScreen() {}
 
-CPauseScreen *	CPauseScreen::Create( CUIContext * p_context )
+std::unique_ptr<CPauseScreen>	CPauseScreen::Create( CUIContext * p_context )
 {
-	return new IPauseScreen( p_context );
+	return std::make_unique<IPauseScreen>( p_context );
 }
 
 
@@ -120,7 +119,7 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 ,	mIsFinished( false )
 ,	mCurrentOption( MO_PAUSE_OPTIONS )
 {
-	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
+	for( auto i = 0; i < NUM_MENU_OPTIONS; ++i )
 	{
 		mOptionComponents[ i ] = NULL;
 	}
@@ -139,7 +138,7 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 
 IPauseScreen::~IPauseScreen()
 {
-	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
+	for( auto i = 0; i < NUM_MENU_OPTIONS; ++i )
 	{
 		delete mOptionComponents[ i ];
 	}
@@ -148,8 +147,8 @@ IPauseScreen::~IPauseScreen()
 
 EMenuOption		IPauseScreen::GetPreviousValidOption() const
 {
-	bool			looped( false );
-	EMenuOption		current_option( mCurrentOption );
+	bool			looped = false;
+	EMenuOption	 current_option = mCurrentOption;
 
 	do
 	{
@@ -164,8 +163,8 @@ EMenuOption		IPauseScreen::GetPreviousValidOption() const
 
 EMenuOption		IPauseScreen::GetNextValidOption() const
 {
-	bool			looped( false );
-	EMenuOption		current_option( mCurrentOption );
+	bool			looped = false;
+	EMenuOption	current_option = mCurrentOption;
 
 	do
 	{
@@ -178,7 +177,7 @@ EMenuOption		IPauseScreen::GetNextValidOption() const
 }
 
 
-bool	IPauseScreen::IsOptionValid( EMenuOption option ) const
+bool	IPauseScreen::IsOptionValid( EMenuOption option [[maybe_unused]] ) const
 {
 	return true;
 }
@@ -186,7 +185,7 @@ bool	IPauseScreen::IsOptionValid( EMenuOption option ) const
 
 void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
-	static bool button_released(false);
+	static bool button_released = false;
 
 	if(!(new_buttons & PSP_CTRL_SELECT) && button_released)
 	{
@@ -221,16 +220,14 @@ void	IPauseScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	s32			y( MENU_TOP );
-
-	const char * p_option_text;
+	auto y = MENU_TOP;
 
 	c32		valid_colour( mpContext->GetDefaultTextColour() );
 	c32		invalid_colour( 200, 200, 200 );
 
-	EMenuOption		previous( GetPreviousOption() );
-	EMenuOption		current( GetCurrentOption() );
-	EMenuOption		next( GetNextOption() );
+	EMenuOption		previous = GetPreviousOption();
+	EMenuOption		current = GetCurrentOption();
+	EMenuOption		next = GetNextOption();
 
 	// Meh should be big enough regarding if translated..
 	char					info[120];
@@ -250,15 +247,13 @@ void	IPauseScreen::Render()
 			snprintf(info, sizeof(info), "[%s]" ,
 			Translate_String("Battery is Charging"));
 	}
-#else
-	snprintf(info, sizeof(info), "PAUSED");
 #endif
 
 	// Battery Info
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 	mpContext->DrawTextAlign( 0, SCREEN_WIDTH - LIST_TEXT_LEFT, AT_RIGHT, CATEGORY_TEXT_TOP, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 	
-	p_option_text = gMenuOptionNames[ previous ];
+	auto p_option_text = gMenuOptionNames[ previous ];
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
 
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );

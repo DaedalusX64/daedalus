@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/ROM.h"
@@ -38,15 +38,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/TextureCache.h"
 #include "HLEGraphics/RDP.h"
 #include "HLEGraphics/RDPStateManager.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Ultra/ultra_gbi.h"
 #include "Ultra/ultra_rcp.h"
 #include "Ultra/ultra_sptask.h"
 #include "HLEGraphics/GraphicsPlugin.h"
-#include "Test/BatchTest.h"
+#include "Utility/BatchTest.h"
 #include "uCodes/UcodeDefs.h"
 #include "uCodes/Ucode.h"
-#include "System/IO.h"
+
 #include "Utility/Profiler.h"
 
 
@@ -686,7 +686,7 @@ void DLParser_Nothing( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_SetKeyGB( MicroCodeCommand command )
+void DLParser_SetKeyGB( MicroCodeCommand command [[maybe_unused]] )
 {
 	DL_PF( "    SetKeyGB (Ignored)" );
 }
@@ -694,7 +694,7 @@ void DLParser_SetKeyGB( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_SetKeyR( MicroCodeCommand command )
+void DLParser_SetKeyR( MicroCodeCommand command [[maybe_unused]] )
 {
 	DL_PF( "    SetKeyR (Ignored)" );
 }
@@ -702,7 +702,7 @@ void DLParser_SetKeyR( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_SetConvert( MicroCodeCommand command )
+void DLParser_SetConvert( MicroCodeCommand command [[maybe_unused]] )
 {
 	DL_PF( "    SetConvert (Ignored)" );
 }
@@ -736,14 +736,14 @@ void DLParser_RDPSetOtherMode( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_RDPLoadSync( MicroCodeCommand command )	{ /*DL_PF("    LoadSync: (Ignored)");*/ }
-void DLParser_RDPPipeSync( MicroCodeCommand command )	{ /*DL_PF("    PipeSync: (Ignored)");*/ }
-void DLParser_RDPTileSync( MicroCodeCommand command )	{ /*DL_PF("    TileSync: (Ignored)");*/ }
+void DLParser_RDPLoadSync( MicroCodeCommand command  [[maybe_unused]] )	{ /*DL_PF("    LoadSync: (Ignored)");*/ }
+void DLParser_RDPPipeSync( MicroCodeCommand command  [[maybe_unused]])	{ /*DL_PF("    PipeSync: (Ignored)");*/ }
+void DLParser_RDPTileSync( MicroCodeCommand command  [[maybe_unused]])	{ /*DL_PF("    TileSync: (Ignored)");*/ }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_RDPFullSync( MicroCodeCommand command )
+void DLParser_RDPFullSync( MicroCodeCommand command [[maybe_unused]] )
 {
 	DL_PF("    FullSync: (Generating Interrupt)");
 	FinishRDPJob();
@@ -1228,4 +1228,4 @@ void DLParser_SetEnvColor( MicroCodeCommand command )
 //RSP TRI commands..
 //In HLE emulation you NEVER see these commands !
 //*****************************************************************************
-void DLParser_TriRSP( MicroCodeCommand command ){ DL_PF("    RSP Tri: (Ignored)"); }
+void DLParser_TriRSP( MicroCodeCommand command [[maybe_unused]] ){ DL_PF("    RSP Tri: (Ignored)"); }

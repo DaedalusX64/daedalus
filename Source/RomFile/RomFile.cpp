@@ -27,56 +27,38 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RomFile/RomFileCompressed.h"
 #include "RomFile/RomFileUncompressed.h"
 #include "Utility/Stream.h"
-#include "System/IO.h"
+
 
 #include <algorithm>
 #include <string.h>
 #include <filesystem>
 
-bool IsRomfilename( const char * rom_filename )
-{
-	const char * last_period( strrchr( rom_filename, '.' ) );
-	if(last_period == NULL)
-		return false;
 
-	return (strcasecmp(last_period, ".v64") == 0 ||
-		    strcasecmp(last_period, ".z64") == 0 ||
-		    strcasecmp(last_period, ".n64") == 0 ||
-		    strcasecmp(last_period, ".rom") == 0 ||
-			strcasecmp(last_period, ".bin") == 0 ||
-		    strcasecmp(last_period, ".jap") == 0 ||
-		    strcasecmp(last_period, ".pal") == 0 ||
-		    strcasecmp(last_period, ".usa") == 0 ||
-		    strcasecmp(last_period, ".zip") == 0);
-}
-
-std::shared_ptr<ROMFile> ROMFile::Create( const std::filesystem::path filename )
+std::shared_ptr<ROMFile> ROMFile::Create( const std::filesystem::path& filename )
 {
-	const char * ext = IO::Path::FindExtension( filename.string().c_str() );
-	if (ext && strcasecmp(ext, ".zip") == 0)
+
+	if (filename.extension() == ".zip")
 	{
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-		return new ROMFileCompressed( filename.c_str() );
+		return std::make_unique<ROMFileCompressed>( filename.c_str() );
 #else
-		return NULL;
+		return nullptr;
 #endif
 	}
 	else
 	{
-		return std::make_shared<ROMFileUncompressed>( filename.c_str() );
+		return std::make_unique<ROMFileUncompressed>( filename.c_str() );
 	}
 }
 
-ROMFile::ROMFile( const std::filesystem::path filename )
-:	mHeaderMagic( 0 )
-,	mFilename ( filename )
+ROMFile::ROMFile( const std::filesystem::path& filename )
+:	mFilename ( filename )
+,	mHeaderMagic ( 0 )
 {
 
 }
 
-ROMFile::~ROMFile()
-{
-}
+ROMFile::~ROMFile() {}
 
 bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
 {

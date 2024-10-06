@@ -18,22 +18,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_UICOMMAND_H_
-#define SYSPSP_UI_UICOMMAND_H_
+#ifndef UI_UICOMMAND_H_
+#define UI_UICOMMAND_H_
 
 #include "UIElement.h"
-#include "Utility/Functor.h"
 
 #include <string>
 #include <functional>
 
-//*************************************************************************************
-//
-//*************************************************************************************
 class CUICommand : public CUIElement
 {
 public:
-	CUICommand( const char * name, const char * description )
+	CUICommand( const std::string name, const std::string description )
 		:	mName( name )
 		,	mDescription( description )
 	{
@@ -46,8 +42,8 @@ public:
 	virtual u32				GetHeight( CUIContext * context ) const;
 	virtual void			Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType halign, s32 y, bool selected ) const;
 
-	virtual const char *	GetName() const			{ return mName.c_str(); }
-	virtual const char *	GetDescription() const	{ return mDescription.c_str(); }
+	virtual const std::string GetName() const			{ return mName; }
+	virtual const std::string GetDescription() const	{ return mDescription; }
 
 private:
 	std::string				mName;
@@ -57,7 +53,7 @@ private:
 
 class CUICommandImpl : public CUICommand {
 public:
-    CUICommandImpl(std::function<void()> on_selected, const char* name, const char* description)
+    CUICommandImpl(std::function<void()> on_selected, const std::string name, const std::string description)
         : CUICommand(name, description), mOnSelected(on_selected) {}
 
     virtual void OnSelected() override {
@@ -85,4 +81,4 @@ public:
 	virtual	void			OnSelected()			{ }
 };
 
-#endif // SYSPSP_UI_UICOMMAND_H_
+#endif // UI_UICOMMAND_H_

@@ -2,18 +2,19 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <iostream> 
+#include <fstream> 
 
 #include <3ds.h>
 #include <GL/picaGL.h>
 
 
-#include "Config/ConfigOptions.h"
-#include "Core/Cheats.h"
+#include "Interface/ConfigOptions.h"
+#include "Interface/Cheats.h"
 #include "Core/CPU.h"
 #include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/PIF.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Core/Save.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
@@ -22,16 +23,16 @@
 #include "Input/InputManager.h"
 #include "Interface/RomDB.h"
 #include "System/SystemInit.h"
-#include "Test/BatchTest.h"
+#include "Utility/BatchTest.h"
 
 #include "UI/UserInterface.h"
 #include "UI/RomSelector.h"
 
-#include "System/IO.h"
+
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
-#include "Base/Path.h"
+
 
 #include "Utility/Timer.h"
 #include "RomFile/RomFile.h"
@@ -39,42 +40,45 @@
 
 bool isN3DS = false;
 bool shouldQuit = false;
-
+    std::streambuf* coutBuf = nullptr;
+    std::streambuf* cerrBuf = nullptr;
 EAudioPluginMode enable_audio = APM_ENABLED_ASYNC;
 
-#ifdef DAEDALUS_LOG
-void log2file(const char *format, ...) {
-	__gnuc_va_list arg;
-	int done;
-	va_start(arg, format);
-	char msg[512];
-	done = vsprintf(msg, format, arg);
-	va_end(arg);
-	snprintf(msg, sizeof(msg),  "%s\n", msg);
-	FILE *log = fopen("sdmc:/DaedalusX64.log", "a+");
-	if (log != NULL) {
-		fwrite(msg, 1, strlen(msg), log);
-		fclose(log);
-	}
+
+void redirectOutputToLogFile(std::ofstream& logFile, std::streambuf*& coutBuf, std::streambuf*& cerrBuf) {
+    // Open the log file
+    logFile.open("sdmc:/3ds/DaedalusX64/daedalus.log");
+
+    // Check if the file opened successfully
+    if (!logFile.is_open()) {
+        std::cerr << "Failed to open log file." << std::endl;
+        return;
+    }
+
+    // Redirect stdout and stderr to the log file
+    coutBuf = std::cout.rdbuf();
+    cerrBuf = std::cerr.rdbuf();
+    std::cout.rdbuf(logFile.rdbuf());
+    std::cerr.rdbuf(logFile.rdbuf());
 }
-#endif
 
 static void CheckDSPFirmware()
-{
-	FILE *firmware = fopen("sdmc:/3ds/dspfirm.cdc", "rb");
+{	
+	std::filesystem::path firmwarePath = "sdmc:/3ds/dspfirm.cdc";
+	std::ifstream firmware(firmwarePath, std::ios::binary |  std::ios::in);
 
-	if(firmware != NULL)
+	if(firmware.is_open())
 	{
-		fclose(firmware);
+		firmware.close();
 		return;
 	}
-
+	else
+	{
 	gfxInitDefault();
 	consoleInit(GFX_BOTTOM, NULL);
 
-	printf("DSP Firmware not found!\n\n");
-	printf("Press START to exit\n");
-
+	std::cout << "DSP Firmware not found " << std::endl;
+	std::cout << "Press START to exit" << std::endl;
 	while(aptMainLoop())
 	{
 		hidScanInput();
@@ -82,10 +86,17 @@ static void CheckDSPFirmware()
 		if(hidKeysDown() == KEY_START)
 			exit(1);
 	}
-}
+	}
+
+}	
 
 static void Initialize()
 {
+	    // Variables to store the original stream buffers
+
+
+
+
 	CheckDSPFirmware();
 	
 	_InitializeSvcHack();
@@ -122,18 +133,21 @@ extern u32 __ctru_heap_size;
 
 int main(int argc, char* argv[])
 {
+	    // File stream for logging
+    std::ofstream logFile;
+
+    // Redirect output to log file
+    redirectOutputToLogFile(logFile, coutBuf, cerrBuf);
 	char fullpath[512];
 
 	Initialize();
-	
 	while(shouldQuit == false)
 	{
-	
 	// Set the default path
-
+	std::filesystem::path RomPath = setBasePath("Roms");
 	std::string rom = UI::DrawRomSelector();
-	std::filesystem::path RomPath = baseDir / "Roms" / std::string(rom);
 
+	RomPath /= rom;
 	System_Open(RomPath.string().c_str());
 	CPU_Run();
 	System_Close();

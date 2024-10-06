@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/TMEM.h"
 #include "HLEGraphics/uCodes/UcodeDefs.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Ultra/ultra_gbi.h"
 
 
@@ -240,10 +240,9 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32 ram_address = address;
 	u32 h           = ((lrt-ult)>>2) + 1;
 	u32 w           = ((lrs-uls)>>2) + 1;
-	u32 bytes       = ((h * w) << g_TI.Size) >> 1;
+	u32 bytes [[maybe_unused]]    = ((h * w) << g_TI.Size) >> 1;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DAEDALUS_USE(bytes);
 	DAEDALUS_DL_ASSERT( bytes <= MAX_TMEM_ADDRESS,
 		"Suspiciously large texture load: %d bytes (%dx%d, %dbpp)",
 		bytes, w, h, (1<<(g_TI.Size+2)) );
@@ -305,12 +304,10 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 	u32 uls       = load.sl;		//Left
 	u32 ult       = load.tl;		//Top
 	u32 lrs       = load.sh;		//Right
-	u32	lrt		  = load.th;	    //Bottom
+	u32	lrt	[[maybe_unused]]	  = load.th;	    //Bottom
 	u32 tile_idx  = load.tile;
 	u32 ram_offset = g_TI.GetAddress16bpp(uls >> 2, ult >> 2);
-	u32	count = ((lrs - uls)>>2) + 1;
-	DAEDALUS_USE(count);
-	DAEDALUS_USE(lrt);
+	u32	count [[maybe_unused]] = ((lrs - uls)>>2) + 1;
 
 	const RDP_Tile & rdp_tile = mTiles[tile_idx];
 

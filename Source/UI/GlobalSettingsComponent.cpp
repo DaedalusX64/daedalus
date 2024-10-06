@@ -25,20 +25,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/ColourValue.h"
 
-#include "AdjustDeadzoneScreen.h"
+// #include "AdjustDeadzoneScreen.h"
 #include "GlobalSettingsComponent.h"
 #include "DrawTextUtilities.h"
 #include "Dialogs.h"
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "UISetting.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 
 
 #include "System/Thread.h"
-#include "Core/FramerateLimiter.h"
+#include "Utility/FramerateLimiter.h"
 #include "Interface/Preferences.h"
-#include "System/IO.h"
+
 #include "Utility/Translate.h"
 
 #include "Input/InputManager.h"
@@ -159,35 +159,6 @@ namespace
 		}
 	};
 
-	class CAdjustDeadzoneSetting : public CUISetting
-	{
-	public:
-		CAdjustDeadzoneSetting( CUIContext * p_context, const char * name, const char * description )
-			:	CUISetting( name, description )
-			,	mpContext( p_context )
-		{
-		}
-
-		virtual	void			OnSelected()
-		{
-			CAdjustDeadzoneScreen *	adjust_deadzone( CAdjustDeadzoneScreen::Create( mpContext ) );
-			adjust_deadzone->Run();
-			delete adjust_deadzone;
-		}
-
-		virtual const char *	GetSettingName() const
-		{
-			f32 min_deadzone( gGlobalPreferences.StickMinDeadzone );
-			f32 max_deadzone( gGlobalPreferences.StickMaxDeadzone );
-
-			static char buffer[ 10+10+1 ];
-			snprintf( buffer, sizeof(buffer), "%d/%d", s32( 100.0f * min_deadzone ), s32( 100.0f * max_deadzone ) );
-			return buffer;
-		}
-
-	private:
-		CUIContext *			mpContext;
-	};
 
 	class CResetSetting : public CUISetting
 	{
@@ -200,30 +171,30 @@ namespace
 
 		virtual	void			OnSelected()
 		{
-			if(gShowDialog.Render( mpContext,"Reset HLE cache?", false) )
+			if(gShowDialog->Render( mpContext,"Reset HLE cache?", false) )
 			{
 		
-				if(gShowDialog.Render( mpContext,"Reset settings?", false) )
+				if(gShowDialog->Render( mpContext,"Reset settings?", false) )
 				{
 					std::filesystem::remove("preferences.ini");
 					std::filesystem::remove("rom.db");
 					ThreadSleepMs(1000);	//safety wait for s
 
-					gShowDialog.Render( mpContext,"Daedalus will exit now",true);
+					gShowDialog->Render( mpContext,"Daedalus will exit now",true);
 
-					sceKernelExitGame();
+					exit(0);
 				}
 			}
-			if(gShowDialog.Render( mpContext,"Reset settings?", false) )
+			if(gShowDialog->Render( mpContext,"Reset settings?", false) )
 			{
 				std::filesystem::remove("preferences.ini");
 				std::filesystem::remove("rom.db");
 
 				ThreadSleepMs(1000);	//safety wait for s
 
-				gShowDialog.Render( mpContext,"Daedalus will exit now",true);
+				gShowDialog->Render( mpContext,"Daedalus will exit now",true);
 
-				sceKernelExitGame();
+				exit(0);
 			}
 		}
 
@@ -282,7 +253,7 @@ namespace
 		virtual const char *	GetSettingName() const
 		{
 			if ( gGlobalPreferences.DisplayFramerate )
-				return "None";
+				return "FS + VB + SYNC";
 			else
 				return "None";
 		}
@@ -323,38 +294,38 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 :	CGlobalSettingsComponent( p_context )
 {
 
-	mElements.Add( new CInfoSetting( "Display Info", "Whether to show additional info while the rom is running. Some modes are only available in DEBUG mode") );
-	mElements.Add( new CViewPortSetting( "Viewport Size", "The size of the viewport on the PSP." ) );
+	mElements.Add(std::make_unique<CInfoSetting>( "Display Info", "Whether to show additional info while the rom is running. Some modes are only available in DEBUG mode") );
+	mElements.Add(std::make_unique<CViewPortSetting>( "Viewport Size", "The size of the viewport on the PSP." ) );
 
 #if DEADALUS_PSP
 	if (HAVE_DVE && PSP_TV_CABLE > 0)
 	{
-		mElements.Add( new CBoolSetting( &gGlobalPreferences.TVEnable, "TV Output", "Whether to direct the video to the TV out.", "Yes", "No" ) );
-		mElements.Add( new CBoolSetting( &gGlobalPreferences.TVLaced, "TV Interlaced", "Whether the TV needs interlaced output.", "Yes", "No" ) );
-		mElements.Add( new CTVTypeSetting( "TV Type", "The aspect ratio of the TV." ) );
+		mElements.Add(std::make_unique<CBoolSetting>( &gGlobalPreferences.TVEnable, "TV Output", "Whether to direct the video to the TV out.", "Yes", "No" ) );
+		mElements.Add(std::make_unique<CBoolSetting>( &gGlobalPreferences.TVLaced, "TV Interlaced", "Whether the TV needs interlaced output.", "Yes", "No" ) );
+		mElements.Add(std::make_unique<CTVTypeSetting>( "TV Type", "The aspect ratio of the TV." ) );
 	}
 	else
 	{
 		gGlobalPreferences.TVEnable = false;
 	}
 #endif
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.ForceLinearFilter,"Force Linear Filter", "Enable to force linear filter, this can improve the look of textures", "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.RumblePak,"Controller add-on", "Enable either MemPak or RumblePak.", "RumblePak", "MemPak" ) );
-	mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
+	mElements.Add(std::make_unique<CBoolSetting>( &gGlobalPreferences.ForceLinearFilter,"Force Linear Filter", "Enable to force linear filter, this can improve the look of textures", "Yes", "No" ) );
+	mElements.Add(std::make_unique<CBoolSetting>( &gGlobalPreferences.RumblePak,"Controller add-on", "Enable either MemPak or RumblePak.", "RumblePak", "MemPak" ) );
+	// mElements.Add(std::make_unique<CAdjustDeadzoneSetting>( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
 
-#if DEADALUS_PSP
+#if DAEDALUS_PSP
 	if (PSP_IS_SLIM) 
-		mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, "ROM Buffering Mode", "File Cache, faster ROM boot but can stutter due to MS reads. ROM Buffer, no stutter but long boot time loading whole ROM into memory. Takes effect only @ ROM boot.", "File Cache", "ROM Buffer" ) );
+		mElements.Add(std::make_unique<CBoolSetting>( &gGlobalPreferences.LargeROMBuffer, "ROM Buffering Mode", "File Cache, faster ROM boot but can stutter due to MS reads. ROM Buffer, no stutter but long boot time loading whole ROM into memory. Takes effect only @ ROM boot.", "File Cache", "ROM Buffer" ) );
 #endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.HighlightInexactBlendModes, "Highlight Inexact Blend Modes",	"Replace inexact blend modes with a placeholder texture.", "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.CustomBlendModes, "Use Custom Blend Modes",	"Debugging tool to disable custom blendmodes.", "Yes", "No" ) );
+	mElements.Add(std::make_unique<CBoolSetting>( &gGlobalPreferences.HighlightInexactBlendModes, "Highlight Inexact Blend Modes",	"Replace inexact blend modes with a placeholder texture.", "Yes", "No" ) );
+	mElements.Add(std::make_unique<CBoolSetting>( &gGlobalPreferences.CustomBlendModes, "Use Custom Blend Modes",	"Debugging tool to disable custom blendmodes.", "Yes", "No" ) );
 #endif
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
-	mElements.Add( new CColorSetting( "GUI Color", "Change GUI Color" ) );
-	mElements.Add( new CLanguage( "Language", "Press X to load language" ) );
-	mElements.Add( new CResetSetting( mpContext, "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
+	mElements.Add(std::make_unique<CBoolSetting>( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
+	mElements.Add(std::make_unique<CColorSetting>( "GUI Color", "Change GUI Color" ) );
+	mElements.Add(std::make_unique<CLanguage>( "Language", "Press X to load language" ) );
+	mElements.Add(std::make_unique<CResetSetting>( mpContext, "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
 
 }
 
@@ -362,7 +333,7 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 IGlobalSettingsComponent::~IGlobalSettingsComponent() {}
 
 
-void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	IGlobalSettingsComponent::Update( float elapsed_time [[maybe_unused]], const v2 & stick [[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{
@@ -376,13 +347,13 @@ void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32
 		}
 
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto element =   mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
 			{
 				element->OnPrevious();
-			}
+			} 
 			if( new_buttons & PSP_CTRL_RIGHT )
 			{
 				element->OnNext();
@@ -400,10 +371,10 @@ void	IGlobalSettingsComponent::Render()
 {
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
+	auto	element =  mElements.GetSelectedElement();
 	if( element != NULL )
 	{
-		const char *		p_description( element->GetDescription() );
+		const auto	p_description =  element->GetDescription();
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,
 								 DESCRIPTION_AREA_RIGHT - DESCRIPTION_AREA_LEFT,

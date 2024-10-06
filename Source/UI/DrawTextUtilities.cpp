@@ -6,9 +6,6 @@
 #include "DrawTextUtilities.h"
 #include "DrawText.h"
 
-//*************************************************************************************
-//
-//*************************************************************************************
 namespace DrawTextUtilities
 {
 	const c32 TextWhite = c32(255, 255, 255);
@@ -17,7 +14,8 @@ namespace DrawTextUtilities
 	const c32 TextBlueDisabled = c32(80, 80, 178);
 	const c32 TextRed = c32(255, 0, 0);
 	const c32 TextRedDisabled = c32(208, 208, 208);
-
+	const c32 TextGreen = c32(0, 255, 0);
+	const c32 TextYellow = c32(0, 255, 255);
 	static c32 COLOUR_SHADOW_HEAVY = c32(0x80000000);
 	static c32 COLOUR_SHADOW_LIGHT = c32(0x50000000);
 
@@ -43,8 +41,7 @@ namespace DrawTextUtilities
 		// Manual line breaking (Used for translations)
 		if (gGlobalPreferences.Language != 0)
 		{
-			u32 i, j;
-			for (i = 0, j = 0; i < length; i++)
+			for ( auto i = 0, j = 0; i < length; i++)
 			{
 				match = true;
 				if (p_str[i] == '\n')
@@ -67,8 +64,8 @@ namespace DrawTextUtilities
 
 		while (p_line_str < p_str_end)
 		{
-			u32 length_remaining(p_str_end - p_line_str);
-			s32 chunk_width(CDrawText::GetTextWidth(font, p_line_str, length_remaining));
+			u32 length_remaining = p_str_end - p_line_str;
+			s32 chunk_width = CDrawText::GetTextWidth(font, p_line_str, length_remaining);
 
 			if (chunk_width <= width)
 			{
@@ -78,15 +75,15 @@ namespace DrawTextUtilities
 			else
 			{
 				// Search backwards until we find a break
-				const char *p_chunk_end(p_str_end);
-				bool found_chunk(false);
+				const char *p_chunk_end = p_str_end;
+				bool found_chunk = false;
 				while (p_chunk_end > p_line_str)
 				{
-					const char *p_space(FindPreviousSpace(p_line_str, p_chunk_end));
+					const char *p_space = FindPreviousSpace(p_line_str, p_chunk_end);
 
 					if (p_space != nullptr)
 					{
-						u32 chunk_length(p_space + 1 - p_line_str);
+						u32 chunk_length = p_space + 1 - p_line_str;
 						chunk_width = CDrawText::GetTextWidth(font, p_line_str, chunk_length);
 						if (chunk_width <= width)
 						{

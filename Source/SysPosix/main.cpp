@@ -23,9 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
 #include "System/SystemInit.h"
-#include "Test/BatchTest.h"
-#include "System/IO.h"
-#include "Config/ConfigOptions.h"
+#include "Utility/BatchTest.h"
+
+#include "Interface/ConfigOptions.h"
 #include "Interface/Preferences.h"
 #include "Utility/Translate.h"
 #include "UI/MainMenuScreen.h"
@@ -48,10 +48,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_PROFILE_EXECUTION
 static CTimer gTimer;
 #endif
+bool isRunning = false;
 
 void HandleEndOfFrame()
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#include "HLEGraphics/DisplayListDebugger.h"
+#include "Debug/DebugLog.h"
 	if (DLDebugger_IsDebugging())
 		return;
 	DPF(DEBUG_FRAME, "********************************************");
@@ -66,33 +69,34 @@ void HandleEndOfFrame()
 	static u32 oldButtons = 0;
 	SceCtrlData pad;
 	bool activate_pause_menu = false;
+
 	sceCtrlPeekBufferPositive(&pad, 1);
 
 	// If KernelButtons.prx not found. Use select for pause instead
-	if (oldButtons != pad.Buttons)
+	if(oldButtons != pad.Buttons)
 	{
 		// if( gCheatsEnabled && (pad.Buttons & PSP_CTRL_SELECT) )
 		// {
 		// 	CheatCodes_Activate( GS_BUTTON );
 		// }
 
-		if (pad.Buttons & PSP_CTRL_SELECT)
-			activate_pause_menu = true;
+		if(pad.Buttons & PSP_CTRL_SELECT)
+				activate_pause_menu = true;
 	}
 
-	if (activate_pause_menu)
+
+	if (activate_pause_menu && isRunning == true)
 	{
 
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 		CGraphicsContext::Get()->ClearAllSurfaces();
 
-		CUIContext *p_context(CUIContext::Create());
+		auto p_context = CUIContext::Create();
 
 		if (p_context != NULL)
 		{
-			CPauseScreen *pause(CPauseScreen::Create(p_context));
+			auto pause = CPauseScreen::Create(p_context);
 			pause->Run();
-			delete pause;
 			delete p_context;
 		}
 
@@ -110,6 +114,7 @@ int main(int argc, char **argv)
 {
 	int result = 0;
 
+
 	// ReadConfiguration();
 
 	if (!System_Init())
@@ -117,8 +122,6 @@ int main(int argc, char **argv)
 		fprintf(stderr, "System_Init failed\n");
 		return 1;
 	}
-
-	Translate_Init();
 
 	if (argc > 1)
 	{
@@ -142,17 +145,22 @@ int main(int argc, char **argv)
 					{
 						const char *relative_path = argv[i + 1];
 						++i;
-
-						char *dir = realpath(relative_path, nullptr);
-						CRomDB::Get()->AddRomDirectory(dir);
-						free(dir);
-					}
+						try 
+						{ 
+							std::filesystem::path dir = std::filesystem::absolute(relative_path);
+							CRomDB::Get()->AddRomDirectory(dir.string().c_str());
+						}
+						catch (const std::filesystem::filesystem_error& e) 
+						{
+                    std::cerr << "Error resolving path: " << e.what() << std::endl;
+						}
+                	}
 				}
 			}
-			else
-			{
-				filename = arg;
-			}
+					else
+					{
+						filename = arg;
+					}
 		}
 
 		if (batch_test)
@@ -177,16 +185,16 @@ int main(int argc, char **argv)
 			System_Close();
 		}
 	}
-
+	Translate_Init();
 	bool show_splash = true;
 	for (;;)
 	{
 		DisplayRomsAndChoose(show_splash);
 		show_splash = false;
 
-		CRomDB::Get()->Commit();
+		// CRomDB::Get()->Commit();
 		CPreferences::Get()->Commit();
-
+		isRunning = true;
 		CPU_Run();
 		System_Close();
 	}

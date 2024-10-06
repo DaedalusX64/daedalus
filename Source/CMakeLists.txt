@@ -1,8 +1,8 @@
-# DaedalusX64 CMake Build File 
+	# DaedalusX64 CMake Build File 
 # Created and Maintained by Wally 
 # Yes right now this is a mess, hoping to simplify things further in future but please deal with it for now :)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # Below is related to Macros within the project, a lot of these could be deprecated and deleted.
 # For now they will remain here so they're visible and can be switched on and off as desired.
@@ -10,24 +10,34 @@ set(CMAKE_CXX_STANDARD 20)
 #TODO: Separate SDL Options
 list(APPEND plat_main )
 
+
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
-if(DEBUG)
-	set(CMAKE_BUILD_TYPE Debug)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	message("Debug Build")
+
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
-	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
+	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Show the build type in the UI
 	option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
 	option(DAEDALUS_LOG "Enable various logging" ON)
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
 if(NOT WIN32)
 	add_compile_options("-Wall")
 	add_compile_options("-Wextra")
 endif()
 else()
-	set(CMAKE_BUILD_TYPE Release)
+	message("Release Build")
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Perhaps we can remove this. It's only used in the PSP UI and model doesn't matter as much
-endif()
+	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Show the build type in the UI
+	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
+
+	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" OFF)
+	message (${CMAKE_CXX_FLAGS_RELEASE})
+	if(DAEDALUS_CTR)
+	set( CMAKE_CXX_FLAGS_RELEASE  "-O3 -DNDEBUG")
+	endif()
+	endif()
 	#Determine Dynarec compatibility and link in appropriate Dynarec
 	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
 	if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" )
@@ -49,6 +59,9 @@ endif()
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
 		message("AMD64 Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "riscv64")
+		message("No Dynarec avaliable for Riscv64")
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
@@ -68,9 +81,8 @@ endif()
 	# General options
 
 	option(DAEDALUS_BATCH_TEST_ENABLED "Enable batch testing for compatibility" OFF)
-	option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Per platform?
-	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM `Support" OFF) ## Probably should be a default option. 
-	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
+
+	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF) ## Probably should be a default option. 
 	option(DAEDALUS_LOG "Log stuff " OFF) ## NEeds to be off on the PSP unless debugging
 
 	# Additional Debug Options
@@ -78,15 +90,15 @@ endif()
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)
 	option(DAEDALUS_DEBUG_PIF "Enable Debugging Options for Peripheral Interface (PIF)" OFF)
 	option(DAEDALUS_DEBUG_DYNAREC "Enable Various Debugging options for the Dynarec" OFF)
+	option(LOG_ABORTED_TRACES "Log aborted DynaRec Traces to file" OFF)
 	option(DAEDALUS_ENABLE_SYNCHRONISATION "Enable for sync testing" OFF)
 	option(DAEDALUS_ENABLE_PROFILING "Enable built in profiler" OFF)
 	option(DAEDALUS_PROFILE_EXECUTION "Keep track of various execution stats" OFF)
 	option(DUMPOSFUNCTIONS "Dump OSHLE Functions" OFF)
-	# Additional PSP Options
-	option(DAEDALUS_PSP_GPROF "PSP Profiling, needs Silent enabled" OFF)
+	option(DAEDALUS_FRAMERATE_ANALYSIS "Output a CSV file containing framerate analysis" OFF)
+	option(DAEDALUS_DEBUG_AUDIO "Output some Audio Samples to raw file" OFF)
 
 
-	## Enable specific options per platform based on Release build ## XXX need to handle GPROF
 	# Handle specific options (These were all found in platforms.h and now belong here)
 	# PSP / Vita / CTR options are required as non-linux embedded platforms are not able to be reliably detected.
 	# Windows, Linux and macOS builds are auto detected.
@@ -94,33 +106,70 @@ endif()
 
 	if(PSP) 
 		message("PSP")
-		option(DAEDALUS_DIALOGS "Enable UI Dialogs" ON)
+		option(DAEDALUS_DIALOGS "Enable UI Dialogs" OFF)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_PSP "PSP specific Options" ON)
 		option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
 		option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
 		option(DAEDALUS_SIM_DOUBLES "Simulate Doubles" ON)
+		option(INTRAFONT "Use Native Fonts" ON) #If this is off, SDL will be enabled
 		option(DAEDALUS_SDL "Enable SDL" OFF)
+		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) 
+
 	elseif(UNIX)
 		option(DAEDALUS_SDL "SDL Build" ON)
-		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" OFF)
 		option(DAEDALUS_POSIX "Posix specific options" ON)
 		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 		option(DAEDALUS_128BIT_MULT "128 Bit Multiplication, not supported on PSP" ON)
-		option(DAEDALUS_DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)")
+		option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)" ON)
 		option(DAEDALUS_GL "OpenGL Renderer" ON)
 	elseif(WIN32)
 		option(DAEDALUS_SDL "SDL Build" ON)
+		option(DAED_USE_VIRTUAL_ALLOC "Use Windows Memory specifiers" ON) # We probably need to remove and simplfy this using modern C++
+		option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)" ON)
 		option(DAEDALUS_W32 "Windows specific Options" ON)
-		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 		option(DAEDALUS_BREAKPOINTS_ENABLED "Enable Breakpoints" OFF)
 		option(DAEDALUS_GL "OpenGL Renderer" ON)
 		enable_language(CXX ASM_MASM)
 	elseif(CTR)
+		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" OFF) ## Causes some weird black screen issues
 		option(DAEDALUS_CTR "3DS Specific Options" ON)
-		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation" ON)
-		option(DAEDALUS_ENABLE_OS_HOOKS " High Level Emulation Hooks" ON)
+	endif()
+
+# Profiler Options
+
+	option(DAEDALUS_PROFILE_AUDIOPLUGIN "" OFF)
+	option(DAEDALUS_PROFILE_CORE "" OFF)
+	option(DAEDALUS_PROFILE_DEBUG "" OFF)
+	option(DAEDALUS_PROFILE_DYNAREC "" OFF)
+	option(DAEDALUS_PROFILE_GRAPHICS "" OFF)
+	option(DAEDALUS_PROFILE_HLEAUDIO "" OFF)
+	option(DAEDALUS_PROFILE_HLEGRAPHICS "" OFF)
+	option(DAEDALUS_PROFILE_INPUT "" OFF)
+	option(DAEDALUS_PROFILE_INTERFACE "" OFF)
+	option(DAEDALUS_PROFILE_MATH "" OFF)
+	option(DAEDALUS_PROFILE_OSHLE "" OFF)
+	option(DAEDALUS_PROFILE_ROMFILE "" OFF)
+	option(DAEDALUS_PROFILE_SYSTEM "" OFF)
+	option(DAEDALUS_PROFILE_UI "" OFF)
+	option(DAEDALUS_PROFILE_UTILITY "" OFF)
+
+	option(DAEDALUS_PROFILE_UTILITY_PSP "" OFF)
+	option(DAEDALUS_PROFILE_HLEGRAPHICS_PSP "" OFF)
+	option(DAEDALUS_PROFILE_GRAPHICS_PSP "" OFF )
+	option(DAEDALUS_PROFILE_DEBUG_PSP "" OFF)
+
+	option(DAEDALUS_PROFILE_GRAPHICS_CTR "" OFF)
+	option(DAEDALUS_PROFILE_HLEGRAPHICS_CTR "" OFF)
+	option(DAEDALUS_PROFILE_UTILITY_CTR "" OFF)
+	option(DAEDALUS_PROFILE_UI_CTR "" OFF)
+
+	option(DAEDALUS_PROFILE_GRAPHICS_GL "" OFF)
+	option(DAEDALUS_PROFILE_UTILITY_POSIX "" OFF)
+
+	if(DAEDALUS_GPROF)
+	link_libraries(-pg)
 	endif()
 
 	# Needed below the options to post process
@@ -130,14 +179,6 @@ endif()
 	list(APPEND include_dirs "${PROJECT_SOURCE_DIR}/Source")
 	include_directories( BEFORE ${include_dirs})
 
-## Generic defines for certain things that Windows requires.
-if(NOT WIN32)
-	add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=${})
-	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=${})
-else()
-	add_compile_definitions(DAEDALUS_THREAD_CALL_TYPE=__stdcall)
-	add_compile_definitions(DAEDALUS_VARARG_CALL_TYPE=__cdecl)
-endif()
 
 if(UNIX)
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
@@ -197,7 +238,6 @@ find_package(ZLIB REQUIRED)
 link_libraries(ZLIB::ZLIB)
 
 		## Daedalus Core Build
-		add_subdirectory(Config)
 		add_subdirectory(Core)
 		add_subdirectory(Debug)
 		add_subdirectory(DynaRec)
@@ -205,14 +245,15 @@ link_libraries(ZLIB::ZLIB)
 		add_subdirectory(HLEAudio)
 		add_subdirectory(HLEGraphics)
 		add_subdirectory(Interface)
+		add_subdirectory(Input)
 		add_subdirectory(Math)
 		add_subdirectory(OSHLE)
 		add_subdirectory(RomFile)
 		add_subdirectory(System)
-		add_subdirectory(Test)
 		add_subdirectory(Utility)
+	if(NOT CTR)
 		add_subdirectory(UI)
-
+	endif()
 	if(UNIX)
 		add_subdirectory(SysPosix)
 		add_subdirectory(SysGL)
@@ -231,12 +272,13 @@ link_libraries(ZLIB::ZLIB)
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries})
 
 	# --- Post Build ---
+	## PRX Builds add about 600kb to the binary as they're not stripped at this point. Maybe we 
 	if(PSP)
 		create_pbp_file(
 			TARGET daedalus
+			PREVIEW_PATH NULL
 			ICON_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/icon0.png
 			BACKGROUND_PATH ${PROJECT_SOURCE_DIR}/Source/SysPSP/Resources/eboot_icons/pic1.png
-			PREVIEW_PATH NULL
 			TITLE DaedalusX64
 			BUILD_PRX
 			)

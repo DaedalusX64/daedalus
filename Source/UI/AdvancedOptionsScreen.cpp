@@ -21,16 +21,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include "AdvancedOptionsScreen.h"
 
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "UISetting.h"
 #include "UISpacer.h"
 #include "UICommand.h"
 
-#include "Config/ConfigOptions.h"
+#include "Interface/ConfigOptions.h"
 #include "Core/ROM.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Graphics/ColourValue.h"
 #include "Input/InputManager.h"
 #include "DrawTextUtilities.h"
@@ -69,9 +69,9 @@ class IAdvancedOptionsScreen : public CAdvancedOptionsScreen, public CUIScreen
 
 CAdvancedOptionsScreen::~CAdvancedOptionsScreen() {}
 
-CAdvancedOptionsScreen *	CAdvancedOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
+std::unique_ptr<CAdvancedOptionsScreen>	CAdvancedOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
-	return new IAdvancedOptionsScreen( p_context, rom_id );
+	return std::make_unique<IAdvancedOptionsScreen>( p_context, rom_id );
 }
 
 
@@ -89,17 +89,17 @@ IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const Ro
  		mRomName = settings.GameName;
 	}
 
-	mElements.Add( new CBoolSetting( &mRomPreferences.MemoryAccessOptimisation, "Dynarec Memory Optimisation", "Enable for speed-up (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecLoopOptimisation, "Dynarec Loop Optimisation", "Enable for speed-up (WARNING, quite unstable and can cause instability and/or crash on many ROMs).", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecDoublesOptimisation, "Dynarec Doubles Optimisation", "Enable for speed-up (WARNING, works on most but not all ROMs).", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.CleanSceneEnabled, "Clean Scene", "Force clear of frame buffer before drawing any primitives (Use it to clear out garbage on screen)", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.ClearDepthFrameBuffer, "Clear N64 Depth Buffer", "Z-buffer clears for special effects like sun/flames glare in Zelda and camera in DK64 (WARNING, don't use it unless needed)", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DoubleDisplayEnabled, "Double Display Lists", "Double Display Lists enabled for a speed-up (works on most ROMs)", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.VideoRateMatch, "Video Rate Match", "Match video rate to the frame rate (makes some games less sluggish Rayman2/Donald Duck/Tom and Jerry/Earth Worm Jim)", "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.AudioRateMatch, "Audio Rate Match", "Match audio rate to the frame rate (less pops and clicks)", "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, "Fog Emulation", "Enable or disable distance fog (works on many ROMs but the extra rendering pass uses more resources)", "Enabled", "Disabled" ) );
-	mElements.Add( new CUICommandImpl(std::bind(&IAdvancedOptionsScreen::OnConfirm, this ), "Save & Return", "Confirm changes to settings and return." ) );
-	mElements.Add( new CUICommandImpl(std::bind(&IAdvancedOptionsScreen::OnCancel, this ), "Cancel", "Cancel changes to settings and return." ) );
+	mElements.Add( std::make_unique<CBoolSetting>( &mRomPreferences.MemoryAccessOptimisation, "Dynarec Memory Optimisation", "Enable for speed-up (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
+	mElements.Add( std::make_unique<CBoolSetting>( &mRomPreferences.DynarecLoopOptimisation, "Dynarec Loop Optimisation", "Enable for speed-up (WARNING, quite unstable and can cause instability and/or crash on many ROMs).", "Enabled", "Disabled" ) );
+	mElements.Add( std::make_unique<CBoolSetting>( &mRomPreferences.DynarecDoublesOptimisation, "Dynarec Doubles Optimisation", "Enable for speed-up (WARNING, works on most but not all ROMs).", "Enabled", "Disabled" ) );
+	mElements.Add( std::make_unique<CBoolSetting>( &mRomPreferences.CleanSceneEnabled, "Clean Scene", "Force clear of frame buffer before drawing any primitives (Use it to clear out garbage on screen)", "Enabled", "Disabled" ) );
+	mElements.Add( std::make_unique<CBoolSetting>( &mRomPreferences.ClearDepthFrameBuffer, "Clear N64 Depth Buffer", "Z-buffer clears for special effects like sun/flames glare in Zelda and camera in DK64 (WARNING, don't use it unless needed)", "Enabled", "Disabled" ) );
+	mElements.Add( std::make_unique<CBoolSetting>( &mRomPreferences.DoubleDisplayEnabled, "Double Display Lists", "Double Display Lists enabled for a speed-up (works on most ROMs)", "Enabled", "Disabled" ) );
+	mElements.Add( std::make_unique<CBoolSetting>( &mRomPreferences.VideoRateMatch, "Video Rate Match", "Match video rate to the frame rate (makes some games less sluggish Rayman2/Donald Duck/Tom and Jerry/Earth Worm Jim)", "Yes", "No" ) );
+	mElements.Add( std::make_unique<CBoolSetting>( &mRomPreferences.AudioRateMatch, "Audio Rate Match", "Match audio rate to the frame rate (less pops and clicks)", "Yes", "No" ) );
+	mElements.Add( std::make_unique<CBoolSetting>( &mRomPreferences.FogEnabled, "Fog Emulation", "Enable or disable distance fog (works on many ROMs but the extra rendering pass uses more resources)", "Enabled", "Disabled" ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IAdvancedOptionsScreen::OnConfirm, this ), "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IAdvancedOptionsScreen::OnCancel, this ), "Cancel", "Cancel changes to settings and return." ) );
 
 }
 
@@ -107,7 +107,7 @@ IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const Ro
 IAdvancedOptionsScreen::~IAdvancedOptionsScreen() {}
 
 
-void	IAdvancedOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	IAdvancedOptionsScreen::Update( float elapsed_time [[maybe_unused]],  const v2 & stick [[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{
@@ -120,7 +120,7 @@ void	IAdvancedOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 o
 			mElements.SelectNext();
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto	element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -143,14 +143,13 @@ void	IAdvancedOptionsScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	s16		font_height( mpContext->GetFontHeight() );
-	s16		line_height( font_height + 2 );
-	s16		y;
+	s16	font_height = mpContext->GetFontHeight();
+	s16	line_height = font_height + 2;
 
-	const char * const title_text = "Advanced Options";
+	const auto title_text = "Advanced Options";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-	s16		heading_height( mpContext->GetFontHeight() );
-	y = MENU_TOP + heading_height;
+	s16		heading_height = mpContext->GetFontHeight();
+	s16 y = MENU_TOP + heading_height;
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
@@ -162,11 +161,9 @@ void	IAdvancedOptionsScreen::Render()
 
 	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
-	if( element != NULL )
+	if (auto element = mElements.GetSelectedElement(); element != nullptr)
 	{
-		const char *		p_description( element->GetDescription() );
-
+		const auto& p_description =  element->GetDescription();
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,
 								 DESCRIPTION_AREA_RIGHT - DESCRIPTION_AREA_LEFT,

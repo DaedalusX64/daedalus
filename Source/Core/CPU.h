@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/R4300OpCode.h"
 #include "Core/TLB.h"
 #include "System/SpinLock.h"
-#include "System/IO.h"
+#include "Utility/Paths.h"
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -156,7 +156,7 @@ extern struct SCPUState gCPUState;
 //
 //*****************************************************************************
 bool	CPU_RomOpen();
-//void	CPU_RomClose();
+void	CPU_RomClose();
 void	CPU_Step();
 void	CPU_Skip();
 bool	CPU_Run();

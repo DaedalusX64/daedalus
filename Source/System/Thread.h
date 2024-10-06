@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
-using DaedThread = u32 ( DAEDALUS_THREAD_CALL_TYPE * )(void * arg);
+using DaedThread = u32 ( * )(void * arg);
 
 
 using ThreadHandle = intptr_t;

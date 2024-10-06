@@ -18,11 +18,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_SELECTEDROMCOMPONENT_H_
-#define SYSPSP_UI_SELECTEDROMCOMPONENT_H_
+#ifndef UI_SELECTEDROMCOMPONENT_H_
+#define UI_SELECTEDROMCOMPONENT_H_
 
 #include "UIComponent.h"
-#include "Utility/Functor.h"
+#include <functional>
 
 class RomID;
 
@@ -32,9 +32,9 @@ class CSelectedRomComponent : public CUIComponent
 		CSelectedRomComponent( CUIContext * p_context );
 		virtual ~CSelectedRomComponent();
 
-		static CSelectedRomComponent *	Create( CUIContext * p_context, CFunctor * on_start_emulation );
+		static CSelectedRomComponent *	Create( CUIContext * p_context, std::function<void()> on_start_emulation );
 
 		virtual void					SetRomID( const RomID & rom_id ) = 0;
 };
 
-#endif // SYSPSP_UI_SELECTEDROMCOMPONENT_H_
+#endif // UI_SELECTEDROMCOMPONENT_H_

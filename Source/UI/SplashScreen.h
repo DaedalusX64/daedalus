@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_SPLASHSCREEN_H_
-#define SYSPSP_UI_SPLASHSCREEN_H_
+#ifndef UI_SPLASHSCREEN_H_
+#define UI_SPLASHSCREEN_H_
 
 class CUIContext;
 
@@ -28,9 +28,9 @@ class CSplashScreen
 	public:
 		virtual ~CSplashScreen();
 
-		static CSplashScreen *	Create( CUIContext * p_context );
+		static std::unique_ptr<CSplashScreen> Create( CUIContext * p_context );
 
 		virtual void				Run() = 0;
 };
 
-#endif // SYSPSP_UI_SPLASHSCREEN_H_
+#endif // UI_SPLASHSCREEN_H_

@@ -20,21 +20,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include "CheatOptionsScreen.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "UISetting.h"
 #include "UISpacer.h"
 #include "UICommand.h"
 
-#include "Config/ConfigOptions.h"
-#include "Core/Cheats.h"
+#include "Interface/ConfigOptions.h"
+#include "Interface/Cheats.h"
 #include "Core/ROM.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Graphics/ColourValue.h"
 #include "Input/InputManager.h"
 #include "DrawTextUtilities.h"
-#include "System/IO.h"
+
 #include "Interface/Preferences.h"
 #include "Utility/Stream.h"
 
@@ -134,9 +134,9 @@ class CCheatNotFound : public CUISetting
 
 CCheatOptionsScreen::~CCheatOptionsScreen() {}
 
-CCheatOptionsScreen *	CCheatOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
+std::unique_ptr<CCheatOptionsScreen>	CCheatOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
-	return new ICheatOptionsScreen( p_context, rom_id );
+	return std::make_unique<ICheatOptionsScreen>( p_context, rom_id );
 }
 
 
@@ -166,7 +166,7 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	//
 	CheatCodes_Read( mRomName.c_str(), "Daedalus.cht", mRomID.CountryID );
 
-	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
+	mElements.Add(std::make_unique<CBoolSetting>( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
 
 	// ToDo: add a dialog if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is reached
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_LOAD; i++)
@@ -175,18 +175,18 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 		if(codegroupcount > 0 && codegroupcount > i)
 		{
 			// Generate list of available cheatcodes
-			mElements.Add( new CCheatType( i, codegrouplist[i].name, &mRomPreferences.CheatsEnabled, codegrouplist[i].note ) );
+			mElements.Add(std::make_unique<CCheatType>( i, codegrouplist[i].name, &mRomPreferences.CheatsEnabled, codegrouplist[i].note ) );
 		}
 		else
 		{
 			//mElements.Add( new CCheatNotFound("No cheat codes found for this entry", "Make sure codes are formatted correctly for this entry. Daedalus supports a max of eight cheats per game." ) );
-			mElements.Add( new CCheatNotFound("No cheat codes found for this entry" ) );
+			mElements.Add(std::make_unique<CCheatNotFound>("No cheat codes found for this entry" ) );
 		}
 	}
 
 
-	mElements.Add( new CUICommandImpl(std::bind(&ICheatOptionsScreen::OnConfirm, this ), "Save & Return", "Confirm changes to settings and return." ) );
-	mElements.Add( new CUICommandImpl(std::bind(&ICheatOptionsScreen::OnCancel, this ), "Cancel", "Cancel changes to settings and return." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&ICheatOptionsScreen::OnConfirm, this ), "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&ICheatOptionsScreen::OnCancel, this ), "Cancel", "Cancel changes to settings and return." ) );
 
 }
 
@@ -200,7 +200,7 @@ ICheatOptionsScreen::~ICheatOptionsScreen()
 
 //
 
-void	ICheatOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	ICheatOptionsScreen::Update( float elapsed_time [[maybe_unused]], const v2 & stick [[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{
@@ -213,7 +213,7 @@ void	ICheatOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_
 			mElements.SelectNext();
 		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+		auto	element = mElements.GetSelectedElement();
 		if( element != NULL )
 		{
 			if( new_buttons & PSP_CTRL_LEFT )
@@ -233,8 +233,6 @@ void	ICheatOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_
 }
 
 
-//
-
 void	ICheatOptionsScreen::Render()
 {
 	mpContext->ClearBackground();
@@ -242,20 +240,16 @@ void	ICheatOptionsScreen::Render()
 
  s16		y;
 
-	const char * const title_text = "Cheat Options";
+	const auto title_text = "Cheat Options";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-	u32		heading_height( mpContext->GetFontHeight() );
+	u32		heading_height = mpContext->GetFontHeight();
 	y = MENU_TOP + heading_height;
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
-	y += 2;
+	y += 6;
 
-
-	y += 4;
-
-	// Very basic scroller for cheats, note ROM tittle is disabled since it overlaps when scrolling - FIX ME
-	//
+	// Very basic scroller for cheats, note ROM title is disabled since it overlaps when scrolling - FIX ME
 	if( mElements.GetSelectedIndex() > 1 )
 		mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN - mElements.GetSelectedIndex()*11 );
 	else
@@ -263,10 +257,10 @@ void	ICheatOptionsScreen::Render()
 
 	//mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y );
 
-	CUIElement *	element( mElements.GetSelectedElement() );
+	auto	element = mElements.GetSelectedElement();
 	if( element != NULL )
 	{
-		const char *		p_description( element->GetDescription() );
+		const auto	p_description = element->GetDescription();
 
 		mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 								 DESCRIPTION_AREA_TOP,
@@ -287,9 +281,6 @@ void	ICheatOptionsScreen::Run()
 }
 
 
-
-//
-
 void	ICheatOptionsScreen::OnConfirm()
 {
 	CPreferences::Get()->SetRomPreferences( mRomID, mRomPreferences );
@@ -300,9 +291,6 @@ void	ICheatOptionsScreen::OnConfirm()
 
 	mIsFinished = true;
 }
-
-
-//
 
 void	ICheatOptionsScreen::OnCancel()
 {

@@ -18,8 +18,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SYSPSP_UI_CHEATOPTIONSSCREEN_H_
-#define SYSPSP_UI_CHEATOPTIONSSCREEN_H_
+#ifndef UI_CHEATOPTIONSSCREEN_H_
+#define UI_CHEATOPTIONSSCREEN_H_
+
+#include <memory> 
 
 class CUIContext;
 class RomID;
@@ -29,9 +31,9 @@ class CCheatOptionsScreen
 	public:
 		virtual ~CCheatOptionsScreen();
 
-		static CCheatOptionsScreen *	Create( CUIContext * p_context, const RomID & rom_id );
+		static std::unique_ptr<CCheatOptionsScreen>	Create( CUIContext * p_context, const RomID & rom_id );
 
 		virtual void				Run() = 0;
 };
 
-#endif // SYSPSP_UI_CHEATOPTIONSSCREEN_H_
+#endif // UI_CHEATOPTIONSSCREEN_H_

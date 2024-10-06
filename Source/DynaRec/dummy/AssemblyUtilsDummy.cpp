@@ -27,7 +27,7 @@ namespace AssemblyUtils
 //	Patch a long jump to target the specified location.
 //	Return true if the patching succeeded (i.e. within range), false otherwise
 //*****************************************************************************
-    bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
+    bool	PatchJumpLong( CJumpLocation jump [[maybe_unused]], CCodeLabel target [[maybe_unused]] )
     {
         return false;
     }
@@ -35,7 +35,7 @@ namespace AssemblyUtils
 //*****************************************************************************
 //	As above no (need to flush on intel)
 //*****************************************************************************
-    bool	PatchJumpLongAndFlush( CJumpLocation jump, CCodeLabel target )
+    bool	PatchJumpLongAndFlush( CJumpLocation jump [[maybe_unused]], CCodeLabel target [[maybe_unused]] )
     {
         return false;
     }

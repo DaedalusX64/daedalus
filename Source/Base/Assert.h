@@ -41,22 +41,15 @@ enum EAssertResult
     #define DAEDALUS_HALT			__asm__ __volatile__ ( "break" )
 #elif DAEDALUS_POSIX
     #define DAEDALUS_HALT			__builtin_trap()
-    //#define DAEDALUS_HALT			__builtin_debugger()
 #elif DAEDALUS_CTR
     #define DAEDALUS_HALT			__asm__ __volatile__ ( "bkpt" )
-
-#elif DAEDALUS_W32 // Ugh this needs simplifying
-    #include <crtdbg.h>
-    #define __PRETTY_FUNCTION__ __FUNCTION__
-    #define _CRT_SECURE_NO_DEPRECATE
-    #define _DO_NOT_DECLARE_INTERLOCKED_INTRINSICS_IN_MEMORY
-
-    #define DAEDALUS_HALT						_CrtDbgBreak()
+#elif DAEDALUS_W32
+    #define DAEDALUS_HALT						__debugbreak()
 #else
-#error Unknown Platforn DAEDALUS_HALT should be defined in Base/Assert.h
+#error Unknown Platform DAEDALUS_HALT should be defined in Base/Assert.h
 #endif
 
-EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... );
+EAssertResult  DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... );
 
 //
 //	Use this api to override the default assert handler, e.g. for logging asserts during a batch process

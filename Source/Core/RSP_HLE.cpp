@@ -19,7 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-
+#include <cstring> 
+#include <fstream>
+#include <format> 
 #include "Core/RSP_HLE.h"
 
 #include "Core/Interrupt.h"
@@ -27,15 +29,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "Debug/Dump.h"			// For Dump_GetDumpDirectory()
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Ultra/ultra_mbi.h"
 #include "Ultra/ultra_rcp.h"
 #include "Ultra/ultra_sptask.h"
 #include "HLEAudio/AudioPlugin.h"
 #include "HLEGraphics/GraphicsPlugin.h"
-#include "Test/BatchTest.h"
-#include "System/IO.h"
-#include "Core/PrintOpCode.h"
+#include "Utility/BatchTest.h"
+
+#include "Debug/PrintOpCode.h"
 #include "Utility/Profiler.h"
 
 static const bool	gGraphicsEnabled = true;
@@ -58,15 +60,17 @@ extern "C" {
 #if 0
 static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
 {
-	char filename[100];
-	snprintf(filename, sizeof(filename), "task_dump_%s_crc_0x%08x.txt", name, crc);
+	std::string filename = std::format("task_dump_{}_crc_0x{}.txt", name, crc);
+	// snprintf(filename, sizeof(filename), "task_dump_%s_crc_0x%08x.txt", name, crc);
 
-	std::filesystem::path filepath = "rsp_dumps/" /= filename;
+	std::filesystem::path filepath = setBasePath("rsp_dumps");
+	std::filesystem::create_directory(filepath);
+	filepath /= filename;
 
-	FILE * fp = fopen(filepath, "w");
-	if (fp == nullptr)
-		return;
+	std::fstream fp(filepath, std::ios::in);
 
+	if (fp.is_open())
+	{
 	for (u32 i = 0; i < len; i+=4)
 	{
 		OpCode op;
@@ -75,42 +79,12 @@ static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u
 
 		char opinfo[400];
 		SprintRSPOpCodeInfo( opinfo, pc + pc_base, op );
-
-		fprintf(fp, "0x%08x: <0x%08x> %s\n", pc + pc_base, op._u32, opinfo);
-		//fprintf(fp, "<0x%08x>\n", dwOpCode);
+		fp << std::format("0x{:08x}: <0x{:08x}> {}\n", pc + pc_base, op._u32, opinfo);
 	}
-
-	fclose(fp);
+	}
 }
 #endif
 
-#if 0
-static void RDP_DumpRSPData(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
-{
-	char filename[100];
-	snprintf(filename, sizeof(filename), "task_data_dump_%s_crc_0x%08x.txt", name, crc);
-
-
-	std::filesystem::path filepath = "rsp_dumps/" /= filename;
-
-	FILE * fp = fopen(filepath, "w");
-	if (fp == nullptr)
-		return;
-
-	for (u32 i = 0; i < len; i+=4)
-	{
-		u32 pc = i & 0x0FFF;
-		u32 data = mem_base[i/4];
-
-		fprintf(fp, "0x%08x: 0x%08x\n", pc + pc_base, data);
-	}
-
-	fclose(fp);
-}
-#endif
-
-
-//
 
 #if 0
 static void	RSP_HLE_DumpTaskInfo( const OSTask * pTask )
@@ -231,9 +205,8 @@ EProcessResult RSP_HLE_Jpeg(OSTask * task)
 	return PR_COMPLETED;
 }
 
-EProcessResult RSP_HLE_CICX105(OSTask * task)
+EProcessResult RSP_HLE_CICX105(OSTask * task [[maybe_unused]])
 {
-	DAEDALUS_USE(task);
     const u32 sum {sum_bytes(g_pu8SpImemBase, 0x1000 >> 1)};
 
     switch(sum)

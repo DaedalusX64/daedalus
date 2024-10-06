@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include <stdio.h>
+#include <cstring>
 
 #include "Interface/SaveState.h"
 #include "Core/Memory.h"
@@ -29,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/R4300.h"
 #include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "OSHLE/patch.h"
 #include "Ultra/ultra_R4300.h"
 #include "System/SystemInit.h"
@@ -396,17 +397,17 @@ RomID SaveState_GetRomID( const std::filesystem::path &filename )
 	return RomID( rom_header.CRC1, rom_header.CRC2, rom_header.CountryID );
 }
 
-const char* SaveState_GetRom( const std::filesystem::path &filename )
+const std::string SaveState_GetRom( const std::filesystem::path &filename )
 {
 	SaveState_istream_gzip stream( filename );
 
-	if( !stream.IsValid() )
-		return nullptr;
+	// if( !stream.IsValid() )
+	// 	return nullptr;
 
 	u32 value;
 	stream >> value;
 	if(value != SAVESTATE_PROJECT64_MAGIC_NUMBER)
-		return nullptr;
+		return std::string();
 
 	u32 ram_size;
 	stream >> ram_size;

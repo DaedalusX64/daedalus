@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RSP_HLE.h"
 #include "Core/CPU.h"
 #include "Core/ROM.h"
-#include "Core/ROMBuffer.h"
+#include "RomFile/ROMBuffer.h"
 #include "Core/PIF.h"
 #include "Core/Interrupt.h"
 #include "Core/Save.h"

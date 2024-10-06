@@ -36,13 +36,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <kubridge.h>
 #include <pspsysmem.h>
 
-#include "Config/ConfigOptions.h"
-#include "Core/Cheats.h"
+#include "Interface/ConfigOptions.h"
+#include "Interface/Cheats.h"
 #include "Core/CPU.h"
 #include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/PIF.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Core/Save.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
@@ -60,8 +60,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <iostream>
 
 #include "System/SystemInit.h"
-#include "Test/BatchTest.h"
-#include "System/IO.h"
+#include "Utility/BatchTest.h"
+
 #include "Utility/ModulePSP.h"
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
@@ -86,11 +86,6 @@ extern "C"
 	/* Video Manager functions */
 	int pspDveMgrCheckVideoOut();
 	int pspDveMgrSetVideoOut(int, int, int, int, int, int, int);
-
-#ifdef DAEDALUS_PSP_GPROF
-	/* Profile with psp-gprof */
-	void gprof_cleanup();
-#endif
 }
 
 /* Kernel Exception Handler functions */
@@ -131,7 +126,7 @@ static bool	Initialize()
 		// Can't use extra memory if ME isn't available
 		PSP_IS_SLIM = true;
 		g32bitColorMode = true;
-		// sceGeEdramSetSize(4*1024*1024);
+		sceGeEdramSetSize(4*1024*1024);
 		HAVE_DVE = CModule::Load("Plugins/dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
@@ -197,19 +192,15 @@ void HandleEndOfFrame()
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 		CGraphicsContext::Get()->ClearAllSurfaces();
 
-		CDrawText::Initialise();
-
-		CUIContext *	p_context( CUIContext::Create() );
+		auto	p_context = CUIContext::Create();
 
 		if(p_context != NULL)
 		{
-			CPauseScreen *	pause( CPauseScreen::Create( p_context ) );
+			auto	pause = CPauseScreen::Create( p_context );
 			pause->Run();
-			delete pause;
 			delete p_context;
 		}
 
-		CDrawText::Destroy();
 
 		// Commit the preferences database before starting to run
 		// CPreferences::Get()->Commit();
@@ -243,11 +234,10 @@ int main(int argc, char* argv[])
 			CPU_Run();
 			System_Close();
 			System_Finalize();
-			sceKernelExitGame();
 			return 0;
 		}
 #endif
-		//Translate_Init();
+		Translate_Init();
 		bool show_splash = true;
 		for(;;)
 		{
@@ -264,6 +254,5 @@ int main(int argc, char* argv[])
 		System_Finalize();
 	}
 
-	sceKernelExitGame();
 	return 0;
 }

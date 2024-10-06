@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
-
+#include <iterator>
 #include "SysGL/GL.h"
 
 #include "UI/ColourPulser.h"
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Matrix4x4.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
-#include "UI/PSPMenu.h"
+#include "UI/Menu.h"
 #include "UI/DrawText.h"
 #include "UI/UIContext.h"
 #include "UI/DrawTextUtilities.h"
@@ -40,8 +40,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace
 {
-const u32				BACKGROUND_WIDTH = 480;
-const u32				BACKGROUND_HEIGHT = 272;
+const u32				BACKGROUND_WIDTH = SCREEN_WIDTH;
+const u32				BACKGROUND_HEIGHT = SCREEN_HEIGHT;
 
 const u32		MS_PER_COLOUR_CYCLE = 1200;
 
@@ -79,19 +79,19 @@ class IUIContext : public CUIContext
 
 		virtual void				SetFontStyle( EFontStyle font_style );
 
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour );
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour );
-		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour );
-		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour, c32 drop_colour );
-		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour );
-		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour );
-		virtual s32					DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align );
+		virtual u32					DrawText( s32 x, s32 y, const std::string text, u32 length, c32 colour );
+		virtual u32					DrawText( s32 x, s32 y, const std::string text, u32 length, c32 colour, c32 drop_colour );
+		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour );
+		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour, c32 drop_colour );
+		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour );
+		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour, c32 drop_colour );
+		virtual s32					DrawTextArea( s32 left, s32 top, u32 width, u32 height, const std::string& text, c32 colour, EVerticalAlign vertical_align );
 
 		virtual u32					GetFontHeight() const;
 		virtual u32					GetTextWidth( const char * text ) const;
 
 	private:
-				s32					AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length, EAlignType align_type );
+				s32					AlignText( s32 min_x, s32 max_x, const std::string p_str, u32 length, EAlignType align_type );
 
 	private:
 		CDrawText::EFont			mCurrentFont;
@@ -148,7 +148,7 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, s
 	RenderTexture( texture, tl, wh, colour );
 }
 
-void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh, c32 colour )
+void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh [[maybe_unused]], c32 colour [[maybe_unused]] )
 {
 	if(texture == NULL)
 		return;
@@ -252,7 +252,7 @@ u32		IUIContext::GetTextWidth( const char * text ) const
 	return CDrawText::GetTextWidth( mCurrentFont, text );
 }
 
-s32		IUIContext::AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length, EAlignType align_type )
+s32		IUIContext::AlignText( s32 min_x, s32 max_x, const std::string p_str, u32 length, EAlignType align_type )
 {
 	s32		x = 0;
 
@@ -281,39 +281,37 @@ s32		IUIContext::AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length
 	return x;
 }
 
-u32	IUIContext::DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour )
+u32	IUIContext::DrawText( s32 x, s32 y, const std::string text, u32 length, c32 colour )
 {
 	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
 }
 
 
-u32	IUIContext::DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour )
+u32	IUIContext::DrawText( s32 x, s32 y, const std::string text, u32 length, c32 colour, c32 drop_colour )
 {
 	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour, drop_colour );
 }
 
-u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour )
+u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour )
 {
 	return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour );
 }
 
-u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour, c32 drop_colour )
+u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const std::string text, u32 length, c32 colour, c32 drop_colour )
 {
 	return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour, drop_colour );
 }
 
-u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour )
+u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour )
 {
-	s32 x( AlignText( min_x, max_x, text, length, align_type ) );
 
-	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
+	return CDrawText::Render( mCurrentFont, AlignText( min_x, max_x, text, length, align_type ), y, 1.0f, text, length, colour );
 }
 
-u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour )
+u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const std::string text, u32 length, c32 colour, c32 drop_colour )
 {
-	s32 x( AlignText( min_x, max_x, text, length, align_type ) );
 
-	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour, drop_colour );
+	return CDrawText::Render( mCurrentFont, AlignText( min_x, max_x, text, length, align_type ) , y, 1.0f, text, length, colour, drop_colour );
 }
 
 
@@ -334,16 +332,16 @@ namespace
 }
 
 
-s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align )
+s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width [[maybe_unused]], u32 height, const std::string& text, c32 colour, EVerticalAlign vertical_align )
 {
 	const u32			font_height( CDrawText::GetFontHeight( mCurrentFont ) );
-	u32					length = strlen( text );
+	u32					length = text.length();
 	std::vector<u32>	lengths;
 	bool				match = false;
-	//DrawTextUtilities::WrapText( mCurrentFont, width, Translate_Strings( text, length ), length, lengths, match );
+	// DrawTextUtilities::WrapText( mCurrentFont, width, Translate_Strings( text, length ), length, lengths, match );
 
-	s32 x( left );
-	s32 y( VerticalAlign( vertical_align, top, height, lengths.size() * font_height ) );
+	s32 x =  left;
+	s32 y = VerticalAlign( vertical_align, top, height, lengths.size() * font_height );
 
 	// Our built-in auto-linebreaking can't handle unicodes.
 	// Fall back to use intrafont's manual linebreaking feature
@@ -355,12 +353,16 @@ s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const c
 		return y - top;
 	}
 
+auto it = text.begin();
+
 	for( u32 i = 0; i < lengths.size(); ++i )
 	{
 		y += font_height;
+		std::string line(it, it+ lengths[i]);
 		DrawTextScale( x, y, 0.8f, text, lengths[ i ], colour );
 		y += 2;
-		text += lengths[ i ];
+		// text += lengths[ i ];
+		std::advance(it, lengths[i]);
 	}
 
 	return 0;

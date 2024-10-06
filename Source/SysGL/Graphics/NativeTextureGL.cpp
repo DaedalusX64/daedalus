@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativePixelFormat.h"
 
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -264,7 +264,7 @@ namespace
 	}
 }
 
-std::shared_ptr<CNativeTexture>	CNativeTexture::CreateFromPng( const char * p_filename, ETextureFormat texture_format )
+std::shared_ptr<CNativeTexture>	CNativeTexture::CreateFromPng( const std::filesystem::path p_filename, ETextureFormat texture_format )
 {
 	return LoadPng( p_filename, texture_format );
 }

@@ -4,13 +4,14 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include <stdarg.h>
-
+#include <format>
+#include <filesystem>
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
 #include "HLEGraphics/RDP.h"
 #include "Ultra/ultra_gbi.h"
-#include "System/IO.h"
+
 #include "Base/Macros.h"
 
 
@@ -215,8 +216,8 @@ static const char * const kBlendA2[]				= { "1-A", "AMem", "1",      "?" };
 static const char * const kAlphaCompareValues[]		= {"None", "Threshold", "?", "Dither"};
 static const char * const kDepthSourceValues[]		= {"Pixel", "Primitive"};
 
-static const char * const kCvgDestValues[]			= {"Clamp", "Wrap", "Full", "Save"};
-static const char * const kZModeValues[]			= {"Opa", "Inter", "XLU", "Decal"};
+static const char * const kCvgDestValues [[maybe_unused]] [] 			= {"Clamp", "Wrap", "Full", "Save"};
+static const char * const kZModeValues [[maybe_unused]] []			= {"Opa", "Inter", "XLU", "Decal"};
 
 static const char * const kAlphaDitherValues[]		= {"Pattern", "NotPattern", "Noise", "Disable"};
 static const char * const kRGBDitherValues[]		= {"MagicSQ", "Bayer", "Noise", "Disable"};
@@ -244,8 +245,8 @@ static void DumpRenderMode(u32 data);
 static void DumpBlender(u32 data);
 
 static const OtherModeData kOtherModeLData[] = {
-	{ "alpha_compare", 2, G_MDSFT_ALPHACOMPARE,		kAlphaCompareValues },
-	{ "depth_source",  1, G_MDSFT_ZSRCSEL,			kDepthSourceValues },
+	{ "alpha_compare", 2, G_MDSFT_ALPHACOMPARE,		kAlphaCompareValues, nullptr  },
+	{ "depth_source",  1, G_MDSFT_ZSRCSEL,			kDepthSourceValues, nullptr},
 
 #if 0
 	// G_MDSFT_RENDERMODE
@@ -268,19 +269,19 @@ static const OtherModeData kOtherModeLData[] = {
 };
 
 static const OtherModeData kOtherModeHData[] = {
-	{ "blend_mask",    4, G_MDSFT_BLENDMASK,		nullptr },
-	{ "alpha_dither",  2, G_MDSFT_ALPHADITHER,		kAlphaDitherValues },
-	{ "rgb_dither",    2, G_MDSFT_RGBDITHER,		kRGBDitherValues },
-	{ "comb_key",      1, G_MDSFT_COMBKEY,			kCombKeyValues },
-	{ "text_conv",     3, G_MDSFT_TEXTCONV,			kTextureConvValues },
-	{ "text_filt",     2, G_MDSFT_TEXTFILT,			kTextureFilterValues },
-	{ "text_tlut",     2, G_MDSFT_TEXTLUT,			kTextureLUTValues },
-	{ "text_lod",      1, G_MDSFT_TEXTLOD,			kTextureLODValues },
-	{ "text_detail",   2, G_MDSFT_TEXTDETAIL,		kTextureDetailValues },
-	{ "text_persp",    1, G_MDSFT_TEXTPERSP,		kOnOffValues },
-	{ "cycle_type",    2, G_MDSFT_CYCLETYPE,		kCycleTypeValues },
-	{ "color_dither",  1, G_MDSFT_COLORDITHER,		nullptr },
-	{ "pipeline",      1, G_MDSFT_PIPELINE,			kPipelineValues },
+	{ "blend_mask",    4, G_MDSFT_BLENDMASK,		nullptr, nullptr },
+	{ "alpha_dither",  2, G_MDSFT_ALPHADITHER,		kAlphaDitherValues, nullptr  },
+	{ "rgb_dither",    2, G_MDSFT_RGBDITHER,		kRGBDitherValues, nullptr  },
+	{ "comb_key",      1, G_MDSFT_COMBKEY,			kCombKeyValues, nullptr  },
+	{ "text_conv",     3, G_MDSFT_TEXTCONV,			kTextureConvValues, nullptr  },
+	{ "text_filt",     2, G_MDSFT_TEXTFILT,			kTextureFilterValues, nullptr  },
+	{ "text_tlut",     2, G_MDSFT_TEXTLUT,			kTextureLUTValues, nullptr  },
+	{ "text_lod",      1, G_MDSFT_TEXTLOD,			kTextureLODValues, nullptr  },
+	{ "text_detail",   2, G_MDSFT_TEXTDETAIL,		kTextureDetailValues, nullptr  },
+	{ "text_persp",    1, G_MDSFT_TEXTPERSP,		kOnOffValues, nullptr  },
+	{ "cycle_type",    2, G_MDSFT_CYCLETYPE,		kCycleTypeValues, nullptr  },
+	{ "color_dither",  1, G_MDSFT_COLORDITHER,		nullptr, nullptr  },
+	{ "pipeline",      1, G_MDSFT_PIPELINE,			kPipelineValues, nullptr  },
 };
 
 static const u32 kOtherModeLabelWidth = 15;
@@ -386,11 +387,11 @@ void DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode)
 	{
 		u32 mask = 0xffffffff;
 		u32 data = mode.L;
-		DumpOtherMode(kOtherModeLData, ARRAYSIZE(kOtherModeLData), &mask, &data);
+		DumpOtherMode(kOtherModeLData, std::size(kOtherModeLData), &mask, &data);
 
 		mask = 0xffffffff;
 		data = mode.H;
-		DumpOtherMode(kOtherModeHData, ARRAYSIZE(kOtherModeHData), &mask, &data);
+		DumpOtherMode(kOtherModeHData, std::size(kOtherModeHData), &mask, &data);
 	}
 }
 
@@ -398,7 +399,7 @@ void DLDebug_DumpRDPOtherModeL(u32 mask, u32 data)
 {
 	if (DLDebug_IsActive())
 	{
-		DumpOtherMode(kOtherModeLData, ARRAYSIZE(kOtherModeLData), &mask, &data);
+		DumpOtherMode(kOtherModeLData, std::size(kOtherModeLData), &mask, &data);
 
 		// Just check we're not handling some unusual calls.
 		DAEDALUS_ASSERT(mask == 0, "OtherModeL mask is non zero: %08x", mask);
@@ -410,7 +411,7 @@ void DLDebug_DumpRDPOtherModeH(u32 mask, u32 data)
 {
 	if (DLDebug_IsActive())
 	{
-		DumpOtherMode(kOtherModeHData, ARRAYSIZE(kOtherModeHData), &mask, &data);
+		DumpOtherMode(kOtherModeHData, std::size(kOtherModeHData), &mask, &data);
 
 		// Just check we're not handling some unusual calls.
 		DAEDALUS_ASSERT(mask == 0, "OtherModeH mask is non zero: %08x", mask);
@@ -462,7 +463,7 @@ public:
 		return Sink->Write(p, len);
 	}
 
-	virtual void BeginInstruction(u32 idx, u32 cmd0, u32 cmd1, u32 depth, const char * name)
+	virtual void BeginInstruction(u32 idx, u32 cmd0, u32 cmd1, u32 depth [[maybe_unused]], const char * name)
 	{
 		Print("[%05d] %08x %08x %-10s\n", idx, cmd0, cmd1, name);
 	}
@@ -478,26 +479,21 @@ DLDebugOutput * DLDebug_CreateFileOutput()
 {
 	static u32 count = 0;
 
-	IO::Filename dumpdir;
-	IO::Path::Combine(dumpdir, g_ROM.settings.GameName.c_str(), "DisplayLists");
+	std::filesystem::path dumpdir = "DisplayLists";
+	dumpdir /= g_ROM.settings.GameName.c_str();
+	std::string filepath = std::format("dl{}.txt", count++);	
 
-	IO::Filename filepath;
-	Dump_GetDumpDirectory(filepath, dumpdir);
-
-	char filename[64];
-	snprintf(filename, sizeof(filename), "dl%04d.txt", count++);
-
-	IO::Path::Append(filepath, filename);
+	dumpdir /= filepath;
 
 	DLDebugOutputFile * output = new DLDebugOutputFile();
-	if (!output->Open(filepath))
+	if (!output->Open(dumpdir))
 	{
 		delete output;
-		DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", filepath);
+		DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", filepath.c_str());
 		return nullptr;
 	}
 
-	DBGConsole_Msg(0, "RDP: Dumping Display List as %s", filepath);
+	DBGConsole_Msg(0, "RDP: Dumping Display List as %s", filepath.c_str());
 	return output;
 }
 

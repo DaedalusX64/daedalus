@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Base/Types.h"
-#include "PSPMenu.h"
+#include "Menu.h"
 
 #include "UIComponent.h"
 #include "UIContext.h"
@@ -45,9 +45,9 @@ CUIComponentScreen::~CUIComponentScreen()
 	delete mComponent;
 }
 
-CUIComponentScreen *	CUIComponentScreen::Create( CUIContext * p_context, CUIComponent * component, const char * title )
+std::unique_ptr<CUIComponentScreen>	CUIComponentScreen::Create( CUIContext * p_context, CUIComponent * component, const char * title )
 {
-	return new CUIComponentScreen( p_context, component, title );
+	return std::make_unique<CUIComponentScreen>( p_context, component, title );
 }
 
 

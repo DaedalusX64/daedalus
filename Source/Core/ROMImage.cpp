@@ -20,7 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 #include "Core/ROMImage.h"
-
+#include <sstream> 
+#include <string>
 // Find out the CIC type
 ECicType ROM_GenerateCICType( const u8 * p_rom_base )
 {
@@ -57,4 +58,12 @@ const char * ROM_GetCicName( ECicType cic_type )
 	case CIC_6106:	return "CIC-6106";
 	default:		return "?";
 	}
+}
+
+std::string ROM_GetCRC(const ROMHeader& header)
+{
+    // Convert CRC values to strings and concatenate them
+    std::stringstream crcStream;
+    crcStream << "{" << std::hex << std::uppercase << header.CRC1 << header.CRC2 << "}";
+    return crcStream.str();
 }

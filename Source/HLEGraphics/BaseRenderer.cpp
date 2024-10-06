@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/DLDebug.h"
 #include "Math/Math.h"			// VFPU Math
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 #include "Ultra/ultra_gbi.h"
 #include "Ultra/ultra_os.h"		// System type
 #include "Utility/Profiler.h"
@@ -326,12 +326,6 @@ void BaseRenderer::InitViewport()
 	mN64ToScreenTranslate.x  = (f32)display_x - roundf(0.55f * (gZoomX - 1.0f) * fViWidth);
 	mN64ToScreenTranslate.y  = (f32)display_y - roundf(0.55f * (gZoomX - 1.0f) * fViHeight);
 
-	if( gRumblePakActive )
-	{
-	    mN64ToScreenTranslate.x += (FastRand() & 3);
-		mN64ToScreenTranslate.y += (FastRand() & 3);
-	}
-
 #ifndef DAEDALUS_CTR
 		if (gRumblePakActive)
 		{
@@ -339,6 +333,7 @@ void BaseRenderer::InitViewport()
 			mN64ToScreenTranslate.y += (FastRand() & 3);
 		}
 #endif
+
 
 
 #if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
@@ -975,7 +970,7 @@ void BaseRenderer::PrepareTrisUnclipped( TempVerts * temp_verts ) const
 	//
 	//	http://forums.ps2dev.org/viewtopic.php?t=4703
 	//
-	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > ARRAYSIZE(mIndexBuffer) );
+	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > std::size(mIndexBuffer) );
 
 #ifdef DAEDALUS_PSP_USE_VFPU
 	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, mIndexBuffer );

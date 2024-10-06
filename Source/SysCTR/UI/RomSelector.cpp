@@ -8,27 +8,25 @@
 #include <algorithm>
 #include <vector>
 
-
-#include "Config/ConfigOptions.h"
-#include "Core/Cheats.h"
+#include "Interface/ConfigOptions.h"
+#include "Interface/Cheats.h"
 #include "Core/CPU.h"
 #include "Core/PIF.h"
-#include "Core/RomSettings.h"
+#include "RomFile/RomSettings.h"
 #include "Core/Save.h"
 #include "Interface/RomDB.h"
 #include "System/SystemInit.h"
-#include "Base/Path.h"
-#include "System/IO.h"
+#include "Utility/Paths.h"
+
 #include "Interface/Preferences.h"
 #include "RomFile/RomFile.h"
-
 #include "Graphics/NativeTexture.h"
 
 #define DAEDALUS_CTR_PATH(p)	"sdmc:/3ds/DaedalusX64/" p
 
 struct SRomInfo
 {
-	std::string		mFilename;
+	std::filesystem::path	mFilename;
 
 	RomID			mRomID;
 	u32				mRomSize;
@@ -46,53 +44,49 @@ static std::vector<SRomInfo> PopulateRomList()
 {
 	std::vector<SRomInfo> roms = {};
 
-	std::string			full_path;
-	IO::FindHandleT		find_handle;
-	IO::FindDataT		find_data;
-	
-	if(IO::FindFileOpen( DAEDALUS_CTR_PATH("Roms/"), &find_handle, find_data ))
-	{
-		do 
-		{
-			const char* rom_filename( find_data.Name );
+	std::filesystem::path roms_path = setBasePath("Roms");
 
-			if(IsRomfilename( rom_filename ))
-			{
-				SRomInfo info;
+	  if (std::filesystem::exists(roms_path) && std::filesystem::is_directory(roms_path))
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(roms_path))
+        {
+            if (entry.is_regular_file())
+            {
+                const std::filesystem::path& rom_filename = entry.path();
+                
+                if (std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
+                {
+                    SRomInfo info;
+                    std::string full_path = rom_filename.string();
 
-				full_path = DAEDALUS_CTR_PATH("Roms/");
-				full_path += rom_filename;
+                    info.mFilename = rom_filename.filename().string();
 
-				info.mFilename = rom_filename;
+                    if (ROM_GetRomDetailsByFilename(full_path.c_str(), &info.mRomID, &info.mRomSize, &info.mCicType))
+                    {
+                        if (!CRomSettingsDB::Get()->GetSettings(info.mRomID, &info.mSettings))
+                        {
+                            std::string game_name;
 
-				if (ROM_GetRomDetailsByFilename(full_path.c_str(), &info.mRomID, &info.mRomSize, &info.mCicType))
-				{
-					if (!CRomSettingsDB::Get()->GetSettings(info.mRomID, &info.mSettings ))
-					{
-						std::string game_name;
+                            info.mSettings.Reset();
+                            info.mSettings.Comment = "Unknown";
 
-						info.mSettings.Reset();
-						info.mSettings.Comment = "Unknown";
+                            if (!ROM_GetRomName(full_path.c_str(), game_name)) game_name = full_path;
 
-						if (!ROM_GetRomName(full_path.c_str(), game_name )) game_name = full_path;
+                            game_name = game_name.substr(0, 63);
+                            info.mSettings.GameName = game_name.c_str();
+                            CRomSettingsDB::Get()->SetSettings(info.mRomID, info.mSettings);
+                        }
+                    }
+                    else
+                    {
+                        info.mSettings.GameName = "Unknown";
+                    }
 
-						game_name = game_name.substr(0, 63);
-						info.mSettings.GameName = game_name.c_str();
-						CRomSettingsDB::Get()->SetSettings(info.mRomID, info.mSettings);
-					}
-				}
-				else
-				{
-					info.mSettings.GameName = "Unknown";
-				} 
-
-				roms.push_back(info);
-			}
-
-		} while(IO::FindFileNext( find_handle, find_data ));
-
-		IO::FindFileClose( find_handle );
-	}
+                    roms.push_back(info);
+                }
+            }
+        }
+    }
 
 	std::stable_sort(roms.begin(), roms.end());
 
@@ -183,10 +177,12 @@ std::string UI::DrawRomSelector()
 		{
 			std::shared_ptr<CNativeTexture>	previewTexture = nullptr;
 
-			IO::Filename preview_filename;
-			IO::Path::Combine(preview_filename, DAEDALUS_CTR_PATH("Resources/Preview/"), roms.at(currentItem).mSettings.Preview.c_str() );
 
-			previewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_5650 );
+			std::filesystem::path preview_file =roms.at(currentItem).mSettings.Preview.c_str();
+			std::filesystem::path preview_path = "Resources/Preview";
+			preview_path /= preview_file;
+			
+			previewTexture = CNativeTexture::CreateFromPng( preview_path, TexFmt_5650 );
 
 			pglSelectScreen(GFX_TOP, GFX_LEFT);
 			glDisable(GL_SCISSOR_TEST);

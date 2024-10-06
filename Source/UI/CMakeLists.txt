@@ -1,6 +1,6 @@
 add_library(UI OBJECT 
                             AboutComponent.cpp 
-                            AdjustDeadzoneScreen.cpp 
+                            # AdjustDeadzoneScreen.cpp 
                             AdvancedOptionsScreen.cpp 
                             CheatOptionsScreen.cpp 
                             ColourPulser.cpp 
@@ -25,6 +25,10 @@ add_library(UI OBJECT
 if(DAEDALUS_GL)
 target_include_directories(UI PUBLIC ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
 endif(DAEDALUS_GL)
+
+if(DAEDALUS_PROFILE_UI)
+target_compile_options(UI PRIVATE -pg)
+endif(DAEDALUS_PROFILE_UI)
 
 list(APPEND daed_libs "UI")
 set(daed_libs ${daed_libs} PARENT_SCOPE)

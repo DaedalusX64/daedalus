@@ -22,15 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "Core/CPU.h"			// For dubious use of PC/NewPC
-#include "Core/Registers.h"
+#include "Debug/Registers.h"
 #include "Debug/DBGConsole.h"
 #include "DynaRec/BranchType.h"
 #include "DynaRec/Fragment.h"
 #include "DynaRec/TraceRecorder.h"
 #include "Utility/Profiler.h"
-#include "Core/PrintOpCode.h"
-
-//#define LOG_ABORTED_TRACES
+#include "Debug/PrintOpCode.h"
+#include <fstream> 
 
 namespace
 {
@@ -332,10 +331,12 @@ void	CTraceRecorder::AbortTrace()
 	if( mTracing )
 	{
 #ifdef LOG_ABORTED_TRACES
-		FILE * fh( fopen( "aborted_traces.txt", "a" ) );
-		if(fh)
+
+		std::filesystem::path path = setBasePath("aborted_traces.txt"):;
+		std::fstream fh(path);
+		if (fh.is_open())
 		{
-			fprintf( fh, "\n\nTrace: (%d ops)\n", mTraceBuffer.size() );
+				fh << "\n\nTrace: (" << mTraceBuffer.size() << " ops)\n";
 
 			u32		last_address( mTraceBuffer.size() > 0 ? mTraceBuffer[ 0 ].Address-4 : 0 );
 			for(std::vector< STraceEntry >::const_iterator it = mTraceBuffer.begin(); it != mTraceBuffer.end(); ++it)
@@ -350,22 +351,18 @@ void	CTraceRecorder::AbortTrace()
 					DAEDALUS_ASSERT( branch_index < mBranchDetails.size(), "The branch index is out of range" );
 					#endif
 					const SBranchDetails &	details( mBranchDetails[ branch_index ] );
-					#ifdef DAEDALUS_DEBUG_CONSOLE
-					fprintf( fh, " BRANCH %d -> %08x\n", branch_index, details.TargetAddress );
-					#endif
+					fh << "Branch" << branch_index << "->" << details.TargetAddress;
 				}
 
 				char		buf[100];
 				SprintOpCodeInfo( buf, address, op_code );
 
 				bool		is_jump( address != last_address + 4 );
-				#ifdef DAEDALUS_DEBUG_CONSOLE
-				fprintf( fh, "%08x: %c%s\n", address, is_jump ? '*' : ' ', buf );
-				#endif
+				fh << std::hex << std::setfill('0') << std::setw(8) << address << ": "
+					<< (is_jump ? '*' : ' ') << buf << "\n";
 				last_address = address;
 			}
 
-			fclose(fh);
 		}
 #endif
 

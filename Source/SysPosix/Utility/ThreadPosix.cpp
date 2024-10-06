@@ -31,7 +31,7 @@ namespace
 {
 DAEDALUS_STATIC_ASSERT( sizeof( pthread_t ) == sizeof( ThreadHandle ) );
 
-const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
+const int	gThreadPriorities [[maybe_unused]] [ TP_NUM_PRIORITIES ] =
 {
 	0x19,		// TP_LOW
 	0x18,		// TP_NORMAL
@@ -76,7 +76,7 @@ void * StartThreadFunc( void * arg )
 
 } // anonymous namespace
 
-ThreadHandle CreateThread( const char * name, DaedThread function, void * argument )
+ThreadHandle CreateThread( const char * name [[maybe_unused]], DaedThread function, void * argument )
 {
 	pthread_t		thread;
 	pthread_attr_t	thread_attr;
@@ -95,19 +95,19 @@ ThreadHandle CreateThread( const char * name, DaedThread function, void * argume
 	return kInvalidThreadHandle;
 }
 
-void SetThreadPriority( ThreadHandle handle, EThreadPriority pri )
+void SetThreadPriority( ThreadHandle handle [[maybe_unused]], EThreadPriority pri [[maybe_unused]] )
 {
 	DAEDALUS_ERROR( "Thread priorities not supported" );
 }
 
-void ReleaseThreadHandle( ThreadHandle handle )
+void ReleaseThreadHandle( ThreadHandle handle [[maybe_unused]] )
 {
 	// Nothing to do?
 }
 
 //	Wait the specified time for the thread to finish.
 //	Returns false if the thread didn't terminate
-bool JoinThread( ThreadHandle handle, s32 timeout )
+bool JoinThread( ThreadHandle handle [[maybe_unused]], s32 timeout [[maybe_unused]] )
 {
 	//u32		delay( timeout > 0 ? timeout : INFINITE );
 	bool	signalled( true );

@@ -40,7 +40,7 @@
 #include "Core/ROM.h"
 #include "Debug/Dump.h"
 
-#include "System/IO.h"
+
 #include "Interface/Preferences.h"
 #include "Utility/Timer.h"
 #include "System/Timing.h"
@@ -50,7 +50,7 @@
 #include <algorithm>
 
 #include "Math/Math.h"	// VFPU Math
-#include "Base/MathUtil.h"
+#include "Utility/MathUtil.h"
 
 #include <pspctrl.h>
 #include <pspgu.h>
@@ -165,7 +165,7 @@ class CDebugMenuOption
 				bool			NeedsUpdateDisplay() const						{ return mRefreshDisplay; }
 				void			UpdateDisplay();
 
-		virtual const char *	GetDescription() const = 0;
+		virtual const std::string&	GetDescription() const = 0;
 
 	protected:
 				void			InvalidateDisplay()								{ mRefreshDisplay = true; }
@@ -196,7 +196,7 @@ class CCombinerExplorerDebugMenuOption : public CDebugMenuOption
 
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const char *	GetDescription() const									{ return "Combiner Explorer"; }
+		virtual const std::string&	GetDescription() const									{ return "Combiner Explorer"; }
 
 	private:
 				u32				mSelectedIdx;
@@ -352,7 +352,7 @@ class CBlendDebugMenuOption : public CDebugMenuOption
 		CBlendDebugMenuOption();
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const char *	GetDescription() const									{ return "Blend Explorer"; }
+		virtual const std::string&	GetDescription() const									{ return "Blend Explorer"; }
 
 	private:
 		u32				mIdx;
@@ -513,7 +513,7 @@ class CTextureExplorerDebugMenuOption : public CDebugMenuOption
 
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const char *	GetDescription() const									{ return "Texture Explorer"; }
+		virtual const std::string&	GetDescription() const									{ return "Texture Explorer"; }
 
 		virtual bool			OverrideDisplay() const;
 
@@ -807,7 +807,7 @@ class CDisplayListLengthDebugMenuOption : public CDebugMenuOption
 
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const char *	GetDescription() const									{ return "Display List Length"; }
+		virtual const std::string&	GetDescription() const									{ return "Display List Length"; }
 
 
 	private:
@@ -880,7 +880,7 @@ class CDecalOffsetDebugMenuOption : public CDebugMenuOption
 	public:
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const char *	GetDescription() const									{ return "Test variables"; }
+		virtual const std::string&	GetDescription() const									{ return "Test variables"; }
 };
 
 void CDecalOffsetDebugMenuOption::Display() const

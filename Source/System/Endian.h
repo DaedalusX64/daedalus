@@ -17,49 +17,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#pragma once
-
-#include "Base/Types.h"
 
 #ifndef UTILITY_ENDIAN_H_
 #define UTILITY_ENDIAN_H_
+#include "Base/Types.h"
+#include <bit>
+#include <cstdint>
 
-#ifdef DAEDALUS_ENDIAN_BIG
+constexpr bool is_big_endian = std::endian::native == std::endian::big;
 
-	#define U8_TWIDDLE 0x0
-	#define U16_TWIDDLE 0x0
-	#define U16H_TWIDDLE 0x0
-	#define BSWAP32(x) x
-	#define BSWAP16(x) x
+constexpr auto U8_TWIDDLE = is_big_endian ? 0x0 : 0x3;
+constexpr auto U16_TWIDDLE = is_big_endian ? 0x0 : 0x2;
+constexpr auto U16H_TWIDDLE = is_big_endian ? 0x0 : 0x1;
 
-#elif DAEDALUS_ENDIAN_LITTLE
-	#define U8_TWIDDLE 0x3
-	#define U16_TWIDDLE 0x2
-	#define U16H_TWIDDLE 0x1
 
-	#if defined( __GNUC__ ) && !defined(__clang__)
-		#ifdef DAEDALUS_PSP
-			#define BSWAP32(x) __builtin_allegrex_wsbw(x)
-			#define BSWAP16(x) __builtin_allegrex_wsbh(x)
-			#define WSWAP32(x) __builtin_allegrex_rotr(x, 16)
-
-		#else
-			#define BSWAP32(x) __builtin_bswap32(x)
-			#define BSWAP16(x) __builtin_bswap16(x)
-		#endif
-	#elif defined( _MSC_VER )
-
-		#define BSWAP32(x) _byteswap_ulong(x)
-		#define BSWAP16(x) _byteswap_ushort(x)
-
-	#else
-		//TODO: Clang?
-		#define BSWAP32(x) ((x >> 24) | ((x >> 8) & 0xFF00) | ((x & 0xFF00) << 8) | (x << 24))
-		#define BSWAP16(x) ((x>>8)|(x<<8))
-	#endif
-
-#else
-	#error No DAEDALUS_ENDIAN_MODE specified
-#endif
-
+#define BSWAP32(x) std::byteswap(x)
 #endif // UTILITY_ENDIAN_H_

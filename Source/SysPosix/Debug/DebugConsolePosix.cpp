@@ -38,7 +38,7 @@ class IDebugConsole : public CDebugConsole
 		void Msg(u32 type, const char * format, ...);
 
 		void MsgOverwriteStart() {}
-		void MsgOverwrite(u32 type, const char * format, ...)
+		void MsgOverwrite(u32 type [[maybe_unused]], const char * format, ...)
 		{
 			va_list marker;
 			va_start( marker, format );
@@ -68,7 +68,7 @@ IDebugConsole::IDebugConsole()
 }
 
 
-static size_t ParseFormatString(const char * format, char * out, size_t out_len)
+static size_t ParseFormatString(const char * format, char * out, size_t out_len [[maybe_unused]])
 {
 	ETerminalColour tc = TC_DEFAULT;
 
@@ -141,7 +141,7 @@ static size_t ParseFormatString(const char * format, char * out, size_t out_len)
 	return len;
 }
 
-void IDebugConsole::Msg(u32 type, const char * format, ...)
+void IDebugConsole::Msg(u32 type [[maybe_unused]], const char * format, ...)
 {
 	char * temp = NULL;
 
