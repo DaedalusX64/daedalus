@@ -27,16 +27,12 @@ jobs:
       id: slug
       run: echo "{name}={sha8::$(echo ${GITHUB_SHA} | cut -c1-8)}" >> $GITHUB_OUTPUT
 
-    - name: Prepare artifacts
-      run: |
-       tar -zcvf daedalusX64-PSP.tar.gz DaedalusX64
-
     - name: Upload artifacts
       if: ${{ success() }}
       uses: actions/upload-artifact@v4
       with:
         name: DaedalusX64-PSP
-        path: daedalusX64-PSP.tar.gz
+        path: DaedalusX64
 
     - name: Extract tag name
       if: startsWith(github.ref, 'refs/tags/')
@@ -70,8 +66,8 @@ jobs:
       if: ${{ success() }}
       uses: actions/upload-artifact@v4
       with:
-        name: daedalusX64-linux
-        path: daedalusX64-linux.tar.gz
+        name: DaedalusX64-Linux
+        path: DaedalusX64
 
   build-ctr:
     runs-on: ubuntu-latest
@@ -96,8 +92,8 @@ jobs:
         if: ${{ success() }}
         uses: actions/upload-artifact@v4
         with:
-          name: daedalusX64-CTR
-          path: daedalusX64-CTR.tar.gz
+          name: DaedalusX64-CTR
+          path: DaedalusX64
 
   build-macos:
     runs-on: macOS-latest
@@ -128,7 +124,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: DaedalusX64-macos
-        path: daedalusX64-macos-x86.tar.gz
+        path: DaedalusX64
 
   build-windows:
     runs-on: windows-latest
@@ -154,12 +150,9 @@ jobs:
           cmake --build build --config Release
           cmake --install build --prefix DaedalusX64
 
-      - name: Prepare artifacts
-        run: |
-              tar -zcvf daedalusX64-windows-amd64.tar.gz DaedalusX64
       - name: Upload artifacts
         if: ${{ success() }}
         uses: actions/upload-artifact@v4
         with:
-          name: DaedalusX64-win
-          path: daedalusX64-windows-amd64.tar.gz
+          name: DaedalusX64-Win
+          path: DaedalusX64
