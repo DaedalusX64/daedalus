@@ -100,7 +100,7 @@ void LOADBUFF(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "LOADBUFF");
 #endif
-  u32 addr = command.Abi1LoadBuffer.Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 addr = command.Abi1LoadBuffer.Address+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.LoadBuffer(addr);
 }
@@ -110,7 +110,7 @@ void LOADBUFF2(AudioHLECommand command) {
   DBGConsole_Msg(0, "LOADBUFF2");
 #endif
   // Needs accuracy verification...
-  u32 src = command.Abi2LoadBuffer.SrcAddr; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 src = command.Abi2LoadBuffer.SrcAddr+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
   u16 dst = command.Abi2LoadBuffer.DstAddr;
   u16 count = command.Abi2LoadBuffer.Count;
 
@@ -132,7 +132,7 @@ void SAVEBUFF(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SAVEBUFF");
 #endif
-  u32 addr = command.Abi1SaveBuffer.Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 addr = command.Abi1SaveBuffer.Address+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.SaveBuffer(addr);
 }
@@ -142,7 +142,7 @@ void SAVEBUFF2(AudioHLECommand command) {
   DBGConsole_Msg(0, "SAVEBUFF2");
 #endif
   // Needs accuracy verification...
-  u32 dst = command.Abi2SaveBuffer.DstAddr; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 dst = command.Abi2SaveBuffer.DstAddr+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
   u16 src = command.Abi2SaveBuffer.SrcAddr;
   u16 count = command.Abi2SaveBuffer.Count;
 
@@ -159,18 +159,30 @@ void SAVEBUFF3(AudioHLECommand command) {
   memmove(rdram + v0, gAudioHLEState.Buffer + src, cnt);
 }
 
-void SEGMENT(AudioHLECommand command [[maybe_unused]] ) {
+void SEGMENT(AudioHLECommand command [[maybe_unused]]) {
 #ifdef DEBUG_AUDIO
-  DBGConsole_Msg(0, "SEGMENT - Not implemented");
+  DBGConsole_Msg(0, "SEGMENT - Implementing SEGMENT command");
 #endif
-  /*u8	segment( command.Abi1SetSegment.Segment & 0xf );
-        u32	address( command.Abi1SetSegment.Address );
 
-        gAudioHLEState.SetSegment( segment, address );
+  // Extract segment and offset
+  uint8_t segment = (command.Abi1SetSegment.Segment >> 24) & 0x3f;   // Extract the 6-bit segment ID
+  uint32_t offset = command.Abi1SetSegment.Segment & 0xffffff;        // Extract the 24-bit offset
 
-  */
+  // Check if the segment is valid (assuming 'n' is the maximum number of segments, e.g., 16 or 32)
+  if (segment >= 16) {
+#ifdef DEBUG_AUDIO
+    DBGConsole_Msg(0, "SEGMENT - Invalid segment %u", segment);
+#endif
+    return;
+  }
+
+  // Store the segment offset in the audio HLE state
+  gAudioHLEState.SetSegment(segment, offset);
+
+#ifdef DEBUG_AUDIO
+  DBGConsole_Msg(0, "SEGMENT - Segment %u set to offset 0x%06x", segment, offset);
+#endif
 }
-
 void SEGMENT2(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SEGMENT2");
@@ -222,7 +234,7 @@ void SETLOOP(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SETLOOP");
 #endif
-  u32 loopval = command.Abi1SetLoop.LoopVal; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 loopval = command.Abi1SetLoop.LoopVal+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.SetLoop(loopval);
 }
@@ -231,7 +243,7 @@ void SETLOOP2(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SETLOOP2");
 #endif
-  u32 loopval = command.Abi2SetLoop.LoopVal; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 loopval = command.Abi2SetLoop.LoopVal+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.SetLoop(loopval);
 }
@@ -240,7 +252,7 @@ void SETLOOP3(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SETLOOP3");
 #endif
-  u32 loopval = command.Abi3SetLoop.LoopVal; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 loopval = command.Abi3SetLoop.LoopVal+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.SetLoop(loopval);
 }

@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_gbi.h"
 
 #include <random>
+#include <unordered_map>
 #include <cstring> 
 
 // Limit cache ucode entries to 6
@@ -133,30 +134,24 @@ struct MicrocodeData
 {
 	u32	ucode;
 	u32 offset;
-	u32	hash;
 
 	const char *ucode_name;
 };
 
-static const std::array<MicrocodeData, 12> gMicrocodeData {
-{
-	//
-	//	The only games that need defining here are custom ucodes or ucodes that lack a version string in the microcode data
-	//	Note - Games are in alphabetical order by game title
-	//
-	{ GBI_CONKER,	GBI_2,	0x60256efc,	"RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo."},	// Conker's Bad Fur Day
-	{ GBI_LL,		GBI_1,	0x6d8bec3e,	"RSP Gfx ucode: Unknown"},			//"Dark Rift"
-	{ GBI_DKR,		GBI_0,	0x0c10181a,	"RSP Gfx ucode: Unknown"},			//"Diddy Kong Racing (v1.0)"
-	{ GBI_DKR,		GBI_0,	0x713311dc,	"RSP Gfx ucode: Unknown"},			//"Diddy Kong Racing (v1.1)"
-	{ GBI_GE,		GBI_0,	0x23f92542,	"RSP SW Version: 2.0G, 09-30-96"},	//"GoldenEye 007"
-	{ GBI_DKR,		GBI_0,	0x169dcc9d,	"RSP Gfx ucode: Unknown"},			//"Jet Force Gemini"
-	{ GBI_LL,		GBI_1,	0x26da8a4c,	"RSP Gfx ucode: Unknown"},			//"Last Legion UX"}
-	{ GBI_PD,		GBI_0,	0xcac47dc4,	"RSP Gfx ucode: Unknown"},			//"Perfect Dark (v1.1)"
-	{ GBI_RS,		GBI_1,	0xc62a1631, "RSP Gfx ucode: Unknown"},			// Star Wars - Rogue Squadron
-	{ GBI_BETA,		GBI_0,	0x6cbb521d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Star Wars - Shadows of the Empire (v1.0)"
-	{ GBI_LL,		GBI_1,	0xdd560323,	"RSP Gfx ucode: Unknown"},			//"Toukon Road - Brave Spirits"
-	{ GBI_BETA,		GBI_0,	0x64cc729d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Wave Race 64 (v1.1)"
-}};
+static const std::unordered_map<u32, MicrocodeData> gMicrocodeDataMap = {
+    std::make_pair(0x60256efc, MicrocodeData{GBI_CONKER, GBI_2, "RSP Gfx ucode F3DEXBG.NoN fifo 2.08 Yoshitaka Yasumoto 1999 Nintendo."}),
+    std::make_pair(0x6d8bec3e, MicrocodeData{GBI_LL, GBI_1, "RSP Gfx ucode: Unknown"}),
+    std::make_pair(0x0c10181a, MicrocodeData{GBI_DKR, GBI_0, "RSP Gfx ucode: Unknown"}),
+    std::make_pair(0x713311dc, MicrocodeData{GBI_DKR, GBI_0, "RSP Gfx ucode: Unknown"}),
+    std::make_pair(0x23f92542, MicrocodeData{GBI_GE, GBI_0, "RSP SW Version: 2.0G, 09-30-96"}),
+    std::make_pair(0x169dcc9d, MicrocodeData{GBI_DKR, GBI_0, "RSP Gfx ucode: Unknown"}),
+    std::make_pair(0x26da8a4c, MicrocodeData{GBI_LL, GBI_1, "RSP Gfx ucode: Unknown"}),
+    std::make_pair(0xcac47dc4, MicrocodeData{GBI_PD, GBI_0, "RSP Gfx ucode: Unknown"}),
+    std::make_pair(0xc62a1631, MicrocodeData{GBI_RS, GBI_1, "RSP Gfx ucode: Unknown"}),
+    std::make_pair(0x6cbb521d, MicrocodeData{GBI_BETA, GBI_0, "RSP SW Version: 2.0D, 04-01-96"}),
+    std::make_pair(0xdd560323, MicrocodeData{GBI_LL, GBI_1, "RSP Gfx ucode: Unknown"}),
+    std::make_pair(0x64cc729d, MicrocodeData{GBI_BETA, GBI_0, "RSP SW Version: 2.0D, 04-01-96"})
+};
 
 UcodeInfo GBIMicrocode_SetCache(u32 index, u32 code_base, u32 data_base, 
 	const MicroCodeInstruction * ucode_function, const char ** name )
@@ -183,15 +178,14 @@ UcodeInfo GBIMicrocode_SetCache(u32 index, u32 code_base, u32 data_base,
 }
 
 UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size )
-{
+{	u32 index;
 	// Cheap way to cache ucodes, don't compare strings (too slow!) instead check the last used ucode entries which is alot faster.
-	u32 index;
 	for( index = 0; index < MAX_UCODE_CACHE_ENTRIES; index++ )
 	{
-		const UcodeUsage &used( gUcodeUsage[ index ] );
+		const UcodeUsage &used = gUcodeUsage[ index ];
 
 		// If this returns false, it means this entry its free to use
-		if( used.ucode_set == false )
+		if(!used.ucode_set)
 			break;
 
 		if( used.data_base == data_base && used.code_base == code_base)
@@ -200,30 +194,25 @@ UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_bas
 		}
 	}
 
-	//
 	// If it wasn't the same ucode as the last time around, we'll hash it to check if is a custom ucode.
-	//
 	u32 code_hash = GBIMicrocode_MicrocodeHash( code_base, code_size );
 
-	for ( u32 i = 0; i < gMicrocodeData.size(); i++ )
+	auto it = gMicrocodeDataMap.find(code_hash);
+	if (it != gMicrocodeDataMap.end())
 	{
-		if ( code_hash == gMicrocodeData[i].hash )
-		{
-			u32 ucode_version = gMicrocodeData[i].ucode;
-			u32 ucode_offset = gMicrocodeData[i].offset;
+		const MicrocodeData& data = it->second;
+		u32 ucode_version = data.ucode;
+		u32 ucode_offset = data.offset;
 
-			GBIMicrocode_SetCustomArray( ucode_version, ucode_offset ); 
-			DBGConsole_Msg(0, "Detected Custom Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]", ucode_version, code_hash, 
-				gMicrocodeData[i].ucode_name, g_ROM.settings.GameName.c_str());
-			return GBIMicrocode_SetCache( index, code_base, data_base, gCustomInstruction, gCustomInstructionName );
-		}
-	}
+        GBIMicrocode_SetCustomArray(ucode_version, ucode_offset);
+        DBGConsole_Msg(0, "Detected Custom Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",
+                       ucode_version, code_hash, data.ucode_name, g_ROM.settings.GameName.c_str());
+        return GBIMicrocode_SetCache(index, code_base, data_base, gCustomInstruction, gCustomInstructionName);
+    }
 	
-	//
+	
 	// If it wasn't a custom ucode. Try to detect by checking the version string in the microcode data.
 	// This is faster than calculating a crc of the code
-	//
-
 	// Select Fast3D ucode in case there's no match or if the version string its missing
 	u32 ucode_version = GBI_0;
 
@@ -235,7 +224,7 @@ UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_bas
 	else
 	{
 		const char  *ucodes[] { "F3", "L3", "S2DEX" };
-		char 		*match = 0;
+		char 		*match = nullptr;
 
 		for(u32 j = 0; j < 3; j++)
 		{
