@@ -1,6 +1,6 @@
 add_subdirectory(Debug)
 add_subdirectory(HLEGraphics)
-add_subdirectory(Utility)
+
 
 
 list(APPEND sys_libraries "dl")
