@@ -9,6 +9,7 @@
 #endif
 
 #include "UI/DrawText.h"
+#include "Utility/Translate.h"
 
 
 
@@ -56,32 +57,47 @@ u32 CDrawText::Render(EFont font, s32 x, s32 y, float scale, const std::string p
 
 u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const std::string p_str, u32 length, c32 colour, c32 drop_colour)
 {
-	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
+    DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
 
-	TTF_Font *font(gFonts[font_type]);
-	if (font && p_str[0] != '\0')
-	{
+    // Get the translated string and its length
+    const char* translated_str = Translate_Strings(p_str, length);
+
+    TTF_Font *font = gFonts[font_type];
+    if (font && translated_str[0] != '\0')
+    {
         SDL_Color c {colour.GetR(), colour.GetG(), colour.GetB()};
-        SDL_Color dc {drop_colour.GetR(), drop_colour.GetG(), drop_colour.GetB()};
-        SDL_Surface *surface = TTF_RenderUTF8_Blended(font, p_str.c_str(), c);
+        SDL_Color dc {drop_colour.GetR(), drop_colour.GetG(), drop_colour.GetB()}; // Unused currently
+        SDL_Surface *surface = TTF_RenderUTF8_Blended(font, translated_str, c);
+
+        if (!surface)
+        {
+            SDL_Log("Unable to render text surface: %s", SDL_GetError());
+            return 0; // Return 0 to indicate failure
+        }
+
         SDL_Texture* Message = SDL_CreateTextureFromSurface(gSdlRenderer, surface);
+        if (!Message)
+        {
+            SDL_Log("Unable to create texture from surface: %s", SDL_GetError());
+            SDL_FreeSurface(surface);
+            return 0; // Return 0 to indicate failure
+        }
 
-        SDL_Rect Message_rect; //create a rect
-        Message_rect.x = x * scaleX;  //controls the rect's x coordinate 
-        Message_rect.y = y * scaleY; // controls the rect's y coordinte
-        Message_rect.w = surface->w * scaleX * scale; // controls the width of the rect
-        Message_rect.h = surface->h * scaleY * scale; // controls the height of the rect
+        SDL_Rect Message_rect;
+        Message_rect.x = x * scaleX; 
+        Message_rect.y = y * scaleY;
+        Message_rect.w = surface->w * scaleX * scale;
+        Message_rect.h = surface->h * scaleY * scale;
 
-        SDL_RenderCopy(gSdlRenderer, Message, NULL, &Message_rect);
+        SDL_RenderCopy(gSdlRenderer, Message, nullptr, &Message_rect);
 
         SDL_FreeSurface(surface);
-
-        SDL_DestroyTexture(Message); 
+        SDL_DestroyTexture(Message);
 
         return Message_rect.w;
     }
 
-	return p_str.length() * 16; // Guess. Better off just returning 0?
+    return length * 16; // Return based on original length as a fallback
 }
 
 
@@ -94,19 +110,13 @@ s32 CDrawText::GetTextWidth(EFont font_type, const std::string p_str, u32 length
 	if (font)
 	{
         int w, h;
-        if (p_str[length] == '\0')
-            TTF_SizeText(font, p_str.c_str(), &w, &h);
-        else
-        {
-            char buf[128];
-            memcpy(buf, p_str.c_str(), length);
-            buf[length] = '\0';
-            TTF_SizeText(font, buf, &w, &h);
-        }
-        return w;
-	}
+        std::string substr = (length >= p_str.size()) ? p_str : p_str.substr(0, length);
+        std::string_view str_view = substr;
+        TTF_SizeText(font, str_view.data(), &w, &h);
+        return static_cast<s32>(Translate_Strings(p_str, length), w);
+    }
 
-	return p_str.length() * 16; // Return a reasonable value. Better off just returning 0?
+	return 0;
 }
 
 
