@@ -338,7 +338,7 @@ s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width [[maybe_unused]], u3
 	u32					length = text.length();
 	std::vector<u32>	lengths;
 	bool				match = false;
-	// DrawTextUtilities::WrapText( mCurrentFont, width, Translate_Strings( text, length ), length, lengths, match );
+	DrawTextUtilities::WrapText( mCurrentFont, width, Translate_Strings( text, length ), length, lengths, match );
 
 	s32 x =  left;
 	s32 y = VerticalAlign( vertical_align, top, height, lengths.size() * font_height );
