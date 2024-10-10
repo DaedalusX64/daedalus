@@ -57,12 +57,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UI/PauseScreen.h"
 #include "UI/SplashScreen.h"
 #include "UI/UIContext.h"
+
 #include <iostream>
 
 #include "System/SystemInit.h"
 #include "Utility/BatchTest.h"
 
 #include "Utility/ModulePSP.h"
+#include "Utility/Buttons.h"
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
 #include "System/Thread.h"
@@ -110,6 +112,10 @@ static bool	Initialize()
 	pspDebugScreenInit();
 	sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
+
+	// Set up our Kernel Home button
+	InitHomeButton();
+
 
 	#ifdef DAEDALUS_SDL
 		if( SDL_Init( SDL_INIT_AUDIO ) < 0 )
@@ -174,16 +180,25 @@ void HandleEndOfFrame()
 	bool		activate_pause_menu = false;
 	sceCtrlPeekBufferPositive(&pad, 1);
 
-	// If KernelButtons.prx not found. Use select for pause instead
+
 	if(oldButtons != pad.Buttons)
 	{
-		// if( gCheatsEnabled && (pad.Buttons & PSP_CTRL_SELECT) )
-		// {
-		// 	CheatCodes_Activate( GS_BUTTON );
-		// }
+		if( gCheatsEnabled && (pad.Buttons & PSP_CTRL_SELECT) )
+		{
+			CheatCodes_Activate( GS_BUTTON );
+		}
 
-		if(pad.Buttons & PSP_CTRL_SELECT)
-				activate_pause_menu = true;
+		if(pad.Buttons & PSP_CTRL_HOME)
+		{
+			while(!activate_pause_menu)
+			{
+				sceCtrlPeekBufferPositive(&pad, 1);
+				if(!(pad.Buttons & PSP_CTRL_HOME))
+				{
+					activate_pause_menu = true;
+				}
+			}
+		}
 	}
 
 	if(activate_pause_menu)

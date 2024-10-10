@@ -9,7 +9,8 @@ add_subdirectory(Utility)
 install(DIRECTORY DESTINATION DaedalusX64/Plugins) 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/PRX/MediaEngine/mediaengine.prx DESTINATION DaedalusX64/Plugins)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/PRX/DveMgr/dvemgr.prx DESTINATION DaedalusX64/Plugins)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}//PRX/ExceptionHandler/exception.prx DESTINATION DaedalusX64/Plugins)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/PRX/ExceptionHandler/exception.prx DESTINATION DaedalusX64/Plugins)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/PRX/KernelButtons/imposectrl.prx DESTINATION DaedalusX64/Plugins)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../EBOOT.PBP DESTINATION DaedalusX64)
 
 #Copy the PRX and plain binary to the DaedalusX64 Directory for testing
