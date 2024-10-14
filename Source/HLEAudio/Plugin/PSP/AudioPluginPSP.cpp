@@ -140,11 +140,67 @@ private:
 
 static AudioPluginPSP * ac;
 
+#include <queue>
+#include <atomic>
+#include <cstdint>
+
+// Atomic flag to signal which queue is active
+std::atomic<bool> activeQueueIndexplayback{0};  // 0 or 1 to switch between the two queues
+
+// Two separate task queues for each CPU
+std::queue<Sample*> Samplequeue1;
+std::queue<Sample*> Samplequeue2;
+std::queue<u32> num_Samplequeue1;
+std::queue<u32> num_Samplequeue2;
+
+// Function to enqueue tasks into one of the two queues
+void EnqueueTaskplayback(Sample * buffer, u32 num_samples) {
+
+    // Determine which queue to enqueue the task into based on the active queue
+    if (activeQueueIndexplayback.load() == 0) {
+        Samplequeue1.push(buffer);
+		num_Samplequeue1.push(num_samples);
+    } else {
+        Samplequeue2.push(buffer);
+		num_Samplequeue2.push(num_samples);
+    }
+}
+
+void processthequeues(CAudioBuffer * bubble){
+
+	std::queue<Sample*>& processingQueue1 = (activeQueueIndexplayback.load() == 0) ? Samplequeue1 : Samplequeue2;
+	std::queue<u32>& processingQueue2 = (activeQueueIndexplayback.load() == 0) ? num_Samplequeue1 : num_Samplequeue2;
+
+    while (!processingQueue1.empty()) {
+
+		Sample* buffer = processingQueue1.front();
+        processingQueue1.pop();
+		u32 numberofsamples = processingQueue2.front();
+        processingQueue2.pop();
+
+
+	  bubble->Drain( buffer, numberofsamples  );
+
+	           for(int i = 0; i < 8192; i += 64)
+   {
+      __builtin_allegrex_cache(0x14, i);
+      __builtin_allegrex_cache(0x14, i);
+   }
+
+	}
+}
+
+
+
+
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
 	sceKernelWaitSema( mSemaphore, 1, nullptr );
 
-	mAudioBufferUncached->Drain( buffer, num_samples );
+				EnqueueTaskplayback(buffer, num_samples);
+				sceKernelDcacheWritebackInvalidateAll();
+				BeginME( mei, (int)&processthequeues, (int)mAudioBuffer, -1, NULL, -1, NULL);
+
 
 	sceKernelSignalSema( mSemaphore, 1 );
 }
@@ -228,6 +284,7 @@ void	AudioPluginPSP::LenChanged()
 	}
 }
 
+extern void EnqueueTask();
 
 EProcessResult	AudioPluginPSP::ProcessAList()
 {
@@ -242,23 +299,19 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 			break;
 		case APM_ENABLED_ASYNC:
 			{
-#ifdef DAEDALUS_PSP_USE_ME
+				EnqueueTask();
 				sceKernelDcacheWritebackInvalidateAll();
 				if(BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL) < 0){
-						Audio_Ucode();
 						result = PR_COMPLETED;
 						break;
 				}
-#else
-				DAEDALUS_ERROR("Async audio is unimplemented");
-				Audio_Ucode();
 				result = PR_COMPLETED;
 				break;
-#endif
 			}
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_SYNC:
+			EnqueueTask();
 			Audio_Ucode();
 			result = PR_COMPLETED;
 			break;
@@ -267,13 +320,13 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 	return result;
 }
 
-
 void audioCallback( void * buf, unsigned int length, void * userdata )
 {
 	AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
 
 	ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
 }
+
 
 
 void AudioPluginPSP::StartAudio()

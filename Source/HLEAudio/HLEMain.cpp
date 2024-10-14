@@ -113,33 +113,70 @@ inline void Audio_Ucode_Detect(OSTask *pTask) {
 //*****************************************************************************
 //
 //*****************************************************************************
+#include <queue>
+#include <atomic>
+#include <cstdint>
+
+// Atomic flag to signal which queue is active
+std::atomic<bool> activeQueueIndex{0};  // 0 or 1 to switch between the two queues
+
+// Two separate task queues for each CPU
+std::queue<OSTask*> queue1;
+std::queue<OSTask*> queue2;
+
+// Function to enqueue tasks into one of the two queues
+void EnqueueTask() {
+
+    OSTask *pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
+    // Determine which queue to enqueue the task into based on the active queue
+    if (activeQueueIndex.load() == 0) {
+        queue1.push(pTask);
+    } else {
+        queue2.push(pTask);
+    }
+}
+
 void Audio_Ucode() {
 #ifdef DAEDALUS_PROFILE
-  DAEDALUS_PROFILE("HLEMain::Audio_Ucode");
+    DAEDALUS_PROFILE("HLEMain::Audio_Ucode");
 #endif
-  OSTask *pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 
-  // Only detect ABI once per game
-  if (!bAudioChanged) {
-    bAudioChanged = true;
-    Audio_Ucode_Detect(pTask);
-  }
+    // Process tasks from the current active queue
+    std::queue<OSTask*>& processingQueue = (activeQueueIndex.load() == 0) ? queue1 : queue2;
 
-  gAudioHLEState.LoopVal = 0;
-  memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
+    while (!processingQueue.empty()) {
+        OSTask* pTask = processingQueue.front();
+        processingQueue.pop();
 
-  u32 *p_alist = (u32 *)(g_pu8RamBase + (uintptr_t)pTask->t.data_ptr);
-  u32 ucode_size = (pTask->t.data_size >> 3); // ABI5 can return 0 here!!!
+        // Only detect ABI once per game
+        if (!bAudioChanged) {
+            bAudioChanged = true;
+            Audio_Ucode_Detect(pTask);
+        }
 
-  while (ucode_size) {
-    AudioHLECommand command;
-    command.cmd0 = *p_alist++;
-    command.cmd1 = *p_alist++;
+        gAudioHLEState.LoopVal = 0;
 
-    ABI[command.cmd](command);
+        u32* p_alist = (u32*)(g_pu8RamBase + (uintptr_t)pTask->t.data_ptr);
+        u32 ucode_size = (pTask->t.data_size >> 3); // ABI5 can return 0 here!
 
-    --ucode_size;
+        // Process the commands in the task
+        while (ucode_size) {
+            AudioHLECommand command;
+            command.cmd0 = *p_alist++;
+            command.cmd1 = *p_alist++;
 
-    // printf("%08X %08X\n",command.cmd0,command.cmd1);
-  }
+            // Execute the command using the ABI
+            ABI[command.cmd](command);
+
+            --ucode_size;
+        }
+           for(int i = 0; i < 8192; i += 64)
+   {
+      __builtin_allegrex_cache(0x14, i);
+      __builtin_allegrex_cache(0x14, i);
+   }
+    }
+
+    // Swap the active queue after processing
+    activeQueueIndex.store(!activeQueueIndex.load());
 }
