@@ -188,6 +188,10 @@ void processthequeues(CAudioBuffer * bubble){
    }
 
 	}
+
+    // Swap the active queue after processing
+    activeQueueIndexplayback.store(!activeQueueIndexplayback.load());
+
 }
 
 
