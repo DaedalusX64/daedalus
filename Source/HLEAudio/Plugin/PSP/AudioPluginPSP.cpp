@@ -199,14 +199,14 @@ void processthequeues(CAudioBuffer * bubble){
 
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
-	sceKernelWaitSema( mSemaphore, 1, nullptr );
-
-				EnqueueTaskplayback(buffer, num_samples);
-				sceKernelDcacheWritebackInvalidateAll();
-				BeginME( mei, (int)&processthequeues, (int)mAudioBuffer, -1, NULL, -1, NULL);
 
 
-	sceKernelSignalSema( mSemaphore, 1 );
+EnqueueTaskplayback(buffer, num_samples);
+sceKernelDcacheWritebackInvalidateAll();
+BeginME( mei, (int)&processthequeues, (int)mAudioBuffer, -1, NULL, -1, NULL);
+
+
+
 }
 
 
