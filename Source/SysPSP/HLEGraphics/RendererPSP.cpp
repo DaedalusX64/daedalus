@@ -364,17 +364,16 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 		sceGuDisable(GU_TEXTURE_2D);	//Blend triangle without a texture
 		sceGuDisable(GU_ALPHA_TEST);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+   		// Enable PSP hardware fog
+    	sceGuEnable(GU_FOG);
 
-		u32 FogColor {mFogColour.GetColour()};
-
-		//Copy fog color to vertices
-		for(u32 i {} ; i < num_vertices ; i++)
-		{
-			u32 alpha {p_vertices[i].Colour.GetColour() & 0xFF000000};
-			p_vertices[i].Colour = (c32)(alpha | FogColor);
-		}
+    	// Configure fog range and color
+		u32 fogColor = (mFogColour.GetColour()); // Fog color
+   		sceGuFog(mfog_near, mfog_far, fogColor);
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
+
+		sceGuDisable(GU_FOG);
 
 		sceGuDepthFunc(GU_GEQUAL);	//Restore default depth function
 	}
