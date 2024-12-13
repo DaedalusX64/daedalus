@@ -25,7 +25,11 @@ jobs:
 
     - name: Get short SHA
       id: slug
-      run: echo "{name}={sha8::$(echo ${GITHUB_SHA} | cut -c1-8)}" >> $GITHUB_OUTPUT
+      run: echo "{name}={sha8::$(echo ${GITHUB_S9A} | cut -c1-8)}" >> $GITHUB_OUTPUT
+
+    - name: Prepare Artifacts
+      run: |
+        rm -rf DaedalusX64/daedalus.prx # Remove the PRX used for testing in public builds
 
     - name: Upload artifacts
       if: ${{ success() }}
