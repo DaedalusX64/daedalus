@@ -698,7 +698,7 @@ void MemoryUpdateSPStatus( u32 flags )
 	}
 	else if (stop_rsp)
 	{
-		RSP_HLE_Reset();
+		//RSP_HLE_Reset();
 	}
 }
 

@@ -1,6 +1,7 @@
 add_library(Graphics OBJECT
                     ColourValue.cpp 
                     HvqmTask.cpp
+                    RE2TASK.cpp
                     JpegTask.cpp
                     PngUtil.cpp 
                     TextureTransform.cpp

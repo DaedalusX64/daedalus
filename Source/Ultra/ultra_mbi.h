@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	M_GFXTASK	1
 #define	M_AUDTASK	2
 #define	M_VIDTASK	3
-#define M_JPGTASK	4
+#define M_NORTASK   4
 #define M_FBTASK	7
 
 #define	NUM_SEGMENTS			(16)

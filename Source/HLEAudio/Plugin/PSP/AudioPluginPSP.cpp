@@ -134,19 +134,53 @@ private:
 	bool mExitAudioThread;
 	u32 mFrequency;
 	s32 mAudioThread;
-	s32 mSemaphore;
 //	u32 mBufferLenMs;
 };
 
 static AudioPluginPSP * ac;
 
+
+s32 mSemaphoretwo = sceKernelCreateSema( "pspMEaudio", 0, 1, 1, nullptr );
+
+s32 mSemaphore = sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, nullptr );
+
+bool audiothreadactive = false;
+
+static int audioOutput(SceSize args, void *argp)
+{
+                while(audiothreadactive == true){
+				
+				sceKernelWaitSema( mSemaphoretwo, 1, nullptr );
+
+				sceKernelDcacheWritebackInvalidateAll();
+				asm("sync");
+
+				BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL);
+
+				     while (CheckME(mei)) {
+               		 sceKernelDelayThread(100);  // Yield to other threads to avoid 100% CPU usage
+            		}
+
+
+				}
+
+				return 0;
+
+
+}
+
+int audioThid = sceKernelCreateThread("audioOutput", audioOutput, 0x15, 0x1800, PSP_THREAD_ATTR_USER, NULL);
+
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
+
 	sceKernelWaitSema( mSemaphore, 1, nullptr );
 
 	mAudioBufferUncached->Drain( buffer, num_samples );
 
 	sceKernelSignalSema( mSemaphore, 1 );
+
+	
 }
 
 
@@ -157,7 +191,6 @@ AudioPluginPSP::AudioPluginPSP()
 :mKeepRunning (false)
 //: mAudioBuffer( kAudioBufferSize )
 , mFrequency( 44100 )
-,	mSemaphore( sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, nullptr ) )
 //, mAudioThread ( kInvalidThreadHandle )
 //, mKeepRunning( false )
 //, mBufferLenMs ( 0 )
@@ -241,23 +274,17 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_ASYNC:
-			{
-#ifdef DAEDALUS_PSP_USE_ME
-				sceKernelDcacheWritebackInvalidateAll();
-				if(BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL) < 0){
-						Audio_Ucode();
-						result = PR_COMPLETED;
-						break;
-				}
-#else
-				DAEDALUS_ERROR("Async audio is unimplemented");
-				Audio_Ucode();
+			{	
+				//signal the audio thread to kick off a audioucode HLE task.
+				sceKernelSignalSema( mSemaphoretwo, 1 );
+				if(audiothreadactive == false){
+					audiothreadactive = true;
+					sceKernelStartThread(audioThid, 0, NULL);
+				} 
 				result = PR_COMPLETED;
 				break;
-#endif
+
 			}
-			result = PR_COMPLETED;
-			break;
 		case APM_ENABLED_SYNC:
 			Audio_Ucode();
 			result = PR_COMPLETED;

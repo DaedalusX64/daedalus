@@ -226,7 +226,32 @@ static uint16_t YCbCr_to_BGRA5551(int16_t Y, int16_t Cb, int16_t Cr, uint8_t alp
     return (b << 11) | (g << 6) | (r << 1) | (alpha & 1);
 }
 
-void hvqm2_decode_sp1_task(OSTask *task)
+struct RGBA {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
+};
+
+#define SATURATE8(x) ((unsigned int) x <= 255 ? x : (x < 0 ? 0: 255))
+static uint32_t YCbCr_to_RGBA(int16_t Y, int16_t Cb, int16_t Cr, uint8_t alpha)
+{
+    struct RGBA color;
+
+    //Format S10.6
+    int r = (int)(((double)Y + 0.5) + (1.765625 * (double)(Cr - 128)));
+    int g = (int)(((double)Y + 0.5) - (0.34375 * (double)(Cr - 128)) - (0.71875 * (double)(Cb - 128)));
+    int b = (int)(((double)Y + 0.5) + (1.40625 * (double)(Cb - 128)));
+
+    color.r = SATURATE8(r);
+    color.g = SATURATE8(g);
+    color.b = SATURATE8(b);
+    color.a = alpha;
+
+	return (color.b << 24) | (color.g << 16) | (color.r << 8) | color.a;
+}
+
+void hvqm2_decode_task(OSTask *task, int is32)
 {
     uint32_t data_ptr = (u32)task->t.data_ptr;
 
@@ -249,22 +274,26 @@ void hvqm2_decode_sp1_task(OSTask *task)
     data_ptr += 1;
     rdram_read_many_u8(arg.nest, data_ptr, HVQM2_NESTSIZE);
 
-    //int length = 0x10;
-    //int count = arg.chroma_step_v << 2;
-    int skip = arg.buf_width << 1;
-
-    if ((arg.chroma_step_v - 1) != 0)
-    {
-        arg.buf_width <<= 3;
+	int length, skip;
+	if (is32) {
+		length = 0x20;
+		skip = arg.buf_width << 2;
+		arg.buf_width <<= 4;
+	} else {
+		length = 0x10;
+		skip = arg.buf_width << 1;
+		arg.buf_width <<= 3;
+	}
+	
+	if (arg.chroma_step_v == 2)
         arg.buf_width += arg.buf_width;
-    }
 
     for (int i = arg.vmcus; i != 0; i--)
     {
         uint32_t out;
         int j;
 
-        for (j = arg.hmcus, out = arg.buf; j != 0; j--, out += 0x10)
+        for (j = arg.hmcus, out = arg.buf; j != 0; j--, out += length)
         {
             uint8_t base = 0x80;
             int16_t Cb[16], Cr[16], Y1[32], Y2[32];
@@ -304,15 +333,27 @@ void hvqm2_decode_sp1_task(OSTask *task)
                     uint32_t addr = out_buf;
                     for (int l = 0; l < 4; l++)
                     {
-                        uint16_t pixel = YCbCr_to_BGRA5551(pY1[l], pCb[l >> 1], pCr[l >> 1], arg.alpha);
-                        rdram_write_many_u16(&pixel, addr, 1);
-                        addr += 2;
+						if (is32) {
+							uint32_t pixel = YCbCr_to_RGBA(pY1[l], pCb[l >> 1], pCr[l >> 1], arg.alpha);
+							rdram_write_many_u32(&pixel, addr, 1);
+							addr += 4;
+						} else {
+							uint16_t pixel = YCbCr_to_BGRA5551(pY1[l], pCb[l >> 1], pCr[l >> 1], arg.alpha);
+							rdram_write_many_u16(&pixel, addr, 1);
+							addr += 2;
+						}
                     }
                     for (int l = 0; l < 4; l++)
                     {
-                        uint16_t pixel = YCbCr_to_BGRA5551(pY2[l], pCb[(l + 4) >> 1], pCr[(l + 4) >> 1], arg.alpha);
-                        rdram_write_many_u16(&pixel, addr, 1);
-                        addr += 2;
+						if (is32) {
+							uint32_t pixel = YCbCr_to_RGBA(pY2[l], pCb[(l + 4) >> 1], pCr[(l + 4) >> 1], arg.alpha);
+							rdram_write_many_u32(&pixel, addr, 1);
+							addr += 4;
+						} else {
+							uint16_t pixel = YCbCr_to_BGRA5551(pY2[l], pCb[(l + 4) >> 1], pCr[(l + 4) >> 1], arg.alpha);
+							rdram_write_many_u16(&pixel, addr, 1);
+							addr += 2;
+						}
                     }
                     out_buf += skip;
                     pY1 += 4;
