@@ -113,11 +113,19 @@ inline void Audio_Ucode_Detect(OSTask *pTask) {
 //*****************************************************************************
 //
 //*****************************************************************************
+#ifdef DAEDALUS_PSP
+#define UNCACHED(addr) ((void *)((uintptr_t)(addr) | 0x40000000))
+#endif
+
 void Audio_Ucode() {
 #ifdef DAEDALUS_PROFILE
   DAEDALUS_PROFILE("HLEMain::Audio_Ucode");
 #endif
-  OSTask *pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
+    #ifdef DAEDALUS_PSP
+    OSTask *pTask = (OSTask *)(UNCACHED(g_pu8SpMemBase + 0x0FC0));
+    #else
+     OSTask *pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
+    #endif
 
   // Only detect ABI once per game
   if (!bAudioChanged) {

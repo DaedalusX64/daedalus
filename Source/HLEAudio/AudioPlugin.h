@@ -40,6 +40,9 @@ public:
 
   virtual void DacrateChanged(int SystemType) = 0;
   virtual void LenChanged() = 0;
+  #ifdef DAEDALUS_PSP
+  virtual void LenChangedME() = 0;
+  #endif
   virtual u32 ReadLength() = 0;
   virtual EProcessResult ProcessAList() = 0;
 

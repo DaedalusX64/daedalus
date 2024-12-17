@@ -1,6 +1,7 @@
 #ifndef MATH_MATH_H_
 #define MATH_MATH_H_
 
+#include "Base/Types.h"
 #include <math.h>
 #include <utility>
 

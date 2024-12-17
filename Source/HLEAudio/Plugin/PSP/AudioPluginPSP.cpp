@@ -90,6 +90,8 @@ bool InitialiseMediaEngine()
 
 #endif
 
+#define AUDIO_CHANNELS 2
+#define PSP_SAMPLE_RATE 44100 // Hardware sample rate
 #define RSP_AUDIO_INTR_CYCLES     1
 extern u32 gSoundSync;
 
@@ -115,6 +117,7 @@ public:
 
 	virtual void			DacrateChanged( int system_type );
 	virtual void			LenChanged();
+	virtual void			LenChangedME();
 	virtual u32				ReadLength() {return 0;}
 	virtual EProcessResult	ProcessAList();
 
@@ -139,12 +142,15 @@ private:
 
 static AudioPluginPSP * ac;
 
+s32 mSemaphorethree = sceKernelCreateSema( "pspMEbuffer", 0, 1, 1, nullptr );
 
 s32 mSemaphoretwo = sceKernelCreateSema( "pspMEaudio", 0, 1, 1, nullptr );
 
 s32 mSemaphore = sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, nullptr );
 
 bool audiothreadactive = false;
+bool bufferthreadactive = false;
+bool hleworkdone = true;
 
 static int audioOutput(SceSize args, void *argp)
 {
@@ -152,14 +158,18 @@ static int audioOutput(SceSize args, void *argp)
 				
 				sceKernelWaitSema( mSemaphoretwo, 1, nullptr );
 
-				sceKernelDcacheWritebackInvalidateAll();
+
+				sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
 				asm("sync");
 
 				BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL);
 
-				     while (CheckME(mei)) {
+				     while (CheckME(mei) != 1) {
+					 sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
                		 sceKernelDelayThread(100);  // Yield to other threads to avoid 100% CPU usage
             		}
+
+				hleworkdone = true;
 
 
 				}
@@ -169,14 +179,47 @@ static int audioOutput(SceSize args, void *argp)
 
 }
 
+static int audiobuffer(SceSize args, void *argp)
+{
+         while(bufferthreadactive == true){
+
+			sceKernelWaitSema( mSemaphorethree, 1, nullptr );
+
+				sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
+				asm("sync");
+
+				 while (CheckME(mei) != 1 && hleworkdone == false) {
+					 sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
+               		 sceKernelDelayThread(100);  // Yield to other threads to avoid 100% CPU usage
+            		}
+
+				sceKernelWaitSema( mSemaphore, 1, nullptr );
+
+				gAudioPlugin->LenChangedME();
+
+				sceKernelSignalSema( mSemaphore, 1 );
+
+		 }	
+
+				return 0;
+
+
+}
+
 int audioThid = sceKernelCreateThread("audioOutput", audioOutput, 0x15, 0x1800, PSP_THREAD_ATTR_USER, NULL);
+
+int BufferThid = sceKernelCreateThread("audiobuffer", audiobuffer, 0x15, 0x1800, PSP_THREAD_ATTR_USER, NULL);
 
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
 
 	sceKernelWaitSema( mSemaphore, 1, nullptr );
 
+	dcache_inv_range( mAudioBuffer, sizeof( CAudioBuffer ) );
+
 	mAudioBufferUncached->Drain( buffer, num_samples );
+	
+	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 
 	sceKernelSignalSema( mSemaphore, 1 );
 
@@ -245,15 +288,34 @@ DBGConsole_Msg(0, "Audio frequency: %d", frequency);
 mFrequency = frequency;
 }
 
+void	AudioPluginPSP::LenChangedME()
+{
+	if( gAudioPluginEnabled > APM_DISABLED )
+	{
+		
+		u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
+		u32	length = Memory_AI_GetRegister(AI_LEN_REG);
+
+		AddBuffer( g_pu8RamBase + address, length );
+	}
+	else
+	{
+		StopAudio();
+	}
+}
+
 
 void	AudioPluginPSP::LenChanged()
 {
 	if( gAudioPluginEnabled > APM_DISABLED )
 	{
-		u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
-		u32	length = Memory_AI_GetRegister(AI_LEN_REG);
 
-		AddBuffer( g_pu8RamBase + address, length );
+		if(bufferthreadactive == false){
+					bufferthreadactive = true;
+					sceKernelStartThread(BufferThid, 0, NULL);
+			} 
+		
+		sceKernelSignalSema( mSemaphorethree, 1 );
 	}
 	else
 	{
@@ -276,6 +338,8 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 		case APM_ENABLED_ASYNC:
 			{	
 				//signal the audio thread to kick off a audioucode HLE task.
+				hleworkdone = false;
+				sceKernelDcacheWritebackAll();
 				sceKernelSignalSema( mSemaphoretwo, 1 );
 				if(audiothreadactive == false){
 					audiothreadactive = true;

@@ -16,7 +16,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
 #include "Base/Types.h"
 #include "Interface/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
@@ -37,120 +36,101 @@ CAudioBuffer::CAudioBuffer(u32 buffer_size)
 CAudioBuffer::~CAudioBuffer() { delete[] mBufferBegin; }
 
 u32 CAudioBuffer::GetNumBufferedSamples() const {
-  // Safe? What if we read mWrite, and then mRead moves to start of buffer?
-  s32 diff = mWritePtr - mReadPtr;
-
-  if (diff < 0) {
-    diff += (mBufferEnd - mBufferBegin); // Add on buffer length
-  }
-
-  return diff;
+    s32 diff = mWritePtr - mReadPtr;
+    if (diff < 0) {
+        diff += (mBufferEnd - mBufferBegin); // Add on buffer length
+    }
+    return diff;
 }
 
 void CAudioBuffer::AddSamples(const Sample *samples, u32 num_samples,
                               u32 frequency, u32 output_freq) {
 #ifdef DAEDALUS_ENABLE_ASSERTS
-  DAEDALUS_ASSERT(frequency <= output_freq, "Input frequency is too high");
+    DAEDALUS_ASSERT(frequency <= output_freq, "Input frequency is too high");
 #endif
 
 #ifdef DAEDALUS_DEBUG_AUDIO
-  std::ofstream fh;
-  if (!fh.is_open()) {
-    fh.open("audio_in.raw", std::ios::binary);
-    fh.write(reinterpret_cast<const char *>(samples), sizeof(Sample) * num_samples);
-    fh.flush();
-  }
-#endif 
-
-#ifdef DAEDALUS_PSP
-// Cache routines for PSP if needed
+    std::ofstream fh;
+    if (!fh.is_open()) {
+        fh.open("audio_in.raw", std::ios::binary);
+        fh.write(reinterpret_cast<const char *>(samples), sizeof(Sample) * num_samples);
+        fh.flush();
+    }
 #endif
 
-  const Sample *read_ptr(mReadPtr); // No need to invalidate, as this is uncached/volatile
-  Sample *write_ptr(mWritePtr);
 
-  const s32 r = (frequency << 12) / output_freq;
-  s32 s = 0;
-  u32 in_idx = 0;
-  u32 output_samples = ((num_samples * output_freq) / frequency) - 1;
+    Sample *write_ptr = mWritePtr;
+    const Sample *read_ptr = mReadPtr;
 
-  for (u32 i = output_samples; i != 0; i--) {
-#ifdef DAEDALUS_ENABLE_ASSERTS
-    DAEDALUS_ASSERT(in_idx + 1 < num_samples,
-                    "Input index out of range - %d / %d", in_idx + 1,
-                    num_samples);
-#endif
+    const s32 r = (frequency << 12) / output_freq;
+    s32 s = 0;
+    u32 in_idx = 0;
 
-    Sample out;
-    out.L = samples[in_idx].L + (((samples[in_idx + 1].L - samples[in_idx].L) * s) >> 12);
-    out.R = samples[in_idx].R + (((samples[in_idx + 1].R - samples[in_idx].R) * s) >> 12);
+    u32 output_samples = std::min(((num_samples * output_freq) / frequency),
+                                  (u32)(mBufferEnd - mWritePtr)); // Avoid overflow
 
-    s += r;
-    in_idx += s >> 12;
-    s &= 4095;
+    for (u32 i = 0; i < output_samples; i++) {
+        Sample out;
+        out.L = samples[in_idx].L + (((samples[in_idx + 1].L - samples[in_idx].L) * s) >> 12);
+        out.R = samples[in_idx].R + (((samples[in_idx + 1].R - samples[in_idx].R) * s) >> 12);
 
-    // Circular buffer write logic
-    *write_ptr = out;
-    write_ptr++;
+        s += r;
+        in_idx += s >> 12;
+        s &= 4095;
 
-    if (write_ptr >= mBufferEnd) {
-      write_ptr = mBufferBegin;
+        *write_ptr++ = out;
+
+        if (write_ptr >= mBufferEnd) {
+            write_ptr = mBufferBegin;
+        }
+
+        // Prevent buffer overflow by advancing read_ptr if needed
+        if (write_ptr == read_ptr) {
+            read_ptr++;
+            if (read_ptr >= mBufferEnd) {
+                read_ptr = mBufferBegin;
+            }
+        }
     }
 
-    // Handle buffer full condition
-    if (write_ptr == read_ptr) {
-      // The buffer is full, so move read pointer to the next sample
-      read_ptr = mReadPtr;
-      // Optionally, sleep or yield the thread here if needed
-    }
-  }
-
-  mWritePtr = write_ptr;
+    mWritePtr = write_ptr;
+    mReadPtr = read_ptr;
 }
 
 u32 CAudioBuffer::Drain(Sample *samples, u32 num_samples) {
-#ifdef DAEDALUS_PSP
-// Cache routines for PSP if needed
-#endif
 
-  const Sample *read_ptr(mReadPtr); // No need to invalidate, as this is uncached/volatile
-  Sample *out_ptr(samples);
-  u32 samples_required(num_samples);
+    const Sample *read_ptr = mReadPtr;
+    Sample *out_ptr = samples;
+    u32 samples_required = num_samples;
 
-  while (samples_required > 0) {
-    // Check if the buffer is empty
-    if (read_ptr == mWritePtr) {
-      break; // Buffer is empty
+    while (samples_required > 0) {
+        if (read_ptr == mWritePtr) {
+            break; // Buffer is empty
+        }
+
+        *out_ptr++ = *read_ptr++;
+        if (read_ptr >= mBufferEnd) {
+            read_ptr = mBufferBegin; // Circular buffer wrap-around
+        }
+
+        samples_required--;
     }
-
-    *out_ptr++ = *read_ptr++;
-    if (read_ptr >= mBufferEnd) {
-      read_ptr = mBufferBegin; // Circular buffer logic
-    }
-
-    samples_required--;
-  }
 
 #ifdef DAEDALUS_DEBUG_AUDIO
-  std::ofstream fh;
-  if (!fh.is_open()) {
-    fh.open("audio_out.raw", std::ios::binary);
-    fh.write(reinterpret_cast<const char *>(samples), sizeof(Sample) * num_samples - samples_required);
-    fh.flush();
-  }
-#endif 
-
-  mReadPtr = read_ptr; // Update read pointer
-
-#ifdef DAEDALUS_PSP
-// Cache routines for PSP if needed
+    std::ofstream fh;
+    if (!fh.is_open()) {
+        fh.open("audio_out.raw", std::ios::binary);
+        fh.write(reinterpret_cast<const char *>(samples), sizeof(Sample) * (num_samples - samples_required));
+        fh.flush();
+    }
 #endif
 
-  // If there weren't enough samples, zero out the buffer
-  if (samples_required > 0) {
-    memset(out_ptr, 0, samples_required * sizeof(Sample));
-  }
+    mReadPtr = read_ptr;
 
-  // Return the number of samples written
-  return num_samples - samples_required;
+    // Zero out remaining samples if buffer was empty
+    if (samples_required > 0) {
+        memset(out_ptr, 0, samples_required * sizeof(Sample));
+    }
+
+    return num_samples - samples_required;
 }
