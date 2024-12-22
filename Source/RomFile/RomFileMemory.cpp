@@ -73,7 +73,7 @@ IROMFileMemory::IROMFileMemory()
 	}
 	else
 	{
-		mRomMemoryHeap = CMemoryHeap::Create( 4 * 1024 * 1024 );
+		mRomMemoryHeap = CMemoryHeap::Create( 3 * 1024 * 1024 );
 	}
 #endif
 // #ifdef DAEDALUS_POSIX

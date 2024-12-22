@@ -122,6 +122,7 @@ void Audio_Ucode() {
   DAEDALUS_PROFILE("HLEMain::Audio_Ucode");
 #endif
     #ifdef DAEDALUS_PSP
+    asm("sync");
     OSTask *pTask = (OSTask *)(UNCACHED(g_pu8SpMemBase + 0x0FC0));
     #else
      OSTask *pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);

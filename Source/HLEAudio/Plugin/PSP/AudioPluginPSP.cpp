@@ -150,7 +150,6 @@ s32 mSemaphore = sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, nullptr );
 
 bool audiothreadactive = false;
 bool bufferthreadactive = false;
-bool hleworkdone = true;
 
 static int audioOutput(SceSize args, void *argp)
 {
@@ -164,12 +163,13 @@ static int audioOutput(SceSize args, void *argp)
 
 				BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL);
 
+				asm("sync");
+
 				     while (CheckME(mei) != 1) {
 					 sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
-               		 sceKernelDelayThread(100);  // Yield to other threads to avoid 100% CPU usage
+					 asm("sync");    
+               		 sceKernelDelayThread(50);  // Yield to other threads to avoid 100% CPU usage
             		}
-
-				hleworkdone = true;
 
 
 				}
@@ -188,9 +188,10 @@ static int audiobuffer(SceSize args, void *argp)
 				sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
 				asm("sync");
 
-				 while (CheckME(mei) != 1 && hleworkdone == false) {
+				 while (CheckME(mei) != 1) {
 					 sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
-               		 sceKernelDelayThread(100);  // Yield to other threads to avoid 100% CPU usage
+					 asm("sync");    
+               		 sceKernelDelayThread(50);  // Yield to other threads to avoid 100% CPU usage
             		}
 
 				sceKernelWaitSema( mSemaphore, 1, nullptr );
@@ -216,10 +217,12 @@ void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 	sceKernelWaitSema( mSemaphore, 1, nullptr );
 
 	dcache_inv_range( mAudioBuffer, sizeof( CAudioBuffer ) );
+	asm("sync");    
 
 	mAudioBufferUncached->Drain( buffer, num_samples );
 	
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
+	asm("sync");    
 
 	sceKernelSignalSema( mSemaphore, 1 );
 
@@ -269,7 +272,11 @@ void	AudioPluginPSP::StopEmulation()
     Audio_Reset();
   	StopAudio();
     sceKernelDeleteSema(mSemaphore);
+	sceKernelDeleteSema(mSemaphoretwo);
+	sceKernelDeleteSema(mSemaphorethree);
     pspAudioEndPre();
+	bufferthreadactive = false;
+	audiothreadactive = false;
     sceKernelDelayThread(100000);
     pspAudioEnd();
 
@@ -338,8 +345,8 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 		case APM_ENABLED_ASYNC:
 			{	
 				//signal the audio thread to kick off a audioucode HLE task.
-				hleworkdone = false;
 				sceKernelDcacheWritebackAll();
+				asm("sync");    
 				sceKernelSignalSema( mSemaphoretwo, 1 );
 				if(audiothreadactive == false){
 					audiothreadactive = true;
