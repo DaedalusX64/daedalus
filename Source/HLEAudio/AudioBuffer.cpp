@@ -218,11 +218,7 @@ asm("sync");
   if (samples_required > 0) {
     // DBGConsole_Msg( 0, "Buffer underflow (%d samples)\n", samples_required );
     // printf( "Buffer underflow (%d samples)\n", samples_required );
-    memset(out_ptr, 0, samples_required * sizeof(Sample));
-    #ifdef DAEDALUS_PSP
-    dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
-    asm("sync"); 
-    #endif
+    memset(out_ptr, 0, samples_required * sizeof(Sample)); 
   }
 
   // Return the number of samples written
