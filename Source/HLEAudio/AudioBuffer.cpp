@@ -136,9 +136,6 @@ asm("sync");
     if (write_ptr >= mBufferEnd)
       write_ptr = mBufferBegin;
 
-#ifdef DAEDALUS_PSP
-
-#else
     while (write_ptr == read_ptr) {
       // The buffer is full - spin until the read pointer advances.
       //    Note - spends a lot of time here if program is running
@@ -147,11 +144,11 @@ asm("sync");
       // ToDo: Adjust Audio Frequency/ Look at Turok in this regard.
       // We might want to put a Sleep in when executing on the SC?
       // Give time to other threads when using SYNC mode.
-      // ThreadYield();
+      sceKernelDelayThread(50); 
 
       read_ptr = mReadPtr;
     }
-#endif
+
 
     *write_ptr = out;
   }

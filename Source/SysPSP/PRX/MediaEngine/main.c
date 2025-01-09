@@ -102,11 +102,15 @@ static void me_loop(volatile struct me_struct *mei)
 
 	while (1); // loop forever until ME reset
 }
-
+#define vrp          volatile u32*
+#define vrg(addr)    (*((vrp)(addr)))
 
 int InitME(volatile struct me_struct *mei)
 {
 unsigned int k1;
+
+  vrg(0xbc100004) = 0xffffffff;
+ 
 
 k1 = pspSdkSetK1(0);
 

@@ -157,17 +157,9 @@ static int audioOutput(SceSize args, void *argp)
 				
 				sceKernelWaitSema( mSemaphoretwo, 1, nullptr );
 
-
-				sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
-				asm("sync");
-
 				BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL);
 
-				asm("sync");
-
 				     while (CheckME(mei) != 1) {
-					 sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
-					 asm("sync");    
                		 sceKernelDelayThread(50);  // Yield to other threads to avoid 100% CPU usage
             		}
 
@@ -185,20 +177,14 @@ static int audiobuffer(SceSize args, void *argp)
 
 			sceKernelWaitSema( mSemaphorethree, 1, nullptr );
 
-				sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
-				asm("sync");
 
 				 while (CheckME(mei) != 1) {
-					 sceKernelDcacheInvalidateRange((void *)mei, sizeof(me_struct));
-					 asm("sync");    
                		 sceKernelDelayThread(50);  // Yield to other threads to avoid 100% CPU usage
             		}
 
-				sceKernelWaitSema( mSemaphore, 1, nullptr );
-
+			
 				gAudioPlugin->LenChangedME();
 
-				sceKernelSignalSema( mSemaphore, 1 );
 
 		 }	
 
@@ -214,18 +200,7 @@ int BufferThid = sceKernelCreateThread("audiobuffer", audiobuffer, 0x15, 0x1800,
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
 
-	sceKernelWaitSema( mSemaphore, 1, nullptr );
-
-	dcache_inv_range( mAudioBuffer, sizeof( CAudioBuffer ) );
-	asm("sync");    
-
 	mAudioBufferUncached->Drain( buffer, num_samples );
-	
-	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
-	asm("sync");    
-
-	sceKernelSignalSema( mSemaphore, 1 );
-
 	
 }
 
@@ -246,7 +221,8 @@ AudioPluginPSP::AudioPluginPSP()
 	mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
   mAudioBufferUncached = (CAudioBuffer*)make_uncached_ptr(mem);
 	// Ideally we could just invalidate this range?
-	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
+	sceKernelDcacheWritebackAll();
+	asm("sync");    
 
 	#ifdef DAEDALUS_PSP_USE_ME
 	InitialiseMediaEngine();
@@ -345,8 +321,6 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 		case APM_ENABLED_ASYNC:
 			{	
 				//signal the audio thread to kick off a audioucode HLE task.
-				sceKernelDcacheWritebackAll();
-				asm("sync");    
 				sceKernelSignalSema( mSemaphoretwo, 1 );
 				if(audiothreadactive == false){
 					audiothreadactive = true;
