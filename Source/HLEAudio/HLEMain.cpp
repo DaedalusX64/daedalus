@@ -121,12 +121,8 @@ void Audio_Ucode() {
 #ifdef DAEDALUS_PROFILE
   DAEDALUS_PROFILE("HLEMain::Audio_Ucode");
 #endif
-    #ifdef DAEDALUS_PSP
-    asm("sync");
-    OSTask *pTask = (OSTask *)(UNCACHED(g_pu8SpMemBase + 0x0FC0));
-    #else
-     OSTask *pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
-    #endif
+
+  OSTask *pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 
   // Only detect ABI once per game
   if (!bAudioChanged) {

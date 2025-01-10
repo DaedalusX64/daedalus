@@ -182,7 +182,7 @@ static int audiobuffer(SceSize args, void *argp)
                		 sceKernelDelayThread(50);  // Yield to other threads to avoid 100% CPU usage
             		}
 
-			
+				Memory_AI_SetRegisterBits(AI_STATUS_REG, AI_STATUS_FIFO_FULL);
 				gAudioPlugin->LenChangedME();
 
 
@@ -345,6 +345,8 @@ void audioCallback( void * buf, unsigned int length, void * userdata )
 	AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
 
 	ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
+	Memory_AI_ClrRegisterBits(AI_STATUS_REG, AI_STATUS_FIFO_FULL);
+	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_AI);
 }
 
 

@@ -40,10 +40,6 @@ CAudioBuffer::CAudioBuffer(u32 buffer_size)
 CAudioBuffer::~CAudioBuffer() { delete[] mBufferBegin; }
 
 u32 CAudioBuffer::GetNumBufferedSamples() const {
-  // Todo: Check Cache Routines
-    #ifdef DAEDALUS_PSP
-    dcache_wbinv_all();
-   #endif
 
   // Safe? What if we read mWrite, and then mRead moves to start of buffer?
   s32 diff = mWritePtr - mReadPtr;
@@ -71,18 +67,11 @@ fh.write(reinterpret_cast<const char*>(samples), sizeof(Sample) * num_samples);
 fh.flush();
  }
 #endif 
-// clear the Cache
-#ifdef DAEDALUS_PSP
-asm("sync");    
-#endif
+
   const Sample *read_ptr(
       mReadPtr); // No need to invalidate, as this is uncached/volatile
   Sample *write_ptr(mWritePtr);
 
-  // clear the Cache
-#ifdef DAEDALUS_PSP
-asm("sync");    
-#endif
 
   //
   //	'r' is the number of input samples we progress through for each output
@@ -144,7 +133,9 @@ asm("sync");
       // ToDo: Adjust Audio Frequency/ Look at Turok in this regard.
       // We might want to put a Sleep in when executing on the SC?
       // Give time to other threads when using SYNC mode.
-      sceKernelDelayThread(50); 
+      #ifdef DAEDALUS_PSP
+      sceKernelDelayThread(1); 
+      #endif
 
       read_ptr = mReadPtr;
     }
@@ -152,13 +143,6 @@ asm("sync");
 
     *write_ptr = out;
   }
-
-  // Todo: Check Cache Routines
-  //  Ensure samples array is written back before mWritePtr
-#ifdef DAEDALUS_PSP
-dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
-asm("sync");    
-#endif
 
 
 mWritePtr = write_ptr; // Needs cache wbinv
@@ -169,10 +153,6 @@ u32 CAudioBuffer::Drain(Sample *samples, u32 num_samples) {
 // Todo: Check Cache Routines
 //  Ideally we could just invalidate this range?
 // clear the Cache
-#ifdef DAEDALUS_PSP
-dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
-asm("sync");    
-#endif
 
   const Sample *read_ptr(mReadPtr); // No need to invalidate, as this is uncached/volatile
   const Sample *write_ptr(mWritePtr); //
@@ -204,10 +184,7 @@ std::ofstream fh;
  }
 #endif 
   mReadPtr = read_ptr; // No need to invalidate, as this is uncached
-// clear the Cache
-#ifdef DAEDALUS_PSP
-asm("sync");    
-#endif
+
   //
   //	If there weren't enough samples, zero out the buffer
   //	FIXME(strmnnrmn): Unnecessary on OSX...
