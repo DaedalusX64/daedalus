@@ -63,7 +63,7 @@ jobs:
 
     - name: Prepare artifacts
       run: |
-        tar -zcvf daedalusX64-linux.tar.gz DaedalusX64
+        tar -zcvf daedalusX64-linux-amd64.tar.gz DaedalusX64
 
 
     - name: Upload artifacts
@@ -158,5 +158,5 @@ jobs:
         if: ${{ success() }}
         uses: actions/upload-artifact@v4
         with:
-          name: DaedalusX64-win
-          path: daedalusX64-windows-amd64.tar.gz
+          name: DaedalusX64-Win
+          path: DaedalusX64
