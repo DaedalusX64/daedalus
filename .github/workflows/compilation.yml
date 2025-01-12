@@ -160,4 +160,3 @@ jobs:
         with:
           name: DaedalusX64-Win
           path: DaedalusX64
-
