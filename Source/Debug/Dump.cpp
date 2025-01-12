@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <filesystem>
 #include <iostream>
 #include <fstream>
-#include <format>
+#include <fmt/core.h>
 #include <cstring> 
 
 #include "Interface/ConfigOptions.h"
@@ -87,7 +87,7 @@ void Dump_DisassembleMIPSRange(std::ofstream& fh, u32 address_offset, const OpCo
 #endif
 
 		SprintOpCodeInfo( opinfo, address, op );
-		std::string data = std::format("0x{}: <0x{}> {}", address, op._u32, opinfo);
+		std::string data = fmt::format("0x{}: <0x{}> {}", address, op._u32, opinfo);
 		fh << data;
 		// fprintf(fh, "0x%08x: <0x%08x> %s\n", address, op._u32, opinfo);
 
@@ -134,7 +134,7 @@ void Dump_MemoryRange(std::ofstream& fh, u32 address_offset, const u32 * b, cons
 	const u32 * p( b );
 	while( p < e )
 	{
-		std::string output = std::format("0x{}x: {} {} {} {} ", address, p[0], p[1], p[2], p[3]);
+		std::string output = fmt::format("0x{}x: {} {} {} {} ", address, p[0], p[1], p[2], p[3]);
 		fh << output;
 
 		const u8 * p8( reinterpret_cast< const u8 * >( p ) );
@@ -163,7 +163,7 @@ void Dump_DisassembleRSPRange(std::ofstream& fh, u32 address_offset, const OpCod
 	{
 		char opinfo[400];
 		SprintRSPOpCodeInfo( opinfo, address, *p );
-		std::string output = std::format("0x{}: <0x{}> {}\n", address, p->_u32, opinfo);
+		std::string output = fmt::format("0x{}: <0x{}> {}\n", address, p->_u32, opinfo);
 		fh << output;
 
 		address += 4;
@@ -246,7 +246,7 @@ void Dump_Strings( const char * p_file_name )
 		{
 			if ( ascii_count >= MIN_LENGTH )
 			{
-				std::string output = std::format("0x{}", ascii_start);
+				std::string output = fmt::format("0x{}", ascii_start);
 				fp << output;
 
 				// fprintf( fp, "0x%08x: ", ascii_start );

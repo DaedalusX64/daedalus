@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 #include <iostream>
 #include <string>
-#include <format>
+#include <fmt/core.h>
 #include <fstream> 
 #include <sstream>
 
@@ -227,7 +227,7 @@ void Translate_Dump(const std::string string, bool dump)
 
 	if (fh.is_open())
 		{
-			fh << std::format("{:08x},{}\n", HashString(string), string);
+			fh << fmt::format("{:08x},{}\n", HashString(string), string);
 		}
 	}
 }

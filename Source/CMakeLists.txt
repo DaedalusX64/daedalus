@@ -208,6 +208,7 @@ endif(CTR)
 
 if(DAEDALUS_SDL)
 	find_package(SDL2 CONFIG REQUIRED)
+	find_package(fmt REQUIRED)
 	link_libraries(SDL2::SDL2)
 	link_libraries(${SDL2_LIBRARIES})
 
@@ -227,8 +228,8 @@ if(DAEDALUS_GL)
 	find_package(OpenGL REQUIRED)
 	link_libraries(OpenGL::GL)
 
-	find_package(GLEW REQUIRED)
-	link_libraries(GLEW::GLEW)
+	#find_package(GLEW REQUIRED)
+	#link_libraries(GLEW::GLEW)
 endif(DAEDALUS_GL)
 
 find_package(PNG REQUIRED)
@@ -265,11 +266,11 @@ link_libraries(ZLIB::ZLIB)
 	elseif(PSP)
 		add_subdirectory(SysPSP)
 	endif()
-
+	
 	# ---  Build ---- 
 	add_executable(daedalus ${plat_main})
 
-	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries})
+	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries} fmt::fmt)
 
 	# --- Post Build ---
 	## PRX Builds add about 600kb to the binary as they're not stripped at this point. Maybe we 

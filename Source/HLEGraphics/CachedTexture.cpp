@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 #include <random>
-#include <format>
+#include <fmt/core.h>
 
 #include "Interface/ConfigOptions.h"
 #include "Core/ROM.h"
@@ -347,7 +347,7 @@ void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptr<C
 	if( texture != nullptr && texture->HasData() )
 	{
 		std::filesystem::path dumpdir = g_ROM.settings.GameName;
-		std::string filename = std::format("{}-{}_{}bpp-{}x{}-{}x{}.png", ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(), 0, 0, ti.GetWidth(), ti.GetHeight() );
+		std::string filename = fmt::format("{}-{}_{}bpp-{}x{}-{}x{}.png", ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(), 0, 0, ti.GetWidth(), ti.GetHeight() );
 		std::filesystem::path filepath;
 
 		void *	texels;

@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include <fstream>
-#include <format>
+#include <fmt/core.h>
 #include <iostream> 
 #include "Utility/Paths.h"
 #ifdef DAEDALUS_LOG
