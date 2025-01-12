@@ -149,7 +149,8 @@ void ISavestateSelectorComponent::LoadFolders() {
         mPVExists[i] = 0;
         mLastPreviewLoad = ~0;
     }
-		for( const auto& entry : std::filesystem::directory_iterator("SaveStates"))
+		std::filesystem::path saveStateDir = setBasePath("SaveStates");
+		for( const auto& entry : std::filesystem::directory_iterator(saveStateDir))
 		{
 			if (entry.is_directory()) 
 			{

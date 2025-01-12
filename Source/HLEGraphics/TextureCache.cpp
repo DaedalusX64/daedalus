@@ -75,8 +75,9 @@ inline u32 CTextureCache::MakeHashIdxB( const TextureInfo & ti )
 // Purge any textures that haven't been used recently
 void CTextureCache::PurgeOldTextures()
 {
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	MutexLock lock(GetDebugMutex());
-
+	#endif
 	//
 	//	Erase expired textures in reverse order, which should require less
 	//	copying when large clumps of textures are released simultaneously.
@@ -107,7 +108,9 @@ void CTextureCache::PurgeOldTextures()
 
 void CTextureCache::DropTextures()
 {
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	MutexLock lock(GetDebugMutex());
+	#endif
 
 	for( u32 i = 0; i < mTextures.size(); ++i)
 	{
@@ -177,8 +180,9 @@ CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 	}
 
 	// NB: this is a no-op in normal builds.
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	MutexLock lock(GetDebugMutex());
-
+	#endif
 	//
 	// Retrieve the texture from the cache (if it already exists)
 	//

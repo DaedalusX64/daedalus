@@ -1,8 +1,10 @@
 #include "Base/Types.h"
 
 
-#include <string.h>
+#include <cstring>
 #include <algorithm>
+#include <iostream>
+#include <vector>
 
 #include "Utility/MathUtil.h"
 #include "Core/Memory.h"
@@ -148,10 +150,45 @@ void FILTER2(AudioHLECommand command) {
   memmove(gAudioHLEState.Buffer + (command.cmd0 & 0xffff), outbuff, cnt);
 }
 
-void POLEF(AudioHLECommand command [[maybe_unused]])
+void POLEF(AudioHLECommand command )
 
 {
-#ifdef DEBUG_AUDIO
-  DBGConsole_Msg(0, "POLEF - Not implemented");
-#endif
+// Fetch the input audio buffer
+    // Assuming that command contains the address of the input buffer in cmd1
+    auto* inputBuffer = reinterpret_cast<s16*>(rdram + (command.cmd1 & 0xFFFFFF));
+    u32 bufferLength = command.cmd0 & 0xFFFF; // Size of the buffer
+
+    // Coefficients for the pole filter
+    // These values can be passed through the command structure or pre-defined
+    constexpr float a1 = 0.5f;  // Example coefficient for 1st order
+    constexpr float a2 = 0.25f; // Example coefficient for 2nd order
+
+    // Output buffer to store filtered result
+    std::vector<s16> outputBuffer(bufferLength);
+
+    // Previous output values (initially zero)
+    s16 prevY1 = 0;  // y[n-1]
+    s16 prevY2 = 0;  // y[n-2]
+
+    // Apply the pole filter to each sample
+    for (u32 i = 0; i < bufferLength; ++i) {
+        s16 inputSample = inputBuffer[i];
+
+        // Recursive pole filter formula (example for a 2nd order filter)
+        float currentY = inputSample + a1 * prevY1 + a2 * prevY2;
+
+        // Clamp the result to prevent overflow (optional)
+        currentY = std::clamp(currentY, static_cast<float>(INT16_MIN), static_cast<float>(INT16_MAX));
+
+        // Store the filtered result
+        outputBuffer[i] = static_cast<int16_t>(currentY);
+
+        // Update previous values for the next iteration
+        prevY2 = prevY1;
+        prevY1 = static_cast<s16>(currentY);
+    }
+
+    // Store the filtered buffer back into memory
+    // Replace the input buffer with the processed output
+    std::memcpy(inputBuffer, outputBuffer.data(), bufferLength * sizeof(int16_t));
 }

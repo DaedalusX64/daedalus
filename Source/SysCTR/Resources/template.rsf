@@ -131,7 +131,6 @@ AccessControlInfo:
     SendSyncRequest3: 48
     SendSyncRequest4: 49
     SendSyncRequest: 50
-    SetThreadPriority: 12
     SetTimer: 27
     SignalEvent: 24
     SleepThread: 10

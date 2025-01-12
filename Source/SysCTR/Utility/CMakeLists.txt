@@ -1,7 +1,6 @@
 add_library(Utility_CTR OBJECT
                 CacheCTR.S
                 MemoryCTR.c
-                ThreadCTR.cpp
                 TimingCTR.cpp 
             )
 

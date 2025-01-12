@@ -43,8 +43,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Thread.h"
 #include "System/Timing.h"
 
-#include <pthread.h>
-
 EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
 
 pthread_t Asyncthread;

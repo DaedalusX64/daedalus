@@ -411,7 +411,7 @@ void MIXER2(AudioHLECommand command);
 void MIXER3(AudioHLECommand command);
 void MP3(AudioHLECommand command);
 //	void MP3ADDY(AudioHLECommand command );
-// void POLEF(AudioHLECommand command );
+void POLEF(AudioHLECommand command );
 void RESAMPLE(AudioHLECommand command);
 void RESAMPLE2(AudioHLECommand command);
 void RESAMPLE3(AudioHLECommand command);
