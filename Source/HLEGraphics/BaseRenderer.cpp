@@ -64,7 +64,7 @@ struct TempVerts
 
 	~TempVerts()
 	{
-#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
+#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES)
 		free(Verts);
 #endif
 	}
@@ -75,7 +75,7 @@ struct TempVerts
 #ifdef DAEDALUS_PSP
 		Verts = static_cast<DaedalusVtx*>(sceGuGetMemory(bytes));
 #endif
-#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
+#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES)
 		Verts = static_cast<DaedalusVtx*>(malloc(bytes));
 #endif
 
@@ -336,7 +336,7 @@ void BaseRenderer::InitViewport()
 
 
 
-#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
+#if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES)
 	f32 w = mScreenWidth;
 	f32 h = mScreenHeight;
 
@@ -1889,7 +1889,7 @@ void BaseRenderer::PrepareTexRectUVs(TexCoord * puv0, TexCoord * puv1)
 	if (rdp_tile.mirror_s)	size_x *= 2;
 	if (rdp_tile.mirror_t)	size_y *= 2;
 
-#ifdef DAEDALUS_GL
+#if defined(DAEDALUS_GLES) || defined(DAEDALUS_GL)
 	// If using shift, we need to take it into account here.
 	offset.s = ApplyShift(offset.s, rdp_tile.shift_s);
 	offset.t = ApplyShift(offset.t, rdp_tile.shift_t);

@@ -17,9 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-
-// Removed #include "SysGL/GL.h" if it only contained desktop GL stuff.
-// #include "SysGL/GL.h"  // <--- Remove or comment out if it conflicts with ES
+#include "SysGL/GL.h"  
 
 #include "Base/Types.h"
 #include <iterator>
