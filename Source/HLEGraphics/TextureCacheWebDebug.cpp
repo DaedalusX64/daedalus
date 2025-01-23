@@ -54,7 +54,7 @@ static void TextureHandler(void * arg [[maybe_unused]], WebDebugConnection * con
 		}
 
 		connection->BeginResponse(200, -1, "image/png");
-		PngSaveImage(connection, texture);
+		// PngSaveImage(connection, texture);
 	}
 
 	connection->EndResponse();

@@ -19,7 +19,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Show the build type in the UI
 	option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
-	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
+	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" ON)
 	option(DAEDALUS_LOG "Enable various logging" ON)
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
 if(NOT WIN32)

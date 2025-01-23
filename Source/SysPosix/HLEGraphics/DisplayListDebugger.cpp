@@ -24,6 +24,7 @@
 #include "System/Mutex.h"
 
 #include "SysGL/GL.h"
+#include <fstream>
 
 static bool gDebugging = false;
 
@@ -46,7 +47,7 @@ static WebDebugConnection * gActiveConnection = NULL;
 static DebugTask			gDebugTask        = kTaskUndefined;
 static u32					gInstructionCountLimit = kUnlimitedInstructionCount;
 
-static void Base64Encode(const void * data, size_t len, DataSink * sink)
+static void Base64Encode(const void * data, size_t len, std::ofstream& outputStream)
 {
 	const char * table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -87,7 +88,7 @@ static void Base64Encode(const void * data, size_t len, DataSink * sink)
 	}
 
 	DAEDALUS_ASSERT(dst == buffer+out_len, "Oops");
-	sink->Write(buffer, out_len);
+	outputStream.write(buffer, out_len);
 	free(buffer);
 }
 
@@ -130,7 +131,7 @@ void DLDebugger_RequestDebug()
 }
 
 
-static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, DataSink * sink)
+static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, std::ofstream& outputStream)
 {
 	u32 width  = texture->GetWidth();
 	u32 height = texture->GetHeight();
@@ -139,7 +140,7 @@ static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, DataSin
 
 	FlattenTexture(texture, bytes, num_bytes);
 
-	Base64Encode(bytes, num_bytes, sink);
+	Base64Encode(bytes, num_bytes, outputStream);
 	free(bytes);
 }
 
@@ -273,8 +274,8 @@ void DLDebugger_ProcessDebugTask()
 
 				// NB, pass a negative pitch, to render the screenshot the right way up.
 				s32 pitch = -static_cast<s32>(width * 4);
-
-				PngSaveImage(connection, pixels, NULL, TexFmt_8888, pitch, width, height, false);
+				const std::filesystem::path tempFile = "screenshot.png";
+				PngSaveImage(tempFile, pixels, NULL, TexFmt_8888, pitch, width, height, false);
 
 				free(pixels);
 

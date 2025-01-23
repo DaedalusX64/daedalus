@@ -19,6 +19,7 @@
 #include <vector>
 #include <fstream>
 #include <filesystem>
+#include <thread>
 
 #include "Debug/DBGConsole.h"
 #include "Utility/MathUtil.h"
@@ -49,7 +50,7 @@ struct StaticResource
 static void *				gServerMemory = NULL;
 static struct WebbyServer * gServer       = NULL;
 static volatile bool		gKeepRunning  = false;
-static ThreadHandle 		gThread       = kInvalidThreadHandle;
+static std::thread 		gThread;
 
 static int 									ws_connection_count;
 static struct WebbyConnection *				ws_connections[MAX_WSCONN];
@@ -237,6 +238,7 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 	size_t len_read;
 	char buf[kBufSize];
 	do
+	{
 		len_read = fh.read(reinterpret_cast<char*>(buf), kBufSize).gcount();	
 		// len_read = fread(buf, 1, kBufSize, fh);
 		if (len_read > 0)
@@ -247,6 +249,7 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 	connection->EndResponse();
 	// fclose(fh);
 }
+
 
 bool ServeResource(WebDebugConnection * connection, const char * resource_path)
 {
@@ -385,7 +388,8 @@ static u32 WebDebugThread(void * arg)
 		// 	}
 		// }
 
-		ThreadSleepMs(10);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		//ThreadSleepMs(10);
 
 		++frame_counter;
 	}
@@ -468,20 +472,19 @@ bool WebDebug_Init()
 	AddStaticContent(data_path, "");
 
 	gKeepRunning = true;
-	gThread      = CreateThread( "WebDebug", &WebDebugThread, gServer );
+	gThread = std::thread(WebDebugThread, gServer);
+	// gThread      = CreateThread( "WebDebug", &WebDebugThread, gServer );
 
 	return true;
 }
 
 void WebDebug_Fini()
 {
-	if (gThread != kInvalidThreadHandle)
-	{
 		gKeepRunning = false;
-		JoinThread(gThread, -1);
-		gThread = kInvalidThreadHandle;
-	}
-
+		if (gThread.joinable())
+		{
+			gThread.join();
+		}
 	WebbyServerShutdown(gServer);
 	free(gServerMemory);
 
