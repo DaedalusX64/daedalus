@@ -296,23 +296,23 @@ void CNativeTexture::SetData( void * data, void * palette )
 		case TexFmt_5650:
 			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
 						  mCorrectedWidth, mCorrectedHeight,
-						  0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, data );
+						  0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data );
 			break;
 		case TexFmt_5551:
 			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
 						  mCorrectedWidth, mCorrectedHeight,
-						  0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, data );
+						  0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, data );
 			break;
 		case TexFmt_4444:
 			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
 						  mCorrectedWidth, mCorrectedHeight,
-						  0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4_REV, data );
+						  0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, data );
 
 			break;
 		case TexFmt_8888:
 			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
 						  mCorrectedWidth, mCorrectedHeight,
-						  0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, data );
+						  0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 
 			break;
 		case TexFmt_CI4_8888:
