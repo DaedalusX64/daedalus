@@ -1951,7 +1951,7 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	// N.B. Think the arguments are x0,y0,x1,y1, and not x,y,w,h as the docs describe
 	//printf("%d %d %d %d\n", s32(screen_tl.x),s32(screen_tl.y),s32(screen_br.x),s32(screen_br.y));
 	sceGuScissor( l, t, r, b );
-#elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR)
+#elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES) 
 	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
 	s32 w = std::max<s32>( r - l, 0 );
 	s32 h = std::max<s32>( b - t, 0 );
