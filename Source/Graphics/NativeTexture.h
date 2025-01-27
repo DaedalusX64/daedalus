@@ -27,10 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <memory>
 #include <filesystem>
 
-#if defined(DAEDALUS_GL) 
+#if defined(DEADALUS_GL)
 #include "SysGL/GL.h"
 #endif
-
 #if defined(DAEDALUS_GLES)
 #include "SysGLES/GL.h"
 #endif

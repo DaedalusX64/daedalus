@@ -17,13 +17,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "SysGL/GL.h"  
 
 #include "Base/Types.h"
-#include <iterator>
 
-#include <SDL2/SDL.h>        // For SDL_Renderer calls
-#include <SDL2/SDL_ttf.h>    // If needed for font stuff
+#include <iterator>
+#include "SysGL/GL.h"
 
 #include "UI/ColourPulser.h"
 #include "Math/Vector2.h"
@@ -37,9 +35,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UI/DrawTextUtilities.h"
 #include "Utility/Translate.h"
 
-// If needed:
-#define GL_TRUE  1
-#define GL_FALSE 0
+#define GL_TRUE                           1
+#define GL_FALSE                          0
 
 namespace
 {

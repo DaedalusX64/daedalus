@@ -6,9 +6,6 @@
 class RendererGL : public BaseRenderer
 {
 public:
-	  RendererGL();              
-    virtual ~RendererGL();     
-
 	virtual void		RestoreRenderStates();
 
 	virtual void		RenderTriangles(DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer);

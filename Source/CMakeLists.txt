@@ -117,17 +117,18 @@ else()
 		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) 
 
 	elseif(UNIX)
+		if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64" AND CMAKE_SYSTEM_NAME STREQUAL "Linux") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv" AND CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+			option(DAEDALUS_GLES "OpenGLES 3.1 Renderer" ON)
+		else()
+		option(DAEDALUS_GL "OpenGL Renderer" ON)
+		endif()
 		option(DAEDALUS_SDL "SDL Build" ON)
 		option(DAEDALUS_POSIX "Posix specific options" ON)
 		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 		option(DAEDALUS_128BIT_MULT "128 Bit Multiplication, not supported on PSP" ON)
 		option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)" ON)
 
-		if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64" AND CMAKE_SYSTEM_NAME STREQUAL "Linux") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv" AND CMAKE_SYSTEM_NAME STREQUAL "Linux"))
-		option(DAEDALUS_GLES "OpenGLES 3.1 Renderer" ON)
-		else()
-		option(DAEDALUS_GL "OpenGL Renderer" ON)
-		endif()
+		
 
 	elseif(WIN32)
 		option(DAEDALUS_SDL "SDL Build" ON)

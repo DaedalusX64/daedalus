@@ -1,11 +1,9 @@
-#ifndef SYSGL_GL_H_
-#define SYSGL_GL_H_
+#ifndef SYSGLES_GL_H_
+#define SYSGLES_GL_H_
 
-//#include <GL/glew.h>
 #include <GLES3/gl3.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL.h>
-
 
 #include "Base/Types.h"
 
@@ -34,4 +32,4 @@ struct ScePspFMatrix4
 void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx);
 
 
-#endif // SYSGL_GL_H_
+#endif // SYSGLES_GL_H_
