@@ -3,6 +3,7 @@
 #define UTILITY_FASTMEMCPY_H_
 
 #include <stdlib.h>
+#include <string.h>
 
 //#define PROFILE_MEMCPY
 
