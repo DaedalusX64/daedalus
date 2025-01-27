@@ -44,7 +44,7 @@ jobs:
       run: echo "{name}={VERSION::${GITHUB_REF/refs\/tags\//}}" >> $GITHUB_OUTPUT
 
 
-  build-linux:
+  build-linux-amd64:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
@@ -70,8 +70,37 @@ jobs:
       if: ${{ success() }}
       uses: actions/upload-artifact@v4
       with:
-        name: DaedalusX64-Linux
+        name: DaedalusX64-Linux-amd64
         path: DaedalusX64
+
+  build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libfmt-dev
+    
+    - name: Compile project
+      run: |
+        ./build_daedalus.sh
+
+    - name: Get short SHA
+      id: slug
+      run: echo "{name}={sha8::$(echo ${GITHUB_SHA} | cut -c1-8)}" >> $GITHUB_OUTPUT
+
+    - name: Prepare artifacts
+      run: |
+        tar -zcvf daedalusX64-linux-arm64.tar.gz DaedalusX64
+
+    - name: Upload artifacts
+      if: ${{ success() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: DaedalusX64-Linux-arm64
+        path: DaedalusX64
+
 
   build-ctr:
     runs-on: ubuntu-latest

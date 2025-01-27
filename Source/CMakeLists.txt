@@ -62,6 +62,9 @@ else()
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "riscv64")
 		message("No Dynarec avaliable for Riscv64")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
+		message("No Dynarec available for arm64")
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 	else()
 		message("Platform unknown, Dynarec disabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
@@ -233,6 +236,7 @@ endif(DAEDALUS_GL)
 
 find_package(PNG REQUIRED)
 link_libraries(PNG::PNG)
+
 
 find_package(ZLIB REQUIRED)
 link_libraries(ZLIB::ZLIB)
