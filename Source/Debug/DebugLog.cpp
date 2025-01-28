@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include <fstream>
-#if defined(GCC_OLD)
+#if defined(GCC_LEGACY)
 #include <fmt/core.h> 
 #else 
 #include <format>

@@ -15,8 +15,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     
     	if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13.0")
         	message(STATUS "GCC version is older than 13. Using LibFormat.")
-        	message("GCC_OLD=ON")
-    		option(GCC_OLD "Use LibFormat" ON)
+        	message("GCC_LEGACY=ON")
+    		option(GCC_LEGACY "Use LibFormat" ON)
     	endif()
 endif()
 
@@ -226,9 +226,9 @@ endif(CTR)
 if(DAEDALUS_SDL)
 	find_package(SDL2 CONFIG REQUIRED)
 
-	if(GCC_OLD)
+	if(GCC_LEGACY)
 	find_package(fmt REQUIRED)
-	endif(GCC_OLD)
+	endif(GCC_LEGACY)
 
 	link_libraries(SDL2::SDL2)
 	link_libraries(${SDL2_LIBRARIES})
@@ -304,11 +304,11 @@ link_libraries(ZLIB::ZLIB)
 	# ---  Build ---- 
 	add_executable(daedalus ${plat_main})
 	
-	if(GCC_OLD)
+	if(GCC_LEGACY)
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries} fmt::fmt)
 	else()
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries} )
-	endif(GCC_OLD)
+	endif(GCC_LEGACY)
 	
 	# --- Post Build ---
 	## PRX Builds add about 600kb to the binary as they're not stripped at this point. Maybe we 

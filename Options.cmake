@@ -146,9 +146,9 @@ if(DAEDALUS_GL)
     add_compile_definitions(DAEDALUS_GL)
 endif()
 
-if(GCC_OLD)
-    message("GCC_OLD=ON")
-    add_compile_definitions(GCC_OLD)
+if(GCC_LEGACY)
+    message("GCC_LEGACY=ON")
+    add_compile_definitions(GCC_LEGACY)
 endif()
 
 if(DAEDALUS_GLES)

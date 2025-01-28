@@ -1,7 +1,7 @@
 #include <3ds.h>
 #include <GL/picaGL.h>
 #include <stdio.h>
-#if defined(GCC_OLD)
+#if defined(GCC_LEGACY)
 #include <fmt/core.h> 
 #else 
 #include <format>
@@ -49,7 +49,7 @@ static void ExecSaveState(int slot)
 	savePath /= name;
 	std::filesystem::create_directories(savePath);
 
-		#if defined(GCC_OLD)
+		#if defined(GCC_LEGACY)
 		std::string filename = fmt::format("saveslot{}.ss", slot);
 		#else 
 		std::string filename = std::format("saveslot{}.ss", slot);
@@ -68,7 +68,7 @@ static void LoadSaveState(int slot)
 	savePath /= name;
 	std::filesystem::create_directories(savePath);
 
-		#if defined(GCC_OLD)
+		#if defined(GCC_LEGACY)
 		std::string filename = fmt::format("saveslot{}.ss", slot);
 		#else 
 		std::string filename = std::format("saveslot{}.ss", slot);
@@ -90,7 +90,7 @@ static bool SaveStateExists(int slot)
 	savePath /= name;
 	std::filesystem::create_directories(savePath);
 
-		#if defined(GCC_OLD)
+		#if defined(GCC_LEGACY)
 		std::string filename = fmt::format("saveslot{}.ss", slot);
 		#else 
 		std::string filename = std::format("saveslot{}.ss", slot);

@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include <filesystem>
-#if defined(GCC_OLD)
+#if defined(GCC_LEGACY)
 #include <fmt/core.h> 
 #else 
 #include <format>
@@ -112,7 +112,7 @@ namespace
         std::filesystem::path full_directory = save_directory / slot_path;
 		std::filesystem::create_directory(full_directory);
 
-		#if defined(GCC_OLD)
+		#if defined(GCC_LEGACY)
 		std::string filename_png = fmt::format("saveslot{}.ss.png", slot_idx);
         std::string filename_ss = fmt::format("saveslot{}.ss", slot_idx);
 		#else 

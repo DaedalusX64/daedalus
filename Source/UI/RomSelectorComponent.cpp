@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 #include <map>
 #include <algorithm>
-#if defined(GCC_OLD)
+#if defined(GCC_LEGACY)
 #include <fmt/core.h> 
 #else 
 #include <format>
@@ -334,7 +334,7 @@ void IRomSelectorComponent::RenderPreview()
 	{
 		auto	p_rominfo =  mRomsList[ mCurrentSelection ];
 
-		#if defined(GCC_OLD)
+		#if defined(GCC_LEGACY)
 		std::string rom_size = fmt::format("{} MB", p_rominfo->mRomSize  / (1024 * 1024));
 		#else 
 		std::string rom_size = std::format("{} MB", p_rominfo->mRomSize  / (1024 * 1024));
@@ -444,7 +444,7 @@ void IRomSelectorComponent::RenderCategoryList()
 
 		// char str[ 16 ];
 		// snprintf( str, sizeof(str), "%c ", GetCategoryLetter( category ) );
-		#if defined(GCC_OLD)
+		#if defined(GCC_LEGACY)
 		std::string str = fmt::format("{} ", GetCategoryLetter( category));
 		#else 
 		std::string str = std::format("{} ", GetCategoryLetter( category));

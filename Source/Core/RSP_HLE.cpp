@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include <cstring> 
 #include <fstream>
-#if defined(GCC_OLD)
+#if defined(GCC_LEGACY)
 #include <fmt/core.h> 
 #else 
 #include <format>
@@ -64,7 +64,7 @@ extern "C" {
 #if 0
 static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
 {
-	#if defined(GCC_OLD)
+	#if defined(GCC_LEGACY)
 	std::string filename = fmt::format("task_dump_{}_crc_0x{}.txt", name, crc);
 	#else 
 	std::string filename = std::format("task_dump_{}_crc_0x{}.txt", name, crc);
@@ -87,7 +87,7 @@ static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u
 
 		char opinfo[400];
 		SprintRSPOpCodeInfo( opinfo, pc + pc_base, op );
-		#if defined(GCC_OLD)
+		#if defined(GCC_LEGACY)
 		fp << fmt::format("0x{:08x}: <0x{:08x}> {}\n", pc + pc_base, op._u32, opinfo);
 		#else 
 		fp << std::format("0x{:08x}: <0x{:08x}> {}\n", pc + pc_base, op._u32, opinfo);
