@@ -4,7 +4,11 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include <stdarg.h>
-#include <fmt/core.h>
+#if defined(GCC_OLD)
+#include <fmt/core.h> 
+#else 
+#include <format>
+#endif
 #include <filesystem>
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"

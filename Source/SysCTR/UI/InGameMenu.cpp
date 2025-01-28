@@ -1,7 +1,11 @@
 #include <3ds.h>
 #include <GL/picaGL.h>
 #include <stdio.h>
-#include <fmt/core.h>
+#if defined(GCC_OLD)
+#include <fmt/core.h> 
+#else 
+#include <format>
+#endif
 
 #include "UserInterface.h"
 #include "InGameMenu.h"

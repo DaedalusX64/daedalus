@@ -22,7 +22,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 #include <random>
-#include <fmt/core.h>
+#if defined(GCC_OLD)
+#include <fmt/core.h> 
+#else 
+#include <format>
+#endif
 
 #include "Interface/ConfigOptions.h"
 #include "Core/ROM.h"
