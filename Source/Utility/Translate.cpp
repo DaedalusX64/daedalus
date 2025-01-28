@@ -231,7 +231,12 @@ void Translate_Dump(const std::string string, bool dump)
 
 	if (fh.is_open())
 		{
-			fh << fmt::format("{:08x},{}\n", HashString(string), string);
+		#if defined(GCC_OLD)
+		fh << fmt::format("{:08x},{}\n", HashString(string), string);
+		#else 
+		fh << std::format("{:08x},{}\n", HashString(string), string);
+		#endif
+			
 		}
 	}
 }

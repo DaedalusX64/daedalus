@@ -49,7 +49,12 @@ static void ExecSaveState(int slot)
 	savePath /= name;
 	std::filesystem::create_directories(savePath);
 
-	std::string filename = fmt::format("saveslot{}.ss", slot);
+		#if defined(GCC_OLD)
+		std::string filename = fmt::format("saveslot{}.ss", slot);
+		#else 
+		std::string filename = std::format("saveslot{}.ss", slot);
+		#endif
+	
 	savePath /= filename;
 
 	std::cout << "Save Save Slot Path" << savePath << std::endl;
@@ -63,7 +68,13 @@ static void LoadSaveState(int slot)
 	savePath /= name;
 	std::filesystem::create_directories(savePath);
 
-	std::string filename = fmt::format("saveslot{}.ss", slot);
+		#if defined(GCC_OLD)
+		std::string filename = fmt::format("saveslot{}.ss", slot);
+		#else 
+		std::string filename = std::format("saveslot{}.ss", slot);
+		#endif
+
+	
 	savePath /= filename;
 
 	std::cout << "Load Save Slot Path" << savePath << std::endl;
@@ -79,7 +90,13 @@ static bool SaveStateExists(int slot)
 	savePath /= name;
 	std::filesystem::create_directories(savePath);
 
-	std::string filename = fmt::format("saveslot{}.ss", slot);
+		#if defined(GCC_OLD)
+		std::string filename = fmt::format("saveslot{}.ss", slot);
+		#else 
+		std::string filename = std::format("saveslot{}.ss", slot);
+		#endif
+
+	
 	savePath /= filename;
 
 	// std::string path = fmt::format("{}/{}{}.ss", "SaveStates", g_ROM.settings.GameName.c_str(), slot);

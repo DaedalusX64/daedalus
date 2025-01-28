@@ -112,8 +112,13 @@ namespace
         std::filesystem::path full_directory = save_directory / slot_path;
 		std::filesystem::create_directory(full_directory);
 
-        std::string filename_png = fmt::format("saveslot{}.ss.png", slot_idx);
+		#if defined(GCC_OLD)
+		std::string filename_png = fmt::format("saveslot{}.ss.png", slot_idx);
         std::string filename_ss = fmt::format("saveslot{}.ss", slot_idx);
+		#else 
+		std::string filename_png = std::format("saveslot{}.ss.png", slot_idx);
+        std::string filename_ss = std::format("saveslot{}.ss", slot_idx);
+		#endif
 
         path = full_directory / filename_ss;
         png_path = full_directory / filename_png;

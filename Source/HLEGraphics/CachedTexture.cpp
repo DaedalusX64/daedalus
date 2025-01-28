@@ -351,7 +351,11 @@ void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptr<C
 	if( texture != nullptr && texture->HasData() )
 	{
 		std::filesystem::path dumpdir = g_ROM.settings.GameName;
+		#if defined(GCC_OLD)
 		std::string filename = fmt::format("{}-{}_{}bpp-{}x{}-{}x{}.png", ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(), 0, 0, ti.GetWidth(), ti.GetHeight() );
+		#else 
+		std::string filename = std::format("{}-{}_{}bpp-{}x{}-{}x{}.png", ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(), 0, 0, ti.GetWidth(), ti.GetHeight() );
+		#endif
 		std::filesystem::path filepath;
 
 		void *	texels;
