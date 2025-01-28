@@ -10,6 +10,16 @@ set(CMAKE_CXX_STANDARD 23)
 #TODO: Separate SDL Options
 list(APPEND plat_main )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    	message(STATUS "GCC detected: ${CMAKE_CXX_COMPILER_VERSION}")
+    
+    	if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13.0")
+        	message(STATUS "GCC version is older than 13. Using LibFormat.")
+        	message("GCC_OLD=ON")
+    		option(GCC_OLD "Use LibFormat" ON)
+    	endif()
+endif()
+
 
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -216,9 +226,9 @@ endif(CTR)
 if(DAEDALUS_SDL)
 	find_package(SDL2 CONFIG REQUIRED)
 
-	if(DAEDALUS_GLES)
+	if(GCC_OLD)
 	find_package(fmt REQUIRED)
-	endif(DAEDALUS_GLES)
+	endif(GCC_OLD)
 
 	link_libraries(SDL2::SDL2)
 	link_libraries(${SDL2_LIBRARIES})
@@ -293,9 +303,13 @@ link_libraries(ZLIB::ZLIB)
 	
 	# ---  Build ---- 
 	add_executable(daedalus ${plat_main})
-
+	
+	if(GCC_OLD)
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries} fmt::fmt)
-
+	else()
+	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries} )
+	endif(GCC_OLD)
+	
 	# --- Post Build ---
 	## PRX Builds add about 600kb to the binary as they're not stripped at this point. Maybe we 
 	if(PSP)

@@ -21,7 +21,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include <cstring> 
 #include <fstream>
+#if defined(GCC_OLD)
 #include <fmt/core.h> 
+#else 
+#include <format>
+#endif
 #include "Core/RSP_HLE.h"
 
 #include "Core/Interrupt.h"

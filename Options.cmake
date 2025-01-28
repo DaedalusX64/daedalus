@@ -146,6 +146,11 @@ if(DAEDALUS_GL)
     add_compile_definitions(DAEDALUS_GL)
 endif()
 
+if(GCC_OLD)
+    message("GCC_OLD=ON")
+    add_compile_definitions(GCC_OLD)
+endif()
+
 if(DAEDALUS_GLES)
     message("DAEDALUS_GLES=ON")
     add_compile_definitions(DAEDALUS_GLES)

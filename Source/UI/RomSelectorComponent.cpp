@@ -21,7 +21,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 #include <map>
 #include <algorithm>
+#if defined(GCC_OLD)
 #include <fmt/core.h> 
+#else 
+#include <format>
+#endif
 #include <iostream>
 #include <cctype>
 #include <string_view>
