@@ -23,7 +23,7 @@
 #include "System/Thread.h"
 #include "System/Mutex.h"
 
-#if defined(DEADALUS_GL)
+#if defined(DAEDALUS_GL)
 #include "SysGL/GL.h"
 #elif defined(DAEDALUS_GLES)
 #include "SysGLES/GL.h"
