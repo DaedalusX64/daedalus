@@ -61,14 +61,20 @@ uniform ivec2 uTileMirror1;
 // Example uniform
 uniform int uFoo;
 
+// --------------------------------------------------------
+// Helper Functions (optimized)
+// --------------------------------------------------------
+
+// Replace mix on ivec2 by using the ternary operator for each component.
 ivec2 imix(ivec2 a, ivec2 b, bvec2 c)
 {
-    return ivec2(mix(vec2(a), vec2(b), c));
+    return ivec2(c.x ? b.x : a.x, c.y ? b.y : a.y);
 }
 
+// Multiply an integer vector by a float vector.
 ivec2 shift(ivec2 coord, vec2 shift_scale)
 {
-    return ivec2(vec2(coord) * shift_scale);
+    return ivec2(float(coord.x) * shift_scale.x, float(coord.y) * shift_scale.y);
 }
 
 ivec2 clampPoint(ivec2 coord,
@@ -78,7 +84,6 @@ ivec2 clampPoint(ivec2 coord,
 {
     ivec2 coord_clamped = clamp(coord, tile_tl << 3, tile_br << 3);
     ivec2 coord_out     = imix(coord, coord_clamped, clamp_enable);
-
     ivec2 coord_relative = ((coord_out >> 3) - tile_tl) >> 2;
     return coord_relative;
 }
@@ -89,14 +94,11 @@ ivec2 clampBilinear(ivec2 coord,
                     bvec2 clamp_enable,
                     out ivec2 frac)
 {
-    ivec2 tl = tile_tl << 3;  
+    ivec2 tl = tile_tl << 3;  // Precompute shifted tile top‐left.
     ivec2 br = tile_br << 3;  
-
     ivec2 coord_clamped = clamp(coord, tl, br);
     ivec2 coord_out     = imix(coord, coord_clamped, clamp_enable);
-
-    ivec2 coord_relative = coord_out - (tile_tl << 3);
-
+    ivec2 coord_relative = coord_out - tl; // Use tl instead of recomputing (tile_tl << 3)
     frac = coord_relative & 0x1f;      
     return coord_relative >> 5;        
 }
@@ -125,17 +127,18 @@ vec4 bilinear_n64(vec4 col_00, vec4 col_01,
 {
     bool upper     = (frac.x + frac.y) >= 0x20;
     bvec4 uppersel = bvec4(upper);
-
     vec4 col0  = mix(col_00, col_11, uppersel);
     vec4 col1  = mix(col_10, col_01, uppersel);
     vec4 col2  = mix(col_01, col_10, uppersel);
-
     vec2 fracf = vec2(imix(frac, 0x20 - frac, bvec2(upper, upper))) / 32.0;
-
     vec4 colA = col0 + (fracf.x * (col1 - col0));
     vec4 colB = col0 + (fracf.y * (col2 - col0));
     return clamp(colA + colB - col0, 0.0, 1.0);
 }
+
+// --------------------------------------------------------
+// Texture Fetch Functions
+// --------------------------------------------------------
 
 vec4 fetchBilinear(ivec2 st_in,
                    vec2 shift_scale,
@@ -148,21 +151,16 @@ vec4 fetchBilinear(ivec2 st_in,
                    vec2 tex_scale)
 {
     ivec2 frac;
-    ivec2 uv0 = ivec2(st_in);
-
+    ivec2 uv0 = st_in;
     uv0 = shift(uv0, shift_scale);
     uv0 = clampBilinear(uv0, tile_tl, tile_br, clamp_enable, frac);
-
     ivec2 uv1 = uv0 + ivec2(1);
-
     uv0 = mask(uv0, mirror_bits, mask_bits);
     uv1 = mask(uv1, mirror_bits, mask_bits);
-
-    vec4 col_00 = texelFetch(tex, ivec2(uv0.x, uv0.y), 0);
+    vec4 col_00 = texelFetch(tex, uv0, 0);
     vec4 col_01 = texelFetch(tex, ivec2(uv0.x, uv1.y), 0);
     vec4 col_10 = texelFetch(tex, ivec2(uv1.x, uv0.y), 0);
-    vec4 col_11 = texelFetch(tex, ivec2(uv1.x, uv1.y), 0);
-
+    vec4 col_11 = texelFetch(tex, uv1, 0);
     return bilinear(col_00, col_01, col_10, col_11, frac);
 }
 
@@ -180,23 +178,17 @@ vec4 fetchBilinearClampedCommon(
 {
     ivec2 frac;
     ivec2 uv0 = ivec2(st_in);
-
     uv0 = shift(uv0, shift_scale);
     uv0 = clampBilinear(uv0, tile_tl, tile_br, clamp_enable, frac);
-
     ivec2 uv1 = uv0 + ivec2(1);
-
     uv0 = mask(uv0, mirror_bits, mask_bits);
     uv1 = mask(uv1, mirror_bits, mask_bits);
-
-    // If uv1 < uv0, remove some fractional bits
+    // If uv1 < uv0, remove some fractional bits.
     frac = imix(frac, frac & bilerp_wrap_enable, lessThan(uv1, uv0));
-
-    vec4 col_00 = texelFetch(tex, ivec2(uv0.x, uv0.y), 0);
+    vec4 col_00 = texelFetch(tex, uv0, 0);
     vec4 col_01 = texelFetch(tex, ivec2(uv0.x, uv1.y), 0);
     vec4 col_10 = texelFetch(tex, ivec2(uv1.x, uv0.y), 0);
-    vec4 col_11 = texelFetch(tex, ivec2(uv1.x, uv1.y), 0);
-
+    vec4 col_11 = texelFetch(tex, uv1, 0);
     return bilinear(col_00, col_01, col_10, col_11, frac);
 }
 
@@ -262,11 +254,10 @@ vec4 fetchPoint(
     sampler2D tex,
     vec2 tex_scale)
 {
-    ivec2 uv = ivec2(st_in);
+    ivec2 uv = st_in;
     uv = shift(uv, shift_scale);
     uv = clampPoint(uv, tile_tl, tile_br, clamp_enable);
     uv = mask(uv, mirror_bits, mask_bits);
-
     return texelFetch(tex, uv, 0);
 }
 
@@ -281,10 +272,9 @@ vec4 fetchCopy(
     sampler2D tex,
     vec2 tex_scale)
 {
-    ivec2 uv = ivec2(st_in);
+    ivec2 uv = st_in;
     uv = shift(uv, shift_scale);
     uv = (((uv >> 3) - tile_tl) >> 2) & ivec2(0x1fff);
-
     uv = mask(uv, mirror_bits, mask_bits);
     return texelFetch(tex, uv, 0);
 }
@@ -302,7 +292,6 @@ vec4 fetchSimple(
 {
     ivec2 uv = ivec2(st_in);
     uv = shift(uv, shift_scale);
-
     vec2 uvf = (vec2(uv) - vec2(tile_tl << 3)) * (tex_scale / 32.0);
     return texture(tex, uvf);
 }
