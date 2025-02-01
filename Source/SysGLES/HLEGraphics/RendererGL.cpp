@@ -223,100 +223,100 @@ static GLuint make_shader(GLenum type, const char** lines, size_t num_lines)
 }
 
 static GLuint make_shader_program(const char ** vertex_lines, size_t num_vertex_lines,
-								  const char ** fragment_lines, size_t num_fragment_lines)
+                                  const char ** fragment_lines, size_t num_fragment_lines)
 {
-	GLuint program = 0u;
-	GLint program_ok;
-	GLuint vertex_shader = 0u;
-	GLuint fragment_shader = 0u;
-	GLsizei log_length;
-	char info_log[8192];
+    GLuint program = 0u;
+    GLint program_ok;
+    GLuint vertex_shader = 0u;
+    GLuint fragment_shader = 0u;
+    GLsizei log_length;
+    char info_log[8192];
 
-	vertex_shader = make_shader(GL_VERTEX_SHADER, vertex_lines, num_vertex_lines);
-	if (vertex_shader != 0u)
-	{
-		fragment_shader = make_shader(GL_FRAGMENT_SHADER, fragment_lines, num_fragment_lines);
-		if (fragment_shader != 0u)
-		{
-			/* make the program that connect the two shader and link it */
-			program = glCreateProgram();
-			if (program != 0u)
-			{
-				/* attach both shader and link */
-				glAttachShader(program, vertex_shader);
-				glAttachShader(program, fragment_shader);
+    vertex_shader = make_shader(GL_VERTEX_SHADER, vertex_lines, num_vertex_lines);
+    if (vertex_shader != 0u)
+    {
+        fragment_shader = make_shader(GL_FRAGMENT_SHADER, fragment_lines, num_fragment_lines);
+        if (fragment_shader != 0u)
+        {
+            /* make the program that connect the two shader and link it */
+            program = glCreateProgram();
+            if (program != 0u)
+            {
+                /* attach both shader and link */
+                glAttachShader(program, vertex_shader);
+                glAttachShader(program, fragment_shader);
 
-				glLinkProgram(program);
-				glGetProgramiv(program, GL_LINK_STATUS, &program_ok);
+                glLinkProgram(program);
+                glGetProgramiv(program, GL_LINK_STATUS, &program_ok);
 
-				if (program_ok != GL_TRUE)
-				{
-					fprintf(stderr, "ERROR, failed to link shader program\n");
-					glGetProgramInfoLog(program, 8192, &log_length, info_log);
-					fprintf(stderr, "ERROR: \n%s\n\n", info_log);
-					glDeleteProgram(program);
-					glDeleteShader(fragment_shader);
-					glDeleteShader(vertex_shader);
-					program = 0u;
-				}
-			}
-		}
-		else
-		{
-			fprintf(stderr, "ERROR: Unable to load fragment shader\n");
-			glDeleteShader(vertex_shader);
-		}
-	}
-	else
-	{
-		fprintf(stderr, "ERROR: Unable to load vertex shader\n");
-	}
-	return program;
+                if (program_ok != GL_TRUE)
+                {
+                    fprintf(stderr, "ERROR, failed to link shader program\n");
+                    glGetProgramInfoLog(program, 8192, &log_length, info_log);
+                    fprintf(stderr, "ERROR: \n%s\n\n", info_log);
+                    glDeleteProgram(program);
+                    glDeleteShader(fragment_shader);
+                    glDeleteShader(vertex_shader);
+                    program = 0u;
+                }
+            }
+        }
+        else
+        {
+            fprintf(stderr, "ERROR: Unable to load fragment shader\n");
+            glDeleteShader(vertex_shader);
+        }
+    }
+    else
+    {
+        fprintf(stderr, "ERROR: Unable to load vertex shader\n");
+    }
+    return program;
 }
 
 static const char * kRGBParams32[] =
 {
-	"combined.rgb",  "tex0.rgb",
-	"tex1.rgb",      "prim.rgb",
-	"shade.rgb",     "env.rgb",
-	"one.rgb",       "combined.a",
-	"tex0.a",        "tex1.a",
-	"prim.a",        "shade.a",
-	"env.a",         "lod_frac",
-	"prim_lod_frac", "k5",
-	"?",             "?",
-	"?",             "?",
-	"?",             "?",
-	"?",             "?",
-	"?",             "?",
-	"?",             "?",
-	"?",             "?",
-	"?",             "zero.rgb",
+    "combined.rgb",  "tex0.rgb",
+    "tex1.rgb",      "prim.rgb",
+    "shade.rgb",     "env.rgb",
+    "one.rgb",       "combined.a",
+    "tex0.a",        "tex1.a",
+    "prim.a",        "shade.a",
+    "env.a",         "lod_frac",
+    "prim_lod_frac", "k5",
+    "?",             "?",
+    "?",             "?",
+    "?",             "?",
+    "?",             "?",
+    "?",             "?",
+    "?",             "?",
+    "?",             "?",
+    "?",             "zero.rgb",
 };
 
 static const char * kRGBParams16[] = {
-	"combined.rgb", "tex0.rgb",
-	"tex1.rgb",     "prim.rgb",
-	"shade.rgb",    "env.rgb",
-	"one.rgb",      "combined.a",
-	"tex0.a",       "tex1.a",
-	"prim.a",       "shade.a",
-	"env.a",        "lod_frac",
-	"prim_lod_frac", "zero.rgb",
+    "combined.rgb", "tex0.rgb",
+    "tex1.rgb",     "prim.rgb",
+    "shade.rgb",    "env.rgb",
+    "one.rgb",      "combined.a",
+    "tex0.a",       "tex1.a",
+    "prim.a",       "shade.a",
+    "env.a",        "lod_frac",
+    "prim_lod_frac", "zero.rgb",
 };
 
 static const char * kRGBParams8[8] = {
-	"combined.rgb", "tex0.rgb",
-	"tex1.rgb",     "prim.rgb",
-	"shade.rgb",    "env.rgb",
-	"one.rgb",      "zero.rgb",
+    "combined.rgb", "tex0.rgb",
+    "tex1.rgb",     "prim.rgb",
+    "shade.rgb",    "env.rgb",
+    "one.rgb",      "zero.rgb",
 };
 
 static const char * kAlphaParams8[8] = {
-	"combined.a", "tex0.a",
-	"tex1.a",     "prim.a",
-	"shade.a",    "env.a",
-	"one.a",      "zero.a"
+    "combined.a", "tex0.a",
+    "tex1.a",     "prim.a",
+    "shade.a",    "env.a",
+    "one.a",      "zero.a"
 };
 
 static const char* default_vertex_shader =
@@ -363,95 +363,95 @@ static const char* default_fragment_shader_fmt =
 
 static inline const char * GetFilter(bool bilerp, bool clamp_s, bool clamp_t)
 {
-	if (bilerp)
-	{
-		if (clamp_s && clamp_t)	return "fetchBilinearClampedST";
-		else if (clamp_s)		return "fetchBilinearClampedS";
-		else if (clamp_t)		return "fetchBilinearClampedT";
-		else					return "fetchBilinear";
-	}
+    if (bilerp)
+    {
+        if (clamp_s && clamp_t)  return "fetchBilinearClampedST";
+        else if (clamp_s)        return "fetchBilinearClampedS";
+        else if (clamp_t)        return "fetchBilinearClampedT";
+        else                     return "fetchBilinear";
+    }
 
-	return "fetchPoint";
+    return "fetchPoint";
 }
 
 static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & config)
 {
-	u32 mux0 = (u32)(config.Mux>>32);
-	u32 mux1 = (u32)(config.Mux);
+    u32 mux0 = (u32)(config.Mux>>32);
+    u32 mux1 = (u32)(config.Mux);
 
-	u32 aRGB0  = (mux0>>20)&0x0F;	// c1 c1		// a0
-	u32 bRGB0  = (mux1>>28)&0x0F;	// c1 c2		// b0
-	u32 cRGB0  = (mux0>>15)&0x1F;	// c1 c3		// c0
-	u32 dRGB0  = (mux1>>15)&0x07;	// c1 c4		// d0
+    u32 aRGB0  = (mux0>>20)&0x0F;   // c1 c1      // a0
+    u32 bRGB0  = (mux1>>28)&0x0F;   // c1 c2      // b0
+    u32 cRGB0  = (mux0>>15)&0x1F;   // c1 c3      // c0
+    u32 dRGB0  = (mux1>>15)&0x07;   // c1 c4      // d0
 
-	u32 aA0    = (mux0>>12)&0x07;	// c1 a1		// Aa0
-	u32 bA0    = (mux1>>12)&0x07;	// c1 a2		// Ab0
-	u32 cA0    = (mux0>>9 )&0x07;	// c1 a3		// Ac0
-	u32 dA0    = (mux1>>9 )&0x07;	// c1 a4		// Ad0
+    u32 aA0    = (mux0>>12)&0x07;   // c1 a1      // Aa0
+    u32 bA0    = (mux1>>12)&0x07;   // c1 a2      // Ab0
+    u32 cA0    = (mux0>>9 )&0x07;   // c1 a3      // Ac0
+    u32 dA0    = (mux1>>9 )&0x07;   // c1 a4      // Ad0
 
-	u32 aRGB1  = (mux0>>5 )&0x0F;	// c2 c1		// a1
-	u32 bRGB1  = (mux1>>24)&0x0F;	// c2 c2		// b1
-	u32 cRGB1  = (mux0    )&0x1F;	// c2 c3		// c1
-	u32 dRGB1  = (mux1>>6 )&0x07;	// c2 c4		// d1
+    u32 aRGB1  = (mux0>>5 )&0x0F;   // c2 c1      // a1
+    u32 bRGB1  = (mux1>>24)&0x0F;   // c2 c2      // b1
+    u32 cRGB1  = (mux0    )&0x1F;   // c2 c3      // c1
+    u32 dRGB1  = (mux1>>6 )&0x07;   // c2 c4      // d1
 
-	u32 aA1    = (mux1>>21)&0x07;	// c2 a1		// Aa1
-	u32 bA1    = (mux1>>3 )&0x07;	// c2 a2		// Ab1
-	u32 cA1    = (mux1>>18)&0x07;	// c2 a3		// Ac1
-	u32 dA1    = (mux1    )&0x07;	// c2 a4		// Ad1
+    u32 aA1    = (mux1>>21)&0x07;   // c2 a1      // Aa1
+    u32 bA1    = (mux1>>3 )&0x07;   // c2 a2      // Ab1
+    u32 cA1    = (mux1>>18)&0x07;   // c2 a3      // Ac1
+    u32 dA1    = (mux1    )&0x07;   // c2 a4      // Ad1
 
-	char body[1024];
+    char body[1024];
 
-	u32 cycle_type = config.CycleType;
+    u32 cycle_type = config.CycleType;
 
-	if (cycle_type == CYCLE_FILL)
-	{
-		strcpy(body, "\tcol = shade;\n");
-	}
-	else if (cycle_type == CYCLE_COPY)
-	{
-		strcpy(body, "\tcol = fetchCopy(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n");
-	}
-	else if (cycle_type == CYCLE_1CYCLE)
-	{
-		const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
-		const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
+    if (cycle_type == CYCLE_FILL)
+    {
+        strcpy(body, "\tcol = shade;\n");
+    }
+    else if (cycle_type == CYCLE_COPY)
+    {
+        strcpy(body, "\tcol = fetchCopy(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n");
+    }
+    else if (cycle_type == CYCLE_1CYCLE)
+    {
+        const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
+        const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
 
-		snprintf(body, sizeof(body), "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
-					  "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
-					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
-					  "\tcol.a   = (%s - %s) * %s + %s;\n",
-					  filter0, filter1,
-					  kRGBParams16[aRGB0], kRGBParams16[bRGB0], kRGBParams32[cRGB0], kRGBParams8[dRGB0],
-					  kAlphaParams8[aA0],  kAlphaParams8[bA0],  kAlphaParams8[cA0],  kAlphaParams8[dA0]);
-	}
-	else
-	{
-		const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
-		const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
+        snprintf(body, sizeof(body), "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
+                      "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
+                      "\tcol.rgb = (%s - %s) * %s + %s;\n"
+                      "\tcol.a   = (%s - %s) * %s + %s;\n",
+                      filter0, filter1,
+                      kRGBParams16[aRGB0], kRGBParams16[bRGB0], kRGBParams32[cRGB0], kRGBParams8[dRGB0],
+                      kAlphaParams8[aA0],  kAlphaParams8[bA0],  kAlphaParams8[cA0],  kAlphaParams8[dA0]);
+    }
+    else
+    {
+        const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
+        const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
 
-		snprintf(body, sizeof(body), "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
-					  "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
-					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
-					  "\tcol.a   = (%s - %s) * %s + %s;\n"
-					  "\tcombined = col;\n"
-					  "\ttex0 = tex1;\n"		// NB: tex0 becomes tex1 on the second cycle - see mame.
-					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
-					  "\tcol.a   = (%s - %s) * %s + %s;\n",
-					  filter0, filter1,
-					  kRGBParams16[aRGB0], kRGBParams16[bRGB0], kRGBParams32[cRGB0], kRGBParams8[dRGB0],
-					  kAlphaParams8[aA0],  kAlphaParams8[bA0],  kAlphaParams8[cA0],  kAlphaParams8[dA0],
-					  kRGBParams16[aRGB1], kRGBParams16[bRGB1], kRGBParams32[cRGB1], kRGBParams8[dRGB1],
-					  kAlphaParams8[aA1],  kAlphaParams8[bA1],  kAlphaParams8[cA1],  kAlphaParams8[dA1]);
-	}
+        snprintf(body, sizeof(body), "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
+                      "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
+                      "\tcol.rgb = (%s - %s) * %s + %s;\n"
+                      "\tcol.a   = (%s - %s) * %s + %s;\n"
+                      "\tcombined = col;\n"
+                      "\ttex0 = tex1;\n"     // NB: tex0 becomes tex1 on the second cycle - see mame.
+                      "\tcol.rgb = (%s - %s) * %s + %s;\n"
+                      "\tcol.a   = (%s - %s) * %s + %s;\n",
+                      filter0, filter1,
+                      kRGBParams16[aRGB0], kRGBParams16[bRGB0], kRGBParams32[cRGB0], kRGBParams8[dRGB0],
+                      kAlphaParams8[aA0],  kAlphaParams8[bA0],  kAlphaParams8[cA0],  kAlphaParams8[dA0],
+                      kRGBParams16[aRGB1], kRGBParams16[bRGB1], kRGBParams32[cRGB1], kRGBParams8[dRGB1],
+                      kAlphaParams8[aA1],  kAlphaParams8[bA1],  kAlphaParams8[cA1],  kAlphaParams8[dA1]);
+    }
 
-	
-	if (config.AlphaThreshold > 0)
-	{
-		char * p = body + strlen(body);
-		snprintf(p, sizeof(body) - (p - body), "\tif(col.a < %f) discard;\n", (float)config.AlphaThreshold / 255.f);
-	}
 
-	snprintf(frag_shader, sizeof(frag_shader), default_fragment_shader_fmt, body);
+    if (config.AlphaThreshold > 0)
+    {
+        char * p = body + strlen(body);
+        snprintf(p, sizeof(body) - (p - body), "\tif(col.a < %f) discard;\n", (float)config.AlphaThreshold / 255.f);
+    }
+
+    snprintf(frag_shader, sizeof(frag_shader), default_fragment_shader_fmt, body);
 }
 
 static void InitShaderProgram(ShaderProgram* program, const ShaderConfiguration & config, GLuint shader_program)
@@ -466,8 +466,7 @@ static void InitShaderProgram(ShaderProgram* program, const ShaderConfiguration 
     program->uloc_foo         = glGetUniformLocation(shader_program, "uFoo");
 
     // For both textures (0 & 1):
-
-	    for (u32 i = 0; i < kNumTextures; i++)
+    for (u32 i = 0; i < kNumTextures; i++)
     {
         char uniform_name[64];
 
@@ -519,90 +518,89 @@ static void InitShaderProgram(ShaderProgram* program, const ShaderConfiguration 
 
 static ShaderProgram * GetShaderForConfig(const ShaderConfiguration & config)
 {
+    for (u32 i = 0; i < gShaders.size(); ++i)
+    {
+        ShaderProgram * program = gShaders[i];
+        if (program->config == config)
+            return program;
+    }
 
-	for (u32 i = 0; i < gShaders.size(); ++i)
-	{
-		ShaderProgram * program = gShaders[i];
-		if (program->config == config)
-			return program;
-	}
+    char frag_shader[2048];
+    SprintShader(frag_shader, config);
 
-	char frag_shader[2048];
-	SprintShader(frag_shader, config);
+    const char * vertex_lines[] = { default_vertex_shader };
+    const char * fragment_lines[] = { gN64FragmentLibrary.c_str(), frag_shader };
 
-	const char * vertex_lines[] = { default_vertex_shader };
-	const char * fragment_lines[] = { gN64FragmentLibrary.c_str(), frag_shader };
+    GLuint shader_program = make_shader_program(
+                                vertex_lines, std::size(vertex_lines),
+                                fragment_lines, std::size(fragment_lines));
+    if (shader_program == 0)
+    {
+        fprintf(stderr, "ERROR: during creation of the shader program\n");
+        return NULL;
+    }
 
-	GLuint shader_program = make_shader_program(
-								vertex_lines, std::size(vertex_lines),
-								fragment_lines, std::size(fragment_lines));
-	if (shader_program == 0)
-	{
-		fprintf(stderr, "ERROR: during creation of the shader program\n");
-		return NULL;
-	}
+    ShaderProgram * program = new ShaderProgram;
+    InitShaderProgram(program, config, shader_program);
+    gShaders.push_back(program);
 
-	ShaderProgram * program = new ShaderProgram;
-	InitShaderProgram(program, config, shader_program);
-	gShaders.push_back(program);
-
-	return program;
+    return program;
 }
 
 
 void RendererGL::MakeShaderConfigFromCurrentState(ShaderConfiguration * config) const
 {
-	config->Mux = mMux;
-	config->CycleType = gRDPOtherMode.cycle_type;
-	config->AlphaThreshold = 0;
-	config->BilerpFilter = true;
-	config->ClampS0 = false;
-	config->ClampT0 = false;
-	config->ClampS1 = false;
-	config->ClampT1 = false;
+    config->Mux = mMux;
+    config->CycleType = gRDPOtherMode.cycle_type;
+    config->AlphaThreshold = 0;
+    config->BilerpFilter = true;
+    config->ClampS0 = false;
+    config->ClampT0 = false;
+    config->ClampS1 = false;
+    config->ClampT1 = false;
 
-	// Initiate Alpha test
-	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
-	{
-		// G_AC_THRESHOLD || G_AC_DITHER
-		// FIXME(strmnnrmn): alpha func: (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER
-		config->AlphaThreshold = mBlendColour.GetA();
-	}
-	else if (gRDPOtherMode.cvg_x_alpha)
-	{
-		// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
-		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
-		config->AlphaThreshold = 0x70;
-	}
-	else
-	{
-		// Use CVG for pixel alpha
-		config->AlphaThreshold = 0;
-	}
+    // Initiate Alpha test
+    if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
+    {
+        // G_AC_THRESHOLD || G_AC_DITHER
+        // FIXME(strmnnrmn): alpha func: (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER
+        config->AlphaThreshold = mBlendColour.GetA();
+    }
+    else if (gRDPOtherMode.cvg_x_alpha)
+    {
+        // Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
+        // ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
+        config->AlphaThreshold = 0x70;
+    }
+    else
+    {
+        // Use CVG for pixel alpha
+        config->AlphaThreshold = 0;
+    }
 
-	// In fill/cycle modes, we ignore the mux. Set it to zero so we don't create unecessary shaders.
-	u32 cycle_type = config->CycleType;
-	if (cycle_type == CYCLE_FILL || cycle_type == CYCLE_COPY)
-		config->Mux = 0;
+    // In fill/cycle modes, we ignore the mux. Set it to zero so we don't create unecessary shaders.
+    u32 cycle_type = config->CycleType;
+    if (cycle_type == CYCLE_FILL || cycle_type == CYCLE_COPY)
+        config->Mux = 0;
 
-	// Not sure about this. Should CYCLE_FILL have alpha kill?
-	if (cycle_type == CYCLE_FILL)
-		config->AlphaThreshold = 0;
+    // Not sure about this. Should CYCLE_FILL have alpha kill?
+    if (cycle_type == CYCLE_FILL)
+        config->AlphaThreshold = 0;
 
-	config->BilerpFilter = (gRDPOtherMode.text_filt != G_TF_POINT) || (gGlobalPreferences.ForceLinearFilter);
+    config->BilerpFilter = (gRDPOtherMode.text_filt != G_TF_POINT) || (gGlobalPreferences.ForceLinearFilter);
 
-	// If running the bilinear filter, check if we need to clamp in S or T.
-	// Really, this is checking to see how we set mTexWrap in PrepareTexRectUVs.
-	// Fixes California Speed, Mario Kart backgrounds.
-	// (NB: better fix for California Speed is just to force a point filter...)
-	if (config->BilerpFilter)
-	{
-		config->ClampS0 = mTexWrap[0].u == GU_CLAMP;
-		config->ClampT0 = mTexWrap[0].v == GU_CLAMP;
+    // If running the bilinear filter, check if we need to clamp in S or T.
+    // Really, this is checking to see how we set mTexWrap in PrepareTexRectUVs.
+    // Fixes California Speed, Mario Kart backgrounds.
+    // (NB: better fix for California Speed is just to force a point filter...)
+    if (config->BilerpFilter)
+    {
+        config->ClampS0 = mTexWrap[0].u == GU_CLAMP;
+        config->ClampT0 = mTexWrap[0].v == GU_CLAMP;
 
-		config->ClampS1 = mTexWrap[1].u == GU_CLAMP;
-		config->ClampT1 = mTexWrap[1].v == GU_CLAMP;
-	}
+        config->ClampS1 = mTexWrap[1].u == GU_CLAMP;
+        config->ClampT1 = mTexWrap[1].v == GU_CLAMP;
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -655,7 +653,7 @@ void RendererGL::RenderDaedalusVtx(int prim, const DaedalusVtx* vertices, int co
     if (count > kMaxVertices) count = kMaxVertices;
 
     // Hack to fix the sun in Zelda OOT/MM
-	const f32 scale = ( g_ROM.ZELDA_HACK &&(gRDPOtherMode.L == 0x0c184241) ) ? 16.f : 32.f;
+    const f32 scale = ( g_ROM.ZELDA_HACK &&(gRDPOtherMode.L == 0x0c184241) ) ? 16.f : 32.f;
 
     for (int i = 0; i < count; ++i)
     {
@@ -674,16 +672,23 @@ void RendererGL::RenderDaedalusVtx(int prim, const DaedalusVtx* vertices, int co
 
 void RendererGL::RenderDaedalusVtxStreams(int prim, const float * positions, const TexCoord * uvs, const u32 * colours, int count)
 {
-	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kPositionBuffer]);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 3 * count, positions);
+    // --- Update positions ---
+    glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kPositionBuffer]);
+    // Orphan the buffer (allocate full size with NULL data)
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * kMaxVertices, NULL, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 3 * count, positions);
 
-	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kTexCoordBuffer]);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(TexCoord) * count, uvs);
+    // --- Update texture coordinates ---
+    glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kTexCoordBuffer]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(TexCoord) * kMaxVertices, NULL, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(TexCoord) * count, uvs);
 
-	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kColorBuffer]);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(u32) * count, colours);
+    // --- Update colors ---
+    glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kColorBuffer]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(u32) * kMaxVertices, NULL, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(u32) * count, colours);
 
-	glDrawArrays(prim, 0, count);
+    glDrawArrays(prim, 0, count);
 }
 
 extern u32 gRDPFrame; 
@@ -715,171 +720,171 @@ static const char * const kBlendA2[] = { "1-A", "AMem", "1",      "?" };
 
 static inline void DebugBlender(u32 cycle_type, u32 blender, u32 alpha_cvg_sel, u32 cvg_x_alpha)
 {
-	static u32 last_blender = 0;
+    static u32 last_blender = 0;
 
-	if(last_blender != blender)
-	{
-		printf( "********************************\n\n" );
-		printf( "Unknown Blender. alpha_cvg_sel: %d cvg_x_alpha: %d\n",
-				alpha_cvg_sel, cvg_x_alpha );
-		printf( "0x%04x: // %s * %s + %s * %s",
-				blender,
-				kBlendCl[(blender>>14) & 0x3],
-				kBlendA1[(blender>>10) & 0x3],
-				kBlendCl[(blender>> 6) & 0x3],
-				kBlendA2[(blender>> 2) & 0x3]);
+    if(last_blender != blender)
+    {
+        printf( "********************************\n\n" );
+        printf( "Unknown Blender. alpha_cvg_sel: %d cvg_x_alpha: %d\n",
+                alpha_cvg_sel, cvg_x_alpha );
+        printf( "0x%04x: // %s * %s + %s * %s",
+                blender,
+                kBlendCl[(blender>>14) & 0x3],
+                kBlendA1[(blender>>10) & 0x3],
+                kBlendCl[(blender>> 6) & 0x3],
+                kBlendA2[(blender>> 2) & 0x3]);
 
-		if (cycle_type == CYCLE_2CYCLE)
-		{
-			printf( " | %s * %s + %s * %s",
-				kBlendCl[(blender>>12) & 0x3],
-				kBlendA1[(blender>> 8) & 0x3],
-				kBlendCl[(blender>> 4) & 0x3],
-				kBlendA2[(blender    ) & 0x3]);
-		}
-		printf( "\n********************************\n\n" );
-		last_blender = blender;
-	}
+        if (cycle_type == CYCLE_2CYCLE)
+        {
+            printf( " | %s * %s + %s * %s",
+                kBlendCl[(blender>>12) & 0x3],
+                kBlendA1[(blender>> 8) & 0x3],
+                kBlendCl[(blender>> 4) & 0x3],
+                kBlendA2[(blender    ) & 0x3]);
+        }
+        printf( "\n********************************\n\n" );
+        last_blender = blender;
+    }
 }
 #endif
 
 static void InitBlenderMode()
 {
-	u32 cycle_type    = gRDPOtherMode.cycle_type;
-	u32 cvg_x_alpha   = gRDPOtherMode.cvg_x_alpha;
-	u32 alpha_cvg_sel = gRDPOtherMode.alpha_cvg_sel;
-	u32 blendmode     = gRDPOtherMode.blender;
+    u32 cycle_type    = gRDPOtherMode.cycle_type;
+    u32 cvg_x_alpha   = gRDPOtherMode.cvg_x_alpha;
+    u32 alpha_cvg_sel = gRDPOtherMode.alpha_cvg_sel;
+    u32 blendmode     = gRDPOtherMode.blender;
 
-	// NB: If we're running in 1cycle mode, ignore the 2nd cycle.
-	u32 active_mode = (cycle_type == CYCLE_2CYCLE) ? blendmode : (blendmode & 0xcccc);
+    // NB: If we're running in 1cycle mode, ignore the 2nd cycle.
+    u32 active_mode = (cycle_type == CYCLE_2CYCLE) ? blendmode : (blendmode & 0xcccc);
 
-	enum BlendType
-	{
-		kBlendModeOpaque,
-		kBlendModeAlphaTrans,
-		kBlendModeFade,
-	};
-	BlendType type = kBlendModeOpaque;
+    enum BlendType
+    {
+        kBlendModeOpaque,
+        kBlendModeAlphaTrans,
+        kBlendModeFade,
+    };
+    BlendType type = kBlendModeOpaque;
 
-	// FIXME(strmnnrmn): lots of these need fog!
+    // FIXME(strmnnrmn): lots of these need fog!
 
-	switch (active_mode)
-	{
-	case 0x0040: // In * AIn + Mem * 1-A
-		// MarioKart (spinning logo).
-		type = kBlendModeAlphaTrans;
-		break;
-	case 0x0050: // In * AIn + Mem * 1-A | In * AIn + Mem * 1-A
-		// Extreme-G.
-		type = kBlendModeAlphaTrans;
-		break;
-	case 0x0440: // In * AFog + Mem * 1-A
-		// Bomberman64. alpha_cvg_sel: 1 cvg_x_alpha: 1
-		type = kBlendModeAlphaTrans;
-		break;
-	case 0x04d0: // In * AFog + Fog * 1-A | In * AIn + Mem * 1-A
-		// Conker.
-		type = kBlendModeAlphaTrans;
-		break;
-	case 0x0150: // In * AIn + Mem * 1-A | In * AFog + Mem * 1-A
-		// Spiderman.
-		type = kBlendModeAlphaTrans;
-		break;
-	case 0x0c08: // In * 0 + In * 1
-		// MarioKart (spinning logo)
-		// This blend mode doesn't use the alpha value
-		type = kBlendModeOpaque;
-		break;
-	case 0x0c18: // In * 0 + In * 1 | In * AIn + Mem * 1-A
-		// StarFox main menu.
-		type = kBlendModeAlphaTrans;
-		break;
-	case 0x0c40: // In * 0 + Mem * 1-A
-		// Extreme-G.
-		type = kBlendModeFade;
-		break;
-	case 0x0c48: // In * 0 + Mem * 1
-		// SOTE text and hud
-		type = kBlendModeFade;
-		break;
-	case 0x0f0a: // In * 0 + In * 1 | In * 0 + In * 1
-		// Zelda OoT.
-		type = kBlendModeOpaque;
-		break;
-	case 0x4c40: // Mem * 0 + Mem * 1-A
-		//Waverace - alpha_cvg_sel: 0 cvg_x_alpha: 1
-		type = kBlendModeFade;
-		break;
-	case 0x8410: // Bl * AFog + In * 1-A | In * AIn + Mem * 1-A
-		// Paper Mario.
-		type = kBlendModeAlphaTrans;
-		break;
-	case 0xc410: // Fog * AFog + In * 1-A | In * AIn + Mem * 1-A
-		// Donald Duck (Dust)
-		type = kBlendModeAlphaTrans;
-		break;
-	case 0xc440: // Fog * AFog + Mem * 1-A
-		// Banjo Kazooie
-		// Banjo Tooie sun glare
-		// FIXME: blends fog over existing?
-		type = kBlendModeAlphaTrans;
-		break;
-	case 0xc800: // Fog * AShade + In * 1-A
-		//Bomberman64. alpha_cvg_sel: 0 cvg_x_alpha: 1
-		type = kBlendModeOpaque;
-		break;
-	case 0xc810: // Fog * AShade + In * 1-A | In * AIn + Mem * 1-A
-		// AeroGauge (ingame)
-		type = kBlendModeAlphaTrans;
-		break;
-	// case 0x0321: // In * 0 + Bl * AMem
-	// 	// Hmm - not sure about what this is doing. Zelda OoT pause screen.
-	// 	type = kBlendModeAlphaTrans;
-	// 	break;
+    switch (active_mode)
+    {
+    case 0x0040: // In * AIn + Mem * 1-A
+        // MarioKart (spinning logo).
+        type = kBlendModeAlphaTrans;
+        break;
+    case 0x0050: // In * AIn + Mem * 1-A | In * AIn + Mem * 1-A
+        // Extreme-G.
+        type = kBlendModeAlphaTrans;
+        break;
+    case 0x0440: // In * AFog + Mem * 1-A
+        // Bomberman64. alpha_cvg_sel: 1 cvg_x_alpha: 1
+        type = kBlendModeAlphaTrans;
+        break;
+    case 0x04d0: // In * AFog + Fog * 1-A | In * AIn + Mem * 1-A
+        // Conker.
+        type = kBlendModeAlphaTrans;
+        break;
+    case 0x0150: // In * AIn + Mem * 1-A | In * AFog + Mem * 1-A
+        // Spiderman.
+        type = kBlendModeAlphaTrans;
+        break;
+    case 0x0c08: // In * 0 + In * 1
+        // MarioKart (spinning logo)
+        // This blend mode doesn't use the alpha value
+        type = kBlendModeOpaque;
+        break;
+    case 0x0c18: // In * 0 + In * 1 | In * AIn + Mem * 1-A
+        // StarFox main menu.
+        type = kBlendModeAlphaTrans;
+        break;
+    case 0x0c40: // In * 0 + Mem * 1-A
+        // Extreme-G.
+        type = kBlendModeFade;
+        break;
+    case 0x0c48: // In * 0 + Mem * 1
+        // SOTE text and hud
+        type = kBlendModeFade;
+        break;
+    case 0x0f0a: // In * 0 + In * 1 | In * 0 + In * 1
+        // Zelda OoT.
+        type = kBlendModeOpaque;
+        break;
+    case 0x4c40: // Mem * 0 + Mem * 1-A
+        //Waverace - alpha_cvg_sel: 0 cvg_x_alpha: 1
+        type = kBlendModeFade;
+        break;
+    case 0x8410: // Bl * AFog + In * 1-A | In * AIn + Mem * 1-A
+        // Paper Mario.
+        type = kBlendModeAlphaTrans;
+        break;
+    case 0xc410: // Fog * AFog + In * 1-A | In * AIn + Mem * 1-A
+        // Donald Duck (Dust)
+        type = kBlendModeAlphaTrans;
+        break;
+    case 0xc440: // Fog * AFog + Mem * 1-A
+        // Banjo Kazooie
+        // Banjo Tooie sun glare
+        // FIXME: blends fog over existing?
+        type = kBlendModeAlphaTrans;
+        break;
+    case 0xc800: // Fog * AShade + In * 1-A
+        //Bomberman64. alpha_cvg_sel: 0 cvg_x_alpha: 1
+        type = kBlendModeOpaque;
+        break;
+    case 0xc810: // Fog * AShade + In * 1-A | In * AIn + Mem * 1-A
+        // AeroGauge (ingame)
+        type = kBlendModeAlphaTrans;
+        break;
+    // case 0x0321: // In * 0 + Bl * AMem
+    //  // Hmm - not sure about what this is doing. Zelda OoT pause screen.
+    //  type = kBlendModeAlphaTrans;
+    //  break;
 
-	default:
+    default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DebugBlender( cycle_type, active_mode, alpha_cvg_sel, cvg_x_alpha );
-		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", active_mode );
+        DebugBlender( cycle_type, active_mode, alpha_cvg_sel, cvg_x_alpha );
+        DL_PF( "         Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", active_mode );
 #endif
-		break;
-	}
+        break;
+    }
 
-	// NB: we only have alpha in the blender is alpha_cvg_sel is 0 or cvg_x_alpha is 1.
-	bool have_alpha = !alpha_cvg_sel || cvg_x_alpha;
+    // NB: we only have alpha in the blender is alpha_cvg_sel is 0 or cvg_x_alpha is 1.
+    bool have_alpha = !alpha_cvg_sel || cvg_x_alpha;
 
-	if (type == kBlendModeAlphaTrans && !have_alpha)
-		type = kBlendModeOpaque;
+    if (type == kBlendModeAlphaTrans && !have_alpha)
+        type = kBlendModeOpaque;
 
-	switch (type)
-	{
-	case kBlendModeOpaque:
-		glDisable(GL_BLEND);
-		break;
-	case kBlendModeAlphaTrans:
-		glBlendColor(0.f, 0.f, 0.f, 0.f);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		break;
-	case kBlendModeFade:
-		glBlendColor(0.f, 0.f, 0.f, 0.f);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		break;
-	}
+    switch (type)
+    {
+    case kBlendModeOpaque:
+        glDisable(GL_BLEND);
+        break;
+    case kBlendModeAlphaTrans:
+        glBlendColor(0.f, 0.f, 0.f, 0.f);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+        break;
+    case kBlendModeFade:
+        glBlendColor(0.f, 0.f, 0.f, 0.f);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+        break;
+    }
 }
 
 
 inline u32 MakeMask(u32 m)
 {
-	return m ? ((1<<m)-1) : 0xffffffff;
+    return m ? ((1<<m)-1) : 0xffffffff;
 }
 
 inline u32 MakeMirror(u32 mirror, u32 m)
 {
-	return (mirror && m) ? (1<<m) : 0;
+    return (mirror && m) ? (1<<m) : 0;
 }
 
 void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer) {
@@ -921,7 +926,13 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
         return;
     }
 
-    glUseProgram(program->program);
+    // --- Cache shader program to avoid redundant glUseProgram calls ---
+    static GLuint sCurrentProgram = 0;
+    if (sCurrentProgram != program->program)
+    {
+        glUseProgram(program->program);
+        sCurrentProgram = program->program;
+    }
 
     glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, mat_project);
 
@@ -992,7 +1003,7 @@ void RendererGL::RenderTriangles(DaedalusVtx* p_vertices, u32 num_vertices, bool
     {
         UpdateTileSnapshots(mTextureTile);
         // NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
-	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
+        // We have to do it before PrepareRenderState, because those values are applied to the graphics state.
 
         if (mTnL.Flags.Light && mTnL.Flags.TexGen)
         {
@@ -1017,236 +1028,236 @@ void RendererGL::RenderTriangles(DaedalusVtx* p_vertices, u32 num_vertices, bool
 
 void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
 {
-	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
+    // FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
 
-	UpdateTileSnapshots( tile_idx );
+    UpdateTileSnapshots( tile_idx );
 
-	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
-	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
-	PrepareTexRectUVs(&st0, &st1);
+    // NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
+    // We have to do it before PrepareRenderState, because those values are applied to the graphics state.
+    PrepareTexRectUVs(&st0, &st1);
 
-	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
+    PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
-	v2 screen0;
-	v2 screen1;
-	ConvertN64ToScreen( xy0, screen0 );
-	ConvertN64ToScreen( xy1, screen1 );
+    v2 screen0;
+    v2 screen1;
+    ConvertN64ToScreen( xy0, screen0 );
+    ConvertN64ToScreen( xy1, screen1 );
 
-	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", st0.s / 32.f, st0.t / 32.f, st1.s / 32.f, st1.t / 32.f );
+    DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
+    DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", st0.s / 32.f, st0.t / 32.f, st1.s / 32.f, st1.t / 32.f );
 
-	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
+    const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
-	float positions[] = {
-		screen0.x, screen0.y, depth,
-		screen1.x, screen0.y, depth,
-		screen0.x, screen1.y, depth,
-		screen1.x, screen1.y, depth,
-	};
+    float positions[] = {
+        screen0.x, screen0.y, depth,
+        screen1.x, screen0.y, depth,
+        screen0.x, screen1.y, depth,
+        screen1.x, screen1.y, depth,
+    };
 
-	TexCoord uvs[] = {
-		TexCoord( st0.s, st0.t ),
-		TexCoord( st1.s, st0.t ),
-		TexCoord( st0.s, st1.t ),
-		TexCoord( st1.s, st1.t ),
-	};
+    TexCoord uvs[] = {
+        TexCoord( st0.s, st0.t ),
+        TexCoord( st1.s, st0.t ),
+        TexCoord( st0.s, st1.t ),
+        TexCoord( st1.s, st1.t ),
+    };
 
-	u32 colours[] = {
-		0xffffffff,
-		0xffffffff,
-		0xffffffff,
-		0xffffffff,
-	};
+    u32 colours[] = {
+        0xffffffff,
+        0xffffffff,
+        0xffffffff,
+        0xffffffff,
+    };
 
-	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
+    RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	++mNumRect;
+    ++mNumRect;
 #endif
 }
 
 void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
 {
-	UpdateTileSnapshots( tile_idx );
+    UpdateTileSnapshots( tile_idx );
 
-	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
-	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
-	PrepareTexRectUVs(&st0, &st1);
+    // NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
+    // We have to do it before PrepareRenderState, because those values are applied to the graphics state.
+    PrepareTexRectUVs(&st0, &st1);
 
-	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
+    PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
-	v2 screen0;
-	v2 screen1;
-	ConvertN64ToScreen( xy0, screen0 );
-	ConvertN64ToScreen( xy1, screen1 );
+    v2 screen0;
+    v2 screen1;
+    ConvertN64ToScreen( xy0, screen0 );
+    ConvertN64ToScreen( xy1, screen1 );
 
-	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", st0.s / 32.f, st0.t / 32.f, st1.s / 32.f, st1.t / 32.f );
+    DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
+    DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", st0.s / 32.f, st0.t / 32.f, st1.s / 32.f, st1.t / 32.f );
 
-	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
+    const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
-	float positions[] = {
-		screen0.x, screen0.y, depth,
-		screen1.x, screen0.y, depth,
-		screen0.x, screen1.y, depth,
-		screen1.x, screen1.y, depth,
-	};
+    float positions[] = {
+        screen0.x, screen0.y, depth,
+        screen1.x, screen0.y, depth,
+        screen0.x, screen1.y, depth,
+        screen1.x, screen1.y, depth,
+    };
 
-	TexCoord uvs[] = {
-		TexCoord( st0.s, st0.t ),
-		TexCoord( st0.s, st1.t ),
-		TexCoord( st1.s, st0.t ),
-		TexCoord( st1.s, st1.t ),
-	};
+    TexCoord uvs[] = {
+        TexCoord( st0.s, st0.t ),
+        TexCoord( st0.s, st1.t ),
+        TexCoord( st1.s, st0.t ),
+        TexCoord( st1.s, st1.t ),
+    };
 
-	u32 colours[] = {
-		0xffffffff,
-		0xffffffff,
-		0xffffffff,
-		0xffffffff,
-	};
+    u32 colours[] = {
+        0xffffffff,
+        0xffffffff,
+        0xffffffff,
+        0xffffffff,
+    };
 
-	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
+    RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	++mNumRect;
+    ++mNumRect;
 #endif
 }
 
 void RendererGL::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
-	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
+    PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
-	v2 screen0;
-	v2 screen1;
-	ConvertN64ToScreen( xy0, screen0 );
-	ConvertN64ToScreen( xy1, screen1 );
+    v2 screen0;
+    v2 screen1;
+    ConvertN64ToScreen( xy0, screen0 );
+    ConvertN64ToScreen( xy1, screen1 );
 
-	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
+    DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
-	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
+    const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
-	float positions[] = {
-		screen0.x, screen0.y, depth,
-		screen1.x, screen0.y, depth,
-		screen0.x, screen1.y, depth,
-		screen1.x, screen1.y, depth,
-	};
+    float positions[] = {
+        screen0.x, screen0.y, depth,
+        screen1.x, screen0.y, depth,
+        screen0.x, screen1.y, depth,
+        screen1.x, screen1.y, depth,
+    };
 
-	// NB - these aren't needed. Could just pass NULL to RenderDaedalusVtxStreams?
-	TexCoord uvs[] = {
-		TexCoord( 0.f, 0.f ),
-		TexCoord( 1.f, 0.f ),
-		TexCoord( 0.f, 1.f ),
-		TexCoord( 1.f, 1.f ),
-	};
+    // NB - these aren't needed. Could just pass NULL to RenderDaedalusVtxStreams?
+    TexCoord uvs[] = {
+        TexCoord( 0.f, 0.f ),
+        TexCoord( 1.f, 0.f ),
+        TexCoord( 0.f, 1.f ),
+        TexCoord( 1.f, 1.f ),
+    };
 
-	u32 colours[] = {
-		color,
-		color,
-		color,
-		color,
-	};
+    u32 colours[] = {
+        color,
+        color,
+        color,
+        color,
+    };
 
-	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
+    RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	++mNumRect;
+    ++mNumRect;
 #endif
 }
 
 void RendererGL::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-							   f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture)
+                               f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture)
 {
-	DAEDALUS_PROFILE( "RendererGL::Draw2DTexture" );
-	texture->InstallTexture();
-	// FIXME(strmnnrmn): is this right? Gross anyway.
-	gRDPOtherMode.cycle_type = CYCLE_COPY;
+    DAEDALUS_PROFILE( "RendererGL::Draw2DTexture" );
+    texture->InstallTexture();
+    // FIXME(strmnnrmn): is this right? Gross anyway.
+    gRDPOtherMode.cycle_type = CYCLE_COPY;
 
-	PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */);
+    PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */);
 
-	glEnable(GL_BLEND);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glEnable(GL_BLEND);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	float sx0 = N64ToScreenX(x0);
-	float sy0 = N64ToScreenY(y0);
+    float sx0 = N64ToScreenX(x0);
+    float sy0 = N64ToScreenY(y0);
 
-	float sx1 = N64ToScreenX(x1);
-	float sy1 = N64ToScreenY(y1);
+    float sx1 = N64ToScreenX(x1);
+    float sy1 = N64ToScreenY(y1);
 
-	const f32 depth = 0.0f;
+    const f32 depth = 0.0f;
 
-	float positions[] = {
-		sx0, sy0, depth,
-		sx1, sy0, depth,
-		sx0, sy1, depth,
-		sx1, sy1, depth,
-	};
+    float positions[] = {
+        sx0, sy0, depth,
+        sx1, sy0, depth,
+        sx0, sy1, depth,
+        sx1, sy1, depth,
+    };
 
-	TexCoord uvs[] = {
-		TexCoord( u0, v0 ),
-		TexCoord( u1, v0 ),
-		TexCoord( u0, v1 ),
-		TexCoord( u1, v1 ),
-	};
+    TexCoord uvs[] = {
+        TexCoord( u0, v0 ),
+        TexCoord( u1, v0 ),
+        TexCoord( u0, v1 ),
+        TexCoord( u1, v1 ),
+    };
 
-	u32 colours[] = {
-		0xffffffff,
-		0xffffffff,
-		0xffffffff,
-		0xffffffff,
-	};
+    u32 colours[] = {
+        0xffffffff,
+        0xffffffff,
+        0xffffffff,
+        0xffffffff,
+    };
 
-	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
+    RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 }
 
 void RendererGL::Draw2DTextureR(f32 x0, f32 y0,
-								f32 x1, f32 y1,
-								f32 x2, f32 y2,
-								f32 x3, f32 y3,
-								f32 s, f32 t, std::shared_ptr<CNativeTexture> texture)	// With Rotation
+                                f32 x1, f32 y1,
+                                f32 x2, f32 y2,
+                                f32 x3, f32 y3,
+                                f32 s, f32 t, std::shared_ptr<CNativeTexture> texture)  // With Rotation
 {
-		texture->InstallTexture();
-	DAEDALUS_PROFILE( "RendererGL::Draw2DTextureR" );
+    texture->InstallTexture();
+    DAEDALUS_PROFILE( "RendererGL::Draw2DTextureR" );
 
-	// FIXME(strmnnrmn): is this right? Gross anyway.
-	gRDPOtherMode.cycle_type = CYCLE_COPY;
+    // FIXME(strmnnrmn): is this right? Gross anyway.
+    gRDPOtherMode.cycle_type = CYCLE_COPY;
 
-	PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */);
+    PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */);
 
-	glEnable(GL_BLEND);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glEnable(GL_BLEND);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	const f32 depth = 0.0f;
+    const f32 depth = 0.0f;
 
-	float positions[] = {
-		N64ToScreenX(x0), N64ToScreenY(y0), depth,
-		N64ToScreenX(x1), N64ToScreenY(y1), depth,
-		N64ToScreenX(x2), N64ToScreenY(y2), depth,
-		N64ToScreenX(x3), N64ToScreenY(y3), depth,
-	};
+    float positions[] = {
+        N64ToScreenX(x0), N64ToScreenY(y0), depth,
+        N64ToScreenX(x1), N64ToScreenY(y1), depth,
+        N64ToScreenX(x2), N64ToScreenY(y2), depth,
+        N64ToScreenX(x3), N64ToScreenY(y3), depth,
+    };
 
-	TexCoord uvs[] = {
-		TexCoord( 0.f, 0.f ),
-		TexCoord(   s, 0.f ),
-		TexCoord(   s,   t ),
-		TexCoord( 0.f,   t ),
-	};
+    TexCoord uvs[] = {
+        TexCoord( 0.f, 0.f ),
+        TexCoord(   s, 0.f ),
+        TexCoord(   s,   t ),
+        TexCoord( 0.f,   t ),
+    };
 
-	u32 colours[] = {
-		0xffffffff,
-		0xffffffff,
-		0xffffffff,
-		0xffffffff,
-	};
+    u32 colours[] = {
+        0xffffffff,
+        0xffffffff,
+        0xffffffff,
+        0xffffffff,
+    };
 
-	RenderDaedalusVtxStreams(GL_TRIANGLE_FAN, positions, uvs, colours, 4);
+    RenderDaedalusVtxStreams(GL_TRIANGLE_FAN, positions, uvs, colours, 4);
 }
 
 bool CreateRenderer()
