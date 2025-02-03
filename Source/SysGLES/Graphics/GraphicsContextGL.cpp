@@ -71,21 +71,7 @@ GraphicsContextGL::~GraphicsContextGL()
     SDL_Quit();
 }
 
-//
-// If you have an ES-specific loader, put it here.
-// For example, if you're using glad2 for GLES, do:
-//
-//   bool initglES()
-//   {
-//       if (!gladLoadGLES2Loader((GLADloadproc)SDL_GL_GetProcAddress)) {
-//           printf("Failed to initialize GLAD for OpenGL ES.\n");
-//           return false;
-//       }
-//       return true;
-//   }
-//
-// else just stub it out if you only need core ES 3.2 features.
-//
+
 extern bool initgl();
 
 bool GraphicsContextGL::Initialise()
@@ -182,6 +168,8 @@ void GraphicsContextGL::UItoGL()
         if (gWindow)
         {
             SDL_DestroyWindow(gWindow);
+            SDL_GL_DeleteContext(gContext);
+            gContext = nullptr;
             gWindow = nullptr;
         }
         GraphicsContextGL::Initialise();
