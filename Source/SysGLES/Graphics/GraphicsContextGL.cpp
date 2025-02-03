@@ -94,8 +94,9 @@ bool GraphicsContextGL::Initialise()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
-    // If you want a debug context (optional):
+    #ifdef DAEDALUS_DEBUG_CONSOLE
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+    #endif
 
     // 24-bit depth, double buffer
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
