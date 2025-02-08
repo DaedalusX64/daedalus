@@ -47,7 +47,7 @@ static WebDebugConnection * gActiveConnection = NULL;
 static DebugTask			gDebugTask        = kTaskUndefined;
 static u32					gInstructionCountLimit = kUnlimitedInstructionCount;
 
-static void Base64Encode(const void * data, size_t len, std::ofstream& outputStream)
+static void Base64Encode(const void * data, size_t len, std::ostream& outputStream)
 {
 	const char * table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -131,7 +131,7 @@ void DLDebugger_RequestDebug()
 }
 
 
-static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, std::ofstream& outputStream)
+static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, std::ostream& outputStream)
 {
 	u32 width  = texture->GetWidth();
 	u32 height = texture->GetHeight();
@@ -238,7 +238,9 @@ void DLDebugger_ProcessDebugTask()
 							connection->WriteF("\t\t\t\"width\": %d,\n", texture->GetWidth());
 							connection->WriteF("\t\t\t\"height\": %d,\n", texture->GetHeight());
 							connection->WriteString("\t\t\t\"data\": \"");
-							EncodeTexture(texture, connection);
+							std::ostringstream outputStream;
+							EncodeTexture(texture, outputStream);
+							connection->Write(outputStream.str().c_str(), outputStream.str().size());
 							connection->WriteString("\"\n");
 							connection->WriteString("\t\t}\n");
 							wrote_data = true;
