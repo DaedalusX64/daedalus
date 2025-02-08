@@ -24,7 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 
 #include "Core/CPU.h"
+#if defined(DAEDALUS_GLES)
+#include "SysGLES/GL.h"
+#else
 #include "SysGL/GL.h"
+#endif
 
 #include "UI/UIContext.h" // for Input structures
 
@@ -108,10 +112,16 @@ void IInputManager::GetGamePadStatus()
 	//Check for joystick SDL2 and open it if avaiable 
 		controller = SDL_GameControllerOpen(0);
 		if(!controller){
+			mGamePadAvailable = true;
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			std::cout << "Controller Not Found" << std::endl;
+			#endif
 		}
 		else{
+			mGamePadAvailable = false;
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			std::cout << "Controller found" << std::endl; // We probably need to confirm what the controller is
+			#endif
 		}
 	}
 
@@ -196,13 +206,8 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	if(SDL_Window* window = gWindow)
 	{
 		const u8* keys = SDL_GetKeyboardState( NULL );
-
-			// Override the keyboard with the gamepad if it's available.
-			//if(mGamePadAvailable)
-			//{
-				GetJoyPad(&pPad[0]);
-			//}
-
+			
+		GetJoyPad(&pPad[0]);
 
 		if (keys [ SDL_SCANCODE_UP ] ) {pPad[0].stick_y = +80;}
 		if (keys [ SDL_SCANCODE_DOWN ] ) {pPad[0].stick_y = -80;}
