@@ -20,10 +20,12 @@
 #include <fstream>
 #include <filesystem>
 #include <thread>
+#include <iostream> 
+
 
 #include "Debug/DBGConsole.h"
 #include "Utility/MathUtil.h"
-
+#include "Utility/Paths.h"
 #include "Base/Macros.h"
 #include "Utility/StringUtil.h"
 #include "System/Thread.h"
@@ -252,12 +254,13 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 
 
 bool ServeResource(WebDebugConnection * connection, const char * resource_path)
-{
+{	
+	std::filesystem::path basePath = setBasePath("Web");
+	basePath /= resource_path;
 	for (size_t i = 0; i < gStaticResources.size(); ++i)
 	{
 		const StaticResource & resource = gStaticResources[i];
-
-		if (strcmp(resource_path, resource.Resource.c_str()) == 0)
+		if (basePath.string() == resource.Resource)
 		{
 			ServeFile(connection, resource.FullPath.c_str());
 			return true;
@@ -270,12 +273,15 @@ bool ServeResource(WebDebugConnection * connection, const char * resource_path)
 static int WebDebugDispatch(struct WebbyConnection *connection)
 {
 	WebDebugConnection dbg_connection(connection);
+	std::filesystem::path webPath = setBasePath("Web");
 
 	// Check dynamic handlers.
 	for (size_t i = 0; i < gHandlers.size(); ++i)
 	{
 		const WebDebugHandlerEntry & entry = gHandlers[i];
-		if (strcmp(connection->request.uri, entry.Request) == 0)
+		webPath /= connection->request.uri;
+		if (webPath.string() != entry.Request)
+		// if (strcmp(connection->webPath.c_str().string(), entry.Request) == 0)
 		{
 			entry.Handler(entry.Arg, &dbg_connection);
 
@@ -287,6 +293,7 @@ static int WebDebugDispatch(struct WebbyConnection *connection)
 	}
 
 	// Check static resources.
+
 	if (ServeResource(&dbg_connection, connection->request.uri))
 		return 0;
 
@@ -414,7 +421,6 @@ static void AddStaticContent(const std::filesystem::path& dir, const std::filesy
             StaticResource resource;
             resource.Resource = resource_path;
             resource.FullPath = full_path;
-
 			DBGConsole_Msg(0, " adding [M%s] -> [C%s]",
 					resource.Resource.c_str(), resource.FullPath.c_str());
 
@@ -466,8 +472,8 @@ bool WebDebug_Init()
 		return false;
 	}
 
-	std::filesystem::path data_path = "Web";
-	std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
+	std::filesystem::path data_path = setBasePath("Web");
+
 	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path.c_str());
 	AddStaticContent(data_path, "");
 
