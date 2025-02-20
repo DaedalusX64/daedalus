@@ -116,7 +116,7 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context,  std::fu
 	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::LoadState, this ), "Load/Delete State", "Restore or delete a previously saved state." ) );
 	mElements.Add(std::make_unique<CUICommandImpl>(std::bind(&IPauseOptionsComponent::TakeScreenshot,this ), "Take Screenshot", "Take a screenshot on resume." ) );
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#if defined (DAEDALUS_DEBUG_DISPLAYLIST) && defined (DAEDALUS_PSP)
 		mElements.Add( std::make_unique<CUICommandImpl>( std::bind(&IPauseOptionsComponent::DebugDisplayList, this ), "Debug Display List", "Debug display list on resume." ) );
 #endif
 
