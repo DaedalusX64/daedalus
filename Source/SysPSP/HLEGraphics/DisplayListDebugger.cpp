@@ -57,9 +57,7 @@
 
 using std::sort;
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 extern float	TEST_VARX, TEST_VARY;
 extern DebugBlendSettings gDBlend;
 
@@ -67,9 +65,7 @@ extern DebugBlendSettings gDBlend;
 // We should call DLParser_Process(kUnlimitedInstructionCount) when we enter the debugger, and that will return a count. T
 extern u32 gNumInstructionsExecuted;
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 static bool	gDebugDisplayList = false;
 static bool	gSingleStepFrames = false;
 
@@ -99,7 +95,7 @@ bool DLDebugger_Process()
 	// DLParser_Process may set this flag, so check again after execution
 	if(gDebugDisplayList)
 	{
-		CDisplayListDebugger *	debugger = CDisplayListDebugger::Create();
+		auto debugger = CDisplayListDebugger::Create();
 		debugger->Run();
 		delete debugger;
 		gDebugDisplayList = gSingleStepFrames;
@@ -110,9 +106,7 @@ bool DLDebugger_Process()
 	return false;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 namespace
 {
 	//	const char * const TERMINAL_TOP_LEFT			= "\033[2A\033[2K";
@@ -147,9 +141,7 @@ struct SPspPadState
 	u32		NewButtons;
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 class CDebugMenuOption
 {
 	public:
@@ -165,7 +157,7 @@ class CDebugMenuOption
 				bool			NeedsUpdateDisplay() const						{ return mRefreshDisplay; }
 				void			UpdateDisplay();
 
-		virtual const std::string&	GetDescription() const = 0;
+		virtual const char *	GetDescription() const = 0;
 
 	protected:
 				void			InvalidateDisplay()								{ mRefreshDisplay = true; }
@@ -186,9 +178,7 @@ void	CDebugMenuOption::UpdateDisplay()
 	mRefreshDisplay = false;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 class CCombinerExplorerDebugMenuOption : public CDebugMenuOption
 {
 	public:
@@ -196,7 +186,7 @@ class CCombinerExplorerDebugMenuOption : public CDebugMenuOption
 
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const std::string&	GetDescription() const									{ return "Combiner Explorer"; }
+		virtual const char * GetDescription() const									{ return "Combiner Explorer"; }
 
 	private:
 				u32				mSelectedIdx;
@@ -221,8 +211,8 @@ void CCombinerExplorerDebugMenuOption::Display() const
 	printf( "   %sSelected for Blend Explorer\n\n", TERMINAL_RED );
 	printf( "%sCombiner States in use:\n", TERMINAL_WHITE );
 
-	u32		idx( 0 );
-	u64		selected_mux( 0 );
+	u32		idx =  0;
+	u64		selected_mux = 0;
 	for(std::set<u64>::const_iterator it = combiner_states.begin(); it != combiner_states.end(); ++it)
 	{
 		u64		state( *it );
@@ -343,16 +333,14 @@ void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, f
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 class CBlendDebugMenuOption : public CDebugMenuOption
 {
 	public:
 		CBlendDebugMenuOption();
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const std::string&	GetDescription() const									{ return "Blend Explorer"; }
+		virtual const char *	GetDescription() const									{ return "Blend Explorer"; }
 
 	private:
 		u32				mIdx;
@@ -503,9 +491,7 @@ void CBlendDebugMenuOption::Update( const SPspPadState & pad_state, float elapse
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 class CTextureExplorerDebugMenuOption : public CDebugMenuOption
 {
 	public:
@@ -513,7 +499,7 @@ class CTextureExplorerDebugMenuOption : public CDebugMenuOption
 
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const std::string&	GetDescription() const									{ return "Texture Explorer"; }
+		virtual const char *	GetDescription() const									{ return "Texture Explorer"; }
 
 		virtual bool			OverrideDisplay() const;
 
@@ -797,9 +783,7 @@ void CTextureExplorerDebugMenuOption::Update( const SPspPadState & pad_state, fl
 
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 class CDisplayListLengthDebugMenuOption : public CDebugMenuOption
 {
 	public:
@@ -807,7 +791,7 @@ class CDisplayListLengthDebugMenuOption : public CDebugMenuOption
 
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const std::string&	GetDescription() const									{ return "Display List Length"; }
+		virtual const char *	GetDescription() const									{ return "Display List Length"; }
 
 
 	private:
@@ -872,15 +856,13 @@ void CDisplayListLengthDebugMenuOption::Update( const SPspPadState & pad_state, 
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 class CDecalOffsetDebugMenuOption : public CDebugMenuOption
 {
 	public:
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const std::string&	GetDescription() const									{ return "Test variables"; }
+		virtual const char *	GetDescription() const									{ return "Test variables"; }
 };
 
 void CDecalOffsetDebugMenuOption::Display() const
@@ -912,9 +894,7 @@ void CDecalOffsetDebugMenuOption::Update( const SPspPadState & pad_state, float 
 
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 class IDisplayListDebugger : public CDisplayListDebugger
 {
 	public:
@@ -924,24 +904,18 @@ class IDisplayListDebugger : public CDisplayListDebugger
 };
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 CDisplayListDebugger *	CDisplayListDebugger::Create()
 {
 	return new IDisplayListDebugger;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 CDisplayListDebugger::~CDisplayListDebugger()
 {
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void IDisplayListDebugger::Run()
 {
 	//
