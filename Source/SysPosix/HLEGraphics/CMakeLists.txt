@@ -1,5 +1,6 @@
 add_library(HLEGraphics_POSIX OBJECT 
                                     DisplayListDebugger.cpp
+                                    TextureCacheWebDebug.cpp 
             )
 
             
