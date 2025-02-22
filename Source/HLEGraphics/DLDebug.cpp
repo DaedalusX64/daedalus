@@ -4,11 +4,7 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include <stdarg.h>
-#if defined(GCC_LEGACY)
-#include <fmt/core.h> 
-#else 
-#include <format>
-#endif
+
 #include <filesystem>
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
@@ -485,12 +481,7 @@ DLDebugOutput * DLDebug_CreateFileOutput()
 
 	std::filesystem::path dumpdir = "DisplayLists";
 	dumpdir /= g_ROM.settings.GameName.c_str();
-		#if defined(GCC_LEGACY)
-		std::string filepath = fmt::format("dl{}.txt", count++);
-		#else 
-		std::string filepath = std::format("dl{}.txt", count++);
-		#endif
-
+	std::string filepath = FORMAT_NAMESPACE::format("dl{}.txt", count++);
 	dumpdir /= filepath;
 
 	DLDebugOutputFile * output = new DLDebugOutputFile();

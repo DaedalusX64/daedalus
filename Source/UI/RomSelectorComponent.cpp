@@ -21,11 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 #include <map>
 #include <algorithm>
-#if defined(GCC_LEGACY)
-#include <fmt/core.h> 
-#else 
-#include <format>
-#endif
+
 #include <iostream>
 #include <cctype>
 #include <string_view>
@@ -334,11 +330,8 @@ void IRomSelectorComponent::RenderPreview()
 	{
 		auto	p_rominfo =  mRomsList[ mCurrentSelection ];
 
-		#if defined(GCC_LEGACY)
-		std::string rom_size = fmt::format("{} MB", p_rominfo->mRomSize  / (1024 * 1024));
-		#else 
-		std::string rom_size = std::format("{} MB", p_rominfo->mRomSize  / (1024 * 1024));
-		#endif
+		std::string rom_size = FORMAT_NAMESPACE::format("{} MB", p_rominfo->mRomSize  / (1024 * 1024));
+	
 
 		DrawInfoText( mpContext, y, "Boot:", ROM_GetCicName( p_rominfo->mCicType ));	y += line_height;
 		DrawInfoText( mpContext, y, "Country:", ROM_GetCountryNameFromID( p_rominfo->mRomID.CountryID));	y += line_height;
@@ -444,11 +437,8 @@ void IRomSelectorComponent::RenderCategoryList()
 
 		// char str[ 16 ];
 		// snprintf( str, sizeof(str), "%c ", GetCategoryLetter( category ) );
-		#if defined(GCC_LEGACY)
-		std::string str = fmt::format("{} ", GetCategoryLetter( category));
-		#else 
-		std::string str = std::format("{} ", GetCategoryLetter( category));
-		#endif
+		std::string str = FORMAT_NAMESPACE::format("{} ", GetCategoryLetter( category));
+
 		x += mpContext->DrawText( x, y, str, colour );
 	}
 }
