@@ -4,6 +4,9 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include <stdarg.h>
+#include <format>
+#include <cstring>
+#include <fstream>
 
 #include <filesystem>
 #include "Core/ROM.h"
@@ -13,6 +16,7 @@
 #include "Ultra/ultra_gbi.h"
 
 #include "Base/Macros.h"
+#include "System/DataSink.h"
 
 
 DLDebugOutput * gDLDebugOutput = nullptr;
@@ -445,22 +449,31 @@ void DLDebug_DumpTaskInfo( const OSTask * pTask )
 class DLDebugOutputFile : public DLDebugOutput
 {
 public:
-	DLDebugOutputFile() : Sink(new FileSink)
+	DLDebugOutputFile() : outputStream()
 	{
 	}
 	~DLDebugOutputFile()
-	{
-		delete Sink;
+	{	
+		if (outputStream.is_open())
+		{
+			outputStream.close();
+		}
 	}
 
-	bool Open(const std::filesystem::path filename)
+	bool Open(const std::filesystem::path& filename)
 	{
-		return Sink->Open(filename.c_str(), "w");
+		outputStream.open(filename, std::ios::out | std::ios::trunc);
+		return outputStream.is_open();
 	}
 
 	virtual size_t Write(const void * p, size_t len)
 	{
-		return Sink->Write(p, len);
+		if (outputStream.is_open())
+		{
+			outputStream.write(static_cast<const char*>(p), len);
+			return len;
+		}
+		return 0;
 	}
 
 	virtual void BeginInstruction(u32 idx, u32 cmd0, u32 cmd1, u32 depth [[maybe_unused]], const char * name)
@@ -472,16 +485,19 @@ public:
 	{
 	}
 
-	FileSink * Sink;
+private:
+	std::ofstream outputStream;
 };
 
 DLDebugOutput * DLDebug_CreateFileOutput()
 {
 	static u32 count = 0;
-
-	std::filesystem::path dumpdir = "DisplayLists";
+	
+	std::filesystem::path dumpdir = setBasePath("DisplayLists");
 	dumpdir /= g_ROM.settings.GameName.c_str();
-	std::string filepath = FORMAT_NAMESPACE::format("dl{}.txt", count++);
+	std::filesystem::create_directory(dumpdir);
+	std::string filepath = FORMAT_NAMESPACE::format("dl{}.txt", count++);	
+
 	dumpdir /= filepath;
 
 	DLDebugOutputFile * output = new DLDebugOutputFile();

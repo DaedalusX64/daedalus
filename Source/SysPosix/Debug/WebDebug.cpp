@@ -19,10 +19,13 @@
 #include <vector>
 #include <fstream>
 #include <filesystem>
+#include <thread>
+#include <iostream> 
+
 
 #include "Debug/DBGConsole.h"
 #include "Utility/MathUtil.h"
-
+#include "Utility/Paths.h"
 #include "Base/Macros.h"
 #include "Utility/StringUtil.h"
 #include "System/Thread.h"
@@ -49,7 +52,7 @@ struct StaticResource
 static void *				gServerMemory = NULL;
 static struct WebbyServer * gServer       = NULL;
 static volatile bool		gKeepRunning  = false;
-static ThreadHandle 		gThread       = kInvalidThreadHandle;
+static std::thread 		gThread;
 
 static int 									ws_connection_count;
 static struct WebbyConnection *				ws_connections[MAX_WSCONN];
@@ -237,6 +240,7 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 	size_t len_read;
 	char buf[kBufSize];
 	do
+	{
 		len_read = fh.read(reinterpret_cast<char*>(buf), kBufSize).gcount();	
 		// len_read = fread(buf, 1, kBufSize, fh);
 		if (len_read > 0)
@@ -248,13 +252,15 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 	// fclose(fh);
 }
 
+
 bool ServeResource(WebDebugConnection * connection, const char * resource_path)
-{
+{	
+	std::filesystem::path basePath = setBasePath("Web");
+	basePath /= resource_path;
 	for (size_t i = 0; i < gStaticResources.size(); ++i)
 	{
 		const StaticResource & resource = gStaticResources[i];
-
-		if (strcmp(resource_path, resource.Resource.c_str()) == 0)
+		if (basePath.string() == resource.Resource)
 		{
 			ServeFile(connection, resource.FullPath.c_str());
 			return true;
@@ -267,12 +273,15 @@ bool ServeResource(WebDebugConnection * connection, const char * resource_path)
 static int WebDebugDispatch(struct WebbyConnection *connection)
 {
 	WebDebugConnection dbg_connection(connection);
+	std::filesystem::path webPath = setBasePath("Web");
 
 	// Check dynamic handlers.
 	for (size_t i = 0; i < gHandlers.size(); ++i)
 	{
 		const WebDebugHandlerEntry & entry = gHandlers[i];
-		if (strcmp(connection->request.uri, entry.Request) == 0)
+		webPath /= connection->request.uri;
+		if (webPath.string() != entry.Request)
+		// if (strcmp(connection->webPath.c_str().string(), entry.Request) == 0)
 		{
 			entry.Handler(entry.Arg, &dbg_connection);
 
@@ -284,6 +293,7 @@ static int WebDebugDispatch(struct WebbyConnection *connection)
 	}
 
 	// Check static resources.
+
 	if (ServeResource(&dbg_connection, connection->request.uri))
 		return 0;
 
@@ -385,7 +395,8 @@ static u32 WebDebugThread(void * arg)
 		// 	}
 		// }
 
-		ThreadSleepMs(10);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		//ThreadSleepMs(10);
 
 		++frame_counter;
 	}
@@ -410,7 +421,6 @@ static void AddStaticContent(const std::filesystem::path& dir, const std::filesy
             StaticResource resource;
             resource.Resource = resource_path;
             resource.FullPath = full_path;
-
 			DBGConsole_Msg(0, " adding [M%s] -> [C%s]",
 					resource.Resource.c_str(), resource.FullPath.c_str());
 
@@ -462,26 +472,25 @@ bool WebDebug_Init()
 		return false;
 	}
 
-	std::filesystem::path data_path = "Web";
-	std::filesystem::path gDaedalusExePath = std::filesystem::current_path();
+	std::filesystem::path data_path = setBasePath("Web");
+
 	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path.c_str());
 	AddStaticContent(data_path, "");
 
 	gKeepRunning = true;
-	gThread      = CreateThread( "WebDebug", &WebDebugThread, gServer );
+	gThread = std::thread(WebDebugThread, gServer);
+	// gThread      = CreateThread( "WebDebug", &WebDebugThread, gServer );
 
 	return true;
 }
 
 void WebDebug_Fini()
 {
-	if (gThread != kInvalidThreadHandle)
-	{
 		gKeepRunning = false;
-		JoinThread(gThread, -1);
-		gThread = kInvalidThreadHandle;
-	}
-
+		if (gThread.joinable())
+		{
+			gThread.join();
+		}
 	WebbyServerShutdown(gServer);
 	free(gServerMemory);
 

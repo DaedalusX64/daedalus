@@ -1196,9 +1196,10 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 	{
 		if (mUnhandledCombinerStates.find( mux ) == mUnhandledCombinerStates.end())
 		{
-			std::filesystem::path filepath;
-
-			Dump_GetDumpDirectory(filepath.c_str(), g_ROM.settings.GameName.c_str());
+			std::filesystem::path filepath = setBasePath("Mux");
+			// filepath /= g_ROM.settings.GameName.c_str();
+			
+			// Dump_GetDumpDirectory(filepath.c_str(), g_ROM.settings.GameName.c_str());
 			filepath /= "missing.mux";
 
 			FILE * fh = fopen(filepath.c_str(), mUnhandledCombinerStates.empty() ? "w" : "a");

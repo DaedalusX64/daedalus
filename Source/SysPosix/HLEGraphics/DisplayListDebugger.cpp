@@ -23,11 +23,8 @@
 #include "System/Thread.h"
 #include "System/Mutex.h"
 
-#if defined(DAEDALUS_GL)
 #include "SysGL/GL.h"
-#elif defined(DAEDALUS_GLES)
-#include "SysGLES/GL.h"
-#endif
+#include <fstream>
 
 static bool gDebugging = false;
 
@@ -50,7 +47,7 @@ static WebDebugConnection * gActiveConnection = NULL;
 static DebugTask			gDebugTask        = kTaskUndefined;
 static u32					gInstructionCountLimit = kUnlimitedInstructionCount;
 
-static void Base64Encode(const void * data, size_t len, DataSink * sink)
+static void Base64Encode(const void * data, size_t len, std::ostream& outputStream)
 {
 	const char * table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -91,7 +88,7 @@ static void Base64Encode(const void * data, size_t len, DataSink * sink)
 	}
 
 	DAEDALUS_ASSERT(dst == buffer+out_len, "Oops");
-	sink->Write(buffer, out_len);
+	outputStream.write(buffer, out_len);
 	free(buffer);
 }
 
@@ -134,7 +131,7 @@ void DLDebugger_RequestDebug()
 }
 
 
-static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, DataSink * sink)
+static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, std::ostream& outputStream)
 {
 	u32 width  = texture->GetWidth();
 	u32 height = texture->GetHeight();
@@ -143,7 +140,7 @@ static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, DataSin
 
 	FlattenTexture(texture, bytes, num_bytes);
 
-	Base64Encode(bytes, num_bytes, sink);
+	Base64Encode(bytes, num_bytes, outputStream);
 	free(bytes);
 }
 
@@ -241,7 +238,9 @@ void DLDebugger_ProcessDebugTask()
 							connection->WriteF("\t\t\t\"width\": %d,\n", texture->GetWidth());
 							connection->WriteF("\t\t\t\"height\": %d,\n", texture->GetHeight());
 							connection->WriteString("\t\t\t\"data\": \"");
-							EncodeTexture(texture, connection);
+							std::ostringstream outputStream;
+							EncodeTexture(texture, outputStream);
+							connection->Write(outputStream.str().c_str(), outputStream.str().size());
 							connection->WriteString("\"\n");
 							connection->WriteString("\t\t}\n");
 							wrote_data = true;
@@ -277,8 +276,10 @@ void DLDebugger_ProcessDebugTask()
 
 				// NB, pass a negative pitch, to render the screenshot the right way up.
 				s32 pitch = -static_cast<s32>(width * 4);
-
-				PngSaveImage(connection, pixels, NULL, TexFmt_8888, pitch, width, height, false);
+				
+				const std::filesystem::path tempFile = "screenshot.png";
+				
+				PngSaveImage(tempFile, pixels, NULL, TexFmt_8888, pitch, width, height, false);
 
 				free(pixels);
 

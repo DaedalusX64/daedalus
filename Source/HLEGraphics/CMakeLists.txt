@@ -9,13 +9,18 @@ add_library(HLEGraphics OBJECT
                             RDP.cpp 
                             RDPStateManager.cpp 
                             TextureCache.cpp 
-                            TextureCacheWebDebug.cpp 
                             TextureInfo.cpp 
                             TMEM.cpp 
                             uCodes/Ucode.cpp
+                            ${DISPLAYLIST_DEBUG}
+
             )
 
+if(DAEDALUS_POSIX) 
+    set(DISPLAYLIST_DEBUG TextureCacheWebDebug.cpp )
+endif(DAEDALUS_POSIX)
 if(DAEDALUS_GL)
+
     message(STATUS "Building HLEGraphics with OpenGL support: ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS}")
     target_include_directories(HLEGraphics PUBLIC ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
 endif(DAEDALUS_GL)
