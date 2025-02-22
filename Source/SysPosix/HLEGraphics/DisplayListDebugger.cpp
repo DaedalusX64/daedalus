@@ -276,7 +276,9 @@ void DLDebugger_ProcessDebugTask()
 
 				// NB, pass a negative pitch, to render the screenshot the right way up.
 				s32 pitch = -static_cast<s32>(width * 4);
+				
 				const std::filesystem::path tempFile = "screenshot.png";
+				
 				PngSaveImage(tempFile, pixels, NULL, TexFmt_8888, pitch, width, height, false);
 
 				free(pixels);

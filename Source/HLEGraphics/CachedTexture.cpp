@@ -346,9 +346,14 @@ void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptr<C
 
 	if( texture != nullptr && texture->HasData() )
 	{
-		std::filesystem::path dumpdir = g_ROM.settings.GameName;
+		std::filesystem::path dumpdir = "ScreenShots";
+		dumpdir /= g_ROM.settings.GameName;
+
+		// std::filesystem::path dumpdir = g_ROM.settings.GameName;
+		std::filesystem::create_directories(dumpdir);
 		std::string filename = std::format("{}-{}_{}bpp-{}x{}-{}x{}.png", ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(), 0, 0, ti.GetWidth(), ti.GetHeight() );
-		std::filesystem::path filepath;
+		
+		dumpdir /= filename;
 
 		void *	texels;
 		void *	palette;
@@ -364,8 +369,7 @@ void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptr<C
 			// than ram. This means that when we dump out the texture here, tmem won't necessarily
 			// contain our pixels.
 			const void * native_palette = texture->GetPalette();
-
-			PngSaveImage( filepath.c_str(), texels, native_palette, texture->GetFormat(), texture->GetStride(), ti.GetWidth(), ti.GetHeight(), true );
+			PngSaveImage( dumpdir.c_str(), texels, native_palette, texture->GetFormat(), texture->GetStride(), ti.GetWidth(), ti.GetHeight(), true );
 		}
 	}
 }

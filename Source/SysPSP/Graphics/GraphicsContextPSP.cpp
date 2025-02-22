@@ -529,12 +529,19 @@ void IGraphicsContext::DumpScreenShot()
 	std::filesystem::path dumpdir = "ScreenShots";
 
 	std::filesystem::path file_name = g_ROM.settings.GameName.c_str();
-
+	dumpdir /= file_name;
+	std::filesystem::path unique_filename;
+	unique_filename /= dumpdir;
 
 	u32 count = 0;
+	do
+	{
+		std::filesystem::path test_name = std::format(gScreenDumpDumpPathFormat, count++);
+		unique_filename = dumpdir / test_name;
+	
+	} while (std::filesystem::exists(unique_filename));
 
-
-	std::filesystem::path unique_filename = std::format(gScreenDumpDumpPathFormat, count++);
+	// std::filesystem::path unique_filename = std::format(gScreenDumpDumpPathFormat, count++);
 
 	u32		display_width = 0;
 	u32		display_height= 0;
@@ -556,6 +563,7 @@ void IGraphicsContext::DumpScreenShot()
 	s32		display_x( (frame_width - display_width)/2 );
 	s32		display_y( (frame_height - display_height)/2 );
 
+	
 	SaveScreenshot( unique_filename, display_x, display_y, display_width, display_height );
 }
 
@@ -569,12 +577,12 @@ void IGraphicsContext::StoreSaveScreenData()
 
 	void * buffer;
 	char pngbuffer[128*1024];
-	std::filesystem::path pngfile;
+
 
 	extern std::string	gSaveStateFilename;
-	pngfile /= gSaveStateFilename;
-	// snprintf( pngfile, sizeof(pngfile), "%s.png", gSaveStateFilename.c_str() );	//Add .png to filename
 
+	// snprintf( pngfile, sizeof(pngfile), "%s.png", gSaveStateFilename.c_str() );	//Add .png to filename
+	std::filesystem::path pngfile = std::format("{}.png", gSaveStateFilename);
 	u32		display_width = 0;
 	u32		display_height= 0;
 
@@ -666,7 +674,6 @@ void IGraphicsContext::StoreSaveScreenData()
 		buffer = reinterpret_cast< u8 * >( buffer ) + (y * pitch) + (x * bpp);
 		break;
 	}
-
 	PngSaveImage( pngfile, (void*)pngbuffer, nullptr, texture_format, pitch, display_width, display_height, false );
 }
 

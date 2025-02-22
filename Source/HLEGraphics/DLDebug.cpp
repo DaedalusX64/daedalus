@@ -495,6 +495,7 @@ DLDebugOutput * DLDebug_CreateFileOutput()
 	
 	std::filesystem::path dumpdir = setBasePath("DisplayLists");
 	dumpdir /= g_ROM.settings.GameName.c_str();
+	std::filesystem::create_directory(dumpdir);
 	std::string filepath = std::format("dl{}.txt", count++);	
 
 	dumpdir /= filepath;
