@@ -254,24 +254,28 @@ u32	 IInputManager::GetNumConfigurations() const
 
 const char * IInputManager::GetConfigurationName( u32 configuration_idx ) const
 {
-	DAEDALUS_ERROR( "Invalid controller config" );
+	// DAEDALUS_ERROR( "Invalid controller config" );
+	std::cout << "Invalid Controller Config Name" << std::endl;
 	return "?";
 }
 
 const char * IInputManager::GetConfigurationDescription( u32 configuration_idx ) const
 {
+	std::cout << "Invalid Controller Description" << std::endl;
 	DAEDALUS_ERROR( "Invalid controller config" );
 	return "?";
 }
 
 void IInputManager::SetConfiguration( u32 configuration_idx )
 {
-	DAEDALUS_ERROR( "Invalid controller config" );
+	std::cout << "Invalid Controller Set Configuration" << std::endl;
+	// DAEDALUS_ERROR( "Invalid controller config" );
 }
 
 u32		IInputManager::GetConfigurationFromName( const char * name ) const
 {
 	// Return the default controller config
+	
 	return 0;
 }
 
