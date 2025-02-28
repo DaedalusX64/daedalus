@@ -15,7 +15,7 @@ extern bool isZeldaABI;
 void ADPCM(AudioHLECommand command) {
   u8 flags = command.Abi1ADPCM.Flags;
   // u16	gain( command.Abi1ADPCM.Gain );		// Not used?
-  u32 address = command.Abi1ADPCM.Address + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 address = command.Abi1ADPCM.Address; // + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.ADPCMDecode(flags, address);
 }
@@ -164,7 +164,7 @@ void ADPCM2(AudioHLECommand command) {
   u8 Flags = (u8)((command.cmd0 >> 16) & 0xff);
   // u16 Gain=(u16)(command.cmd0&0xffff);	// XXXX Unused
   u32 Address = command.cmd1 &
-                0xffffff+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+                0xffffff; //+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   bool init = (Flags & 0x1) != 0;
   bool loop = (Flags & 0x2) != 0;
@@ -227,7 +227,7 @@ void ADPCM3(AudioHLECommand command) {
   // u16 Gain=(u16)(command.cmd0&0xffff);
   u32 Address =
       (command.cmd0 &
-       0xffffff)+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+       0xffffff); //+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
   u32 inPtr = (command.cmd1 >> 12) & 0xf;
   // s16 *out=(s16 *)(testbuff+(gAudioHLEState.OutBuffer>>2));
   s16 *out = (s16 *)(gAudioHLEState.Buffer + (command.cmd1 & 0xfff) + 0x4f0);
@@ -470,14 +470,14 @@ void LOADADPCM(AudioHLECommand command) {
 
 void LOADADPCM2(AudioHLECommand command) {
   // Loads an ADPCM table - Works 100% Now 03-13-01
-  u32 address = command.Abi2LoadADPCM.Address+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 address = command.Abi2LoadADPCM.Address; //+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
   u16 count = command.Abi2LoadADPCM.Count;
 
   gAudioHLEState.LoadADPCM(address, count);
 }
 
 void LOADADPCM3(AudioHLECommand command) {
-  u32 address = command.Abi3LoadADPCM.Address+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 address = command.Abi3LoadADPCM.Address;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
   u16 count = command.Abi3LoadADPCM.Count;
 
   gAudioHLEState.LoadADPCM(address, count);

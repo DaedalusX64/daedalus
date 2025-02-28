@@ -20,7 +20,7 @@ void RESAMPLE(AudioHLECommand command) {
 #endif
   u8 flags = command.Abi1Resample.Flags;
   u32 pitch = command.Abi1Resample.Pitch;
-  u32 address = command.Abi1Resample.Address+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 address = command.Abi1Resample.Address;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.Resample(flags, pitch, address);
 }
@@ -31,7 +31,7 @@ void RESAMPLE2(AudioHLECommand command) {
 #endif
   u8 flags = command.Abi2Resample.Flags;
   u32 pitch = command.Abi2Resample.Pitch;
-  u32 address = command.Abi2Resample.Address+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 address = command.Abi2Resample.Address;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.Resample(flags, pitch, address);
 }

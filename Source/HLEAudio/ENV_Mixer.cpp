@@ -52,7 +52,7 @@ void ENVMIXER(AudioHLECommand command) {
   u8 flags(command.Abi1EnvMixer.Flags);
   u32 address(
       command.Abi1EnvMixer
-          .Address + gAudioHLEState.Segments[(command.cmd1>>24)&0xf]);
+          .Address); //+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf]);
 
   gAudioHLEState.EnvMixer(flags, address);
 }

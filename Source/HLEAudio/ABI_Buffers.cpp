@@ -100,7 +100,7 @@ void LOADBUFF(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "LOADBUFF");
 #endif
-  u32 addr = command.Abi1LoadBuffer.Address+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 addr = command.Abi1LoadBuffer.Address;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.LoadBuffer(addr);
 }
@@ -110,7 +110,7 @@ void LOADBUFF2(AudioHLECommand command) {
   DBGConsole_Msg(0, "LOADBUFF2");
 #endif
   // Needs accuracy verification...
-  u32 src = command.Abi2LoadBuffer.SrcAddr+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 src = command.Abi2LoadBuffer.SrcAddr;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
   u16 dst = command.Abi2LoadBuffer.DstAddr;
   u16 count = command.Abi2LoadBuffer.Count;
 
@@ -132,7 +132,7 @@ void SAVEBUFF(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SAVEBUFF");
 #endif
-  u32 addr = command.Abi1SaveBuffer.Address+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 addr = command.Abi1SaveBuffer.Address;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.SaveBuffer(addr);
 }
@@ -142,7 +142,7 @@ void SAVEBUFF2(AudioHLECommand command) {
   DBGConsole_Msg(0, "SAVEBUFF2");
 #endif
   // Needs accuracy verification...
-  u32 dst = command.Abi2SaveBuffer.DstAddr+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 dst = command.Abi2SaveBuffer.DstAddr;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
   u16 src = command.Abi2SaveBuffer.SrcAddr;
   u16 count = command.Abi2SaveBuffer.Count;
 
@@ -234,7 +234,7 @@ void SETLOOP(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SETLOOP");
 #endif
-  u32 loopval = command.Abi1SetLoop.LoopVal+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 loopval = command.Abi1SetLoop.LoopVal;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.SetLoop(loopval);
 }
@@ -243,7 +243,7 @@ void SETLOOP2(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SETLOOP2");
 #endif
-  u32 loopval = command.Abi2SetLoop.LoopVal+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 loopval = command.Abi2SetLoop.LoopVal;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.SetLoop(loopval);
 }
@@ -252,7 +252,7 @@ void SETLOOP3(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "SETLOOP3");
 #endif
-  u32 loopval = command.Abi3SetLoop.LoopVal+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+  u32 loopval = command.Abi3SetLoop.LoopVal;//+ gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
   gAudioHLEState.SetLoop(loopval);
 }
