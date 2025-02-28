@@ -1,55 +1,36 @@
-	# DaedalusX64 CMake Build File 
-# Created and Maintained by Wally 
-# Yes right now this is a mess, hoping to simplify things further in future but please deal with it for now :)
+# DaedalusX64 CMake Build File 
+#Last updated 28/02/2025
 
-set(CMAKE_CXX_STANDARD 23)
 
-# Below is related to Macros within the project, a lot of these could be deprecated and deleted.
-# For now they will remain here so they're visible and can be switched on and off as desired.
 
 #TODO: Separate SDL Options
 list(APPEND plat_main )
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    	message(STATUS "GCC detected: ${CMAKE_CXX_COMPILER_VERSION}")
-    
-    	if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13.0")
-        	message(STATUS "GCC version is older than 13. Using LibFormat.")
-        	message("GCC_LEGACY=ON")
-    		option(GCC_LEGACY "Use LibFormat" ON)
-    	endif()
-endif()
-
+#Legacy support for std::format 
 
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	message("Debug Build")
 
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
-	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Dev") ## Show the build type in the UI
 	option(DAEDALUS_ENABLE_ASSERTS "Enable Static Asserts" ON)
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" ON)
 	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
 	option(DAEDALUS_LOG "Enable various logging" ON)
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
 if(NOT WIN32)
-	add_compile_options("-Wall")
-	add_compile_options("-Wextra")
+	add_compile_options("-Wall -Wextra")
 endif()
 else()
-	message("Release Build")
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-	add_compile_definitions(DAEDALUS_CONFIG_VERSION="Release") ## Show the build type in the UI
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" ON)
-
 	option(DAEDALUS_DEBUG_CONSOLE "Enable Debug Console" OFF)
-	message (${CMAKE_CXX_FLAGS_RELEASE})
-	if(DAEDALUS_CTR)
-	set( CMAKE_CXX_FLAGS_RELEASE  "-O3 -DNDEBUG")
-	endif()
+
 	endif()
 	#Determine Dynarec compatibility and link in appropriate Dynarec
 	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
+	
+	#New Logic
+	
 	if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" )
 		option(DAEDALUS_ENABLE_DYNAREC  "Enable Dynarec" OFF)
 		message("No Dynarec on arm64 yet")
@@ -120,7 +101,6 @@ else()
 	if(PSP) 
 		message("PSP")
 		option(DAEDALUS_DIALOGS "Enable UI Dialogs" OFF)
-		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_PSP "PSP specific Options" ON)
 		option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
 		option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
@@ -155,6 +135,7 @@ else()
 	elseif(CTR)
 		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" OFF) ## Causes some weird black screen issues
 		option(DAEDALUS_CTR "3DS Specific Options" ON)
+		option(DAEDALUS_SDL "" OFF)
 	endif()
 
 # Profiler Options
@@ -269,9 +250,9 @@ find_package(ZLIB REQUIRED)
 link_libraries(ZLIB::ZLIB)
 
 		## Daedalus Core Build
+		add_subdirectory(DynaRec)
 		add_subdirectory(Core)
 		add_subdirectory(Debug)
-		add_subdirectory(DynaRec)
 		add_subdirectory(Graphics)
 		add_subdirectory(HLEAudio)
 		add_subdirectory(HLEGraphics)
