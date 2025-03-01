@@ -108,7 +108,7 @@ bool Save_Reset()
 		std::filesystem::path romName = g_ROM.mFileName;
 		gMempackFileName = saveDir / (romName.filename().string());
 		gMempackFileName.replace_extension(".mpk");
-		bool fileExists = std::filesystem::exists(gMempackFileName); 
+		
 		std::fstream file(gMempackFileName, std::ios::in | std::ios::out | std::ios::binary);
 		if (!file)
 		{
