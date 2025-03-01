@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_SPINLOCK_H_
 #define UTILITY_SPINLOCK_H_
 
-#include "System/Thread.h"
+#include <thread>
 
 class CSpinLock
 {
@@ -32,7 +32,7 @@ public:
 		// N.B. - this probably needs to use a CAS to prevent race conditions
 		while( *Var != 0 )
 		{
-			ThreadYield();
+			std::this_thread::yield();
 		}
 		*Var = 1;
 	}

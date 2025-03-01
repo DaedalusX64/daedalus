@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 
-#include <stdio.h>
+#include <thread>
 
 #include "Graphics/ColourValue.h"
 
@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Menu.h"
 
 
-#include "System/Thread.h"
+
 #include "Utility/FramerateLimiter.h"
 #include "Interface/Preferences.h"
 
@@ -178,7 +178,7 @@ namespace
 				{
 					std::filesystem::remove("preferences.ini");
 					std::filesystem::remove("rom.db");
-					ThreadSleepMs(1000);	//safety wait for s
+					std::this_thread::sleep_for(std::chrono::microseconds(1000));	//safety wait for s
 
 					gShowDialog->Render( mpContext,"Daedalus will exit now",true);
 
@@ -190,7 +190,7 @@ namespace
 				std::filesystem::remove("preferences.ini");
 				std::filesystem::remove("rom.db");
 
-				ThreadSleepMs(1000);	//safety wait for s
+				std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
 				gShowDialog->Render( mpContext,"Daedalus will exit now",true);
 
