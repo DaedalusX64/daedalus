@@ -53,7 +53,7 @@ template<> bool CSingleton< CDebugConsole >::Create()
 {
 	DAEDALUS_ASSERT(mpInstance == NULL, "Already initialised");
 
-	mpInstance = std::make_shared<IDebugConsole>();
+	mpInstance = std::make_unique<IDebugConsole>();
 
 	return mpInstance ? true : false;
 }
