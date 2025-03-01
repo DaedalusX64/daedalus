@@ -175,8 +175,7 @@ BaseRenderer::BaseRenderer()
 		mTexWrap[i].v = 0;
 		mActiveTile[i] = 0;
 	}
-	
-	memset( &mTnL, 0, sizeof(mTnL) );
+	mTnL = TnLParams();
 	
 	mTnL.Flags._u32 = 0;
 	mTnL.NumLights = 0;
