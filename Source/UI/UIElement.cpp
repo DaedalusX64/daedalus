@@ -40,7 +40,7 @@ void CUIElementBag::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType
 {
 	constexpr s32 MAXBOT = SCREEN_HEIGHT - 25;	//Only draw text above
 
-	for( auto i = 0; i < mElements.size(); ++i )
+	for( std::size_t i = 0; i < mElements.size(); ++i )
 	{
 		const auto& element = mElements[ i ];
 
@@ -54,7 +54,7 @@ void	CUIElementBag::DrawCentredVertically( CUIContext * context, s32 min_x, s32 
 {
 	s32 total_height = 0;
 
-	for( auto i = 0; i < mElements.size(); ++i )
+	for( std::size_t i = 0; i < mElements.size(); ++i )
 	{
 		const auto&	element = mElements[ i ];
 
@@ -64,7 +64,7 @@ void	CUIElementBag::DrawCentredVertically( CUIContext * context, s32 min_x, s32 
 	s32		slack = (max_y - min_y) - total_height;
 	s32		y = min_y + (slack / 2);
 
-	for( auto i = 0; i < mElements.size(); ++i )
+	for( std::size_t i = 0; i < mElements.size(); ++i )
 	{
 		const auto& element = mElements[ i ];
 

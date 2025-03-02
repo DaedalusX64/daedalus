@@ -39,9 +39,6 @@
 static const u64 ROMDB_MAGIC_NO	= 0x42444D5244454144LL; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
 static const u32 ROMDB_CURRENT_VERSION = 4;
 
-static const u32 MAX_SENSIBLE_FILES = 2048;
-static const u32 MAX_SENSIBLE_DETAILS = 2048;
-
 CRomDB::~CRomDB() {}
 
 class IRomDB : public CRomDB
@@ -108,7 +105,7 @@ class IRomDB : public CRomDB
 
 		struct SSortByFilename {
     bool operator()(const RomFilesKeyValue& a, const RomFilesKeyValue& b) const {
-        return a.FileName < b.FileName;
+        return std::string_view(a.FileName) < std::string_view(b.FileName);
     }
     bool operator()(std::string_view a, const RomFilesKeyValue& b) const {
         return a < b.FileName;
@@ -191,11 +188,8 @@ void IRomDB::Reset()
 
 bool IRomDB::OpenDB( const std::filesystem::path filename )
 {
-	u32 num_read;
 
-	//
 	// Remember the filename
-	//
 	mRomDBFileName = filename;
 	
    std::ofstream fh(filename, std::ios::binary);

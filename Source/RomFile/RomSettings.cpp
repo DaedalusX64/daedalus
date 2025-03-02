@@ -162,51 +162,13 @@ IRomSettingsDB::IRomSettingsDB() :	mDirty( false ) {}
 
 IRomSettingsDB::~IRomSettingsDB()
 {
-	// if ( mDirty )
-	// {
-	// 	Commit();
-	// }
-}
-
-
-//	Remove the specified characters from p_string
-static bool	trim( char * p_string, const char * p_trim_chars )
-{
-	u32 num_trims = (u32)strlen( p_trim_chars );
-	char * pin = p_string;
-	char * pout = p_string;
-	bool found = false;
-	while ( *pin )
+	if ( mDirty )
 	{
-		char c = *pin;
-
-		found = false;
-		for ( u32 i = 0; i < num_trims; i++ )
-		{
-			if ( p_trim_chars[ i ] == c )
-			{
-				// Skip
-				found = true;
-				break;
-			}
-		}
-
-		if ( found )
-		{
-			pin++;
-		}
-		else
-		{
-			// Copy
-			*pout++ = *pin++;
-		}
+		Commit();
 	}
-	*pout = '\0';
-	return true;
 }
 
 
-//
 
 static RomID	RomIDFromString( const char * str )
 {

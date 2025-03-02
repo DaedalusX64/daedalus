@@ -41,12 +41,11 @@ namespace DrawTextUtilities
 		// Manual line breaking (Used for translations)
 		if (gGlobalPreferences.Language != 0)
 		{
-			for ( auto i = 0, j = 0; i < length; i++)
+			for ( std::size_t i = 0; i < length; i++)
 			{
 				match = true;
 				if (p_str[i] == '\n')
 				{
-					j++;
 					lengths.push_back(match);
 				}
 			}

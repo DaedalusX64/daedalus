@@ -35,6 +35,5 @@ void	CUICommand::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType ha
 						selected ? context ->GetSelectedTextColour() :
 						context->GetDefaultTextColour();
 
-	const auto font_height = context->GetFontHeight();
 	context->DrawTextAlign( min_x, max_x, halign, y + context->GetFontHeight(), mName.c_str(), colour );
 }

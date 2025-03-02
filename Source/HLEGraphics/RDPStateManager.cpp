@@ -36,8 +36,9 @@ extern SImageDescriptor g_TI;		//Texture data from Timg ucode
 
 CRDPStateManager gRDPStateManager;
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 static const char * const kTLUTTypeName[] = {"None", "?", "RGBA16", "IA16"};
-
+#endif
 RDP_OtherMode		gRDPOtherMode;
 
 #define MAX_TMEM_ADDRESS 4096

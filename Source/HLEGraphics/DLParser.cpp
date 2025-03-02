@@ -286,18 +286,14 @@ extern u32 uViHeight;
 #include "uCodes/Ucode_Sprite2D.h"
 #include "uCodes/Ucode_S2DEX.h"
 
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-//                      Strings                         //
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
 
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 static const char * const gFormatNames[8] = {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
 
 static const char * const gSizeNames[4]   = {"4bpp", "8bpp", "16bpp", "32bpp"};
 static const char * const gOnOffNames[2]  = {"Off", "On"};
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -414,7 +410,7 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 //*****************************************************************************
 //	Process the entire display list in one go
 //*****************************************************************************
-static u32 DLParser_ProcessDList(u32 instruction_limit)
+static u32 DLParser_ProcessDList(u32 instruction_limit [[maybe_unused]])
 {
 	MicroCodeCommand command;
 
@@ -464,7 +460,7 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 //*****************************************************************************
 //
 //*****************************************************************************
-u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
+u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output [[maybe_unused]])
 {
 	DAEDALUS_PROFILE( "DLParser_Process" );
 
@@ -791,9 +787,11 @@ void DLParser_SetTile( MicroCodeCommand command )
 
 	gRDPStateManager.SetTile( tile );
 
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF( "    Tile[%d] Format[%s/%s] Line[%d] TMEM[0x%03x] Palette[%d]", tile.tile_idx, gFormatNames[tile.format], gSizeNames[tile.size], tile.line, tile.tmem, tile.palette);
 	DL_PF( "      S: Clamp[%s] Mirror[%s] Mask[0x%x] Shift[0x%x]", gOnOffNames[tile.clamp_s],gOnOffNames[tile.mirror_s], tile.mask_s, tile.shift_s );
 	DL_PF( "      T: Clamp[%s] Mirror[%s] Mask[0x%x] Shift[0x%x]", gOnOffNames[tile.clamp_t],gOnOffNames[tile.mirror_t], tile.mask_t, tile.shift_t );
+	#endif
 }
 
 //*****************************************************************************
@@ -825,9 +823,11 @@ void DLParser_SetTImg( MicroCodeCommand command )
 	g_TI.Width		= command.img.width + 1;
 	g_TI.Address	= RDPSegAddr(command.img.addr);
 
+		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    TImg Adr[0x%08x] Format[%s/%s] Width[%d] Pitch[%d]",
 		g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch());
-}
+		#endif
+	}
 
 //*****************************************************************************
 //
@@ -1135,8 +1135,9 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	g_CI.Width  = command.img.width + 1;
 	g_CI.Address = RDPSegAddr(command.img.addr);
 	//g_CI.Bpl		= g_CI.Width << g_CI.Size >> 1;
-
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    CImg Adr[0x%08x] Format[%s] Size[%s] Width[%d]", g_CI.Address, gFormatNames[ g_CI.Format ], gSizeNames[ g_CI.Size ], g_CI.Width);
+	#endif
 }
 
 //*****************************************************************************

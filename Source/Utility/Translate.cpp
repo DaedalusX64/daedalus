@@ -236,7 +236,7 @@ void Translate_Dump(const std::string string, bool dump)
 //*****************************************************************************
 //
 //*****************************************************************************
-bool Translate_Read(u32 idx, const std::filesystem::path& dir)
+bool Translate_Read(u32 idx)
 {
 	/// Always unload previous language file if available
 	Translate_Unload();
@@ -246,11 +246,7 @@ bool Translate_Read(u32 idx, const std::filesystem::path& dir)
 
 	std::string line;
 
-	char *string;
-
 	u32 count = 0;
-	u32 hash  = 0;
-	u32	len   = 0;
 
 	// Build path where we'll load the translation file(s)
 	

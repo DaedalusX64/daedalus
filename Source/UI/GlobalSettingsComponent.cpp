@@ -151,7 +151,7 @@ namespace
 
 		virtual	void			OnSelected()
 		{
-			Translate_Read( gGlobalPreferences.Language, "Languages/");
+			Translate_Read( gGlobalPreferences.Language);
 		}
 		virtual const char *	GetSettingName() const
 		{

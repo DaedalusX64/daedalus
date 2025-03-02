@@ -32,7 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_LOG
 
 
-static bool			g_bLog = true;
 std::ofstream	g_hOutputLog;;
 
 

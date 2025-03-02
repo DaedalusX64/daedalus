@@ -281,7 +281,7 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 
 static bool toggle_fullscreen = false;
 static s16 button = 0;
-void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
+void sceCtrlPeekBufferPositive(SceCtrlData *data, int count [[maybe_unused]]){
 
 	SDL_Event event;
 	SDL_PumpEvents();

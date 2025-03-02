@@ -462,7 +462,7 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI1_Reserved( MicroCodeCommand command )
+void DLParser_GBI1_Reserved( MicroCodeCommand command [[maybe_unused]] )
 {
 	// Not implemented!
 	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
