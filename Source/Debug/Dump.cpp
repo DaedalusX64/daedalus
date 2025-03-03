@@ -42,24 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/PrintOpCode.h"
 
 
-const std::filesystem::path gDumpDir = "Dumps";
-
-// Initialise the directory where files are dumped
-// Appends subdir to the global dump base. Stores in rootdir)
-// Not really required with std::filesystem
-void Dump_GetDumpDirectory(std::filesystem::path& rootdir, const std::filesystem::path& subdir)
-{
-	if (!subdir.empty())
-	{
-		rootdir = gDumpDir / subdir;
-	}
-	else 
-	{
-		rootdir = gDumpDir;
-	}
-
-}
-
 #ifndef DAEDALUS_SILENT
 //*****************************************************************************
 //
@@ -97,7 +79,7 @@ void Dump_DisassembleMIPSRange(std::ofstream& fh, u32 address_offset, const OpCo
 	}
 }
 
-void Dump_Disassemble(u32 start, u32 end, const std::filesystem::path& p_file_name)
+void Dump_Disassemble(u32 start, u32 end, const std::filesystem::path p_file_name)
 {
 
 	std::filesystem::path file_path = setBasePath(p_file_name);

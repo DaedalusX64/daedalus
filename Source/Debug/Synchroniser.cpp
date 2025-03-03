@@ -27,7 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
-#include "Debug/Dump.h"
 #include "Utility/MathUtil.h"
 
 #include "System/CompressedStream.h"
@@ -259,12 +258,13 @@ CSynchroniser::ESynchResult	ISynchConsumer::SynchData( void * data, u32 length )
 
 bool CSynchroniser::InitialiseSynchroniser()
 {
-	const char *name = g_ROM.mFileName;
-	CSynchroniser *	p_synch;
-	std::filesystem::create_directory("Sync_Results")
-	std::filesystem::path fillename = Save_As(name, ".syn", "Sync_Results")
+	const std::fileystem::path name = g_ROM.mFileName;
+	name.replace_extension("syn");
 
-	Dump_GetSaveDirectory(filename, name, ".syn");
+	CSynchroniser *	p_synch;
+	std::filesystem::path filename = setBaseDir("Sync_Results");
+	filename /= name;
+
 
 	if ( !std::filesystem::exists(filename) )
 	{

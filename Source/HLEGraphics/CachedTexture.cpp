@@ -26,7 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/ConfigOptions.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
-#include "Debug/Dump.h"
 #include "HLEGraphics/CachedTexture.h"
 #include "HLEGraphics/ConvertImage.h"
 #include "HLEGraphics/ConvertTile.h"

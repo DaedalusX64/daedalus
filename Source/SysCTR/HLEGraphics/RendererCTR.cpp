@@ -7,7 +7,6 @@
 #include "Combiner/CombinerTree.h"
 #include "Combiner/RenderSettings.h"
 #include "Core/ROM.h"
-#include "Debug/Dump.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
 #include "HLEGraphics/CachedTexture.h"

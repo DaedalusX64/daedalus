@@ -36,7 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
-#include "Debug/Dump.h"
 #include "DynaRec/Fragment.h"
 #include "DynaRec/FragmentCache.h"
 #include "Math/Math.h"	// VFPU Math
@@ -63,8 +62,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #ifdef DUMPOSFUNCTIONS
-#include "Debug/Dump.h"
-
 
 static const char * const gEventStrings[23] =
 {
@@ -180,34 +177,33 @@ void Patch_PatchAll()
 		Patch_ApplyPatches();
 	}
 #ifdef DUMPOSFUNCTIONS
-	FILE *fp;
-	std::filesystem::path path;
-	Dump_GetDumpDirectory(path, "");
-	path / "n64.cfg";
-	fp = fopen(path, "w");
+	std::filesystem::path path = setBasePath("oshle");
+	path /= "n64.cfg";
+
+std::ofstream fp(path);
+if (!fp)
+{
+	std::cerr << "Failed to open file:" << path << std::endl;
+}
 #endif
 	for (u32 i = 0; i < nPatchSymbols; i++)
 	{
 		if (g_PatchSymbols[i]->Found)
 		{
 #ifdef DUMPOSFUNCTIONS
-			std::filesystem::path buf;
+		std::filesystem::path path = setBasePath("oshle");
 			auto ps = g_PatchSymbols[i];
-			Dump_GetDumpDirectory(buf, "oshle");
-			buf / ps->Name;
+			path /= ps->Name;
 
 			Dump_Disassemble(PHYS_TO_K0(ps->Location), PHYS_TO_K0(ps->Location) + ps->Signatures->NumOps * sizeof(OpCode),
-				buf);
-
-			fprintf(fp, "%s 0x%08x\n", ps->Name, PHYS_TO_K0(ps->Location));
+				path);
+				fp << ps->Name << " 0x" << std::hex << std::uppercase << std::setw(8) << std::setfill('0') 
+				<< PHYS_TO_K0(ps->Location) << std::endl;
 #endif
 			gNumOfOSFunctions++;
 			Patch_ApplyPatch(i);
 		}
 	}
-#ifdef DUMPOSFUNCTIONS
-	fclose(fp);
-#endif
 }
 
 void Patch_ApplyPatch(u32 i [[maybe_unused]])
@@ -376,12 +372,12 @@ void Patch_DumpOsQueueInfo()
 			continue;
 		}
 
-		if (dwFullQ == VAR_ADDRESS(osnullptrMsgQueue))
+		if (dwFullQ == VAR_ADDRESS(osNullMsgQueue))
 			snprintf(fullqueue_buffer, sizeof(fullqueue_buffer), "       -");
 		else
 			snprintf(fullqueue_buffer,sizeof(fullqueue_buffer), "%08x", dwFullQ);
 
-		if (dwEmptyQ == VAR_ADDRESS(osnullptrMsgQueue))
+		if (dwEmptyQ == VAR_ADDRESS(osNullMsgQueue))
 			snprintf(emptyqueue_buffer,sizeof(emptyqueue_buffer),  "       -");
 		else
 			snprintf(emptyqueue_buffer, sizeof(emptyqueue_buffer), "%08x", dwEmptyQ);

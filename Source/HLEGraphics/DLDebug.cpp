@@ -11,7 +11,6 @@
 #include <filesystem>
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
-#include "Debug/Dump.h"
 #include "HLEGraphics/RDP.h"
 #include "Ultra/ultra_gbi.h"
 

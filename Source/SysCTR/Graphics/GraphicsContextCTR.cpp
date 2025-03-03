@@ -7,7 +7,6 @@
 #include "Interface/ConfigOptions.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
-#include "Debug/Dump.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/PngUtil.h"
 

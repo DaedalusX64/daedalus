@@ -38,7 +38,6 @@
 #include "Graphics/NativeTexture.h"
 
 #include "Core/ROM.h"
-#include "Debug/Dump.h"
 
 
 #include "Interface/Preferences.h"
