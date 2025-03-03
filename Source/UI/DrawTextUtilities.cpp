@@ -75,7 +75,9 @@ namespace DrawTextUtilities
 			{
 				// Search backwards until we find a break
 				const char *p_chunk_end = p_str_end;
-				bool found_chunk = false;
+				#ifdef DAEDALUS_ENABLE_ASSERTS
+				bool found_chunk = false; 
+				#endif
 				while (p_chunk_end > p_line_str)
 				{
 					const char *p_space = FindPreviousSpace(p_line_str, p_chunk_end);
@@ -88,7 +90,9 @@ namespace DrawTextUtilities
 						{
 							lengths.push_back(chunk_length);
 							p_line_str += chunk_length;
+							#ifdef DAEDALUS_ENABLE_ASSERTS
 							found_chunk = true;
+							#endif
 							break;
 						}
 						else
@@ -102,7 +106,9 @@ namespace DrawTextUtilities
 						// No more spaces - just render the whole chunk
 						lengths.push_back(p_chunk_end - p_line_str);
 						p_line_str = p_chunk_end;
+						#ifdef DAEDALUS_ENABLE_ASSERTS
 						found_chunk = true;
+						#endif
 						break;
 					}
 				}
