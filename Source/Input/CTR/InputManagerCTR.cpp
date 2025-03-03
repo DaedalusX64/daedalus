@@ -353,18 +353,12 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	pPad[0].button = mpControllerConfig->GetN64ButtonsState( hidKeysHeld() );
 }
 
-template<> bool	CSingleton< CInputManager >::Create()
+template<> bool CSingleton< CInputManager >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-	std::shared_ptr<IInputManager> manager = std::make_shared<IInputManager>();
-	// IInputManager * manager = new IInputManager();
 
-	if(manager->Initialise())
-	{
-		mpInstance = manager;
-		return true;
-	}
-	return false;
+	mpInstance = std::make_unique<IInputManager>();
+	return mpInstance->Initialise();
 }
 
 u32	 IInputManager::GetNumConfigurations() const
