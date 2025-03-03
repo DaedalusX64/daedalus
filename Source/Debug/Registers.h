@@ -39,9 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
      *3 = COP0                         *4 = COP1
 */
 
-#define OP_IS_A_HACK(x) (((x) >> 28) == 0x7)
-
-
+#ifndef DAEDALUS_SILENT
 
 extern const char *Cop1WOpCodeNames[64];
 extern const char *Cop1LOpCodeNames[64];
@@ -49,8 +47,10 @@ extern const char *Cop1LOpCodeNames[64];
 // Register names
 
 /* Shared by RSP */
+
 extern const char *RegNames[32];
 extern const char *Cop0RegNames[32];
 extern const char *ShortCop0RegNames[32];
+#endif
 
 #endif // CORE_REGISTERS_H_
