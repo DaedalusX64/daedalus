@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <pspge.h>
+#include <memory>
 
 #include "Utility/VolatileMem.h"
 #include "Utility/MemoryHeap.h"
@@ -34,8 +35,8 @@ public:
 	virtual void	DisplayDebugInfo();
 #endif
 private:
-	CMemoryHeap *	mVideoMemoryHeap;
-	CMemoryHeap *	mRamMemoryHeap;
+	std::unique_ptr<CMemoryHeap>	mVideoMemoryHeap;
+	std::unique_ptr<CMemoryHeap>	mRamMemoryHeap;
 };
 
 
@@ -66,11 +67,7 @@ IVideoMemoryManager::IVideoMemoryManager()
 //*****************************************************************************
 //
 //*****************************************************************************
-IVideoMemoryManager::~IVideoMemoryManager()
-{
-	delete mVideoMemoryHeap;
-	delete mRamMemoryHeap;
-}
+IVideoMemoryManager::~IVideoMemoryManager() {}
 
 //*****************************************************************************
 //

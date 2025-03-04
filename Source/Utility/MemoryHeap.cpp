@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdlib.h>
 #include <string.h>
+#include <memory>
 
 #include "Utility/MathUtil.h"
 
@@ -82,17 +83,17 @@ private:
 //*****************************************************************************
 //
 //*****************************************************************************
-CMemoryHeap * CMemoryHeap::Create( u32 size )
+std::unique_ptr<CMemoryHeap> CMemoryHeap::Create( u32 size )
 {
-	return new IMemoryHeap( size );
+	return std::make_unique<IMemoryHeap>( size );
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-CMemoryHeap * CMemoryHeap::Create( void * base_ptr, u32 size )
+std::unique_ptr<CMemoryHeap> CMemoryHeap::Create( void * base_ptr, u32 size )
 {
-	return new IMemoryHeap( base_ptr, size );
+	return std::make_unique<IMemoryHeap>( base_ptr, size );
 }
 
 //*****************************************************************************

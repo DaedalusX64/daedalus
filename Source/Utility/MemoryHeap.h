@@ -23,12 +23,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UTILITY_MEMORYHEAP_H_
 
 #include "Base/Types.h"
+#include <memory> 
 
 class CMemoryHeap
 {
 public:
-	static CMemoryHeap * Create( u32 size );						// Allocate and manage a new region of this size
-	static CMemoryHeap * Create( void * base_ptr, u32 size );		// Manage this region of pre-allocated memory
+	static std::unique_ptr<CMemoryHeap> Create( u32 size );						// Allocate and manage a new region of this size
+	static std::unique_ptr<CMemoryHeap> Create( void * base_ptr, u32 size );		// Manage this region of pre-allocated memory
 
 	virtual ~CMemoryHeap();
 

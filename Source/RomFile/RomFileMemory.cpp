@@ -43,7 +43,7 @@ public:
 
 private:
 #ifdef DAEDALUS_PSP
-	CMemoryHeap *	mRomMemoryHeap;
+	std::unique_ptr<CMemoryHeap> mRomMemoryHeap;
 #endif
 };
 
@@ -82,22 +82,9 @@ IROMFileMemory::IROMFileMemory()
 }
 
 
-IROMFileMemory::~IROMFileMemory()
-{
-#ifdef DAEDALUS_PSP
-	delete mRomMemoryHeap;
-#endif
-}
+IROMFileMemory::~IROMFileMemory() {}
 
 
-/*
-bool IROMFileMemory::IsAvailable()
-{
-	DAEDALUS_ASSERT( mRomMemoryHeap != NULL, "This heap isn't available" );
-
-	return mRomMemoryHeap != NULL;
-}
-*/
 
 void * IROMFileMemory::Alloc( u32 size )
 {
@@ -113,7 +100,7 @@ void * IROMFileMemory::Alloc( u32 size )
 void  IROMFileMemory::Free(void * ptr)
 {
 #ifdef DAEDALUS_PSP
-	mRomMemoryHeap->Free( ptr );
+	// mRomMemoryHeap->Free( ptr );
 #else
 std::cout << "Freeing Memory" << std::endl;
 	free( ptr );
