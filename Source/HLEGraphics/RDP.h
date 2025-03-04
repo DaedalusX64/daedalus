@@ -27,15 +27,12 @@
 #include "HLEGraphics/DLDebug.h"
 #include "Base/Types.h"
 
-inline u32 pixels2bytes( u32 pixels, u32 size )
-{
-	return ((pixels << size) + 1 ) >> 1;
-}
-
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 inline u32 bytes2pixels( u32 bytes, u32 size )
 {
 	return (bytes << 1) >> size;
 }
+#endif
 
 struct SImageDescriptor
 {

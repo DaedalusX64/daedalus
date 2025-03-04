@@ -6,7 +6,6 @@ add_library(HLEGraphics OBJECT
                             DLDebug.cpp 
                             DLParser.cpp 
                             Microcode.cpp 
-                            RDP.cpp 
                             RDPStateManager.cpp 
                             TextureCache.cpp 
                             TextureInfo.cpp 

@@ -563,12 +563,10 @@ static void ConvertYUV16(const TextureDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
 	u32 dst_row_offset = 0;
 
-	const u8 * src = g_pu8RamBase;
+	// const u8 * src = g_pu8RamBase;
 	u32 src_row_stride = ti.GetPitch();
 	u32 src_row_offset = ti.GetLoadAddress();
 
-	u32 width = ti.GetWidth();
-	u32 height = ti.GetHeight();
 
 	// NB! YUV/16 line needs to be doubled.
 	src_row_stride *= 2;
@@ -580,18 +578,18 @@ static void ConvertYUV16(const TextureDestInfo & dsti, const TextureInfo & ti)
 	}
 	else
 	{
-		for (u32 y = 0; y < height; y++)
+		for (u32 y = 0; y < ti.GetHeight(); y++)
 		{
 			u32 src_offset = src_row_offset;
 			u32 dst_offset = dst_row_offset;
 
 			// Do two pixels at a time
-			for (u32 x = 0; x < width; x += 2)
+			for (u32 x = 0; x < ti.GetWidth(); x += 2)
 			{
-				s32 y0 = src[src_offset+2];
-				s32 y1 = src[src_offset+0];
-				s32 u0 = src[src_offset+3];
-				s32 v0 = src[src_offset+1];
+				s32 y0 = g_pu8RamBase[src_offset+2];
+				s32 y1 = g_pu8RamBase[src_offset+0];
+				s32 u0 = g_pu8RamBase[src_offset+3];
+				s32 v0 = g_pu8RamBase[src_offset+1];
 
 				dst[dst_offset+0] = YUV16(y0,u0,v0);
 				dst[dst_offset+1] = YUV16(y1,u0,v0);
