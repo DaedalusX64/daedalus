@@ -95,9 +95,7 @@ private:
 
 extern CRDPStateManager		gRDPStateManager;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 extern RDP_OtherMode		gRDPOtherMode;
-#endif
 
 extern u32 gTlutLoadAddresses[ 4096 >> 6 ];
 
