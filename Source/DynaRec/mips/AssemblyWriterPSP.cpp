@@ -79,8 +79,8 @@ void	CAssemblyWriterPSP::GetLoadConstantOps( EPspReg reg, s32 value, PspOpCode *
 
 void	CAssemblyWriterPSP::LoadConstant( EPspReg reg, s32 value )
 {
-	PspOpCode	op1;
-	PspOpCode	op2;
+	PspOpCode	op1 {};
+	PspOpCode	op2 {};
 	GetLoadConstantOps( reg, value, &op1, &op2 );
 
 	AppendOp( op1 );
@@ -97,9 +97,7 @@ void	CAssemblyWriterPSP::LoadConstant( EPspReg reg, s32 value )
 
 void	CAssemblyWriterPSP::LoadRegister( EPspReg reg_dst, OpCodeValue load_op, EPspReg reg_base, s16 offset )
 {
-	PspOpCode		op_code;
-	op_code._u32 = 0;
-
+	PspOpCode		op_code {};
 	op_code.op = load_op;
 	op_code.rt = reg_dst;
 	op_code.base = reg_base;
@@ -113,8 +111,7 @@ void	CAssemblyWriterPSP::LoadRegister( EPspReg reg_dst, OpCodeValue load_op, EPs
 
 void	CAssemblyWriterPSP::StoreRegister( EPspReg reg_src, OpCodeValue store_op, EPspReg reg_base, s16 offset )
 {
-	PspOpCode		op_code;
-	op_code._u32 = 0;
+	PspOpCode		op_code {};
 
 	op_code.op = store_op;
 	op_code.rt = reg_src;
@@ -129,8 +126,7 @@ void	CAssemblyWriterPSP::StoreRegister( EPspReg reg_src, OpCodeValue store_op, E
 
 void	CAssemblyWriterPSP::NOP()
 {
-	PspOpCode		op_code;
-	op_code._u32 = 0;
+	PspOpCode		op_code {};
 	AppendOp( op_code );
 }
 
@@ -203,8 +199,7 @@ void	CAssemblyWriterPSP::LW( EPspReg reg_dst, EPspReg reg_base, s16 offset )
 
 void	CAssemblyWriterPSP::LWC1( EPspFloatReg reg_dst, EPspReg reg_base, s16 offset )
 {
-	PspOpCode		op_code;
-	op_code._u32 = 0;
+	PspOpCode		op_code {};
 
 	op_code.op = OP_LWC1;
 	op_code.ft = reg_dst;
@@ -219,8 +214,7 @@ void	CAssemblyWriterPSP::LWC1( EPspFloatReg reg_dst, EPspReg reg_base, s16 offse
 
 void	CAssemblyWriterPSP::SWC1( EPspFloatReg reg_src, EPspReg reg_base, s16 offset )
 {
-	PspOpCode		op_code;
-	op_code._u32 = 0;
+	PspOpCode		op_code {};
 
 	op_code.op = OP_SWC1;
 	op_code.ft = reg_src;
@@ -250,7 +244,6 @@ CJumpLocation	CAssemblyWriterPSP::JAL( CCodeLabel target, bool insert_delay )
 	CJumpLocation	jump_location( mpCurrentBuffer->GetJumpLocation() );
 
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_JAL;
 	op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 	AppendOp( op_code );
@@ -273,7 +266,6 @@ CJumpLocation	CAssemblyWriterPSP::J( CCodeLabel target, bool insert_delay )
 	CJumpLocation	jump_location( mpCurrentBuffer->GetJumpLocation() );
 
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_J;
 	op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 	AppendOp( op_code );
@@ -294,7 +286,6 @@ CJumpLocation	CAssemblyWriterPSP::J( CCodeLabel target, bool insert_delay )
 void 	CAssemblyWriterPSP::JR( EPspReg reg_link, bool insert_delay )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_SPECOP;
 	op_code.spec_op = SpecOp_JR;
 	op_code.rs = reg_link;
@@ -317,7 +308,6 @@ CJumpLocation	CAssemblyWriterPSP::BranchOp( EPspReg a, OpCodeValue op, EPspReg b
 	s32				offset( branch_location.GetOffset( target ) );
 
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = op;
 	op_code.rs = a;
 	op_code.rt = b;
@@ -391,7 +381,6 @@ CJumpLocation	CAssemblyWriterPSP::BranchRegImmOp( EPspReg a, ERegImmOp op, CCode
 	s32				offset( branch_location.GetOffset( target ) );
 
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_REGIMM;
 	op_code.rs = a;
 	op_code.regimm_op = op;
@@ -447,7 +436,6 @@ CJumpLocation	CAssemblyWriterPSP::BGEZL( EPspReg a, CCodeLabel target, bool inse
 void	CAssemblyWriterPSP::ADDI( EPspReg reg_dst, EPspReg reg_src, s16 value )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_ADDI;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
@@ -461,7 +449,6 @@ void	CAssemblyWriterPSP::ADDI( EPspReg reg_dst, EPspReg reg_src, s16 value )
 void	CAssemblyWriterPSP::ADDIU( EPspReg reg_dst, EPspReg reg_src, s16 value )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_ADDIU;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
@@ -475,7 +462,6 @@ void	CAssemblyWriterPSP::ADDIU( EPspReg reg_dst, EPspReg reg_src, s16 value )
 void	CAssemblyWriterPSP::SLTI( EPspReg reg_dst, EPspReg reg_src, s16 value )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_SLTI;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
@@ -489,7 +475,6 @@ void	CAssemblyWriterPSP::SLTI( EPspReg reg_dst, EPspReg reg_src, s16 value )
 void	CAssemblyWriterPSP::SLTIU( EPspReg reg_dst, EPspReg reg_src, s16 value )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_SLTIU;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
@@ -503,7 +488,6 @@ void	CAssemblyWriterPSP::SLTIU( EPspReg reg_dst, EPspReg reg_src, s16 value )
 void	CAssemblyWriterPSP::EXT( EPspReg reg_dst, EPspReg reg_src, u32 size, u32 lsb )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = 0x1F;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
@@ -519,7 +503,6 @@ void	CAssemblyWriterPSP::EXT( EPspReg reg_dst, EPspReg reg_src, u32 size, u32 ls
 void	CAssemblyWriterPSP::INS( EPspReg reg_dst, EPspReg reg_src, u32 msb, u32 lsb )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = 0x1F;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
@@ -535,7 +518,6 @@ void	CAssemblyWriterPSP::INS( EPspReg reg_dst, EPspReg reg_src, u32 msb, u32 lsb
 void	CAssemblyWriterPSP::ANDI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_ANDI;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
@@ -549,7 +531,6 @@ void	CAssemblyWriterPSP::ANDI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
 void	CAssemblyWriterPSP::ORI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_ORI;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
@@ -563,7 +544,6 @@ void	CAssemblyWriterPSP::ORI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
 void	CAssemblyWriterPSP::XORI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_XORI;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
@@ -577,7 +557,6 @@ void	CAssemblyWriterPSP::XORI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
 void	CAssemblyWriterPSP::SLL( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_SPECOP;
 	op_code.rd = reg_dst;
 	op_code.rt = reg_src;
@@ -592,7 +571,6 @@ void	CAssemblyWriterPSP::SLL( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 void	CAssemblyWriterPSP::SRL( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_SPECOP;
 	op_code.rd = reg_dst;
 	op_code.rt = reg_src;
@@ -607,7 +585,6 @@ void	CAssemblyWriterPSP::SRL( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 void	CAssemblyWriterPSP::SRA( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_SPECOP;
 	op_code.rd = reg_dst;
 	op_code.rt = reg_src;
@@ -622,7 +599,6 @@ void	CAssemblyWriterPSP::SRA( EPspReg reg_dst, EPspReg reg_src, u32 shift )
 void	CAssemblyWriterPSP::SpecOpLogical( EPspReg rd, EPspReg rs, ESpecOp op, EPspReg rt )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_SPECOP;
 	op_code.rd = rd;
 	op_code.rs = rs;
@@ -789,7 +765,6 @@ void	CAssemblyWriterPSP::SLTU( EPspReg rd, EPspReg rs, EPspReg rt )
 void	CAssemblyWriterPSP::Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg fs, ECop1OpFunction cop1_funct, EPspFloatReg ft )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_COPRO1;
 	op_code.fd = fd;
 	op_code.fs = fs;
@@ -805,7 +780,6 @@ void	CAssemblyWriterPSP::Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg 
 void	CAssemblyWriterPSP::Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg fs, ECop1OpFunction cop1_funct )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_COPRO1;
 	op_code.fd = fd;
 	op_code.fs = fs;
@@ -820,7 +794,6 @@ void	CAssemblyWriterPSP::Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg 
 void	CAssemblyWriterPSP::CFC1( EPspReg rt, EPspFloatReg fs )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_COPRO1;
 	op_code.rt = rt;
 	op_code.fs = fs;
@@ -834,7 +807,6 @@ void	CAssemblyWriterPSP::CFC1( EPspReg rt, EPspFloatReg fs )
 void	CAssemblyWriterPSP::MFC1( EPspReg rt, EPspFloatReg fs )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_COPRO1;
 	op_code.rt = rt;
 	op_code.fs = fs;
@@ -848,7 +820,6 @@ void	CAssemblyWriterPSP::MFC1( EPspReg rt, EPspFloatReg fs )
 void	CAssemblyWriterPSP::MTC1( EPspFloatReg fs, EPspReg rt )
 {
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_COPRO1;
 	op_code.rt = rt;
 	op_code.fs = fs;
@@ -968,7 +939,6 @@ CJumpLocation	CAssemblyWriterPSP::BranchCop1( ECop1BCOp bc_op, CCodeLabel target
 	s32				offset( branch_location.GetOffset( target ) );
 
 	PspOpCode	op_code {};
-	op_code._u32 = 0;
 	op_code.op = OP_COPRO1;
 	op_code.cop1_op = Cop1Op_BCInstr;
 	op_code.cop1_bc = bc_op;

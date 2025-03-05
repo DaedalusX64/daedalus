@@ -169,7 +169,6 @@ void Dynarec_ClearedCPUStuffToDo()
 		gOriginalOps[1] = p_function_address[1];
 
 		PspOpCode	op_code = {};
-		op_code._u32 = 0;
 		op_code.op = OP_SPECOP;
 		op_code.spec_op = SpecOp_JR;
 		op_code.rs = PspReg_RA;
