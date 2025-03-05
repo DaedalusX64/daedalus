@@ -169,7 +169,7 @@ class CAssemblyWriterPSP
 
 		static	void		GetLoadConstantOps( EPspReg reg, s32 value, PspOpCode * p_op1, PspOpCode * p_op2 );
 
-		inline void AppendOp( PspOpCode op )
+		inline void AppendOp( const PspOpCode& op )
 		{
 			mpCurrentBuffer->EmitDWORD( op._u32 );
 		}

@@ -141,7 +141,7 @@ inline void SpeedHack(u32 pc, u32 new_pc)
 	// If jumping to the same address, this might be a busy-wait
 	if (pc == new_pc)
 	{
-#ifdef DAEDALUS_ENABLE_DYNAREC
+#ifdef DAEDALUS_ENABLE_DYNAREC // Shouldn't this be debug?
 		if (gTraceRecorder.IsTraceActive())
 			return;
 #endif

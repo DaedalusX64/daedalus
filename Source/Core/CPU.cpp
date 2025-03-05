@@ -642,8 +642,12 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 	case CPU_EVENT_VBL:
 		{
 			//Todo: Work on VI_INTR_CYCLES should be 62500 * (60/Real game FPS)
+			// This is if we decide to match the framerate to video rate rather than audio. We probably should be doing this by default rather than matching audio rate as the emulator is getting faster. 
+			// As this is not enabled by default at the moment, set the likely branch to the first option for optimisation.
+
 			u32 vertical_sync_reg = Memory_VI_GetRegister( VI_V_SYNC_REG );
-			if (vertical_sync_reg == 0)
+
+			if (vertical_sync_reg == 0) [[likely]]
 			{
 				VI_INTR_CYCLES = 62500;
 			}
@@ -663,8 +667,10 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 
 			gVerticalInterrupts++;
 
+			if (gSpeedSyncEnabled)
+			{
 			FramerateLimiter_Limit();
-
+			}
 			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_VI);
 			R4300_Interrupt_UpdateCause3();
 
@@ -723,11 +729,7 @@ void CPU_SetCompare(u32 value)
 	//DBGConsole_Msg(0, "COMPARE set to 0x%08x Count is 0x%08x.", value, gCPUState.CPUControl[C0_COUNT]._u32);
 	#endif
 	// Add an event for this compare:
-	if (value == gCPUState.CPUControl[C0_COMPARE]._u32)
-	{
-		//DBGConsole_Msg(0, "Clear");
-	}
-	else
+	if (value != gCPUState.CPUControl[C0_COMPARE]._u32)
 	{
 		if (value != 0)
 		{
@@ -743,12 +745,6 @@ void CPU_SetCompare(u32 value)
 			// }
 			CPU_SetCompareEvent( delta );
 		}
-		#ifdef DAEDALUS_DEBUG_CONSOLE
-		else
-		{
-			//DBGConsole_Msg(0, "[RIgnoring SetCompare 0] - is this right?");
-		}
-		#endif
 		gCPUState.CPUControl[C0_COMPARE]._u32 = value;
 	}
 }
@@ -830,7 +826,7 @@ void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 
 	if( ops_executed > 0 )
 	{
-		const u32 cycles  =ops_executed * COUNTER_INCREMENT_PER_OP};
+		const u32 cycles  =ops_executed * COUNTER_INCREMEGNT_PER_OP};
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 		gTotalInstructionsExecuted += ops_executed;
@@ -861,29 +857,29 @@ bool CPU_CheckStuffToDo()
     }
 
     // Process Interrupts/Exceptions on a priority basis using a switch statement
-		if( gCPUState.GetStuffToDo() & CPU_CHECK_INTERRUPTS )
+		if( stuff_to_do & CPU_CHECK_INTERRUPTS )
 		{
 			R4300_Handle_Interrupt();
 			gCPUState.ClearJob( CPU_CHECK_INTERRUPTS );
 		}
-		else if( gCPUState.GetStuffToDo() & CPU_CHECK_EXCEPTIONS )
+		else if( stuff_to_do & CPU_CHECK_EXCEPTIONS )
 		{
 			R4300_Handle_Exception();
 			gCPUState.ClearJob( CPU_CHECK_EXCEPTIONS );
 		}
-		else if( gCPUState.GetStuffToDo() & CPU_CHANGE_CORE )
+		else if( stuff_to_do & CPU_CHANGE_CORE )
 		{
 			gCPUState.ClearJob( CPU_CHANGE_CORE );
 			return true;
 		}
-		else if( gCPUState.GetStuffToDo() & CPU_STOP_RUNNING )
+		else if( stuff_to_do & CPU_STOP_RUNNING )
 		{
 			gCPUState.ClearJob( CPU_STOP_RUNNING );
 			gCPURunning = false;
 			return true;
 		}
 		// Clear stuff_to_do?
-
+		gCPUState.ClearJob(stuff_to_do);
 	return false;
 }
 

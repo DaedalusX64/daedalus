@@ -161,21 +161,20 @@ PspOpCode		gReplacementOps[2];
 void Dynarec_ClearedCPUStuffToDo()
 {
 	// Replace first two ops of _ReturnFromDynaRecIfStuffToDo with 'jr ra, nop'
-	u8 *			p_void_function( reinterpret_cast< u8 * >( _ReturnFromDynaRecIfStuffToDo ) );
-	PspOpCode *		p_function_address = reinterpret_cast< PspOpCode * >( make_uncached_ptr( p_void_function ) );
+	auto* p_function_address = reinterpret_cast<PspOpCode*>(make_uncached_ptr(reinterpret_cast<u8*>(_ReturnFromDynaRecIfStuffToDo)));
 
 	if(!gHaveSavedPatchedOps)
 	{
 		gOriginalOps[0] = p_function_address[0];
 		gOriginalOps[1] = p_function_address[1];
 
-		PspOpCode	op_code;
+		PspOpCode	op_code = {};
 		op_code._u32 = 0;
 		op_code.op = OP_SPECOP;
 		op_code.spec_op = SpecOp_JR;
 		op_code.rs = PspReg_RA;
 		gReplacementOps[0] = op_code;		// JR RA
-		gReplacementOps[1]._u32 = 0;		// NOP
+		gReplacementOps[1]._u32 = {};		// NOP
 
 		gHaveSavedPatchedOps = true;
 	}
@@ -183,9 +182,9 @@ void Dynarec_ClearedCPUStuffToDo()
 	p_function_address[0] = gReplacementOps[0];
 	p_function_address[1] = gReplacementOps[1];
 
-	const u8 * p_lower( RoundPointerDown( p_void_function, 64 ) );
-	const u8 * p_upper( RoundPointerUp( p_void_function + 8, 64 ) );
-	const u32  size( p_upper - p_lower);
+	const u8* p_lower = RoundPointerDown(reinterpret_cast<u8*>(_ReturnFromDynaRecIfStuffToDo), 64);
+	const u8* p_upper = RoundPointerUp(reinterpret_cast<u8*>(_ReturnFromDynaRecIfStuffToDo) + 8, 64);
+	const std::size_t  size =  p_upper - p_lower;
 	//sceKernelDcacheWritebackRange( p_lower, size );
 	//sceKernelIcacheInvalidateRange( p_lower, size );
 
@@ -195,20 +194,17 @@ void Dynarec_ClearedCPUStuffToDo()
 void Dynarec_SetCPUStuffToDo()
 {
 	// Restore first two ops of _ReturnFromDynaRecIfStuffToDo
-
-	u8 *			p_void_function( reinterpret_cast< u8 * >( _ReturnFromDynaRecIfStuffToDo ) );
-	PspOpCode *		p_function_address = reinterpret_cast< PspOpCode * >( make_uncached_ptr( p_void_function ) );
+	auto* p_function_address = reinterpret_cast<PspOpCode*>(make_uncached_ptr(reinterpret_cast<u8*>(_ReturnFromDynaRecIfStuffToDo)));
 
 	p_function_address[0] = gOriginalOps[0];
 	p_function_address[1] = gOriginalOps[1];
 
-	const u8 * p_lower( RoundPointerDown( p_void_function, 64 ) );
-	const u8 * p_upper( RoundPointerUp( p_void_function + 8, 64 ) );
-	const u32  size( p_upper - p_lower);
-	//sceKernelDcacheWritebackRange( p_lower, size );
-	//sceKernelIcacheInvalidateRange( p_lower, size );
+	// Cache invalidation
+	const u8* p_lower = RoundPointerDown(reinterpret_cast<u8*>(_ReturnFromDynaRecIfStuffToDo), 64);
+	const u8* p_upper = RoundPointerUp(reinterpret_cast<u8*>(_ReturnFromDynaRecIfStuffToDo) + 8, 64);
+	const std::size_t size = p_upper - p_lower;
 
-	_DaedalusICacheInvalidate( p_lower, size );
+	_DaedalusICacheInvalidate(p_lower, size);
 }
 
 extern "C"
