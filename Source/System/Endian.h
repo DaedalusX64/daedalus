@@ -24,11 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <bit>
 #include <cstdint>
 
-constexpr bool is_big_endian = std::endian::native == std::endian::big;
 
-constexpr auto U8_TWIDDLE = is_big_endian ? 0x0 : 0x3;
-constexpr auto U16_TWIDDLE = is_big_endian ? 0x0 : 0x2;
-constexpr auto U16H_TWIDDLE = is_big_endian ? 0x0 : 0x1;
+constexpr auto U8_TWIDDLE = (std::endian::native == std::endian::big) ? 0x0 : 0x3;
+constexpr auto U16_TWIDDLE = (std::endian::native == std::endian::big) ? 0x0 : 0x2;
+constexpr auto U16H_TWIDDLE = (std::endian::native == std::endian::big)? 0x0 : 0x1;
 
 
 #define BSWAP32(x) std::byteswap(x)
