@@ -590,7 +590,7 @@ void Memory_InitTables()
 	Flash_Init();
 
 	// Debug only
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG
 	Memory_InitInternalTables( ram_size );
 #endif
 }
