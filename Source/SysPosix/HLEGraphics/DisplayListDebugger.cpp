@@ -2,6 +2,10 @@
 #include "Base/Types.h"
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+
+#include <condition_variable>
+#include <mutex>
+
 #include "HLEGraphics/DisplayListDebugger.h"
 
 #include "SysPosix/Debug/WebDebug.h"
@@ -18,7 +22,6 @@
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/TextureCache.h"
 
-#include "System/Condition.h"
 #include "Utility/StringUtil.h"
 
 #include "System/Mutex.h"
@@ -30,8 +33,8 @@ static bool gDebugging = false;
 
 
 // These coordinate requests between the web threads and the main thread (only the main thread can call OpenGL functions)
-static Cond * gMainThreadCond   = NULL;
-static Mutex * gMainThreadMutex = NULL;
+static std::condition_variable gMainThreadCond;
+static std::mutex gMainThreadMutex;
 
 enum DebugTask
 {
@@ -147,8 +150,7 @@ static void EncodeTexture(const std::shared_ptr<CNativeTexture> texture, std::os
 void DLDebugger_ProcessDebugTask()
 {
 	// Check if a web request is waiting for a screenshot.
-	// FIXME: MutexLock
-	gMainThreadMutex->Lock();
+	std::unique_lock<std::mutex> lock(gMainThreadMutex);
 	if (WebDebugConnection * connection = gActiveConnection)
 	{
 		bool handled = false;
@@ -308,8 +310,9 @@ void DLDebugger_ProcessDebugTask()
 		gDebugTask = kTaskUndefined;
 
 	}
-	gMainThreadMutex->Unlock();
-	CondSignal(gMainThreadCond);
+	lock.unlock();
+	gMainThreadCond.notify_one();
+
 }
 
 bool DLDebugger_Process()
@@ -333,11 +336,11 @@ bool DLDebugger_Process()
 static void DoTask(WebDebugConnection * connection, DebugTask task)
 {
 	// Request a screenshot from the main thread.
-	MutexLock lock(gMainThreadMutex);
+	std::unique_lock<std::mutex> lock (gMainThreadMutex);
 
 	gActiveConnection = connection;
 	gDebugTask        = task;
-	CondWait(gMainThreadCond, gMainThreadMutex, kTimeoutInfinity);
+	gMaiNThreadCond.wait(lock):
 }
 
 static void DLDebugHandler(void * arg [[maybe_unused]], WebDebugConnection * connection)
@@ -400,8 +403,6 @@ bool DLDebugger_RegisterWebDebug()
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	WebDebug_Register( "/dldebugger", &DLDebugHandler, NULL );
 #endif
-	gMainThreadCond = CondCreate();
-	gMainThreadMutex = new Mutex();
 	return true;
 }
 

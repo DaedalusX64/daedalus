@@ -154,7 +154,7 @@ else()
 		option(DAEDALUS_GL "OpenGL Renderer" ON)
 		enable_language(CXX ASM_MASM)
 	elseif(CTR)
-		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" OFF) ## Causes some weird black screen issues
+		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) ## Causes some weird black screen issues
 		option(DAEDALUS_CTR "3DS Specific Options" ON)
 	endif()
 

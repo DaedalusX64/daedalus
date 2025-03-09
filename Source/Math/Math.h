@@ -111,6 +111,107 @@ inline float vfpu_invSqrt(float x)	//Trick using int/float to get 1/SQRT() fast 
 	return 0.5f * c.flt *(3.0f - x * c.flt * c.flt );
 }
 
+//Note. We use unaligned store from VFPU but this is known to corrupt floating point registers on the PHAT
+//and potentially cause odd behaviour or even crash the PSP (best is not to use HLE on PHAT)
+
+//Use VFPU to save a IDENTITY matrix //Corn
+inline void vfpu_matrix_IdentF(u8 *m) {
+	__asm__ volatile (
+		"vmidt.q M000\n"						// set M000 to identity
+		"usv.q    C000, 0  + %0\n"
+		"usv.q    C010, 16 + %0\n"
+		"usv.q    C020, 32 + %0\n"
+		"usv.q    C030, 48 + %0\n"
+	:"=m"(*m));
+}
+
+//Use VFPU to save a TRANSLATE_F matrix //Corn
+inline void vfpu_matrix_TranslateF(u8 *m, float X, float Y, float Z) {
+	__asm__ volatile (
+		"vmidt.q M000\n"						// set M100 to identity
+		"mtv     %1, S030\n"
+		"mtv     %2, S031\n"
+		"mtv     %3, S032\n"
+		"usv.q    C000, 0  + %0\n"
+		"usv.q    C010, 16 + %0\n"
+		"usv.q    C020, 32 + %0\n"
+		"usv.q    C030, 48 + %0\n"
+	:"=m"(*m) : "r"(X), "r"(Y), "r"(Z));
+}
+
+//Use VFPU to save a SCALE_F matrix //Corn
+inline void vfpu_matrix_ScaleF(u8 *m, float X, float Y, float Z) {
+	__asm__ volatile (
+		"vmidt.q M000\n"						// set M100 to identity
+		"mtv     %1, S000\n"
+		"mtv     %2, S011\n"
+		"mtv     %3, S022\n"
+		"usv.q    C000, 0  + %0\n"
+		"usv.q    C010, 16 + %0\n"
+		"usv.q    C020, 32 + %0\n"
+		"usv.q    C030, 48 + %0\n"
+	:"=m"(*m) : "r"(X), "r"(Y), "r"(Z));
+}
+
+//Taken from Mr.Mr libpspmath and added scale to the EQ. (Scale usually is 1.0f tho) //Corn
+inline void vfpu_matrix_OrthoF(u8 *m, float left, float right, float bottom, float top, float near, float far, float scale)
+{
+	__asm__ volatile (
+		"vmidt.q M100\n"						// set M100 to identity
+		"mtv     %2, S000\n"					// C000 = [right, ?,      ?,  ]
+		"mtv     %4, S001\n"					// C000 = [right, top,    ?,  ]
+		"mtv     %6, S002\n"					// C000 = [right, top,    far ]
+		"mtv     %1, S010\n"					// C010 = [left,  ?,      ?,  ]
+		"mtv     %3, S011\n"					// C010 = [left,  bottom, ?,  ]
+		"mtv     %5, S012\n"                	// C010 = [left,  bottom, near]
+		"mtv     %7, S133\n"                	// C110 = [0, 0, 0, scale]
+		"vsub.t  C020, C000, C010\n"			// C020 = [  dx,   dy,   dz]
+		"vrcp.t  C020, C020\n"              	// C020 = [1/dx, 1/dy, 1/dz]
+		"vscl.t	 C020, C020, S133\n"			// C020 = [scale/dx, scale/dy, scale/dz]
+		"vmul.s  S100, S100[2], S020\n"     	// S100 = m->x.x = 2.0 / dx
+		"vmul.s  S111, S111[2], S021\n"     	// S110 = m->y.y = 2.0 / dy
+		"vmul.s  S122, S122[2], S022[-x]\n"		// S122 = m->z.z = -2.0 / dz
+		"vsub.t  C130, C000[-x,-y,-z], C010\n"	// C130 = m->w[x, y, z] = [-(right+left), -(top+bottom), -(far+near)]
+												// we do vsub here since -(a+b) => (-1*a) + (-1*b) => -a - b
+		"vmul.t  C130, C130, C020\n"			// C130 = [-(right+left)/dx, -(top+bottom)/dy, -(far+near)/dz]
+		"usv.q    C100, 0  + %0\n"
+		"usv.q    C110, 16 + %0\n"
+		"usv.q    C120, 32 + %0\n"
+		"usv.q    C130, 48 + %0\n"
+	:"=m"(*m) : "r"(left), "r"(right), "r"(bottom), "r"(top), "r"(near), "r"(far), "r"(scale));
+}
+
+//Taken from Mr.Mr libpspmath and added scale and output to fixed point //Corn
+inline void vfpu_matrix_Ortho(u8 *m, float left, float right, float bottom, float top, float near, float far, float scale)
+{
+	__asm__ volatile (
+		"vmidt.q M100\n"						// set M100 to identity
+		"mtv     %2, S000\n"					// C000 = [right, ?,      ?,  ]
+		"mtv     %4, S001\n"					// C000 = [right, top,    ?,  ]
+		"mtv     %6, S002\n"					// C000 = [right, top,    far ]
+		"mtv     %1, S010\n"					// C010 = [left,  ?,      ?,  ]
+		"mtv     %3, S011\n"					// C010 = [left,  bottom, ?,  ]
+		"mtv     %5, S012\n"                	// C010 = [left,  bottom, near]
+		"mtv     %7, S133\n"                	// C110 = [0, 0, 0, scale]
+		"vsub.t  C020, C000, C010\n"			// C020 = [  dx,   dy,   dz]
+		"vrcp.t  C020, C020\n"              	// C020 = [1/dx, 1/dy, 1/dz]
+		"vscl.t	 C020, C020, S133\n"			// C020 = [scale/dx, scale/dy, scale/dz]
+		"vmul.s  S100, S100[2], S020\n"     	// S100 = m->x.x = 2.0 / dx
+		"vmul.s  S111, S111[2], S021\n"     	// S110 = m->y.y = 2.0 / dy
+		"vmul.s  S122, S122[2], S022[-x]\n"		// S122 = m->z.z = -2.0 / dz
+		"vsub.t  C130, C000[-x,-y,-z], C010\n"	// C130 = m->w[x, y, z] = [-(right+left), -(top+bottom), -(far+near)]
+												// we do vsub here since -(a+b) => (-1*a) + (-1*b) => -a - b
+		"vmul.t  C130, C130, C020\n"			// C130 = [-(right+left)/dx, -(top+bottom)/dy, -(far+near)/dz]
+		"vf2iz.q  C100, C100, 16\n"			// scale values to fixed point
+		"usv.q    C100, 0  + %0\n"
+		"vf2iz.q  C110, C110, 16\n"			// scale values to fixed point
+		"usv.q    C110, 16 + %0\n"
+		"vf2iz.q  C120, C120, 16\n"			// scale values to fixed point
+		"usv.q    C120, 32 + %0\n"
+		"vf2iz.q  C130, C130, 16\n"			// scale values to fixed point
+		"usv.q    C130, 48 + %0\n"
+	:"=m"(*m) : "r"(left), "r"(right), "r"(bottom), "r"(top), "r"(near), "r"(far), "r"(scale));
+}
 
 //*****************************************************************************
 //FPU Math :D
@@ -146,6 +247,7 @@ Check above notes for cycles/comparison
 // #define sinf(x)			std::sinf((x))
 // #define cosf(x)			std::cosf((x))
 // #define sincosf(x,s,c)	std::sincosf(x, s, c)
+
 #else 
 
 

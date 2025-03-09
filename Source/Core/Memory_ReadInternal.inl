@@ -154,6 +154,7 @@ InternalMemMapEntry InternalMemMapEntries[] =
 	{ 0,  0, NULL}
 };
 
+#ifdef DAEDALUS_DEBUG
 void Memory_InitInternalTables(u32 ram_size)
 {
 	memset(gInternalReadFastTable, 0, sizeof(gInternalReadFastTable));
@@ -196,3 +197,4 @@ void Memory_InitInternalTables(u32 ram_size)
 		gInternalReadFastTable[i] = InternalRead_4Mb_8000_803F;
 	}
 }
+#endif
