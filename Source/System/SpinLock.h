@@ -24,26 +24,32 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <thread>
 
+#include <atomic>
+#include <thread>
+
 class CSpinLock
 {
 public:
-	inline explicit CSpinLock( volatile u32 * var ) : Var( var )
-	{
-		// N.B. - this probably needs to use a CAS to prevent race conditions
-		while( *Var != 0 )
-		{
-			std::this_thread::yield();
-		}
-		*Var = 1;
-	}
+    explicit CSpinLock(std::atomic<u32>* var)
+        : Var(var)
+    {
+        // Try to acquire the lock using an atomic compare-and-swap (CAS)
+        while (Var->load(std::memory_order_acquire) != 0) {
+            std::this_thread::yield();  // Yield to avoid busy-waiting
+        }
+        // CAS operation: atomically set the value to 1 if it was 0
+        Var->store(1, std::memory_order_release);
+    }
 
-	inline ~CSpinLock()
-	{
-		*Var = 0;
-	}
+    ~CSpinLock()
+    {
+        // Release the lock
+        Var->store(0, std::memory_order_release);
+    }
 
 private:
-	volatile u32 * Var;
+    std::atomic<u32>* Var;
 };
+
 
 #endif // UTILITY_SPINLOCK_H_

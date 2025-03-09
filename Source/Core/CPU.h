@@ -212,10 +212,10 @@ extern u8 *		gLastAddress;
 // Take advantage of the cooperative multitasking
 // of the PSP to make locking/unlocking as fast as possible.
 //
-extern volatile u32 eventQueueLocked;
+extern std::atomic<u32> eventQueueLocked;
 
 #define LOCK_EVENT_QUEUE() CSpinLock _lock( &eventQueueLocked )
-#define RESET_EVENT_QUEUE_LOCK() eventQueueLocked = 0;
+#define RESET_EVENT_QUEUE_LOCK() eventQueueLocked.store(0, std::memory_order_release);
 
 #ifdef FRAGMENT_SIMULATE_EXECUTION
 void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p_instruction, bool * p_branch_taken );

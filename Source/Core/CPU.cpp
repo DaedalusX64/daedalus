@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <algorithm>
 #include <string>
+#include <atomic>
 #include <vector>
 #include <mutex>
 #include <cstring>
@@ -70,7 +71,7 @@ u64					gTotalInstructionsEmulated = 0;
 std::vector< DBG_BreakPoint > g_BreakPoints;
 #endif
 
-volatile u32 eventQueueLocked = 0;
+std::atomic<u32> eventQueueLocked = 0;
 
 static bool			gCPURunning   = false;			// CPU is actively running
 u8 *				gLastAddress     = nullptr;
@@ -340,7 +341,7 @@ bool CPU_RomOpen()
 	gCPUStopOnSimpleState = false;
 	RESET_EVENT_QUEUE_LOCK();
 
-	memset(&gCPUState, 0, sizeof(gCPUState));
+	gCPUState = {};
 
 	CPU_SetPC( 0xbfc00000 );
 	gCPUState.MultHi._u64 = 0;
@@ -875,7 +876,7 @@ bool CPU_CheckStuffToDo()
 		else if( stuff_to_do & CPU_STOP_RUNNING )
 		{
 			gCPUState.ClearJob( CPU_STOP_RUNNING );
-			gCPURunning = false;
+			// gCPURunning = false;
 			return true;
 		}
 		// Clear stuff_to_do?
