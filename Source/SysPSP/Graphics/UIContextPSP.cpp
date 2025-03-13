@@ -28,7 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "UI/ColourPulser.h"
 #include "Math/Vector2.h"
-#include "Math/Vector3.h"
 #include "Math/Matrix4x4.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
@@ -49,7 +48,7 @@ const u32				BACKGROUND_HEIGHT = 272;
 struct BackgroundVtx
 {
     v2	t0;
-    v3	pos;
+    glm::vec3	pos;
 
 	static const u32 Flags = GU_TEXTURE_32BITF|GU_VERTEX_32BITF;
 };
@@ -59,7 +58,7 @@ DAEDALUS_STATIC_ASSERT( sizeof(BackgroundVtx) == 20 );
 struct BackgroundColourVtx
 {
 	c32		colour;
-    v3		pos;
+    glm::vec3		pos;
 
 	static const u32 Flags = GU_COLOR_8888|GU_VERTEX_32BITF;
 };
@@ -70,7 +69,7 @@ struct BackgroundTextureVtx
 {
     v2	t0;
 	c32		colour;
-    v3		pos;
+    glm::vec3		pos;
 
 	static const u32 Flags = GU_TEXTURE_32BITF|GU_COLOR_8888|GU_VERTEX_32BITF;
 };
@@ -208,11 +207,11 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, c
 	v2		tex_uv0( (float)0, (float)0 );
 	v2		tex_uv1( (float)width, (float)height );
 
-	p_verts[0].pos = v3( tl.x, tl.y, 0.0f );
+	p_verts[0].pos = glm::vec3( tl.x, tl.y, 0.0f );
 	p_verts[0].t0 = v2( 0.0f, 0.0f );
 	p_verts[0].colour = colour;
 
-	p_verts[1].pos = v3( tl.x + wh.x, tl.y + wh.y, 0.0f );
+	p_verts[1].pos = glm::vec3( tl.x + wh.x, tl.y + wh.y, 0.0f );
 	p_verts[1].t0 = v2( (float)width, (float)height );
 	p_verts[1].colour = colour;
 
@@ -242,10 +241,10 @@ void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
 
-	p_verts[0].pos = v3( float( x ), float( y ), 0.0f );
+	p_verts[0].pos = glm::vec3( float( x ), float( y ), 0.0f );
 	p_verts[0].colour = colour;
 
-	p_verts[1].pos = v3( float( x + w ), float( y + h ), 0.0f );
+	p_verts[1].pos = glm::vec3( float( x + w ), float( y + h ), 0.0f );
 	p_verts[1].colour = colour;
 
 	sceGuDrawArray(GU_SPRITES,BackgroundColourVtx::Flags|GU_TRANSFORM_2D,num_verts,NULL,p_verts);
@@ -268,10 +267,10 @@ void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
 
-	p_verts[0].pos = v3( float( x0 ), float( y0 ), 0.0f );
+	p_verts[0].pos = glm::vec3( float( x0 ), float( y0 ), 0.0f );
 	p_verts[0].colour = colour;
 
-	p_verts[1].pos = v3( float( x1 ), float( y1 ), 0.0f );
+	p_verts[1].pos = glm::vec3( float( x1 ), float( y1 ), 0.0f );
 	p_verts[1].colour = colour;
 
 	sceGuDrawArray(GU_LINES,BackgroundColourVtx::Flags|GU_TRANSFORM_2D,num_verts,NULL,p_verts);

@@ -4,7 +4,7 @@
 
 
 #include "Vector3.h"
-class v4;
+#include <glm/glm.hpp>
 
 class alignas(DATA_ALIGN) Matrix4x4
 {
@@ -32,16 +32,16 @@ class alignas(DATA_ALIGN) Matrix4x4
 		Matrix4x4 & SetRotateX( float angle );
 		Matrix4x4 & SetRotateY( float angle );
 		Matrix4x4 & SetRotateZ( float angle );
-		Matrix4x4 & SetTranslate( const v3 & vec );
+		Matrix4x4 & SetTranslate( const glm::vec3 & vec );
 
 		//Matrix4x4 Transpose() const;
 		//Matrix4x4 Inverse() const;
 
-		v3 TransformCoord( const v3 & vec ) const;
-		v3 TransformNormal( const v3 & vec ) const;
+		glm::vec3 TransformCoord( const glm::vec3 & vec ) const;
+		glm::vec3 TransformNormal( const glm::vec3 & vec ) const;
 
-		v3 Transform( const v3 & vec ) const;
-		v4 Transform( const v4 & vec ) const;
+		glm::vec3 Transform( const glm::vec3 & vec ) const;
+		glm::vec4 Transform( const glm::vec4 & vec ) const;
 
 	//	void	print() const;
 

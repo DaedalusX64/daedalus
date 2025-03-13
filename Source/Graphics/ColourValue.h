@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define GRAPHICS_COLOURVALUE_H_
 
 #include "Base/Types.h"
-
-class v4;
+#include <glm/glm.hpp>
+// class v4;
 
 class c32 /*: public NativePf8888*/
 {
@@ -31,10 +31,10 @@ class c32 /*: public NativePf8888*/
 		c32( u8 r, u8 g, u8 b ) : mColour( Make( r, g, b, 255 ) ) {}
 		c32( u8 r, u8 g, u8 b, u8 a ) : mColour( Make( r, g, b, a ) ) {}
 		explicit c32( u32 colour ) : mColour( colour ) {}
-		explicit c32( const v4 & colour );
+		explicit c32( const glm::vec4 & colour );
 
 				u32		GetColour() const			{ return mColour; }
-				v4		GetColourV4() const;
+				glm::vec4		GetColourV4() const;
 
 				u8		GetR() const				{ return u8(mColour      ); }
 				u8		GetG() const				{ return u8(mColour >>  8); }

@@ -332,7 +332,7 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command [[maybe_unused]] )
 		//Penny racers: (cars)
 		//Aerogauge: (skips rendering ship shadows and exaust plumes from afar)
 
-		const v4 & v = gRenderer->GetProjectedVtxPos( command.branchz.vtx );
+		const glm::vec4 & v = gRenderer->GetProjectedVtxPos( command.branchz.vtx );
 		const u32 zTest = u32((v.z / v.w) * 1023.0f);
 
 		if (zTest > 0x3FF || zTest <= command.branchz.value)

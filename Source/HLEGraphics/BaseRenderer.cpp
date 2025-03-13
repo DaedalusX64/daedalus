@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Profiler.h"
 
 
+
 #include <vector>
 #include <random> 
 #ifdef DAEDALUS_CTR
@@ -102,7 +103,7 @@ void	_TnLVFPUPD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_ma
 void	_ConvertVertice( DaedalusVtx * dest, const DaedalusVtx4 * source );
 void	_ConvertVerticesIndexed( DaedalusVtx * dest, const DaedalusVtx4 * source, u32 num_vertices, const u16 * indices );
 
-u32		_ClipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, const v4 * plane, u32 num_verts );
+u32		_ClipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, const glm::vec4 * plane, u32 num_verts );
 }
 
 #define GL_TRUE                           1
@@ -468,9 +469,9 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		const s32 sign = vfpu_TriNormSign((u8*)&mVtxProjected[0], v0, v1, v2);
 		if( sign <= 0 )
 #else
-		const v4 & A = mVtxProjected[v0].ProjectedPos;
-		const v4 & B = mVtxProjected[v1].ProjectedPos;
-		const v4 & C = mVtxProjected[v2].ProjectedPos;
+		const glm::vec4 & A = mVtxProjected[v0].ProjectedPos;
+		const glm::vec4 & B = mVtxProjected[v1].ProjectedPos;
+		const glm::vec4 & C = mVtxProjected[v2].ProjectedPos;
 
 		//Avoid using 1/w, will use five more mults but save three divides //Corn
 		//Precalc reused w combos so compiler does a proper job
@@ -572,14 +573,14 @@ void BaseRenderer::FlushTris()
 //improves quality but fails in some games (Rocket Robot/Lego racers)//Corn
 //*****************************************************************************
 // ALIGNED_TYPE(const v4, NDCPlane[6], 16) =
-std::array<const v4, 6> NDCPlane = 
+std::array<const glm::vec4, 6> NDCPlane = 
 {
-	v4(  0.f,  0.f, -1.f, -1.f ),	// near
-	v4(  0.f,  0.f,  1.f, -1.f ),	// far
-	v4(  1.f,  0.f,  0.f, -1.f ),	// left
-	v4( -1.f,  0.f,  0.f, -1.f ),	// right
-	v4(  0.f,  1.f,  0.f, -1.f ),	// bottom
-	v4(  0.f, -1.f,  0.f, -1.f )	// top
+	glm::vec4(  0.f,  0.f, -1.f, -1.f ),	// near
+	glm::vec4(  0.f,  0.f,  1.f, -1.f ),	// far
+	glm::vec4(  1.f,  0.f,  0.f, -1.f ),	// left
+	glm::vec4( -1.f,  0.f,  0.f, -1.f ),	// right
+	glm::vec4(  0.f,  1.f,  0.f, -1.f ),	// bottom
+	glm::vec4(  0.f, -1.f,  0.f, -1.f )	// top
 };
 
 //*****************************************************************************
@@ -690,7 +691,7 @@ void DaedalusVtx4::Interpolate( const DaedalusVtx4 & lhs, const DaedalusVtx4 & r
 //*****************************************************************************
 //CPU line clip to plane
 //*****************************************************************************
-static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u32 inCount, const v4 &plane )
+static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u32 inCount, const glm::vec4 &plane )
 {
 	u32 outCount(0);
 	DaedalusVtx4 * out(dest);
@@ -698,7 +699,7 @@ static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u
 	const DaedalusVtx4 * a;
 	const DaedalusVtx4 * b(source);
 
-	f32 bDotPlane = b->ProjectedPos.Dot( plane );
+	f32 bDotPlane = glm::dot(b->ProjectedPos, plane );
 
 	for( u32 i = 1; i < inCount + 1; ++i)
 	{
@@ -707,7 +708,7 @@ static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u
 		const s32 index = (( ( condition >> 31 ) & ( i ^ condition ) ) ^ condition );
 		a = &source[index];
 
-		f32 aDotPlane = a->ProjectedPos.Dot( plane );
+		f32 aDotPlane = glm::dot(a->ProjectedPos, plane );
 
 		// current point inside
 		if ( aDotPlane <= 0.f )
@@ -716,7 +717,7 @@ static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u
 			if ( bDotPlane > 0.f )
 			{
 				// intersect line segment with plane
-				out->Interpolate( *b, *a, bDotPlane / (b->ProjectedPos - a->ProjectedPos).Dot( plane ) );
+				out->Interpolate(*b, *a, bDotPlane / glm::dot((b->ProjectedPos - a->ProjectedPos), plane));
 				out++;
 				outCount++;
 			}
@@ -733,7 +734,7 @@ static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u
 			if ( bDotPlane <= 0.f )
 			{
 				// previous was inside, intersect line segment with plane
-				out->Interpolate( *b, *a, bDotPlane / (b->ProjectedPos - a->ProjectedPos).Dot( plane ) );
+				out->Interpolate( *b, *a, bDotPlane / glm::dot((b->ProjectedPos - a->ProjectedPos), plane));
 				out++;
 				outCount++;
 			}
@@ -766,7 +767,7 @@ static u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 //*****************************************************************************
 // Set Clipflags
 //*****************************************************************************
-static u32 set_clip_flags(const v4 & projected)
+static u32 set_clip_flags(const glm::vec4 & projected)
 {
 	u32 clip_flags = 0;
 	if		(projected.x < -projected.w)	clip_flags |= X_POS;
@@ -974,14 +975,14 @@ void BaseRenderer::PrepareTrisUnclipped( TempVerts * temp_verts ) const
 //*****************************************************************************
 //
 //*****************************************************************************
-v3 BaseRenderer::LightVert( const v3 & norm ) const
+glm::vec3 BaseRenderer::LightVert( const glm::vec3 & norm ) const
 {
-	const v3 & col = mTnL.Lights[mTnL.NumLights].Colour;
-	v3 result( col.x, col.y, col.z );
+	const glm::vec3 & col = mTnL.Lights[mTnL.NumLights].Colour;
+	glm::vec3 result( col.x, col.y, col.z );
 
 	for ( u32 l = 0; l < mTnL.NumLights; l++ )
 	{
-		f32 fCosT = norm.Dot( mTnL.Lights[l].Direction );
+		f32 fCosT = glm::dot(mTnL.Lights[l].Direction, norm);
 		if (fCosT > 0.0f)
 		{
 			result.x += mTnL.Lights[l].Colour.x * fCosT;
@@ -1001,18 +1002,18 @@ v3 BaseRenderer::LightVert( const v3 & norm ) const
 //*****************************************************************************
 //
 //*****************************************************************************
-v3 BaseRenderer::LightPointVert( const v4 & w ) const
+glm::vec3 BaseRenderer::LightPointVert( const glm::vec4 & w ) const
 {
-	const v3 & col = mTnL.Lights[mTnL.NumLights].Colour;
-	v3 result( col.x, col.y, col.z );
+	const glm::vec3 & col = mTnL.Lights[mTnL.NumLights].Colour;
+	glm::vec3 result( col.x, col.y, col.z );
 
 	for ( u32 l = 0; l < mTnL.NumLights; l++ )
 	{
 		if ( mTnL.Lights[l].SkipIfZero )
 		{
-			v3 distance_vec( mTnL.Lights[l].Position.x-w.x, mTnL.Lights[l].Position.y-w.y, mTnL.Lights[l].Position.z-w.z );
+			glm::vec3 distance_vec( mTnL.Lights[l].Position.x-w.x, mTnL.Lights[l].Position.y-w.y, mTnL.Lights[l].Position.z-w.z );
 
-			f32 light_qlen = distance_vec.LengthSq();
+			f32 light_qlen = glm::dot(distance_vec, distance_vec);
 			f32 light_llen = sqrtf( light_qlen );
 
 			f32 at = mTnL.Lights[l].ca + mTnL.Lights[l].la * light_llen + mTnL.Lights[l].qa * light_qlen;
@@ -1069,9 +1070,9 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 		// VTX Transform
 		//
-		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
+		glm::vec4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
 
-		v4 & projected( mVtxProjected[i].ProjectedPos );
+		glm::vec4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = mat_world_project.Transform( w );
 		mVtxProjected[i].TransformedPos = mat_world.Transform( w );
 
@@ -1083,12 +1084,11 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		//
 		if ( mTnL.Flags.Light )
 		{
-			v3 model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
-			v3 vecTransformedNormal;
-			vecTransformedNormal = mat_world.TransformNormal( model_normal );
-			vecTransformedNormal.Normalise();
+			glm::vec3 model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
+			glm::vec3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
+			vecTransformedNormal = glm::normalize(vecTransformedNormal);
 
-			v3 col;
+			glm::vec3 col;
 
 			if ( mTnL.Flags.PointLight )
 			{//POINT LIGHT
@@ -1111,10 +1111,11 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 				// If the vert is already lit, then there is no normal (and hence we can't generate tex coord)
 #if 1			// 1->Lets use mat_world_project instead of mat_world for nicer effect (see SSV space ship) //Corn
 				vecTransformedNormal = mat_world_project.TransformNormal( model_normal );
-				vecTransformedNormal.Normalise();
+				vecTransformedNormal = glm::normalize(vecTransformedNormal);
+
 #endif
 
-				const v3 & norm = vecTransformedNormal;
+				const glm::vec3 & norm = vecTransformedNormal;
 
 				if( mTnL.Flags.TexGenLin )
 				{
@@ -1141,7 +1142,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		{
 			//if( mTnL.Flags.Shade )
 			{// FLAT shade
-				mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
+				mVtxProjected[i].Colour = glm::vec4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
 			}
 			/*else
 			{// PRIM shade, SSV uses this, doesn't seem to do anything????
@@ -1201,12 +1202,12 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 		// VTX Transform
 		//
-		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
+		glm::vec4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
 
-		v4 & transformed( mVtxProjected[i].TransformedPos );
+		glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
 		transformed = mat_world.Transform( w );
 
-		v4 & projected( mVtxProjected[i].ProjectedPos );
+		glm::vec4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = mat_project.Transform( transformed );
 
 		//	Initialise the clipping flags
@@ -1222,19 +1223,19 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		//
 		if ( mTnL.Flags.Light )
 		{
-			v3 model_normal( mn[((i<<1)+0)^3], mn[((i<<1)+1)^3], vert.normz );
-			v3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
-			vecTransformedNormal.Normalise();
-			const v3 & norm = vecTransformedNormal;
-			const v3 & col = mTnL.Lights[mTnL.NumLights].Colour;
+			glm::vec3 model_normal( mn[((i<<1)+0)^3], mn[((i<<1)+1)^3], vert.normz );
+			glm::vec3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
+			vecTransformedNormal = glm::normalize(vecTransformedNormal);
+			const glm::vec3 & norm = vecTransformedNormal;
+			const glm::vec3 & col = mTnL.Lights[mTnL.NumLights].Colour;
 
-			v4 Pos;
+			glm::vec4 Pos;
 			Pos.x = (projected.x + mTnL.CoordMod[8]) * mTnL.CoordMod[12];
 			Pos.y = (projected.y + mTnL.CoordMod[9]) * mTnL.CoordMod[13];
 			Pos.z = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14];
 			Pos.w = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15];
 
-			v3 result( col.x, col.y, col.z );
+			glm::vec3 result( col.x, col.y, col.z );
 			f32 fCosT;
 			u32 l;
 
@@ -1244,10 +1245,10 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				{
 					if ( mTnL.Lights[l].SkipIfZero )
 					{
-						fCosT = norm.Dot( mTnL.Lights[l].Direction );
+						fCosT = glm::dot(mTnL.Lights[l].Direction, norm);
 						if (fCosT > 0.0f)
 						{
-							f32 pi = mTnL.Lights[l].Iscale / (Pos - mTnL.Lights[l].Position).LengthSq();
+							f32 pi = mTnL.Lights[l].Iscale / glm::dot(Pos - mTnL.Lights[l].Position, Pos - mTnL.Lights[l].Position);
 							if (pi < 1.0f) fCosT *= pi;
 
 							result.x += mTnL.Lights[l].Colour.x * fCosT;
@@ -1257,7 +1258,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 					}
 				}
 
-				fCosT = norm.Dot( mTnL.Lights[l].Direction );
+				fCosT = glm::dot( mTnL.Lights[l].Direction, norm );
 				if (fCosT > 0.0f)
 				{
 					result.x += mTnL.Lights[l].Colour.x * fCosT;
@@ -1271,7 +1272,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				{
 					if ( mTnL.Lights[l].SkipIfZero )
 					{
-						f32 pi = mTnL.Lights[l].Iscale / (Pos - mTnL.Lights[l].Position).LengthSq();
+						f32 pi = mTnL.Lights[l].Iscale / glm::dot(Pos - mTnL.Lights[l].Position, Pos - mTnL.Lights[l].Position);
 						if (pi > 1.0f) pi = 1.0f;
 
 						result.x += mTnL.Lights[l].Colour.x * pi;
@@ -1336,7 +1337,7 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 #ifdef DAEDALUS_PSP_USE_VFPU
 		_TnLVFPUDKRB( n, &mModelViewStack[0], (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
 #else
-		v4 & BaseVec( mVtxProjected[0].TransformedPos );
+		glm::vec4 & BaseVec( mVtxProjected[0].TransformedPos );
 
 		//Hack to worldproj matrix to scale and rotate billbords //Corn
 		Matrix4x4 mat( mModelViewStack[0]);
@@ -1352,14 +1353,14 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 
 		for (u32 i = v0; i < v0 + n; i++)
 		{
-			v3 w;
+			glm::vec3 w;
 			w.x = *(s16*)((pVtxBase + 0) ^ 2);
 			w.y = *(s16*)((pVtxBase + 2) ^ 2);
 			w.z = *(s16*)((pVtxBase + 4) ^ 2);
 
 			w = mat.TransformNormal( w );
 
-			v4 & transformed( mVtxProjected[i].TransformedPos );
+			glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
 			transformed.x = BaseVec.x + w.x;
 			transformed.y = BaseVec.y + w.y;
 			transformed.z = BaseVec.z + w.z;
@@ -1395,13 +1396,13 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 #else
 		for (u32 i = v0; i < v0 + n; i++)
 		{
-			v4 & transformed( mVtxProjected[i].TransformedPos );
+			glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
 			transformed.x = *(s16*)((pVtxBase + 0) ^ 2);
 			transformed.y = *(s16*)((pVtxBase + 2) ^ 2);
 			transformed.z = *(s16*)((pVtxBase + 4) ^ 2);
 			transformed.w = 1.0f;
 
-			v4 & projected( mVtxProjected[i].ProjectedPos );
+			glm::vec4 & projected( mVtxProjected[i].ProjectedPos );
 			projected = mat_world_project.Transform( transformed );	//Do projection
 
 			// Set Clipflags
@@ -1444,13 +1445,13 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	{
 		const FiddledVtxPD & vert = pVtxBase[i - v0];
 
-		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
+		glm::vec4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
 
 		// VTX Transform
 		//
-		v4 & transformed( mVtxProjected[i].TransformedPos );
+		glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
 		transformed = mat_world.Transform( w );
-		v4 & projected( mVtxProjected[i].ProjectedPos );
+		glm::vec4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = mat_project.Transform( transformed );
 
 
@@ -1459,13 +1460,12 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 
 		if( mTnL.Flags.Light )
 		{
-			v3	model_normal((f32)mn[vert.cidx+3], (f32)mn[vert.cidx+2], (f32)mn[vert.cidx+1] );
+			glm::vec3	model_normal((f32)mn[vert.cidx+3], (f32)mn[vert.cidx+2], (f32)mn[vert.cidx+1] );
 
-			v3 vecTransformedNormal;
-			vecTransformedNormal = mat_world.TransformNormal( model_normal );
-			vecTransformedNormal.Normalise();
+			glm::vec3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
+			vecTransformedNormal = glm::normalize(vecTransformedNormal);
 
-			const v3 col = LightVert(vecTransformedNormal);
+			const glm::vec3 col = LightVert(vecTransformedNormal);
 			mVtxProjected[i].Colour.x = col.x;
 			mVtxProjected[i].Colour.y = col.y;
 			mVtxProjected[i].Colour.z = col.z;
@@ -1473,7 +1473,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 
 			if ( mTnL.Flags.TexGen )
 			{
-				const v3 & norm = vecTransformedNormal;
+				const glm::vec3 & norm = vecTransformedNormal;
 
 				//Env mapping
 				if( mTnL.Flags.TexGenLin )
@@ -1582,7 +1582,7 @@ inline void BaseRenderer::SetVtxColor( u32 vert, u32 color )
 	u8 g = (color>>16)&0xFF;
 	u8 b = (color>>8)&0xFF;
 	u8 a = color&0xFF;
-	mVtxProjected[vert].Colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
+	mVtxProjected[vert].Colour = glm::vec4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
 }
 
 //*****************************************************************************

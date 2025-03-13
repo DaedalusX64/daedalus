@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HLEGRAPHICS_BASERENDERER_H_
 
 #include "Math/Vector2.h"
-#include "Math/Vector3.h"
-#include "Math/Vector4.h"
+
+
 #include "Math/Matrix4x4.h"
 
 #include "HLEGraphics/DaedalusVtx.h"
@@ -54,7 +54,7 @@ struct TempVerts;
 struct TextureVtx
 {
 	v2  t0;
-	v3  pos;
+	glm::vec3  pos;
 };
 
 struct TriDKR
@@ -136,11 +136,11 @@ DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtx) == 16 );
 
 struct alignas(DATA_ALIGN) DaedalusLight
 {
-	v3		Direction;		// w component is ignored. Should be normalised
+	glm::vec3		Direction;		// w component is ignored. Should be normalised
 	u32		SkipIfZero;		// Used by CBFD & MM
-	v3		Colour;			// Colour, components in range 0..1
+	glm::vec3		Colour;			// Colour, components in range 0..1
 	f32		Iscale;			// Used by CBFD
-	v4		Position;		// Position -32768 to 32767
+	glm::vec4		Position;		// Position -32768 to 32767
 	f32		ca;				// Used by MM(GBI2 point light)
 	f32		la;				// Used by MM(GBI2 point light)
 	f32		qa;				// Used by MM(GBI2 point light)
@@ -292,7 +292,7 @@ public:
 
 	inline void			SetNumLights(u32 num)					{ mTnL.NumLights = num; }
 	inline void			SetLightCol(u32 l, u8 r, u8 g, u8 b)	{ mTnL.Lights[l].SkipIfZero=(r+g+b); mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; }
-	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z) { v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; }
+	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z) { glm::vec3 n(x, y, z); n = glm::normalize(n); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; }
 	inline void			SetLightPosition(u32 l, f32 x, f32 y, f32 z, f32 w) { mTnL.Lights[l].Position.x=x; mTnL.Lights[l].Position.y=y; mTnL.Lights[l].Position.z=z; mTnL.Lights[l].Position.w=w; }
 	inline void			SetLightCBFD(u32 l, u8 nonzero)			{ mTnL.Lights[l].Iscale=(f32)(nonzero << 12); mTnL.Lights[l].SkipIfZero = mTnL.Lights[l].SkipIfZero&&nonzero; }
 	inline void			SetLightEx(u32 l, f32 ca, f32 la, f32 qa) { mTnL.Lights[l].ca=ca/16.0f; mTnL.Lights[l].la=la/65535.0f; mTnL.Lights[l].qa=qa/(8.0f*65535.0f); }
@@ -350,8 +350,8 @@ public:
 	bool				TestVerts( u32 v0, u32 vn ) const;
 	inline f32			GetVtxDepth( u32 i ) const				{ return mVtxProjected[ i ].ProjectedPos.z; }
 	inline f32			GetVtxWeight( u32 i ) const				{ return mVtxProjected[ i ].ProjectedPos.w; }
-	inline v4			GetTransformedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].TransformedPos; }
-	inline v4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
+	inline glm::vec4			GetTransformedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].TransformedPos; }
+	inline glm::vec4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
 	inline u32			GetVtxFlags( u32 i ) const				{ return mVtxProjected[ i ].ClipFlags; }
 
 	inline u64			GetMux() const							{ return mMux; }
@@ -422,8 +422,8 @@ protected:
 	void				PrepareTrisClipped( TempVerts * temp_verts ) const;
 	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;
 
-	v3					LightVert( const v3 & norm ) const;
-	v3					LightPointVert( const v4 & w ) const;
+	glm::vec3					LightVert( const glm::vec3 & norm ) const;
+	glm::vec3					LightPointVert( const glm::vec4 & w ) const;
 
 private:
 	void				InitViewport();
