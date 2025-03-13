@@ -51,7 +51,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev
+        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libglm-dev
     
     - name: Compile project
       run: |
@@ -80,7 +80,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libfmt-dev
+        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libfmt-dev libglm-dev
     
     - name: Compile project
       run: |
@@ -138,7 +138,7 @@ jobs:
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     - name: Install dependencies
       run: |
-        brew install git bash cmake libpng minizip sdl2 sdl2_ttf glew
+        brew install git bash cmake libpng minizip sdl2 sdl2_ttf glew glm
     
     - name: Compile project
       run: |
