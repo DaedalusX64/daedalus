@@ -660,8 +660,8 @@ void RDP_MoveMemViewport(u32 address)
 	// we truncated them to 0. This happens a lot, as things
 	// seem to specify the scale as the screen w/2 h/2
 
-	v2 vec_scale( vp->scale_x * 0.25f, vp->scale_y * 0.25f );
-	v2 vec_trans( vp->trans_x * 0.25f, vp->trans_y * 0.25f );
+	glm::vec2 vec_scale( vp->scale_x * 0.25f, vp->scale_y * 0.25f );
+	glm::vec2 vec_trans( vp->trans_x * 0.25f, vp->trans_y * 0.25f );
 
 	gRenderer->SetN64Viewport( vec_scale, vec_trans );
 
@@ -767,8 +767,8 @@ void DLParser_SetScissor( MicroCodeCommand command )
 	{
 		scissors.left += 160;
 		scissors.right += 160;
-		v2 vec_trans( 240, 120 );
-		v2 vec_scale( 80, 120 );
+		glm::vec2 vec_trans( 240, 120 );
+		glm::vec2 vec_scale( 80, 120 );
 		gRenderer->SetN64Viewport( vec_scale, vec_trans );
 	}
 
@@ -933,8 +933,8 @@ void DLParser_TexRect( MicroCodeCommand command )
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
 
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
+	glm::vec2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
+	glm::vec2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
 
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    Tex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", rect_s0/32.f, rect_t0/32.f, rect_s1/32.f, rect_t1/32.f, rect_dsdx/1024.f, rect_dtdy/1024.f);
@@ -991,8 +991,8 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
 
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
+	glm::vec2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
+	glm::vec2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
 
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    FlipTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", rect_s0/32.f, rect_t0/32.f, rect_s1/32.f, rect_t1/32.f, rect_dsdx/1024.f, rect_dtdy/1024.f);
@@ -1107,8 +1107,8 @@ void DLParser_FillRect( MicroCodeCommand command )
 	}
 	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", x0, y0, x1, y1);
 
-	v2 xy0( (f32)x0, (f32)y0 );
-	v2 xy1( (f32)x1, (f32)y1 );
+	glm::vec2 xy0( (f32)x0, (f32)y0 );
+	glm::vec2 xy1( (f32)x1, (f32)y1 );
 
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
 	// This is done in BaseRenderer.

@@ -87,8 +87,8 @@ void DLParser_RDPHalf1_GE( MicroCodeCommand command )
 	// TIP : f32 x1 can be modified to render the sky differently.
 	// Need to check on real hardware to tweak our sky correctly if needed.
 
-	v2 xy0( (f32)x0, (f32)x0 );
-	v2 xy1( (f32)y0, (f32)y0 );
+	glm::vec2 xy0( (f32)x0, (f32)x0 );
+	glm::vec2 xy1( (f32)y0, (f32)y0 );
 	TexCoord uv0( 0.f, 0.f );
 	TexCoord uv1( t0 / 40.0f, t0 / 40.0f );
 

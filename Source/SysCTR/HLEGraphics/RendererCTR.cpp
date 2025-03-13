@@ -634,7 +634,7 @@ void RendererCTR::RenderTriangles(DaedalusVtx *p_vertices, u32 num_vertices, boo
 	RenderUsingCurrentBlendMode(gProjection.m, p_vertices, num_vertices, GL_TRIANGLES, disable_zbuffer);
 }
 
-void RendererCTR::TexRect(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1)
+void RendererCTR::TexRect(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)
 {
 	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
 	UpdateTileSnapshots( tile_idx );
@@ -643,11 +643,11 @@ void RendererCTR::TexRect(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord
 	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
 	PrepareTexRectUVs(&st0, &st1);
 	
-	v2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
-	v2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
+	glm::vec2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
+	glm::vec2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
 
-	v2 screen0;
-	v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
 	
 	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 	{
@@ -706,7 +706,7 @@ void RendererCTR::TexRect(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord
 	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
 }
 
-void RendererCTR::TexRectFlip(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1)
+void RendererCTR::TexRectFlip(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)
 {
 	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
 	UpdateTileSnapshots( tile_idx );
@@ -715,11 +715,11 @@ void RendererCTR::TexRectFlip(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexC
 	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
 	PrepareTexRectUVs(&st0, &st1);
 
-	v2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
-	v2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
+	glm::vec2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
+	glm::vec2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
 
-	v2 screen0;
-	v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
 
@@ -763,10 +763,10 @@ void RendererCTR::TexRectFlip(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexC
 	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
 }
 
-void RendererCTR::FillRect(const v2 & xy0, const v2 & xy1, u32 color)
+void RendererCTR::FillRect(const glm::vec2 & xy0, const glm::vec2 & xy1, u32 color)
 {
-	v2 screen0;
-	v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
 	ScaleN64ToScreen( xy0, screen0 );
 	ScaleN64ToScreen( xy1, screen1 );
 	

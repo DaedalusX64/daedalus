@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativeTexture.h"
 #include "Input/InputManager.h"
 #include "Utility/MathUtil.h"
-#include "Math/Vector2.h"
+
 #include "DrawTextUtilities.h"
 #include "Menu.h"
 #include "RomSelectorComponent.h"
@@ -149,7 +149,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		~IRomSelectorComponent();
 
 		// CUIComponent
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 
 	private:
@@ -299,8 +299,8 @@ void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const 
 void IRomSelectorComponent::RenderPreview()
 {
 	// Preview Image
-	v2	tl( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN );
-	v2	wh( PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT );
+	glm::vec2	tl( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN );
+	glm::vec2	wh( PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT );
 
 	if( mpPreviewTexture != NULL )
 	{
@@ -492,12 +492,12 @@ void IRomSelectorComponent::Render()
 }
 
 
-void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	IRomSelectorComponent::Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	static const float	SCROLL_RATE_PER_SECOND = 25.0f;		// 25 roms/second
 
 	/*Apply stick deadzone preference in the RomSelector menu*/
-	v2 stick_dead = ApplyDeadzone( stick, gGlobalPreferences.StickMinDeadzone, gGlobalPreferences.StickMaxDeadzone );
+	glm::vec2 stick_dead = ApplyDeadzone( stick, gGlobalPreferences.StickMinDeadzone, gGlobalPreferences.StickMaxDeadzone );
 
 	mSelectionAccumulator += stick_dead.y * SCROLL_RATE_PER_SECOND * elapsed_time;
 

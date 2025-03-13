@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_BASERENDERER_H_
 #define HLEGRAPHICS_BASERENDERER_H_
 
-#include "Math/Vector2.h"
 
 
 #include "Math/Matrix4x4.h"
@@ -53,7 +52,7 @@ struct TempVerts;
 // FIXME - this is for the PSP only.
 struct TextureVtx
 {
-	v2  t0;
+	glm::vec2  t0;
 	glm::vec3  pos;
 };
 
@@ -302,16 +301,16 @@ public:
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 
 	// TextRect stuff
-	virtual void		TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
-	virtual void		TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
-	virtual void		FillRect( const v2 & xy0, const v2 & xy1, u32 color ) = 0;
+	virtual void		TexRect( u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
+	virtual void		TexRectFlip( u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
+	virtual void		FillRect( const glm::vec2 & xy0, const glm::vec2 & xy1, u32 color ) = 0;
 
 	// Texture stuff
 	virtual void		Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1, f32 u0, f32 v0, f32 u1, f32 v1, const std::shared_ptr<CNativeTexture> texture) = 0;
 	virtual void		Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t, const std::shared_ptr <CNativeTexture> texture) = 0;
 
 	// Viewport stuff
-	void				SetN64Viewport( const v2 & scale, const v2 & trans );
+	void				SetN64Viewport( const glm::vec2 & scale, const glm::vec2 & trans );
 	void				SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -399,13 +398,13 @@ protected:
 	// We round these value here, so that when we scale up the coords to our screen
 	// coords we don't get any gaps.
 	//*****************************************************************************
-	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
+	inline void ConvertN64ToScreen( const glm::vec2 & n64_coords, glm::vec2 & answ ) const
 	{
 		answ.x = roundf( N64ToScreenX( roundf( n64_coords.x ) ) );
 		answ.y = roundf( N64ToScreenY( roundf( n64_coords.y ) ) );
 	}
 
-	inline void ScaleN64ToScreen( const v2 & n64_coords, v2 & answ ) const
+	inline void ScaleN64ToScreen( const glm::vec2 & n64_coords, glm::vec2 & answ ) const
 	{
 		answ.x = roundf( roundf( n64_coords.x ) * mN64ToScreenScale.x );
 		answ.y = roundf( roundf( n64_coords.y ) * mN64ToScreenScale.y );
@@ -434,11 +433,11 @@ private:
 protected:
 	TnLParams			mTnL;
 
-	v2					mN64ToScreenScale;
-	v2					mN64ToScreenTranslate;
+	glm::vec2					mN64ToScreenScale;
+	glm::vec2					mN64ToScreenTranslate;
 
-	v2					mVpScale;
-	v2					mVpTrans;
+	glm::vec2					mVpScale;
+	glm::vec2					mVpTrans;
 
 	u64					mMux;
 	

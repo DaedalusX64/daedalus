@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math
 #include "Utility/MathUtil.h"
-#include "Math/Vector2.h"
 #include "DrawTextUtilities.h"
 #include "Interface/Preferences.h"
 #include "Utility/Translate.h"
@@ -46,14 +45,14 @@ class IAdjustDeadzoneScreen : public CAdjustDeadzoneScreen, public CUIScreen
 		~IAdjustDeadzoneScreen();
 
 		virtual void				Run();
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 		virtual bool				IsFinished() const									{ return mIsFinished; }
 
 	private:
 		void						DrawCircle( s32 x, s32 y, s32 r, c32 colour );
 		void						DrawCrosshair( s32 x, s32 y, c32 colour );
-		void						DrawStick( s32 x, s32 y, s32 r, const v2 & stick, f32 min_deadzone, f32 max_deadzone );
+		void						DrawStick( s32 x, s32 y, s32 r, const glm::vec2 & stick, f32 min_deadzone, f32 max_deadzone );
 
 	private:
 		bool						mIsFinished;
@@ -88,7 +87,7 @@ IAdjustDeadzoneScreen::IAdjustDeadzoneScreen( CUIContext * p_context )
 IAdjustDeadzoneScreen::~IAdjustDeadzoneScreen() {}
 
 
-void	IAdjustDeadzoneScreen::Update( float elapsed_time[[maybe_unused]], const v2 & stick [[maybe_unused]], u32 old_buttons, u32 new_buttons )
+void	IAdjustDeadzoneScreen::Update( float elapsed_time[[maybe_unused]], const glm::vec2 & stick [[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(new_buttons & PSP_CTRL_DOWN)
 	{
@@ -186,7 +185,7 @@ void	IAdjustDeadzoneScreen::DrawCrosshair( s32 x, s32 y, c32 colour )
 }
 
 
-void	IAdjustDeadzoneScreen::DrawStick( s32 x, s32 y, s32 r, const v2 & stick, f32 min_deadzone, f32 max_deadzone )
+void	IAdjustDeadzoneScreen::DrawStick( s32 x, s32 y, s32 r, const glm:vec2 & stick, f32 min_deadzone, f32 max_deadzone )
 {
 	c32		white( 255, 255, 255 );
 	c32		red( 255, 0, 0 );

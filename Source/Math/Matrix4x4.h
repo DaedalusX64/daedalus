@@ -3,9 +3,8 @@
 
 
 
-#include "Vector3.h"
 #include <glm/glm.hpp>
-
+#include "Base/Types.h"
 class alignas(DATA_ALIGN) Matrix4x4
 {
 	public:

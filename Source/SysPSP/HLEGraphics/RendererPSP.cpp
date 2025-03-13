@@ -685,7 +685,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 	}
 }
 
-void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
+void RendererPSP::TexRect( u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1 )
 {
 	mTnL.Flags.Fog = 0;	//For now we force fog off for textrect, normally it should be fogged when depth_source is set //Corn
 
@@ -696,11 +696,11 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoor
 
 	// Convert fixed point uvs back to floating point format.
 	// NB: would be nice to pass these as s16 ints, and use GU_TEXTURE_16BIT
-	v2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
-	v2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
+	glm::vec2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
+	glm::vec2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
 
-	v2 screen0;
-	v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
 	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 	{
 		screen0.x = roundf( roundf( HD_SCALE * xy0.x ) * mN64ToScreenScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
@@ -780,7 +780,7 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoor
 #endif
 }
 
-void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
+void RendererPSP::TexRectFlip( u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1 )
 {
 	mTnL.Flags.Fog = 0;	//For now we force fog off for textrect, normally it should be fogged when depth_source is set //Corn
 
@@ -791,11 +791,11 @@ void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, Tex
 
 	// Convert fixed point uvs back to floating point format.
 	// NB: would be nice to pass these as s16 ints, and use GU_TEXTURE_16BIT
-	v2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
-	v2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
+	glm::vec2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
+	glm::vec2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
 
-	v2 screen0;
-	v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
 	// FIXME(strmnnrmn): why is VT_FULLSCREEN_HD code in TexRect() not also done here?
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
@@ -842,7 +842,7 @@ void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, Tex
 #endif
 }
 
-void RendererPSP::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
+void RendererPSP::FillRect( const glm::vec2 & xy0, const glm::vec2 & xy1, u32 color )
 {
 /*
 	if ( (gRDPOtherMode._u64 & 0xffff0000) == 0x5f500000 )	//Used by Wave Racer
@@ -855,8 +855,8 @@ void RendererPSP::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	// This if for C&C - It might break other stuff (I'm not sure if we should allow alpha or not..)
 	//color |= 0xff000000;
 
-	v2 screen0;
-	v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
 

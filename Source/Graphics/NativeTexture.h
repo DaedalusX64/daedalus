@@ -23,9 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "TextureFormat.h"
 
-#include "Math/Vector2.h"
 #include <memory>
 #include <filesystem>
+#include <glm/glm.hpp>
 
 #if defined(DAEDALUS_GL)
 #include "SysGL/GL.h"
@@ -95,7 +95,7 @@ class CNativeTexture
 #endif
 
 #if defined(DAEDALUS_PSP) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES)
-		v2					mScale;
+		glm::vec2					mScale;
 		bool				mIsDataVidMem;
 		bool				mIsPaletteVidMem;
 		bool				mIsSwizzled;

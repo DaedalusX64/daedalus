@@ -297,8 +297,8 @@ void BaseRenderer::EndScene()
 void BaseRenderer::InitViewport()
 {
 	// Init the N64 viewport.
-	mVpScale = v2( 640.f*0.25f, 480.f*0.25f );
-	mVpTrans = v2( 640.f*0.25f, 480.f*0.25f );
+	mVpScale = glm::vec2( 640.f*0.25f, 480.f*0.25f );
+	mVpTrans = glm::vec2( 640.f*0.25f, 480.f*0.25f );
 		std::default_random_engine FastRand;
 	// Get the current display dimensions. This might change frame by frame e.g. if the window is resized.
 	u32 display_width  = 0;
@@ -355,7 +355,7 @@ void BaseRenderer::InitViewport()
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::SetN64Viewport( const v2 & scale, const v2 & trans )
+void BaseRenderer::SetN64Viewport( const glm::vec2 & scale, const glm::vec2 & trans )
 {
 	// Only Update viewport when it actually changed, this happens rarely
 	//
@@ -377,11 +377,11 @@ void BaseRenderer::SetN64Viewport( const v2 & scale, const v2 & trans )
 //*****************************************************************************
 void BaseRenderer::UpdateViewport()
 {
-	v2		n64_min( mVpTrans.x - mVpScale.x, mVpTrans.y - mVpScale.y );
-	v2		n64_max( mVpTrans.x + mVpScale.x, mVpTrans.y + mVpScale.y );
+	glm::vec2		n64_min( mVpTrans.x - mVpScale.x, mVpTrans.y - mVpScale.y );
+	glm::vec2		n64_max( mVpTrans.x + mVpScale.x, mVpTrans.y + mVpScale.y );
 
-	v2		psp_min;
-	v2		psp_max;
+	glm::vec2		psp_min;
+	glm::vec2		psp_max;
 	ConvertN64ToScreen( n64_min, psp_min );
 	ConvertN64ToScreen( n64_max, psp_max );
 
@@ -1933,11 +1933,11 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	if( x1 > uViWidth )  x1 = uViWidth;
 	if( y1 > uViHeight ) y1 = uViHeight;
 
-	v2 n64_tl( (f32)x0, (f32)y0 );
-	v2 n64_br( (f32)x1, (f32)y1 );
+	glm::vec2 n64_tl( (f32)x0, (f32)y0 );
+	glm::vec2 n64_br( (f32)x1, (f32)y1 );
 
-	v2 screen_tl;
-	v2 screen_br;
+	glm::vec2 screen_tl;
+	glm::vec2 screen_br;
 	ConvertN64ToScreen( n64_tl, screen_tl );
 	ConvertN64ToScreen( n64_br, screen_br );
 

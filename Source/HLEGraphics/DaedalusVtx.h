@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HLEGRAPHICS_DAEDALUSVTX_H_
 
 #include "Graphics/ColourValue.h"
-#include "Math/Vector2.h"
+
 
 
 
@@ -31,7 +31,7 @@ struct alignas(DATA_ALIGN) DaedalusVtx4
     glm::vec4	TransformedPos;
     glm::vec4	ProjectedPos;
     glm::vec4	Colour;
-    v2	Texture;
+    glm::vec2	Texture;
 
 	u32	ClipFlags;
 	u32 Pad;
@@ -63,7 +63,7 @@ struct DaedalusVtx
 	DaedalusVtx()
 	{
 	}
-	DaedalusVtx( const glm::vec3 & position, const u32 colour, const v2 & texture )
+	DaedalusVtx( const glm::vec3 & position, const u32 colour, const glm::vec2 & texture )
 		:	Texture( texture )
 		,	Colour( colour )
 		,	Position( position )
@@ -71,7 +71,7 @@ struct DaedalusVtx
 
 	}
 
-    v2		Texture ;
+    glm::vec2		Texture ;
 	c32		Colour ;
     glm::vec3		Position ;
 };
