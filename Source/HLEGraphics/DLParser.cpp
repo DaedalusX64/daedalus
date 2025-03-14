@@ -141,7 +141,7 @@ struct DList
 //
 //*****************************************************************************
 void RDP_MoveMemViewport(u32 address);
-void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
+void MatrixFromN64FixedPoint( glm::mat4 & mat, u32 address );
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
 
 enum LightSource
@@ -565,7 +565,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 //*****************************************************************************
 //
 //*****************************************************************************
-void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
+void MatrixFromN64FixedPoint( glm::mat4 & mat, u32 address )
 {
 	if( !IsAddressValid(address, 64, "MatrixFromN64FixedPoint") )
 		return;
@@ -575,10 +575,10 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 
 	for (u32 i = 0; i < 4; i++)
 	{
-		mat.m[i][0] = ((Imat->h[i].x << 16) | Imat->l[i].x) * fRecip;
-		mat.m[i][1] = ((Imat->h[i].y << 16) | Imat->l[i].y) * fRecip;
-		mat.m[i][2] = ((Imat->h[i].z << 16) | Imat->l[i].z) * fRecip;
-		mat.m[i][3] = ((Imat->h[i].w << 16) | Imat->l[i].w) * fRecip;
+		mat[i][0] = ((Imat->h[i].x << 16) | Imat->l[i].x) * fRecip;
+		mat[i][1] = ((Imat->h[i].y << 16) | Imat->l[i].y) * fRecip;
+		mat[i][2] = ((Imat->h[i].z << 16) | Imat->l[i].z) * fRecip;
+		mat[i][3] = ((Imat->h[i].w << 16) | Imat->l[i].w) * fRecip;
 	}
 }
 

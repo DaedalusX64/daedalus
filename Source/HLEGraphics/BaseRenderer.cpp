@@ -37,9 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_os.h"		// System type
 #include "Utility/Profiler.h"
 
-
+#include <glm/ext.hpp>
 
 #include <vector>
+
 #include <random> 
 #ifdef DAEDALUS_CTR
 struct ScePspFMatrix4
@@ -93,12 +94,12 @@ struct TempVerts
 
 extern "C"
 {
-void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
-void	_TnLVFPU_Plight( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
-void	_TnLVFPUDKR( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
-void	_TnLVFPUDKRB( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
-void	_TnLVFPUCBFD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const s8 * model_norm, u32 v0 );
-void	_TnLVFPUPD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtxPD * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const u8 * model_norm );
+void	_TnLVFPU( const glm::mat4 * world_matrix, const glm::mat4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
+void	_TnLVFPU_Plight( const glm::mat4 * world_matrix, const glm::mat4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
+void	_TnLVFPUDKR( u32 num_vertices, const glm::mat4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
+void	_TnLVFPUDKRB( u32 num_vertices, const glm::mat4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
+void	_TnLVFPUCBFD( const glm::mat4 * world_matrix, const glm::mat4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const s8 * model_norm, u32 v0 );
+void	_TnLVFPUPD( const glm::mat4 * world_matrix, const glm::mat4 * projection_matrix, const FiddledVtxPD * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const u8 * model_norm );
 
 void	_ConvertVertice( DaedalusVtx * dest, const DaedalusVtx4 * source );
 void	_ConvertVerticesIndexed( DaedalusVtx * dest, const DaedalusVtx4 * source, u32 num_vertices, const u16 * indices );
@@ -341,7 +342,7 @@ void BaseRenderer::InitViewport()
 	f32 w = mScreenWidth;
 	f32 h = mScreenHeight;
 
-	mScreenToDevice = Matrix4x4(
+	mScreenToDevice = glm::mat4(
 		2.f / w,       0.f,     0.f,     0.f,
 		    0.f,  -2.f / h,     0.f,     0.f,
 		    0.f,       0.f,     1.f,     0.f,
@@ -601,7 +602,7 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 	return vOut;
 }
 
-/*void BaseRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
+/*void BaseRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const glm::mat4 & mat_world )
 {
 	bool	env_map( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) );
 
@@ -1042,8 +1043,8 @@ glm::vec3 BaseRenderer::LightPointVert( const glm::vec4 & w ) const
 void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	UpdateWorldProject();
-	const Matrix4x4 & mat_world_project = mWorldProject;
-	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
+	const glm::mat4 & mat_world_project = mWorldProject;
+	const glm::mat4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%d %s] Texture[%s] EnvMap[%s] Fog[%s]", mTnL.NumLights, (mTnL.Flags.Light)? (mTnL.Flags.PointLight)? "Point":"Normal":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1073,8 +1074,8 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		glm::vec4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
 
 		glm::vec4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = mat_world_project.Transform( w );
-		mVtxProjected[i].TransformedPos = mat_world.Transform( w );
+		projected = mat_world_project * w;
+		mVtxProjected[i].TransformedPos = mat_world * w;
 
 		//	Initialise the clipping flags
 		//
@@ -1085,8 +1086,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		if ( mTnL.Flags.Light )
 		{
 			glm::vec3 model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
-			glm::vec3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
-			vecTransformedNormal = glm::normalize(vecTransformedNormal);
+			glm::vec3 vecTransformedNormal = glm::normalize(glm::mat3(mat_world) * model_normal);
 
 			glm::vec3 col;
 
@@ -1110,8 +1110,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 				// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
 				// If the vert is already lit, then there is no normal (and hence we can't generate tex coord)
 #if 1			// 1->Lets use mat_world_project instead of mat_world for nicer effect (see SSV space ship) //Corn
-				vecTransformedNormal = mat_world_project.TransformNormal( model_normal );
-				vecTransformedNormal = glm::normalize(vecTransformedNormal);
+				vecTransformedNormal = glm::normalize(glm::mat3(mat_world_project) * model_normal);	
 
 #endif
 
@@ -1181,8 +1180,8 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
-	const Matrix4x4 & mat_project = mProjectionMat;
-	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
+	const glm::mat4 & mat_project = mProjectionMat;
+	const glm::mat4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1205,10 +1204,10 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		glm::vec4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
 
 		glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
-		transformed = mat_world.Transform( w );
+		transformed = mat_world * w;
 
 		glm::vec4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = mat_project.Transform( transformed );
+		projected = mat_project * transformed;
 
 		//	Initialise the clipping flags
 		//
@@ -1224,8 +1223,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		if ( mTnL.Flags.Light )
 		{
 			glm::vec3 model_normal( mn[((i<<1)+0)^3], mn[((i<<1)+1)^3], vert.normz );
-			glm::vec3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
-			vecTransformedNormal = glm::normalize(vecTransformedNormal);
+			glm::vec3 vecTransformedNormal = glm::normalize(glm::mat3(mat_world) * model_normal);
 			const glm::vec3 & norm = vecTransformedNormal;
 			const glm::vec3 & col = mTnL.Lights[mTnL.NumLights].Colour;
 
@@ -1321,7 +1319,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboard)
 {	
-	const Matrix4x4 & mat_world_project = mModelViewStack[mDKRMatIdx];
+	const glm::mat4 & mat_world_project = mModelViewStack[mDKRMatIdx];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1340,16 +1338,19 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 		glm::vec4 & BaseVec( mVtxProjected[0].TransformedPos );
 
 		//Hack to worldproj matrix to scale and rotate billbords //Corn
-		Matrix4x4 mat( mModelViewStack[0]);
-		mat.mRaw[0] *= mModelViewStack[2].mRaw[0] * 0.5f;
-		mat.mRaw[4] *= mModelViewStack[2].mRaw[0] * 0.5f;
-		mat.mRaw[8] *= mModelViewStack[2].mRaw[0] * 0.5f;
-		mat.mRaw[1] *= mModelViewStack[2].mRaw[0] * 0.375f;
-		mat.mRaw[5] *= mModelViewStack[2].mRaw[0] * 0.375f;
-		mat.mRaw[9] *= mModelViewStack[2].mRaw[0] * 0.375f;
-		mat.mRaw[2] *= mModelViewStack[2].mRaw[10] * 0.5f;
-		mat.mRaw[6] *= mModelViewStack[2].mRaw[10] * 0.5f;
-		mat.mRaw[10] *= mModelViewStack[2].mRaw[10] * 0.5f;
+		glm::mat4 mat = mModelViewStack[0];
+
+		mat[0][0] *= mModelViewStack[2][0][0] * 0.5f;
+		mat[1][0] *= mModelViewStack[2][0][0] * 0.5f;
+		mat[2][0] *= mModelViewStack[2][0][0] * 0.5f;
+		
+		mat[0][1] *= mModelViewStack[2][0][0] * 0.375f;
+		mat[1][1] *= mModelViewStack[2][0][0] * 0.375f;
+		mat[2][1] *= mModelViewStack[2][0][0] * 0.375f;
+		
+		mat[0][2] *= mModelViewStack[2][2][2] * 0.5f;
+		mat[1][2] *= mModelViewStack[2][2][2] * 0.5f;
+		mat[2][2] *= mModelViewStack[2][2][2] * 0.5f;
 
 		for (u32 i = v0; i < v0 + n; i++)
 		{
@@ -1358,7 +1359,7 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 			w.y = *(s16*)((pVtxBase + 2) ^ 2);
 			w.z = *(s16*)((pVtxBase + 4) ^ 2);
 
-			w = mat.TransformNormal( w );
+			w = glm::normalize(glm::transpose(glm::inverse(glm::mat3(mat))) * w);
 
 			glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
 			transformed.x = BaseVec.x + w.x;
@@ -1403,7 +1404,7 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 			transformed.w = 1.0f;
 
 			glm::vec4 & projected( mVtxProjected[i].ProjectedPos );
-			projected = mat_world_project.Transform( transformed );	//Do projection
+			projected = mat_world_project * transformed;	//Do projection
 
 			// Set Clipflags
 			mVtxProjected[i].ClipFlags = set_clip_flags( projected );
@@ -1428,8 +1429,8 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 {
-	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-	const Matrix4x4 & mat_project = mProjectionMat;
+	const glm::mat4 & mat_world = mModelViewStack[mModelViewTop];
+	const glm::mat4 & mat_project = mProjectionMat;
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1450,9 +1451,9 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		// VTX Transform
 		//
 		glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
-		transformed = mat_world.Transform( w );
+		transformed = mat_world * w;
 		glm::vec4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = mat_project.Transform( transformed );
+		projected = mat_project * transformed;
 
 
 		// Set Clipflags //Corn
@@ -1461,9 +1462,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		if( mTnL.Flags.Light )
 		{
 			glm::vec3	model_normal((f32)mn[vert.cidx+3], (f32)mn[vert.cidx+2], (f32)mn[vert.cidx+1] );
-
-			glm::vec3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
-			vecTransformedNormal = glm::normalize(vecTransformedNormal);
+			glm::vec3 vecTransformedNormal = glm::normalize(glm::mat3(mat_world) * model_normal);
 
 			const glm::vec3 col = LightVert(vecTransformedNormal);
 			mVtxProjected[i].Colour.x = col.x;
@@ -1616,7 +1615,7 @@ void BaseRenderer::ResetMatrices(u32 size)
 
 	mMatStackSize = size;
 	mModelViewTop = 0;
-	mProjectionMat = mModelViewStack[0] = gMatrixIdentity;
+	mProjectionMat = mModelViewStack[0] = glm::mat4(1.0f);;
 	mWorldProjectValid = false;
 }
 
@@ -1964,7 +1963,7 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 #endif
 }
 
-extern void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
+extern void MatrixFromN64FixedPoint( glm::mat4 & mat, u32 address );
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1981,14 +1980,14 @@ void BaseRenderer::SetProjection(const u32 address, bool bReplace)
 		//so we translate them a bit along Z to make them stick :) //Corn
 		//
 		if( g_ROM.ZELDA_HACK )
-			mProjectionMat.mRaw[14] += 0.4f;
+		mProjectionMat[3][2] += 0.4f;
 		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-			mProjectionMat.mRaw[0] *= HD_SCALE;	//proper 16:9 scale
+		mProjectionMat[0][0] *= HD_SCALE;//proper 16:9 scale
 	}
 	else
 	{
 		MatrixFromN64FixedPoint( mTempMat, address);
-		MatrixMultiplyAligned( &mProjectionMat, &mTempMat, &mProjectionMat );
+		mProjectionMat *= mTempMat;
 	}
 
 	mWorldProjectValid = false;
@@ -2018,7 +2017,7 @@ void BaseRenderer::SetDKRMat(const u32 address, bool mul, u32 idx)
 	if( mul )
 	{
 		MatrixFromN64FixedPoint( mTempMat, address );
-		MatrixMultiplyAligned( &mModelViewStack[idx], &mTempMat, &mModelViewStack[0] );
+		mModelViewStack[idx] = mTempMat * mModelViewStack[0];
 	}
 	else
 	{
@@ -2026,7 +2025,7 @@ void BaseRenderer::SetDKRMat(const u32 address, bool mul, u32 idx)
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	const Matrix4x4 & mtx( mModelViewStack[idx] );
+	const glm::mat4 & mtx( mModelViewStack[idx] );
 	DL_PF("    Mtx_DKR: Index %d %s Address 0x%08x\n"
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
@@ -2055,12 +2054,14 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 			// Load ModelView matrix
 			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
 			//Hack to make GEX games work, need to multiply all elements with 2.0 //Corn
-			if( g_ROM.GameHacks == GEX_GECKO ) for(u32 i=0;i<16;i++) mModelViewStack[mModelViewTop].mRaw[i] += mModelViewStack[mModelViewTop].mRaw[i];
+			if (g_ROM.GameHacks == GEX_GECKO) {
+				mModelViewStack[mModelViewTop] *= 2.0f;  // Multiply entire matrix by 2
+			}
 		}
 		else	// Multiply ModelView matrix
 		{
 			MatrixFromN64FixedPoint( mTempMat, address);
-			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mTempMat, &mModelViewStack[mModelViewTop-1] );
+			mModelViewStack[mModelViewTop] = mTempMat * mModelViewStack[mModelViewTop - 1];
 		}
 	}
 	else	// NoPush
@@ -2074,7 +2075,7 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		{
 			// Multiply ModelView matrix
 			MatrixFromN64FixedPoint( mTempMat, address);
-			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mTempMat, &mModelViewStack[mModelViewTop] );
+			mModelViewStack[mModelViewTop] *= mTempMat;
 		}
 	}
 
@@ -2106,7 +2107,7 @@ inline void BaseRenderer::UpdateWorldProject()
 			mReloadProj = false;
 			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionMat) );
 		}
-		MatrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionMat );
+		mWorldProject = mProjectionMat * mModelViewStack[mModelViewTop];
 	}
 
 	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
@@ -2119,13 +2120,13 @@ inline void BaseRenderer::UpdateWorldProject()
 		//proper 16:9 scale
 		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 		{
-			mWorldProject.mRaw[0] *= HD_SCALE;
-			mWorldProject.mRaw[4] *= HD_SCALE;
-			mWorldProject.mRaw[8] *= HD_SCALE;
-			mWorldProject.mRaw[12] *= HD_SCALE;
+			mWorldProject[0][0] *= HD_SCALE;  // Column 0, Row 0
+			mWorldProject[1][0] *= HD_SCALE;  // Column 0, Row 1
+			mWorldProject[2][0] *= HD_SCALE;  // Column 0, Row 2
+			mWorldProject[3][0] *= HD_SCALE;  // Column 0, Row 3
 		}
 		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
-		mModelViewStack[mModelViewTop] = gMatrixIdentity;
+		mModelViewStack[mModelViewTop] = glm::mat4(1.0f);;
 	}
 }
 
@@ -2136,7 +2137,7 @@ inline void BaseRenderer::UpdateWorldProject()
 void BaseRenderer::PrintActive()
 {
 	UpdateWorldProject();
-	const Matrix4x4 & mat = mWorldProject;
+	const glm::mat4 & mat = mWorldProject;
 
 	DL_PF(
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
@@ -2171,14 +2172,14 @@ void BaseRenderer::InsertMatrix(u32 w0, u32 w1)
 	if (w0 & 0x20)
 	{
 		//Change fraction part
-		mWorldProject.m[y][x]   = (f32)(s32)mWorldProject.m[y][x] + ((f32)(w1 >> 16) / 65536.0f);
-		mWorldProject.m[y][x+1] = (f32)(s32)mWorldProject.m[y][x+1] + ((f32)(w1 & 0xFFFF) / 65536.0f);
+		mWorldProject[y][x]   = (f32)(s32)mWorldProject[y][x] + ((f32)(w1 >> 16) / 65536.0f);
+		mWorldProject[y][x+1] = (f32)(s32)mWorldProject[y][x+1] + ((f32)(w1 & 0xFFFF) / 65536.0f);
 	}
 	else
 	{
 		//Change integer part
-		mWorldProject.m[y][x]	= (f32)(s16)(w1 >> 16);
-		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF);
+		mWorldProject[y][x]	= (f32)(s16)(w1 >> 16);
+		mWorldProject[y][x+1] = (f32)(s16)(w1 & 0xFFFF);
 	}
 #ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF(

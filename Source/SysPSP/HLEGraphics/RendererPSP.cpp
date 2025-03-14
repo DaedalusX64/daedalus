@@ -2,7 +2,7 @@
 #include "Base/Types.h"
 
 #include <pspgu.h>
-
+#include <glm/gtc/type_ptr.hpp>  
 #include "Combiner/BlendConstant.h"
 #include "Combiner/CombinerTree.h"
 #include "Combiner/RenderSettings.h"
@@ -260,8 +260,10 @@ void RendererPSP::RestoreRenderStates()
 	sceGuTexWrap(GU_REPEAT,GU_REPEAT);
 
 	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	sceGuSetMatrix( GU_VIEW, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	sceGuSetMatrix( GU_MODEL, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+	glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+
+	sceGuSetMatrix(GU_VIEW, reinterpret_cast<const ScePspFMatrix4*>(glm::value_ptr(identity)));
+	sceGuSetMatrix(GU_MODEL, reinterpret_cast<const ScePspFMatrix4*>(glm::value_ptr(identity)));
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

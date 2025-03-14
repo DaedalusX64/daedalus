@@ -615,7 +615,7 @@ bool CTextureExplorerDebugMenuOption::OverrideDisplay() const
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
 
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
 
 	const f32		screen_width( 480.0f );
 	const f32		screen_height( 272.0f );

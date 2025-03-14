@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspdebug.h>
 #include <pspdisplay.h>
 #include <pspgu.h>
-
+#include <glm/gtc/type_ptr.hpp>  //
 #include "UI/ColourPulser.h"
 #include "Math/Matrix4x4.h"
 #include "Graphics/GraphicsContext.h"
@@ -201,7 +201,8 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, c
 	sceGuEnable(GU_BLEND);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+	glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
 
 	glm::vec2		tex_uv0( (float)0, (float)0 );
 	glm::vec2		tex_uv1( (float)width, (float)height );
@@ -238,7 +239,9 @@ void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuDisable(GU_BLEND);
 
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+
+	glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
 
 	p_verts[0].pos = glm::vec3( float( x ), float( y ), 0.0f );
 	p_verts[0].colour = colour;
@@ -264,7 +267,8 @@ void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuDisable(GU_BLEND);
 
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+	glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
 
 	p_verts[0].pos = glm::vec3( float( x0 ), float( y0 ), 0.0f );
 	p_verts[0].colour = colour;

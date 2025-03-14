@@ -23,7 +23,7 @@ public:
 private:
 	void 				MakeShaderConfigFromCurrentState(struct ShaderConfiguration * config) const;
 
-	void 				PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer);
+	void 				PrepareRenderState(const float* mat_project, bool disable_zbuffer);
 
 	void 				RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int count);
 	void 				RenderDaedalusVtxStreams(int prim, const float * positions, const TexCoord * uvs, const u32 * colours, int count);

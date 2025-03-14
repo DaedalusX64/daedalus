@@ -21,9 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HLEGRAPHICS_BASERENDERER_H_
 
 
-
-#include "Math/Matrix4x4.h"
-
 #include "HLEGraphics/DaedalusVtx.h"
 #include "HLEGraphics/TextureInfo.h"
 #include "Graphics/ColourValue.h"
@@ -413,9 +410,9 @@ protected:
 
 	virtual void		RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer ) = 0;
 
-	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
+	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const glm::mat4 & mat_world );
 	template< bool FogEnable, int TextureMode >
-	void ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
+	void ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const glm::mat4 & mat_world );
 
 
 	void				PrepareTrisClipped( TempVerts * temp_verts ) const;
@@ -483,10 +480,10 @@ protected:
 	//I think we should make this more deep to avoid any issues //Salvy
 	static const u32 MATRIX_STACK_SIZE = 20;
 
-	mutable Matrix4x4	mWorldProject;
-	Matrix4x4			mTempMat;
-	Matrix4x4			mProjectionMat;
-	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
+	mutable glm::mat4	mWorldProject;
+	glm::mat4			mTempMat;
+	glm::mat4			mProjectionMat;
+	glm::mat4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
 	u32					mModelViewTop;
 	u32					mMatStackSize;
 	mutable bool		mWorldProjectValid;
@@ -498,7 +495,7 @@ protected:
 	float				mScreenHeight;
 
 #if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES)
-	Matrix4x4			mScreenToDevice;					// Used by OSX renderer - scales screen coords (0..640 etc) to device coords (-1..+1)
+	glm::mat4			mScreenToDevice;					// Used by OSX renderer - scales screen coords (0..640 etc) to device coords (-1..+1)
 #endif
 
 	static const u32 	kMaxIndices = 320;					// We need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn
