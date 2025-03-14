@@ -53,7 +53,7 @@ public:
 	SBlendStateEntry	LookupBlendState( u64 mux, bool two_cycles );
 
 private:
-	void				RenderUsingCurrentBlendMode(const float (&mat_project)[16], DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, bool disable_zbuffer );
+	void				RenderUsingCurrentBlendMode(const float* mat_project, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, bool disable_zbuffer );
 	void				RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode );
 	void                DrawPrimitives(DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, bool has_texture);
 	

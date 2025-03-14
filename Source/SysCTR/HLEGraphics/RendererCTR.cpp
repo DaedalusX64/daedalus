@@ -18,6 +18,7 @@
 #include "Ultra/ultra_gbi.h"
 
 #include "Utility/Profiler.h"
+#include <glm/gtc/type_ptr.hpp> 
 
 BaseRenderer *gRenderer    = nullptr;
 RendererCTR  *gRendererCTR = nullptr;
@@ -448,7 +449,7 @@ void RendererCTR::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 }
 
 
-void RendererCTR::RenderUsingCurrentBlendMode(const float (&mat_project)[16], DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, bool disable_zbuffer )
+void RendererCTR::RenderUsingCurrentBlendMode(const float* mat_project, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, bool disable_zbuffer )
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf((float*)mat_project);
@@ -703,7 +704,7 @@ void RendererCTR::TexRect(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 &
 
 	glEnable(GL_TEXTURE_2D);
 
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
 }
 
 void RendererCTR::TexRectFlip(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)
@@ -760,7 +761,7 @@ void RendererCTR::TexRectFlip(u32 tile_idx, const glm::vec2 & xy0, const glm::ve
 
 	glEnable(GL_TEXTURE_2D);
 
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
 }
 
 void RendererCTR::FillRect(const glm::vec2 & xy0, const glm::vec2 & xy1, u32 color)
@@ -795,7 +796,7 @@ void RendererCTR::FillRect(const glm::vec2 & xy0, const glm::vec2 & xy1, u32 col
 	glDisable(GL_TEXTURE_2D);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_STRIP, true);
 
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
@@ -846,7 +847,7 @@ void RendererCTR::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	p_vertices[3].Texture.y = v1 * scale_y;
 
 	glEnable(GL_TEXTURE_2D);
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_STRIP, true);
 }
 
 void RendererCTR::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2,
@@ -889,7 +890,7 @@ void RendererCTR::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2,
 	p_vertices[3].Texture.y = t * scale_y;
 	
 	glEnable(GL_TEXTURE_2D);
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_FAN, true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_FAN, true);
 }
 
 bool CreateRenderer()
