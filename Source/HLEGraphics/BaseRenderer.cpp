@@ -1043,8 +1043,8 @@ glm::vec3 BaseRenderer::LightPointVert( const glm::vec4 & w ) const
 void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	UpdateWorldProject();
-	const glm::mat4 & mat_world_project = mWorldProject;
-	const glm::mat4 & mat_world = mModelViewStack[mModelViewTop];
+	alignas(DATA_ALIGN)  const glm::mat4 & mat_world_project = mWorldProject;
+	alignas(DATA_ALIGN) const glm::mat4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%d %s] Texture[%s] EnvMap[%s] Fog[%s]", mTnL.NumLights, (mTnL.Flags.Light)? (mTnL.Flags.PointLight)? "Point":"Normal":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1180,8 +1180,8 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
-	const glm::mat4 & mat_project = mProjectionMat;
-	const glm::mat4 & mat_world = mModelViewStack[mModelViewTop];
+	alignas(DATA_ALIGN)    const glm::mat4 & mat_project = mProjectionMat;
+	alignas(DATA_ALIGN)	const glm::mat4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1319,7 +1319,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboard)
 {	
-	const glm::mat4 & mat_world_project = mModelViewStack[mDKRMatIdx];
+	alignas(DATA_ALIGN) const glm::mat4 & mat_world_project = mModelViewStack[mDKRMatIdx];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1429,8 +1429,8 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 {
-	const glm::mat4 & mat_world = mModelViewStack[mModelViewTop];
-	const glm::mat4 & mat_project = mProjectionMat;
+	alignas(DATA_ALIGN) const glm::mat4 & mat_world = mModelViewStack[mModelViewTop];
+	alignas(DATA_ALIGN) const glm::mat4 & mat_project = mProjectionMat;
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -2025,7 +2025,7 @@ void BaseRenderer::SetDKRMat(const u32 address, bool mul, u32 idx)
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	const glm::mat4 & mtx( mModelViewStack[idx] );
+alignas(DATA_ALIGN)  const glm::mat4 & mtx( mModelViewStack[idx] );
 	DL_PF("    Mtx_DKR: Index %d %s Address 0x%08x\n"
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
@@ -2137,7 +2137,7 @@ inline void BaseRenderer::UpdateWorldProject()
 void BaseRenderer::PrintActive()
 {
 	UpdateWorldProject();
-	const glm::mat4 & mat = mWorldProject;
+	alignas(DATA_ALIGN) 	const glm::mat4 & mat = mWorldProject;
 
 	DL_PF(
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"

@@ -201,7 +201,7 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, c
 	sceGuEnable(GU_BLEND);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 
-	glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	alignas(DATA_ALIGN) glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
 
 	glm::vec2		tex_uv0( (float)0, (float)0 );
@@ -240,7 +240,7 @@ void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 	sceGuDisable(GU_BLEND);
 
 
-	glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	alignas(DATA_ALIGN) glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
 
 	p_verts[0].pos = glm::vec3( float( x ), float( y ), 0.0f );
@@ -267,7 +267,7 @@ void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuDisable(GU_BLEND);
 
-	glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	alignas(DATA_ALIGN) glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
 
 	p_verts[0].pos = glm::vec3( float( x0 ), float( y0 ), 0.0f );

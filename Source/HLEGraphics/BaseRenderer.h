@@ -480,10 +480,10 @@ protected:
 	//I think we should make this more deep to avoid any issues //Salvy
 	static const u32 MATRIX_STACK_SIZE = 20;
 
-	mutable glm::mat4	mWorldProject;
-	glm::mat4			mTempMat;
-	glm::mat4			mProjectionMat;
-	glm::mat4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
+	alignas(DATA_ALIGN) mutable glm::mat4	mWorldProject;
+	alignas(DATA_ALIGN) glm::mat4			mTempMat;
+	alignas(DATA_ALIGN) glm::mat4			mProjectionMat;
+	alignas(DATA_ALIGN) glm::mat4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
 	u32					mModelViewTop;
 	u32					mMatStackSize;
 	mutable bool		mWorldProjectValid;
