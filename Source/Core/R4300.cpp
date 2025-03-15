@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <random>
 #include <limits>
+#include <cmath>
 
 
 #include "Base/Macros.h"
@@ -63,7 +64,7 @@ std::default_random_engine R4300_Rand();
 #define R4300_AbsS(x) 		fabsf((x))
 #define R4300_AbsD(x) 		fabsf((x))
 #else
-#define R4300_IsNaN(x)		isnan((x))
+#define R4300_IsNaN(x)		std::isnan((x))
 #define R4300_Sqrt(x)		sqrtf((x))
 #define R4300_SqrtD(x)		sqrt((x))
 #define R4300_AbsS(x) 		fabsf((x))
