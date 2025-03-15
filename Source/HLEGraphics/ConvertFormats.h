@@ -94,11 +94,13 @@ static std::array<const u8, 32> FiveToEight = {
 
 static inline u32 RGBA16(u16 v)
 {
-	u32 r = FiveToEight[(v>>11)&0x1f];
-	u32 g = FiveToEight[(v>> 6)&0x1f];
-	u32 b = FiveToEight[(v>> 1)&0x1f];
-	u32 a = ((v     )&0x01)? 255 : 0;
-	return CONVERT_RGBA(r, g, b, a);
+    // Extract the 5-bit components and scale them to 8-bit values
+    u32 r = (v >> 11) * 255 / 31;  // Red, scaled from 5 bits (0-31) to 8 bits (0-255)
+    u32 g = ((v >> 6) & 0x1f) * 255 / 31;  // Green, same scaling
+    u32 b = ((v >> 1) & 0x1f) * 255 / 31;  // Blue, same scaling
+    u32 a = (v & 0x01) * 255;  // Alpha is either 0 or 255
+
+    return CONVERT_RGBA(r, g, b, a);
 }
 
 static inline u32 IA16(u16 v)
@@ -110,15 +112,17 @@ static inline u32 IA16(u16 v)
 
 static inline u32 I4(u8 v)
 {
-	u32 i = FourToEight[v & 0x0f];
-	return CONVERT_RGBA(i, i, i, i);
+    // Directly scale the 4-bit intensity (0-15) to 8-bit (0-255)
+    u32 i = (v & 0x0f) * 255 / 15;
+    return CONVERT_RGBA(i, i, i, i);
 }
 
 static inline u32 IA4(u8 v)
 {
-	u32 i = ThreeToEight[(v & 0x0f) >> 1];
-	u32 a = OneToEight[(v & 0x01)];
-	return CONVERT_RGBA(i, i, i, a);
+    // Directly scale the 4-bit intensity (0-7) to 8-bit (0-255) and the alpha (0-1)
+    u32 i = ((v >> 1) & 0x07) * 255 / 7; // Scale the intensity
+    u32 a = (v & 0x01) * 255; // Alpha is either 0 or 255
+    return CONVERT_RGBA(i, i, i, a);
 }
 
 static inline u32 YUV16(s32 Y, s32 U, s32 V)

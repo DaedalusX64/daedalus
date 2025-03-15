@@ -1,181 +1,123 @@
-/*
-Copyright (C) 2006 StrmnNrmn
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-
-
 #include "Base/Types.h"
-
-
-#include <stdlib.h>
-
+#include <cstdint>
+#include <vector>
 #include "HLEGraphics/DaedalusVtx.h"
 #include "SysPSP/HLEGraphics/ColourAdjuster.h"
+
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CColourAdjuster::Reset()
+void CColourAdjuster::Reset()
 {
-	mModulateMask = 0;
-	mSetMask = 0;
-	mSubtractMask = 0;
+    mModulateMask = 0;
+    mSetMask = 0;
+    mSubtractMask = 0;
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
+void CColourAdjuster::Process(DaedalusVtx* p_vertices, std::size_t num_verts) const
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( (mSetMask & mModulateMask & mSubtractMask) == 0, "Setting and modulating the same component" );
-	#endif
-	switch( mSetMask )
-	{
-		case 0:
-		break;
+#ifdef DAEDALUS_ENABLE_ASSERTS
+    DAEDALUS_ASSERT((mSetMask & mModulateMask & mSubtractMask) == 0, "Setting and modulating the same component");
+#endif
 
-		case COL32_MASK_RGBA:
-			{
-				for(u32 v = 0 ; v < num_verts; v++)
-				{
-					p_vertices[v].Colour = mSetColour;
-				}
-			}
-		break;
+    if (mSetMask) {
+        u32 clear_bits = ~mSetMask;
+        u32 set_bits = mSetColour.GetColour() & mSetMask;
 
-		default:
-			{
-				u32		clear_bits = ~mSetMask;
-				u32		set_bits = mSetColour.GetColour() & mSetMask;
+        for (std::size_t v = 0; v < num_verts; ++v) {
+            p_vertices[v].Colour = c32((p_vertices[v].Colour.GetColour() & clear_bits) | set_bits);
+        }
+    }
 
-				for(u32 v = 0; v < num_verts; v++)
-				{
-					p_vertices[v].Colour = c32( (p_vertices[v].Colour.GetColour() & clear_bits) | set_bits );
-				}
-			}
-		break;
-	}
+    if (mSubtractMask) {
+        switch (mSubtractMask) {
+        case COL32_MASK_RGB:
+            for (std::size_t v = 0; v < num_verts; ++v) {
+                p_vertices[v].Colour = p_vertices[v].Colour.SubRGB(mSubtractColour);
+            }
+            break;
 
-	switch( mSubtractMask )
-	{
-		case COL32_MASK_RGB:
-			{
-				for(u32 v = 0; v < num_verts; v++)
-				{
-					p_vertices[v].Colour = p_vertices[v].Colour.SubRGB( mSubtractColour );
-				}
-			}
-		break;
+        case COL32_MASK_A:
+            for (std::size_t v = 0; v < num_verts; ++v) {
+                p_vertices[v].Colour = p_vertices[v].Colour.SubA(mSubtractColour);
+            }
+            break;
 
-		case COL32_MASK_A:
-			{
-				for(u32 v = 0; v < num_verts; v++)
-				{
-					p_vertices[v].Colour = p_vertices[v].Colour.SubA( mSubtractColour );
-				}
-			}
-		break;
+        case COL32_MASK_RGBA:
+            for (std::size_t v = 0; v < num_verts; ++v) {
+                p_vertices[v].Colour = p_vertices[v].Colour.Sub(mSubtractColour);
+            }
+            break;
+        }
+    }
 
-		case COL32_MASK_RGBA:
-			{
-				for(u32 v = 0; v < num_verts; v++)
-				{
-					p_vertices[v].Colour = p_vertices[v].Colour.Sub( mSubtractColour );
-				}
-			}
-		break;
-	}
+    if (mModulateMask) {
+        switch (mModulateMask) {
+        case COL32_MASK_RGB:
+            for (std::size_t v = 0; v < num_verts; ++v) {
+                p_vertices[v].Colour = p_vertices[v].Colour.ModulateRGB(mModulateColour);
+            }
+            break;
 
-	switch( mModulateMask )
-	{
-		case COL32_MASK_RGB:
-			{
-				for(u32 v = 0; v < num_verts; v++)
-				{
-					p_vertices[v].Colour = p_vertices[v].Colour.ModulateRGB( mModulateColour );
-				}
-			}
-		break;
+        case COL32_MASK_A:
+            for (std::size_t v = 0; v < num_verts; ++v) {
+                p_vertices[v].Colour = p_vertices[v].Colour.ModulateA(mModulateColour);
+            }
+            break;
 
-		case COL32_MASK_A:
-			{
-				for(u32 v = 0; v < num_verts; v++)
-				{
-					p_vertices[v].Colour = p_vertices[v].Colour.ModulateA( mModulateColour );
-				}
-			}
-		break;
-
-		case COL32_MASK_RGBA:
-			{
-				for(u32 v = 0; v < num_verts; v++)
-				{
-					p_vertices[v].Colour = p_vertices[v].Colour.Modulate( mModulateColour );
-				}
-			}
-		break;
-	}
-
+        case COL32_MASK_RGBA:
+            for (std::size_t v = 0; v < num_verts; ++v) {
+                p_vertices[v].Colour = p_vertices[v].Colour.Modulate(mModulateColour);
+            }
+            break;
+        }
+    }
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CColourAdjuster::Set( u32 mask, c32 colour )
+void CColourAdjuster::Set(u32 mask, c32 colour)
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( (GetMask() & mask) == 0, "These bits have already been set" );
-	#endif
-	mSetMask |= mask;
+#ifdef DAEDALUS_ENABLE_ASSERTS
+    DAEDALUS_ASSERT((GetMask() & mask) == 0, "These bits have already been set");
+#endif
 
-	u32		current = mSetColour.GetColour();
-	u32		col = colour.GetColour();
+    mSetMask |= mask;
 
-	mSetColour = c32( ( current & ~mask) | (col & mask) );
+    // Using bitwise operations to update the color
+    mSetColour = c32((mSetColour.GetColour() & ~mask) | (colour.GetColour() & mask));
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CColourAdjuster::Modulate( u32 mask, c32 colour )
+void CColourAdjuster::Modulate(u32 mask, c32 colour)
 {
-		#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( (GetMask() & mask) == 0, "These bits have already been set" );
-	#endif
-	mModulateMask |= mask;
+#ifdef DAEDALUS_ENABLE_ASSERTS
+    DAEDALUS_ASSERT((GetMask() & mask) == 0, "These bits have already been set");
+#endif
 
-	u32		current = mModulateColour.GetColour();
-	u32		col = colour.GetColour();
+    mModulateMask |= mask;
 
-	mModulateColour = c32( ( current & ~mask) | (col & mask) );
+    // Using bitwise operations to update the modulate color
+    mModulateColour = c32((mModulateColour.GetColour() & ~mask) | (colour.GetColour() & mask));
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CColourAdjuster::Subtract( u32 mask, c32 colour )
+void CColourAdjuster::Subtract(u32 mask, c32 colour)
 {
-		#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( (GetMask() & mask) == 0, "These bits have already been set" );
-	#endif
-	mSubtractMask |= mask;
+#ifdef DAEDALUS_ENABLE_ASSERTS
+    DAEDALUS_ASSERT((GetMask() & mask) == 0, "These bits have already been set");
+#endif
 
-	u32		current = mSubtractColour.GetColour();
-	u32		col = colour.GetColour() ;
+    mSubtractMask |= mask;
 
-	mSubtractColour = c32( ( current & ~mask) | (col & mask) );
+    // Using bitwise operations to update the subtract color
+    mSubtractColour = c32((mSubtractColour.GetColour() & ~mask) | (colour.GetColour() & mask));
 }

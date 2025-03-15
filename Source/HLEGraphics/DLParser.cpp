@@ -585,58 +585,55 @@ void MatrixFromN64FixedPoint( glm::mat4 & mat, u32 address )
 //*****************************************************************************
 //
 //*****************************************************************************
-template< LightSource Source, u32 LightSize > 
+template<LightSource Source, u32 LightSize>
 void RDP_MoveMemLight(u32 address, u32 light_idx)
 {
-	if( Source == POINT_LIGHT_ACCLAIM )
-	{
-		DAEDALUS_ERROR("ACCLAIM Lightning not supported");
-		return;
+    if (light_idx >= LightSize)
+    {
+        DBGConsole_Msg(0, "Warning: invalid light # = %d, Max light # = %d", light_idx, LightSize);
+        return; // Early return to avoid further computation on invalid light_idx
+    }
 
-	}
+    if (!IsAddressValid(address, 40, "RDP_MoveMemLight"))
+        return;
 
-	if( light_idx >= LightSize )
-	{
-		DBGConsole_Msg(0, "Warning: invalid light # = %d, Max light # = %d", light_idx, LightSize);
-	}
-	else
-	{
-		if( !IsAddressValid(address, 40, "RDP_MoveMemLight") )
-			return;
+    // Cache pointer to light data in a local variable for faster access
+    const N64Light *light = reinterpret_cast<const N64Light*>(g_pu8RamBase + address);
 
-		const N64Light *light = (const N64Light*)(g_pu8RamBase + address);
+    // Local variables for light data to minimize member access
+    u8 r = light->r, g = light->g, b = light->b;
+    s8 dir_x = light->dir_x, dir_y = light->dir_y, dir_z = light->dir_z;
 
-		u8 r = light->r;
-		u8 g = light->g;
-		u8 b = light->b;
+    // Log light information
+    DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, dir_x, dir_y, dir_z);
 
-		s8 dir_x = light->dir_x;
-		s8 dir_y = light->dir_y;
-		s8 dir_z = light->dir_z;
+    // Set light color and direction
+    gRenderer->SetLightCol(light_idx, r, g, b);
+    gRenderer->SetLightDirection(light_idx, dir_x, dir_y, dir_z);
 
-		DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, dir_x, dir_y, dir_z);
+    // Handle light position and ambient light for different sources
+    switch (Source)
+    {
+        case POINT_LIGHT_MM:
+            gRenderer->SetLightPosition(light_idx, light->x1, light->y1, light->z1, 1.0f);
+            gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa);
+            break;
 
-		//Color
-		gRenderer->SetLightCol( light_idx, r, g, b );
+        case POINT_LIGHT_CBFD:
+            gRenderer->SetLightPosition(light_idx, light->x, light->y, light->z, light->w);
+            gRenderer->SetLightCBFD(light_idx, light->nonzero);
+            break;
 
-		//Direction
-		gRenderer->SetLightDirection( light_idx, dir_x, dir_y, dir_z );
+        case POINT_LIGHT_ACCLAIM:
+            DAEDALUS_ERROR("ACCLAIM Lightning not supported");
+            return;
 
-		//Position and Ambient light for Majora's Mask
-		if( Source == POINT_LIGHT_MM )
-		{ 
-			gRenderer->SetLightPosition(light_idx, light->x1, light->y1, light->z1, 1.0f);
-			gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa);
-		}
-
-		//Position and Ambient light for Conker
-		if( Source == POINT_LIGHT_CBFD )
-		{ 
-			gRenderer->SetLightPosition( light_idx, light->x, light->y, light->z , light->w);
-			gRenderer->SetLightCBFD( light_idx, light->nonzero);
-		}
-	}
+        default:
+            // Handle unknown light source case if needed
+            break;
+    }
 }
+
 
 //*****************************************************************************
 //
