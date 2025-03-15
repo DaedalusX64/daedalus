@@ -23,14 +23,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
-#include "Math/Math.h"	// VFPU Math
+
 #include "DrawTextUtilities.h"
 #include "Menu.h"
 #include "SplashScreen.h"
 #include "UIContext.h"
 #include "UIScreen.h"
+#include <cmath>
 
 #include "Interface/Preferences.h"
+
 
 extern bool g32bitColorMode;
 
@@ -93,7 +95,7 @@ void	ISplashScreen::Update( float elapsed_time , const glm::vec2 & stick[[maybe_
 
 void	ISplashScreen::Render()
 {
-	f32	alpha = 255.0f * sinf( mElapsedTime * PI / MAX_TIME );
+	f32	alpha = 255.0f * sinf( mElapsedTime * M_PI / MAX_TIME );
 	u8		a = 0;
 	if( alpha >= 255.0f )
 	{ a = 255;

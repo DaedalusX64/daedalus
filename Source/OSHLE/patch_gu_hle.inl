@@ -1,5 +1,11 @@
 #define TEST_DISABLE_GU_FUNCS DAEDALUS_PROFILE(__FUNCTION__);
 
+#ifdef DAEDALUS_PSP
+#include "SysPSP/Math/Math.h"
+#endif 
+
+#include <cmath>
+
 #ifndef DAEDALUS_PSP_USE_VFPU
 //Fixed point matrix
 static const u32 s_IdentMatrixL[16] =
@@ -117,6 +123,14 @@ inline void vfpu_matrix_Ortho(u8 *m, float left, float right, float bottom, floa
 		"vf2iz.q  C130, C130, 16\n"			// scale values to fixed point
 		"usv.q    C130, 48 + %0\n"
 	:"=m"(*m) : "r"(left), "r"(right), "r"(bottom), "r"(top), "r"(near), "r"(far), "r"(scale));
+}
+#endif
+
+#ifndef DAEDALUS_PSP
+inline void sincosf(float x, float * s, float * c)
+{
+	*s = sinf(x);
+	*c = cosf(x);
 }
 #endif
 
@@ -619,7 +633,7 @@ TEST_DISABLE_GU_FUNCS
 	y._u32 = gGPR[REG_a3]._u32_0;	//Y
 	z._u32 = QuickRead32Bits(pStackBase, 0x10);	//Z
 
-	sincosf(a._f32*(PI/180.0f), &s, &c);
+	sincosf(a._f32*(M_PI/180.0f), &s, &c);
 //According to the manual the vector should be normalized in this function (Seems to work fine without it but risky)
 //	vfpu_norm_3Dvec(&x._f32, &y._f32, &z._f32);
 

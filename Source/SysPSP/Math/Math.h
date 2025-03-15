@@ -4,8 +4,6 @@
 #include <math.h>
 #include <utility>
 
-//ToDo: Use M_PI for x86 platform?
-#define PI   3.141592653589793f
 
 #ifdef DAEDALUS_PSP
 #include <pspfpu.h>
@@ -146,24 +144,6 @@ Check above notes for cycles/comparison
 // #define sinf(x)			std::sinf((x))
 // #define cosf(x)			std::cosf((x))
 // #define sincosf(x,s,c)	std::sincosf(x, s, c)
-#else 
-
-
-inline void sincosf(float x, float * s, float * c)
-{
-	*s = sinf(x);
-	*c = cosf(x);
-}
-
-inline float InvSqrt(float x)
-{
-        float xhalf = 0.5f * x;
-        int i = *(int*)&x;            // store floating-point bits in integer
-        i = 0x5f3759df - (i >> 1);    // initial guess for Newton's method
-        x = *(float*)&i;              // convert new bits into float
-        x = x*(1.5f - xhalf*x*x);     // One round of Newton's method
-        return x;
-}
 
 #endif // DAEDALUS_PSP
 

@@ -49,7 +49,6 @@
 #include <vector>
 #include <algorithm>
 
-#include "Math/Math.h"	// VFPU Math
 #include "Utility/MathUtil.h"
 
 #include <pspctrl.h>

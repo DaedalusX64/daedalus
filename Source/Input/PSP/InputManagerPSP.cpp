@@ -12,7 +12,7 @@
 #include "Interface/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
-#include "Math/Math.h"	// VFPU Math
+
 #include "Utility/MathUtil.h"
 
 #include "Utility/IniFile.h"

@@ -21,9 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include "Graphics/ColourValue.h"
-#include "Math/Math.h"	// VFPU Math
-#include "ColourPulser.h"
 
+#include "ColourPulser.h"
+#include <cmath>
+
+#ifdef DAEDALUS_PSP
+#include "SysPSP/Math/Math.h"
+#endif
 
 CColourPulser::CColourPulser( c32 dim_colour, c32 bright_colour, u32 cycle_period )
 :	mTimeCounter( 0 )
@@ -41,7 +45,7 @@ void	CColourPulser::Update( u32 elapsed_ms )
 
 	f32	cycle_fraction = static_cast<f32>(mTimeCounter) / static_cast<f32>(mCyclePeriod);
 
-	f32	sin_val = cosf( cycle_fraction * 2.0f * PI );				// In range -1..+1
+	f32	sin_val = cosf( cycle_fraction * 2.0f * M_PI );				// In range -1..+1
 	f32	factor = ( sin_val + 1.0f ) / 2.0f;							// In range 0..1
 
 	mCurrentColour = mDimColour.Interpolate( mBrightColour, factor );

@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/ROM.h"
 #include "Core/Memory.h"
-#include "Math/Math.h"
+
 
 #include "Debug/DBGConsole.h"
 #include "Ultra/ultra_gbi.h"

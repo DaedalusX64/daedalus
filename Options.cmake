@@ -246,12 +246,6 @@ if(DAEDALUS_PROFILE_INTERFACE)
    option(DAEDALUS_GPROF "" ON)
 endif()
 
-if(DAEDALUS_PROFILE_MATH)
-    message("DAEDALUS_PROFILE_MATH=ON")
-    add_compile_definitions(DAEDALUS_PROFILE_MATH)
-   option(DAEDALUS_GPROF "" ON)
-endif()
-
 if(DAEDALUS_PROFILE_OSHLE)
     message("DAEDALUS_PROFILE_OSHLE=ON")
     add_compile_definitions(DAEDALUS_PROFILE_OSHLE)
