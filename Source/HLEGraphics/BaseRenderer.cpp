@@ -2161,7 +2161,7 @@ void BaseRenderer::InsertMatrix(u32 w0, u32 w1)
 	//Make sure WP matrix is up to date before changing WP matrix
 	if( !mWorldProjectValid )
 	{
-		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionMat;
+		mWorldProject = mProjectionMat * mModelViewStack[mModelViewTop];
 		mWorldProjectValid = true;
 	}
 
