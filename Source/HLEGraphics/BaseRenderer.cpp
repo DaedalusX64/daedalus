@@ -2061,7 +2061,7 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		else	// Multiply ModelView matrix
 		{
 			MatrixFromN64FixedPoint( mTempMat, address);
-			mModelViewStack[mModelViewTop] = mTempMat * mModelViewStack[mModelViewTop - 1];
+			mModelViewStack[mModelViewTop] = mModelViewStack[mModelViewTop - 1] * mTempMat;
 		}
 	}
 	else	// NoPush
