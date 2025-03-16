@@ -2003,10 +2003,10 @@ void BaseRenderer::SetProjection(const u32 address, bool bReplace)
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n",
-		mProjectionMat.m[0][0], mProjectionMat.m[0][1], mProjectionMat.m[0][2], mProjectionMat.m[0][3],
-		mProjectionMat.m[1][0], mProjectionMat.m[1][1], mProjectionMat.m[1][2], mProjectionMat.m[1][3],
-		mProjectionMat.m[2][0], mProjectionMat.m[2][1], mProjectionMat.m[2][2], mProjectionMat.m[2][3],
-		mProjectionMat.m[3][0], mProjectionMat.m[3][1], mProjectionMat.m[3][2], mProjectionMat.m[3][3]);
+		mProjectionmat[0][0], mProjectionmat[0][1], mProjectionmat[0][2], mProjectionmat[0][3],
+		mProjectionmat[1][0], mProjectionmat[1][1], mProjectionmat[1][2], mProjectionmat[1][3],
+		mProjectionmat[2][0], mProjectionmat[2][1], mProjectionmat[2][2], mProjectionmat[2][3],
+		mProjectionmat[3][0], mProjectionmat[3][1], mProjectionmat[3][2], mProjectionmat[3][3]);
 		#endif
 }
 
@@ -2036,10 +2036,10 @@ alignas(DATA_ALIGN)  const glm::mat4 & mtx( mModelViewStack[idx] );
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
 			idx, mul ? "Mul" : "Load", address,
-			mtx.m[0][0], mtx.m[0][1], mtx.m[0][2], mtx.m[0][3],
-			mtx.m[1][0], mtx.m[1][1], mtx.m[1][2], mtx.m[1][3],
-			mtx.m[2][0], mtx.m[2][1], mtx.m[2][2], mtx.m[2][3],
-			mtx.m[3][0], mtx.m[3][1], mtx.m[3][2], mtx.m[3][3]);
+			mtx[0][0], mtx[0][1], mtx[0][2], mtx[0][3],
+			mtx[1][0], mtx[1][1], mtx[1][2], mtx[1][3],
+			mtx[2][0], mtx[2][1], mtx[2][2], mtx[2][3],
+			mtx[3][0], mtx[3][1], mtx[3][2], mtx[3][3]);
 #endif
 }
 //*****************************************************************************
@@ -2148,10 +2148,10 @@ void BaseRenderer::PrintActive()
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
-		mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
-		mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
-		mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
-		mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
+		mat[0][0], mat[0][1], mat[0][2], mat[0][3],
+		mat[1][0], mat[1][1], mat[1][2], mat[1][3],
+		mat[2][0], mat[2][1], mat[2][2], mat[2][3],
+		mat[3][0], mat[3][1], mat[3][2], mat[3][3]);
 }
 #endif
 

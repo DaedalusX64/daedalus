@@ -48,8 +48,8 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 			u8 c = *(u8*)((psSrc + 8) ^ 3);	//B
 			u8 d = *(u8*)((psSrc + 9) ^ 3);	//A
 
-			const v4 & t = gRenderer->GetTransformedVtxPos( idx );
-			const v4 & p = gRenderer->GetProjectedVtxPos( idx );
+			const glm::vec4 & t = gRenderer->GetTransformedVtxPos( idx );
+			const glm::vec4 & p = gRenderer->GetProjectedVtxPos( idx );
 			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    #%02d Pos:{% 0.1f,% 0.1f,% 0.1f}->{% 0.1f,% 0.1f,% 0.1f} Proj:{% 6f,% 6f,% 6f,% 6f} RGBA:{%02x%02x%02x%02x}",
 				idx, x, y, z, t.x, t.y, t.z, p.x/p.w, p.y/p.w, p.z/p.w, p.w, a, b, c, d );

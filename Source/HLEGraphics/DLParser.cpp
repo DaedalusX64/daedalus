@@ -327,8 +327,8 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 			f32 tu = f32(nTU) * (1.0f / 32.0f);
 			f32 tv = f32(nTV) * (1.0f / 32.0f);
 
-			const v4 & t = gRenderer->GetTransformedVtxPos( idx );
-			const v4 & p = gRenderer->GetProjectedVtxPos( idx );
+			const glm::vec4 & t = gRenderer->GetTransformedVtxPos( idx );
+			const glm::vec4 & p = gRenderer->GetProjectedVtxPos( idx );
 
 			psSrc += 8;			// Increase by 16 bytes
 			pcSrc += 16;
