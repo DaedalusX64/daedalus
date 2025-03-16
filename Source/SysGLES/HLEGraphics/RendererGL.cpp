@@ -19,6 +19,7 @@
 #include "HLEGraphics/RDPStateManager.h"
 #include "Ultra/ultra_gbi.h"
 #include "SysGLES/HLEGraphics/RendererGL.h"
+#include <glm/gtc/type_ptr.hpp> 
 
 #include "Base/Macros.h"
 #include "Utility/Paths.h"
@@ -603,11 +604,6 @@ void RendererGL::MakeShaderConfigFromCurrentState(ShaderConfiguration * config) 
     }
 }
 
-// -----------------------------------------------------------------------------
-// RendererGL - the class from your snippet
-// -----------------------------------------------------------------------------
-RendererGL::RendererGL()  {}
-RendererGL::~RendererGL() {}
 
 // -----------------------------------------------------------------------------
 // RestoreRenderStates() - remove desktop-only calls like glShadeModel, glDisable(GL_FOG)
@@ -887,7 +883,7 @@ inline u32 MakeMirror(u32 mirror, u32 m)
     return (mirror && m) ? (1<<m) : 0;
 }
 
-void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer) {
+void RendererGL::PrepareRenderState(const float* mat_project, bool disable_zbuffer) {
     DAEDALUS_PROFILE("RendererGL::PrepareRenderState");
 
     if (disable_zbuffer) {
@@ -1026,7 +1022,7 @@ void RendererGL::RenderTriangles(DaedalusVtx* p_vertices, u32 num_vertices, bool
     RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }
 
-void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
+void RendererGL::TexRect(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)
 {
     // FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
 
@@ -1038,8 +1034,8 @@ void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord
 
     PrepareRenderState(glm::value_ptr(mScreenToDevice), gRDPOtherMode.depth_source ? false : true);
 
-    v2 screen0;
-    v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
     ConvertN64ToScreen( xy0, screen0 );
     ConvertN64ToScreen( xy1, screen1 );
 
@@ -1076,7 +1072,7 @@ void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord
 #endif
 }
 
-void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
+void RendererGL::TexRectFlip(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)
 {
     UpdateTileSnapshots( tile_idx );
 
@@ -1086,8 +1082,8 @@ void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexC
 
     PrepareRenderState(glm::value_ptr(mScreenToDevice), gRDPOtherMode.depth_source ? false : true);
 
-    v2 screen0;
-    v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
     ConvertN64ToScreen( xy0, screen0 );
     ConvertN64ToScreen( xy1, screen1 );
 
@@ -1124,12 +1120,12 @@ void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexC
 #endif
 }
 
-void RendererGL::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
+void RendererGL::FillRect(const glm::vec2 & xy0, const glm::vec2 & xy1, u32 color)
 {
     PrepareRenderState(glm::value_ptr(mScreenToDevice), gRDPOtherMode.depth_source ? false : true);
-
-    v2 screen0;
-    v2 screen1;
+	
+    glm::vec2 screen0;
+	glm::vec2 screen1;
     ConvertN64ToScreen( xy0, screen0 );
     ConvertN64ToScreen( xy1, screen1 );
 
