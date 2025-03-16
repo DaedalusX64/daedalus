@@ -260,7 +260,7 @@ void RendererPSP::RestoreRenderStates()
 	sceGuTexWrap(GU_REPEAT,GU_REPEAT);
 
 	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	alignas(DATA_ALIGN) 	glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
 
 	sceGuSetMatrix(GU_VIEW, reinterpret_cast<const ScePspFMatrix4*>(glm::value_ptr(identity)));
 	sceGuSetMatrix(GU_MODEL, reinterpret_cast<const ScePspFMatrix4*>(glm::value_ptr(identity)));
@@ -782,163 +782,181 @@ void RendererPSP::TexRect( u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 
 #endif
 }
 
-void RendererPSP::TexRectFlip(u32 tile_idx, const glm::vec2& xy0, const glm::vec2& xy1, TexCoord st0, TexCoord st1)
+void RendererPSP::TexRectFlip( u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1 )
 {
-    mTnL.Flags.Fog = 0; // For now we force fog off for textrect, normally it should be fogged when depth_source is set //Corn
+	mTnL.Flags.Fog = 0;	//For now we force fog off for textrect, normally it should be fogged when depth_source is set //Corn
 
-    UpdateTileSnapshots(tile_idx);
+	UpdateTileSnapshots( tile_idx );
 
-    // Prepare the texture coordinates (UVs)
-    PrepareTexRectUVs(&st0, &st1);
+	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
+	PrepareTexRectUVs(&st0, &st1);
 
-    // Convert fixed point UVs to floating point
-    glm::vec2 uv0((float)st0.s / 32.f, (float)st0.t / 32.f);
-    glm::vec2 uv1((float)st1.s / 32.f, (float)st1.t / 32.f);
+	// Convert fixed point uvs back to floating point format.
+	// NB: would be nice to pass these as s16 ints, and use GU_TEXTURE_16BIT
+	glm::vec2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
+	glm::vec2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
 
-    glm::vec2 screen0, screen1;
-    // Convert from N64 to screen space
-    ConvertN64ToScreen(xy0, screen0);
-    ConvertN64ToScreen(xy1, screen1);
+	glm::vec2 screen0;
+	glm::vec2 screen1;
+	// FIXME(strmnnrmn): why is VT_FULLSCREEN_HD code in TexRect() not also done here?
+	ConvertN64ToScreen( xy0, screen0 );
+	ConvertN64ToScreen( xy1, screen1 );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    DL_PF("    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y);
-    DL_PF("    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y);
+	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 #endif
+	DaedalusVtx * p_vertices = static_cast<DaedalusVtx *>(sceGuGetMemory(4 * sizeof(DaedalusVtx)));
 
-    // Use a vector for dynamic memory allocation
-    std::vector<DaedalusVtx> p_vertices(4);
+	p_vertices[0].Position.x = screen0.x;
+	p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.z = 0.0f;
+	p_vertices[0].Colour = c32(0xffffffff);
+	p_vertices[0].Texture.x = uv0.x;
+	p_vertices[0].Texture.y = uv0.y;
 
-    // Helper function to set up each vertex
-    auto setVertex = [](DaedalusVtx& vertex, const glm::vec2& position, const glm::vec2& uv) {
-        vertex.Position = {position.x, position.y, 0.0f};
-        vertex.Colour = c32(0xffffffff);
-        vertex.Texture = {uv.x, uv.y};
-    };
+	p_vertices[1].Position.x = screen1.x;
+	p_vertices[1].Position.y = screen0.y;
+	p_vertices[1].Position.z = 0.0f;
+	p_vertices[1].Colour = c32(0xffffffff);
+	p_vertices[1].Texture.x = uv0.x;
+	p_vertices[1].Texture.y = uv1.y;
 
-    // Set up the vertices
-    setVertex(p_vertices[0], screen0, uv0);
-    setVertex(p_vertices[1], {screen1.x, screen0.y}, {uv0.x, uv1.y});
-    setVertex(p_vertices[2], {screen0.x, screen1.y}, {uv1.x, uv0.y});
-    setVertex(p_vertices[3], screen1, uv1);
+	p_vertices[2].Position.x = screen0.x;
+	p_vertices[2].Position.y = screen1.y;
+	p_vertices[2].Position.z = 0.0f;
+	p_vertices[2].Colour = c32(0xffffffff);
+	p_vertices[2].Texture.x = uv1.x;
+	p_vertices[2].Texture.y = uv0.y;
 
-    // Render the rectangle using the current blend mode
-    // FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
-    RenderUsingCurrentBlendMode(p_vertices.data(), 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true);
+	p_vertices[3].Position.x = screen1.x;
+	p_vertices[3].Position.y = screen1.y;
+	p_vertices[3].Position.z = 0.0f;
+	p_vertices[3].Colour = c32(0xffffffff);
+	p_vertices[3].Texture.x = uv1.x;
+	p_vertices[3].Texture.y = uv1.y;
+
+	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
+	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    ++mNumRect;
+	++mNumRect;
 #endif
 }
 
-void RendererPSP::FillRect(const glm::vec2& xy0, const glm::vec2& xy1, u32 color)
+void RendererPSP::FillRect( const glm::vec2 & xy0, const glm::vec2 & xy1, u32 color )
 {
-    /*
-    if ((gRDPOtherMode._u64 & 0xffff0000) == 0x5f500000) // Used by Wave Racer
-    {
-        // This blend mode is mem*0 + mem*1, so we don't need to render it... Very odd!
-        DAEDALUS_ERROR("  mem*0 + mem*1 - skipped");
-        return;
-    }
-    */
-    // This is for C&C; It might break other stuff (I'm not sure if we should allow alpha or not..)
-    // color |= 0xff000000;
+/*
+	if ( (gRDPOtherMode._u64 & 0xffff0000) == 0x5f500000 )	//Used by Wave Racer
+	{
+		// this blend mode is mem*0 + mem*1, so we don't need to render it... Very odd!
+		DAEDALUS_ERROR("	mem*0 + mem*1 - skipped");
+		return;
+	}
+*/
+	// This if for C&C - It might break other stuff (I'm not sure if we should allow alpha or not..)
+	//color |= 0xff000000;
 
-    glm::vec2 screen0, screen1;
-    ConvertN64ToScreen(xy0, screen0);
-    ConvertN64ToScreen(xy1, screen1);
+	glm::vec2 screen0;
+	glm::vec2 screen1;
+	ConvertN64ToScreen( xy0, screen0 );
+	ConvertN64ToScreen( xy1, screen1 );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    DL_PF("    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y);
+	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 #endif
+	DaedalusVtx * p_vertices = static_cast<DaedalusVtx *>(sceGuGetMemory(2 * sizeof(DaedalusVtx)));
 
-    // Use std::vector for dynamic memory management
-    std::vector<DaedalusVtx> p_vertices(2);
+	// No need for Texture.x/y as we don't do any texturing for fillrect
+	p_vertices[0].Position.x = screen0.x;
+	p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.z = 0.0f;
+	p_vertices[0].Colour = c32(color);
+	//p_vertices[0].Texture.x = 0.0f;
+	//p_vertices[0].Texture.y = 0.0f;
 
-    // Helper lambda function to set up the vertices
-    auto setVertex = [](DaedalusVtx& vertex, const glm::vec2& position, u32 color) {
-        vertex.Position = {position.x, position.y, 0.0f};
-        vertex.Colour = c32(color);
-    };
+	p_vertices[1].Position.x = screen1.x;
+	p_vertices[1].Position.y = screen1.y;
+	p_vertices[1].Position.z = 0.0f;
+	p_vertices[1].Colour = c32(color);
+	//p_vertices[1].Texture.x = 1.0f;
+	//p_vertices[1].Texture.y = 0.0f;
 
-    // Set up the vertices with the given positions and color
-    setVertex(p_vertices[0], screen0, color);
-    setVertex(p_vertices[1], screen1, color);
-
-    // Render the filled rectangle with the current blend mode
-    // FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
-    RenderUsingCurrentBlendMode(p_vertices.data(), 2, GU_SPRITES, GU_TRANSFORM_2D, true);
+	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
+	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    ++mNumRect;
+	++mNumRect;
 #endif
 }
+
 void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-	f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture)
+								f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture)
 {
-texture->InstallTexture();
-DAEDALUS_PROFILE("RendererPSP::Draw2DTexture");
+	texture->InstallTexture();
+	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
+	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 
-// Use std::vector for vertex management
-std::vector<TextureVtx> p_verts(4);
+	// Enable or Disable ZBuffer test
+	if ( (mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
+	{
+		sceGuEnable(GU_DEPTH_TEST);
+	}
+	else
+	{
+		sceGuDisable(GU_DEPTH_TEST);
+	}
 
-// Enable or Disable ZBuffer test based on flags
-if ((mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd) {
-sceGuEnable(GU_DEPTH_TEST);
-} else {
-sceGuDisable(GU_DEPTH_TEST);
+	// GL_TRUE to disable z-writes
+	sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
+	//sceGuShadeModel(GU_FLAT);
+
+	//ToDO: Set alpha/blend states according RenderUsingCurrentBlendMode?
+	sceGuTexFilter(GU_LINEAR, GU_LINEAR);
+	sceGuDisable(GU_ALPHA_TEST);
+	sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
+
+	sceGuEnable(GU_BLEND);
+	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
+
+	// Handle large images (width > 512) with blitting, since the PSP HW can't handle
+	// Handling height > 512 doesn't work well? Ignore for now
+	if( u1 >= 512.f )
+	{
+		const std::shared_ptr<CNativeTexture> texture = mBoundTexture[0];
+		Draw2DTextureBlit( x0, y0, x1, y1, u0, v0, u1, v1, texture );
+		return;
+	}
+
+	//TODO: Investigate why handeling (height > 512) doesn't work?
+	DAEDALUS_ASSERT(v1 < 512.f, "Large textures with with height %d not supported",v1);
+
+	p_verts[0].pos.x = N64ToScreenX(x0);
+	p_verts[0].pos.y = N64ToScreenY(y0);
+	p_verts[0].pos.z = 0.0f;
+	p_verts[0].t0.x  = u0;
+	p_verts[0].t0.y  = v0;
+
+	p_verts[1].pos.x = N64ToScreenX(x1);
+	p_verts[1].pos.y = N64ToScreenY(y0);
+	p_verts[1].pos.z = 0.0f;
+	p_verts[1].t0.x  = u1;
+	p_verts[1].t0.y  = v0;
+
+	p_verts[2].pos.x = N64ToScreenX(x0);
+	p_verts[2].pos.y = N64ToScreenY(y1);
+	p_verts[2].pos.z = 0.0f;
+	p_verts[2].t0.x  = u0;
+	p_verts[2].t0.y  = v1;
+
+	p_verts[3].pos.x = N64ToScreenX(x1);
+	p_verts[3].pos.y = N64ToScreenY(y1);
+	p_verts[3].pos.z = 0.0f;
+	p_verts[3].t0.x  = u1;
+	p_verts[3].t0.y  = v1;
+
+	sceGuDrawArray( GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts );
 }
-
-// Set depth mask based on z_upd
-sceGuDepthMask(gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE);
-
-// Set texture filter, alpha test and texture function
-sceGuTexFilter(GU_LINEAR, GU_LINEAR);
-sceGuDisable(GU_ALPHA_TEST);
-sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
-
-// Enable blending and texture wrap
-sceGuEnable(GU_BLEND);
-sceGuTexWrap(GU_CLAMP, GU_CLAMP);
-
-// Handle large textures by blitting if width is >= 512
-if (u1 >= 512.f) {
-const std::shared_ptr<CNativeTexture> texture = mBoundTexture[0];
-Draw2DTextureBlit(x0, y0, x1, y1, u0, v0, u1, v1, texture);
-return;
-}
-
-// Ensure height < 512 for textures
-DAEDALUS_ASSERT(v1 < 512.f, "Large textures with height %f not supported", v1);
-
-// Set up vertex positions and texture coordinates
-p_verts[0].pos.x = N64ToScreenX(x0);
-p_verts[0].pos.y = N64ToScreenY(y0);
-p_verts[0].pos.z = 0.0f;
-p_verts[0].t0.x = u0;
-p_verts[0].t0.y = v0;
-
-p_verts[1].pos.x = N64ToScreenX(x1);
-p_verts[1].pos.y = N64ToScreenY(y0);
-p_verts[1].pos.z = 0.0f;
-p_verts[1].t0.x = u1;
-p_verts[1].t0.y = v0;
-
-p_verts[2].pos.x = N64ToScreenX(x0);
-p_verts[2].pos.y = N64ToScreenY(y1);
-p_verts[2].pos.z = 0.0f;
-p_verts[2].t0.x = u0;
-p_verts[2].t0.y = v1;
-
-p_verts[3].pos.x = N64ToScreenX(x1);
-p_verts[3].pos.y = N64ToScreenY(y1);
-p_verts[3].pos.z = 0.0f;
-p_verts[3].t0.x = u1;
-p_verts[3].t0.y = v1;
-
-// Draw the texture quad using GU_TRIANGLE_STRIP
-sceGuDrawArray(GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts.data());
-}
-
 
 void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 								 f32 x2, f32 y2, f32 x3, f32 y3,
@@ -1007,102 +1025,97 @@ void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 // The following blitting code was taken from The TriEngine.
 // See http://www.assembla.com/code/openTRI for more information.
 void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
-	f32 u0, f32 v0, f32 u1, f32 v1,
-	const std::shared_ptr<CNativeTexture> texture)
+									f32 u0, f32 v0, f32 u1, f32 v1,
+									const std::shared_ptr<CNativeTexture> texture)
 {
-if (texture == nullptr)
-{
-DAEDALUS_ERROR("No texture in Draw2DTextureBlit");
-return;
+	if (texture == nullptr)
+	{
+		DAEDALUS_ERROR("No texture in Draw2DTextureBlit");
+		return;
+	}
+
+	f32 cur_v = v0;
+	f32 cur_y = y;
+	f32 v_end = v1;
+	f32 y_end = height;
+	f32 vslice = 512.f;
+	f32 ystep = (height/(v1-v0) * vslice);
+	f32 vstep = (v1-v0) > 0 ? vslice : -vslice;
+
+	f32 x_end = width;
+	f32 uslice = 64.f;
+	//f32 ustep = (u1-u0)/width * xslice;
+	f32 xstep = (width/(u1-u0) * uslice);
+	f32 ustep = (u1-u0) > 0 ? uslice : -uslice;
+
+	const u8* data = static_cast<const u8*>(texture->GetData());
+
+	for ( ; cur_y < y_end; cur_y+=ystep, cur_v+=vstep )
+	{
+		f32 cur_u = u0;
+		f32 cur_x = x;
+		f32 u_end = u1;
+
+		f32 poly_height = ((cur_y+ystep) > y_end) ? (y_end-cur_y) : ystep;
+		f32 source_height = vstep;
+
+		// support negative vsteps
+		if ((vstep > 0) && (cur_v+vstep > v_end))
+		{
+			source_height = (v_end-cur_v);
+		}
+		else if ((vstep < 0) && (cur_v+vstep < v_end))
+		{
+			source_height = (cur_v-v_end);
+		}
+
+		const u8* udata = data;
+		// blit maximizing the use of the texture-cache
+		for( ; cur_x < x_end; cur_x+=xstep, cur_u+=ustep )
+		{
+			// support large images (width > 512)
+			if (cur_u>512.f || cur_u+ustep>512.f)
+			{
+				s32 off = (ustep>0) ? ((int)cur_u & ~31) : ((int)(cur_u+ustep) & ~31);
+
+				udata += off * GetBitsPerPixel( texture->GetFormat() );
+				cur_u -= off;
+				u_end -= off;
+				
+				 sceGuTexImage(0, std::min<u32>(512,texture->GetCorrectedWidth()), std::min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), udata);
+			}
+			TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
+
+			//f32 poly_width = ((cur_x+xstep) > x_end) ? (x_end-cur_x) : xstep;
+			f32 poly_width = xstep;
+			f32 source_width = ustep;
+
+			// support negative usteps
+			if ((ustep > 0) && (cur_u+ustep > u_end))
+			{
+				source_width = (u_end-cur_u);
+			}
+			else if ((ustep < 0) && (cur_u+ustep < u_end))
+			{
+				source_width = (cur_u-u_end);
+			}
+
+			p_verts[0].t0.x = cur_u;
+			p_verts[0].t0.y = cur_v;
+			p_verts[0].pos.x = N64ToScreenX(cur_x);
+			p_verts[0].pos.y = N64ToScreenY(cur_y);
+			p_verts[0].pos.z = 0;
+
+			p_verts[1].t0.x = cur_u + source_width;
+			p_verts[1].t0.y = cur_v + source_height;
+			p_verts[1].pos.x = N64ToScreenX(cur_x + poly_width);
+			p_verts[1].pos.y = N64ToScreenY(cur_y + poly_height);
+			p_verts[1].pos.z = 0;
+
+			sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts );
+		}
+	}
 }
-
-const f32 vslice = 512.f;
-const f32 uslice = 64.f;
-
-// Initialize start values
-f32 cur_v = v0;
-f32 cur_y = y;
-f32 v_end = v1;
-f32 y_end = height;
-f32 ystep = (height / (v1 - v0)) * vslice;
-f32 vstep = (v1 - v0) > 0 ? vslice : -vslice;
-
-f32 x_end = width;
-f32 xstep = (width / (u1 - u0)) * uslice;
-f32 ustep = (u1 - u0) > 0 ? uslice : -uslice;
-
-const u8* data = static_cast<const u8*>(texture->GetData());
-
-// Use a vector for vertices instead of raw memory allocation
-std::vector<TextureVtx> p_verts(2);
-
-// Loop over vertical slices
-for (; cur_y < y_end; cur_y += ystep, cur_v += vstep)
-{
-f32 cur_u = u0;
-f32 cur_x = x;
-f32 u_end = u1;
-
-// Determine poly height and source height
-f32 poly_height = std::min(ystep, y_end - cur_y);
-f32 source_height = std::abs(vstep);
-
-// Adjust source height for boundary conditions
-if ((vstep > 0) && (cur_v + vstep > v_end)) {
-source_height = (v_end - cur_v);
-} else if ((vstep < 0) && (cur_v + vstep < v_end)) {
-source_height = (cur_v - v_end);
-}
-
-// Handle texture data slices when width > 512
-const u8* udata = data;
-for (; cur_x < x_end; cur_x += xstep, cur_u += ustep)
-{
-// If current texture slice exceeds width, re-adjust texture data pointer
-if (cur_u > 512.f || cur_u + ustep > 512.f)
-{
-s32 off = (ustep > 0) ? ((int)cur_u & ~31) : ((int)(cur_u + ustep) & ~31);
-udata += off * GetBitsPerPixel(texture->GetFormat());
-cur_u -= off;
-u_end -= off;
-
-// Update texture region
-sceGuTexImage(0, std::min<u32>(512, texture->GetCorrectedWidth()),
-std::min<u32>(512, texture->GetCorrectedHeight()),
-texture->GetBlockWidth(), udata);
-}
-
-// Calculate poly width and source width
-f32 poly_width = xstep;
-f32 source_width = std::abs(ustep);
-
-// Adjust source width for boundary conditions
-if ((ustep > 0) && (cur_u + ustep > u_end)) {
-source_width = (u_end - cur_u);
-} else if ((ustep < 0) && (cur_u + ustep < u_end)) {
-source_width = (cur_u - u_end);
-}
-
-// Set texture coordinates and position for the first vertex
-p_verts[0].t0.x = cur_u;
-p_verts[0].t0.y = cur_v;
-p_verts[0].pos.x = N64ToScreenX(cur_x);
-p_verts[0].pos.y = N64ToScreenY(cur_y);
-p_verts[0].pos.z = 0;
-
-// Set texture coordinates and position for the second vertex
-p_verts[1].t0.x = cur_u + source_width;
-p_verts[1].t0.y = cur_v + source_height;
-p_verts[1].pos.x = N64ToScreenX(cur_x + poly_width);
-p_verts[1].pos.y = N64ToScreenY(cur_y + poly_height);
-p_verts[1].pos.z = 0;
-
-// Draw the texture using the current settings
-sceGuDrawArray(GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts.data());
-}
-}
-}
-
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void RendererPSP::SelectPlaceholderTexture( EPlaceholderTextureType type )
