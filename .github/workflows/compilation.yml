@@ -166,17 +166,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: lukka/get-cmake@latest
-
-      - name: Setup a new (or from cache) vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: aa628ceb5f15f0c30d4d481f14fa5b2be2b4a658
-          runVcpkgInstall: true
-
+      - name: Install packages
+        run: | 
+          vcpkg install sdl2 sdl2-ttf glm minizip libpng glew glm
+          
       - name: Run CMake config
         run: |
-          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
+          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
 
       - name: Build
         run: |
