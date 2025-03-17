@@ -97,7 +97,7 @@ else()
 
 	option(DAEDALUS_COMPRESSED_ROM_SUPPORT "Enable Compressed ROM Support" OFF) ## Probably should be a default option. 
 	option(DAEDALUS_LOG "Log stuff " OFF) ## NEeds to be off on the PSP unless debugging
-
+	option(DEBUG_UCODE "Check what UCode Function is being used" OFF )
 	# Additional Debug Options
 	option(SHOW_MEM "Show memory usage" OFF)
 	option(DAEDALUS_DEBUG_MEMORY "Debug memory issues" OFF)

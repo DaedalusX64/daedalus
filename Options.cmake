@@ -41,6 +41,11 @@ if(DAEDALUS_ENABLE_SYNCHRONISATION)
     add_compile_definitions(DAEDALUS_ENABLE_SYNCHRONISATION)
 endif()
 
+if(DEBUG_UCODE)
+    message("DEBUG_UCODE=ON")
+    add_compile_definitions(DEBUG_UCODE)
+endif()
+
 if(DAEDALUS_ENABLE_PROFILING)
     message("DAEDALUS_ENABLE_PROFILING=ON")
     add_compile_definitions(DAEDALUS_ENABLE_PROFILING)
