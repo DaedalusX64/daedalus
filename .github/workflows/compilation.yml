@@ -103,7 +103,7 @@ jobs:
 
 
   build-ctr:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     container: wally4000/daedalusx64:latest
 
     steps:
