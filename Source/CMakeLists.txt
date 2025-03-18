@@ -267,7 +267,9 @@ link_libraries(PNG::PNG)
 find_package(ZLIB REQUIRED)
 link_libraries(ZLIB::ZLIB)
 
-		## Daedalus Core Build
+add_definitions(-D_USE_MATH_DEFINES)
+
+	## Daedalus Core Build
 		add_subdirectory(Core)
 		add_subdirectory(Debug)
 		add_subdirectory(DynaRec)
