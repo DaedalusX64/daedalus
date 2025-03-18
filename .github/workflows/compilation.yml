@@ -165,7 +165,7 @@ jobs:
       VCPKG_DEFAULT_TRIPLET: x64-windows
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Generate vcpkg.json File
         run: |
           echo { > vcpkg.json
@@ -188,7 +188,7 @@ jobs:
           
       - name: Run CMake config
         run: |
-          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
+          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
 
       - name: Build
         run: |
