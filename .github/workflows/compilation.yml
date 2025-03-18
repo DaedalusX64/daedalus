@@ -51,6 +51,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        sudo apt update
         sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libglm-dev
     
     - name: Compile project
@@ -80,6 +81,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        sudo apt update
         sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libfmt-dev libglm-dev
     
     - name: Compile project
@@ -178,6 +180,7 @@ jobs:
           echo         "minizip", >> vcpkg.json
           echo         "libpng", >> vcpkg.json
           echo         "glew" >> vcpkg.json
+          echo         ""
           echo     ] >> vcpkg.json
           echo } >> vcpkg.json
         shell: cmd
