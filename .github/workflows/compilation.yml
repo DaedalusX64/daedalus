@@ -166,9 +166,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Generate vcpkg.json File
+        run: |
+          echo { > vcpkg.json
+          echo     "name": "my-project", >> vcpkg.json
+          echo     "version-string": "1.0.0", >> vcpkg.json
+          echo     "dependencies": [ >> vcpkg.json
+          echo         "sdl2", >> vcpkg.json
+          echo         "sdl2-ttf", >> vcpkg.json
+          echo         "glm", >> vcpkg.json
+          echo         "minizip", >> vcpkg.json
+          echo         "libpng", >> vcpkg.json
+          echo         "glew" >> vcpkg.json
+          echo     ] >> vcpkg.json
+          echo } >> vcpkg.json
+        shell: cmd
+
       - name: Install packages
         run: | 
-          vcpkg install sdl2 sdl2-ttf glm minizip libpng glew glm
+          vcpkg install 
           
       - name: Run CMake config
         run: |
