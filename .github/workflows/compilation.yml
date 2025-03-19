@@ -161,43 +161,36 @@ jobs:
         name: DaedalusX64-macos
         path: DaedalusX64
 
+  name: Windows Build with Docker
+
+on: [push]
+
+jobs:
   build-windows:
-    runs-on: windows-latest
-    container: wally4000/daedalus-win:latest
+    runs-on: windows-latest  # Use a Windows runner
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows
     steps:
-      - uses: actions/checkout@v4
-      
-      # - name: Generate vcpkg.json File
-      #   run: |
-      #     echo { > vcpkg.json
-      #     echo     "name": "my-project", >> vcpkg.json
-      #     echo     "version-string": "1.0.0", >> vcpkg.json
-      #     echo     "dependencies": [ >> vcpkg.json
-      #     echo         "sdl2", >> vcpkg.json
-      #     echo         "sdl2-ttf", >> vcpkg.json
-      #     echo         "glm", >> vcpkg.json
-      #     echo         "minizip", >> vcpkg.json
-      #     echo         "libpng", >> vcpkg.json
-      #     echo         "glew" >> vcpkg.json
-      #     echo         ""
-      #     echo     ] >> vcpkg.json
-      #     echo } >> vcpkg.json
-      #   shell: cmd
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # - name: Install packages
-      #   run: | 
-      #     vcpkg install 
-          
-      - name: Run CMake config
+      - name: Switch to Windows Containers
         run: |
-          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
+          Get-Service docker | Stop-Service
+          Start-Process -NoNewWindow -Wait -FilePath "$Env:ProgramFiles\Docker\Docker\DockerCli.exe" -ArgumentList "-SwitchDaemon"
+          Get-Service docker | Start-Service
+        shell: powershell
 
-      - name: Build
+      - name: Pull Windows Docker Image
+        run: docker pull wally4000/daedalus-win:latest
+
+      - name: Run Build in Container
         run: |
-          cmake --build build --config Release
-          cmake --install build --prefix DaedalusX64
+          docker run --rm -v "${{ github.workspace }}:C:\workspace" -w "C:\workspace" wally4000/daedalus-win:latest powershell -Command "
+            cmake -S . -B build '-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake' '-DVCPKG_TARGET_TRIPLET=x64-windows' ;
+            cmake --build build --config Release ;
+            cmake --install build --prefix DaedalusX64
+          "
 
       - name: Upload artifacts
         if: ${{ success() }}
