@@ -25,11 +25,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspdebug.h>
 #include <pspdisplay.h>
 #include <pspgu.h>
-
+#include <glm/gtc/type_ptr.hpp>  //
 #include "UI/ColourPulser.h"
-#include "Math/Vector2.h"
-#include "Math/Vector3.h"
-#include "Math/Matrix4x4.h"
+
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
 #include "UI/DrawText.h"
@@ -48,8 +46,8 @@ const u32				BACKGROUND_HEIGHT = 272;
 
 struct BackgroundVtx
 {
-    v2	t0;
-    v3	pos;
+    glm::vec2	t0;
+    glm::vec3	pos;
 
 	static const u32 Flags = GU_TEXTURE_32BITF|GU_VERTEX_32BITF;
 };
@@ -59,7 +57,7 @@ DAEDALUS_STATIC_ASSERT( sizeof(BackgroundVtx) == 20 );
 struct BackgroundColourVtx
 {
 	c32		colour;
-    v3		pos;
+    glm::vec3		pos;
 
 	static const u32 Flags = GU_COLOR_8888|GU_VERTEX_32BITF;
 };
@@ -68,9 +66,9 @@ DAEDALUS_STATIC_ASSERT( sizeof(BackgroundColourVtx) == 16 );
 
 struct BackgroundTextureVtx
 {
-    v2	t0;
+    glm::vec2	t0;
 	c32		colour;
-    v3		pos;
+    glm::vec3		pos;
 
 	static const u32 Flags = GU_TEXTURE_32BITF|GU_COLOR_8888|GU_VERTEX_32BITF;
 };
@@ -106,7 +104,7 @@ class IUIContext : public CUIContext
 
 		virtual void				Update( float elapsed_time );
 
-		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh, c32 colour );
+		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, const glm::vec2 & tl, const glm::vec2 & wh, c32 colour );
 		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, s32 x, s32 y, c32 colour );
 		virtual void				ClearBackground( c32 colour );
 		virtual void				DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour );
@@ -171,13 +169,13 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, s
 	if(texture == NULL)
 		return;
 
-	v2		tl = v2( f32( x ), f32( y ) );
-	v2		wh = v2( f32( texture->GetWidth() ), f32( texture->GetHeight() ) );
+	glm::vec2		tl = glm::vec2( f32( x ), f32( y ) );
+	glm::vec2		wh = glm::vec2( f32( texture->GetWidth() ), f32( texture->GetHeight() ) );
 
 	RenderTexture( texture, tl, wh, colour );
 }
 
-void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh, c32 colour )
+void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, const glm::vec2 & tl, const glm::vec2 & wh, c32 colour )
 {
 	if(texture == NULL)
 		return;
@@ -203,17 +201,18 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, c
 	sceGuEnable(GU_BLEND);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+	alignas(DATA_ALIGN) glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
 
-	v2		tex_uv0( (float)0, (float)0 );
-	v2		tex_uv1( (float)width, (float)height );
+	glm::vec2		tex_uv0( (float)0, (float)0 );
+	glm::vec2		tex_uv1( (float)width, (float)height );
 
-	p_verts[0].pos = v3( tl.x, tl.y, 0.0f );
-	p_verts[0].t0 = v2( 0.0f, 0.0f );
+	p_verts[0].pos = glm::vec3( tl.x, tl.y, 0.0f );
+	p_verts[0].t0 = glm::vec2( 0.0f, 0.0f );
 	p_verts[0].colour = colour;
 
-	p_verts[1].pos = v3( tl.x + wh.x, tl.y + wh.y, 0.0f );
-	p_verts[1].t0 = v2( (float)width, (float)height );
+	p_verts[1].pos = glm::vec3( tl.x + wh.x, tl.y + wh.y, 0.0f );
+	p_verts[1].t0 = glm::vec2( (float)width, (float)height );
 	p_verts[1].colour = colour;
 
 	sceGuDrawArray(GU_SPRITES,BackgroundTextureVtx::Flags|GU_TRANSFORM_2D,num_verts,NULL,p_verts);
@@ -240,12 +239,14 @@ void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuDisable(GU_BLEND);
 
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
 
-	p_verts[0].pos = v3( float( x ), float( y ), 0.0f );
+	alignas(DATA_ALIGN) glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
+
+	p_verts[0].pos = glm::vec3( float( x ), float( y ), 0.0f );
 	p_verts[0].colour = colour;
 
-	p_verts[1].pos = v3( float( x + w ), float( y + h ), 0.0f );
+	p_verts[1].pos = glm::vec3( float( x + w ), float( y + h ), 0.0f );
 	p_verts[1].colour = colour;
 
 	sceGuDrawArray(GU_SPRITES,BackgroundColourVtx::Flags|GU_TRANSFORM_2D,num_verts,NULL,p_verts);
@@ -266,12 +267,13 @@ void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuDisable(GU_BLEND);
 
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+	alignas(DATA_ALIGN) glm::mat4 identity = glm::mat4(1.0f);  // Create an identity matrix
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( glm::value_ptr(identity) ) );
 
-	p_verts[0].pos = v3( float( x0 ), float( y0 ), 0.0f );
+	p_verts[0].pos = glm::vec3( float( x0 ), float( y0 ), 0.0f );
 	p_verts[0].colour = colour;
 
-	p_verts[1].pos = v3( float( x1 ), float( y1 ), 0.0f );
+	p_verts[1].pos = glm::vec3( float( x1 ), float( y1 ), 0.0f );
 	p_verts[1].colour = colour;
 
 	sceGuDrawArray(GU_LINES,BackgroundColourVtx::Flags|GU_TRANSFORM_2D,num_verts,NULL,p_verts);

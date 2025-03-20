@@ -190,7 +190,7 @@ class IRomPreferencesScreen : public CRomPreferencesScreen, public CUIScreen
 		virtual void				Run();
 
 		// CUIScreen
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 		virtual bool				IsFinished() const									{ return mIsFinished; }
 
@@ -254,7 +254,7 @@ IRomPreferencesScreen::~IRomPreferencesScreen() {}
 
 
 
-void	IRomPreferencesScreen::Update( float elapsed_time[[maybe_unused]], const v2 & stick[[maybe_unused]], u32 old_buttons, u32 new_buttons )
+void	IRomPreferencesScreen::Update( float elapsed_time[[maybe_unused]], const glm::vec2 & stick[[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{

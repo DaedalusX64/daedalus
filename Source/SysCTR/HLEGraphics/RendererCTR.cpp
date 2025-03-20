@@ -18,6 +18,7 @@
 #include "Ultra/ultra_gbi.h"
 
 #include "Utility/Profiler.h"
+#include <glm/gtc/type_ptr.hpp> 
 
 BaseRenderer *gRenderer    = nullptr;
 RendererCTR  *gRendererCTR = nullptr;
@@ -448,7 +449,7 @@ void RendererCTR::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 }
 
 
-void RendererCTR::RenderUsingCurrentBlendMode(const float (&mat_project)[16], DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, bool disable_zbuffer )
+void RendererCTR::RenderUsingCurrentBlendMode(const float* mat_project, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, bool disable_zbuffer )
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf((float*)mat_project);
@@ -634,7 +635,7 @@ void RendererCTR::RenderTriangles(DaedalusVtx *p_vertices, u32 num_vertices, boo
 	RenderUsingCurrentBlendMode(gProjection.m, p_vertices, num_vertices, GL_TRIANGLES, disable_zbuffer);
 }
 
-void RendererCTR::TexRect(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1)
+void RendererCTR::TexRect(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)
 {
 	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
 	UpdateTileSnapshots( tile_idx );
@@ -643,11 +644,11 @@ void RendererCTR::TexRect(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord
 	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
 	PrepareTexRectUVs(&st0, &st1);
 	
-	v2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
-	v2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
+	glm::vec2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
+	glm::vec2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
 
-	v2 screen0;
-	v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
 	
 	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 	{
@@ -703,10 +704,10 @@ void RendererCTR::TexRect(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord
 
 	glEnable(GL_TEXTURE_2D);
 
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
 }
 
-void RendererCTR::TexRectFlip(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1)
+void RendererCTR::TexRectFlip(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)
 {
 	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
 	UpdateTileSnapshots( tile_idx );
@@ -715,11 +716,11 @@ void RendererCTR::TexRectFlip(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexC
 	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
 	PrepareTexRectUVs(&st0, &st1);
 
-	v2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
-	v2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
+	glm::vec2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
+	glm::vec2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
 
-	v2 screen0;
-	v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
 
@@ -760,13 +761,13 @@ void RendererCTR::TexRectFlip(u32 tile_idx, const v2 & xy0, const v2 & xy1, TexC
 
 	glEnable(GL_TEXTURE_2D);
 
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
 }
 
-void RendererCTR::FillRect(const v2 & xy0, const v2 & xy1, u32 color)
+void RendererCTR::FillRect(const glm::vec2 & xy0, const glm::vec2 & xy1, u32 color)
 {
-	v2 screen0;
-	v2 screen1;
+	glm::vec2 screen0;
+	glm::vec2 screen1;
 	ScaleN64ToScreen( xy0, screen0 );
 	ScaleN64ToScreen( xy1, screen1 );
 	
@@ -795,7 +796,7 @@ void RendererCTR::FillRect(const v2 & xy0, const v2 & xy1, u32 color)
 	glDisable(GL_TEXTURE_2D);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_STRIP, true);
 
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
@@ -846,7 +847,7 @@ void RendererCTR::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	p_vertices[3].Texture.y = v1 * scale_y;
 
 	glEnable(GL_TEXTURE_2D);
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_STRIP, true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_STRIP, true);
 }
 
 void RendererCTR::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2,
@@ -889,7 +890,7 @@ void RendererCTR::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2,
 	p_vertices[3].Texture.y = t * scale_y;
 	
 	glEnable(GL_TEXTURE_2D);
-	RenderUsingCurrentBlendMode(mScreenToDevice.mRaw, p_vertices, 4, GL_TRIANGLE_FAN, true);
+	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_FAN, true);
 }
 
 bool CreateRenderer()

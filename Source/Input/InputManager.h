@@ -4,7 +4,7 @@
 #include "Ultra/ultra_os.h"
 #include "Base/Singleton.h"
 
-#include "Math/Vector2.h"
+#include <glm/glm.hpp>
 
 class CInputManager : public CSingleton< CInputManager >
 {
@@ -27,6 +27,6 @@ class CInputManager : public CSingleton< CInputManager >
 		static void Fini() { CInputManager::Get()->Finalise();}
 };
 
-v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone );
+glm::vec2	ApplyDeadzone( const glm::vec2 & in, f32 min_deadzone, f32 max_deadzone );
 
 #endif // INPUT_INPUTMANAGER_H_

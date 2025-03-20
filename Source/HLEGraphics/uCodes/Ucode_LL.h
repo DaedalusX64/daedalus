@@ -151,8 +151,8 @@ void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
+	glm::vec2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
+	glm::vec2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
 
 	gRenderer->TexRect( tex_rect.tile_idx, xy0, xy1, st0, st1 );
 }

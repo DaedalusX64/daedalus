@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <random>
 #include <limits>
+#include <cmath>
 
 
 #include "Base/Macros.h"
@@ -33,11 +34,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "DynaRec/TraceRecorder.h"
-#include "Math/Math.h"	// VFPU Math
+
 #include "Ultra/ultra_R4300.h"
 
 #ifdef DAEDALUS_PSP
 #include <pspfpu.h>
+#include "SysPSP/Math/Math.h"	// VFPU Math
 
 #define SIM_DOUBLES
 #else
@@ -62,7 +64,7 @@ std::default_random_engine R4300_Rand();
 #define R4300_AbsS(x) 		fabsf((x))
 #define R4300_AbsD(x) 		fabsf((x))
 #else
-#define R4300_IsNaN(x)		isnan((x))
+#define R4300_IsNaN(x)		std::isnan((x))
 #define R4300_Sqrt(x)		sqrtf((x))
 #define R4300_SqrtD(x)		sqrt((x))
 #define R4300_AbsS(x) 		fabsf((x))

@@ -51,7 +51,7 @@ std::unique_ptr<CUIComponentScreen>	CUIComponentScreen::Create( CUIContext * p_c
 }
 
 
-void	CUIComponentScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	CUIComponentScreen::Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	mComponent->Update( elapsed_time, stick, old_buttons, new_buttons );
 }

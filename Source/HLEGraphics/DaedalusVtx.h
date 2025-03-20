@@ -21,18 +21,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HLEGRAPHICS_DAEDALUSVTX_H_
 
 #include "Graphics/ColourValue.h"
-#include "Math/Vector2.h"
-#include "Math/Vector3.h"
-#include "Math/Vector4.h"
+
+
 
 
 // The ordering of these elements is required for the VectorTnL code.
 struct alignas(DATA_ALIGN) DaedalusVtx4
 {
-    v4	TransformedPos;
-    v4	ProjectedPos;
-    v4	Colour;
-    v2	Texture;
+    glm::vec4	TransformedPos;
+    glm::vec4	ProjectedPos;
+    glm::vec4	Colour;
+    glm::vec2	Texture;
 
 	u32	ClipFlags;
 	u32 Pad;
@@ -64,7 +63,7 @@ struct DaedalusVtx
 	DaedalusVtx()
 	{
 	}
-	DaedalusVtx( const v3 & position, const u32 colour, const v2 & texture )
+	DaedalusVtx( const glm::vec3 & position, const u32 colour, const glm::vec2 & texture )
 		:	Texture( texture )
 		,	Colour( colour )
 		,	Position( position )
@@ -72,9 +71,9 @@ struct DaedalusVtx
 
 	}
 
-    v2		Texture ;
+    glm::vec2		Texture ;
 	c32		Colour ;
-    v3		Position ;
+    glm::vec3		Position ;
 };
 
 DAEDALUS_STATIC_ASSERT( sizeof(DaedalusVtx) == 24 );

@@ -403,9 +403,9 @@ void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
 //*************************************************************************************
 //
 //*************************************************************************************
-v2	ProjectToUnitSquare( const v2 & in )
+glm::vec2	ProjectToUnitSquare( const glm::vec2 & in )
 {
-	f32		length( in.Length() );
+	f32		length( glm::length(in) );
 	float	abs_x( fabsf( in.x ) );
 	float	abs_y( fabsf( in.y ) );
 	float	scale;
@@ -432,17 +432,17 @@ v2	ProjectToUnitSquare( const v2 & in )
 //*************************************************************************************
 //
 //*************************************************************************************
-v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
+glm::vec2	ApplyDeadzone( const glm::vec2 & in, f32 min_deadzone, f32 max_deadzone )
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
 
 	DAEDALUS_ASSERT( min_deadzone >= 0.0f && min_deadzone <= 1.0f, "Invalid min deadzone" );
 	DAEDALUS_ASSERT( max_deadzone >= 0.0f && max_deadzone <= 1.0f, "Invalid max deadzone" );
 #endif
-	float	length( in.Length() );
+	float	length( glm::length(in) );
 
 	if( length < min_deadzone )
-		return v2( 0,0 );
+		return glm::vec2( 0,0 );
 
 	float	scale( ( length - min_deadzone ) / ( max_deadzone - min_deadzone )  );
 

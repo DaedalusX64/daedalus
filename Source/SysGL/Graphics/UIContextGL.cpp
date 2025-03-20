@@ -24,9 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysGL/GL.h"
 
 #include "UI/ColourPulser.h"
-#include "Math/Vector2.h"
-#include "Math/Vector3.h"
-#include "Math/Matrix4x4.h"
+
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
 #include "UI/Menu.h"
@@ -71,7 +69,7 @@ class IUIContext : public CUIContext
 
 		virtual void				Update( float elapsed_time );
 
-		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh, c32 colour );
+		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, const glm::vec2 & tl, const glm::vec2 & wh, c32 colour );
 		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, s32 x, s32 y, c32 colour );
 		virtual void				ClearBackground( c32 colour );
 		virtual void				DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour );
@@ -142,13 +140,13 @@ void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, s
 	if(texture == NULL)
 		return;
 
-	v2		tl = v2( f32( x ), f32( y ) );
-	v2		wh = v2( f32( texture->GetWidth() ), f32( texture->GetHeight() ) );
+	glm::vec2		tl = glm::vec2( f32( x ), f32( y ) );
+	glm::vec2		wh = glm::vec2( f32( texture->GetWidth() ), f32( texture->GetHeight() ) );
 
 	RenderTexture( texture, tl, wh, colour );
 }
 
-void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh [[maybe_unused]], c32 colour [[maybe_unused]] )
+void	IUIContext::RenderTexture( const std::shared_ptr<CNativeTexture> texture, const glm::vec2 & tl, const glm::vec2 & wh [[maybe_unused]], c32 colour [[maybe_unused]] )
 {
 	if(texture == NULL)
 		return;

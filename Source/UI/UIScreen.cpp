@@ -19,7 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 
 #include "Graphics/GraphicsContext.h"
-#include "Math/Vector2.h"
 #include "UIContext.h"
 #include "UIScreen.h"
 
@@ -64,7 +63,7 @@ void	CUIScreen::Run()
 			stick_y = 0.0f;
 		}
 
-		v2	stick;
+		glm::vec2	stick;
 		stick.x = static_cast<f32>(stick_x) / 128.0f;
 		stick.y = static_cast<f32>(stick_y) / 128.0f;
 

@@ -27,7 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <cstring>
 
 class CNativeTexture;
-class v2;
 
 class CUIContext
 {
@@ -50,7 +49,7 @@ class CUIContext
 
 		virtual void				Update( float elapsed_time ) = 0;
 
-		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, const v2 & tl, const v2 & wh, c32 colour ) = 0;
+		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, const glm::vec2 & tl, const glm::vec2 & wh, c32 colour ) = 0;
 		virtual void				RenderTexture( const std::shared_ptr<CNativeTexture> texture, s32 x, s32 y, c32 colour ) = 0;
 				//void				ClearBackground()		{ ClearBackground( c32::Black ); }
 		virtual void				ClearBackground( c32 colour ) = 0;

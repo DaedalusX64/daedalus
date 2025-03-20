@@ -22,16 +22,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/ColourValue.h"
 #include "Utility/MathUtil.h"
-#include "Math/Vector4.h"
+
+#include <glm/glm.hpp>
 
 //
 //ToDo: Needs work profiling testing and find faster VFPU/CPU implemtations
 //
 #ifdef DAEDALUS_PSP
-const v4 __attribute__((aligned(16))) SCALE( 255.0f, 255.0f, 255.0f, 255.0f );
+const glm::vec4 __attribute__((aligned(16))) SCALE( 255.0f, 255.0f, 255.0f, 255.0f );
 
 // Around 354,000 ticks/million - faster than the CPU version
-inline u32 Vector2ColourClampedVFPU(const v4 * col_in)
+inline u32 Vector2ColourClampedVFPU(const glm::vec4 * col_in)
 {
 	u32		out_ints[4];
 
@@ -57,7 +58,7 @@ inline u32 Vector2ColourClampedVFPU(const v4 * col_in)
 #include <algorithm>
 
 // Around 463,000 ticks/million
-inline u32 Vector2ColourClampedCPU( const v4 * col_in )
+inline u32 Vector2ColourClampedCPU( const glm::vec4 * col_in )
 {
 	u8 r = u8( std::clamp<s32>( s32(col_in->x * 255.0f), 0, 255 ) );
 	u8 g = u8( std::clamp<s32>( s32(col_in->y * 255.0f), 0, 255 ) );
@@ -67,7 +68,7 @@ inline u32 Vector2ColourClampedCPU( const v4 * col_in )
 	return c32::Make( r, g, b, a );
 }
 
-inline u32 Vector2ColourClamped( const v4 & colour )
+inline u32 Vector2ColourClamped( const glm::vec4 & colour )
 {
 	//This is faster than the CPU Version
 #ifdef DAEDALUS_PSP
@@ -110,14 +111,14 @@ const c32 c32::Orange( 255,165,0,255 );
 const c32 c32::Purple( 160,32,240,255 );
 const c32 c32::Grey( 190,190,190, 255 );
 
-c32::c32( const v4 & colour )
+c32::c32( const glm::vec4 & colour )
 :	mColour( Vector2ColourClamped( colour ) )
 {
 }
 
-v4	c32::GetColourV4() const
+glm::vec4	c32::GetColourV4() const
 {
-	return v4( GetR() / 255.0f, GetG() / 255.0f, GetB() / 255.0f, GetA() / 255.0f );
+	return glm::vec4( GetR() / 255.0f, GetG() / 255.0f, GetB() / 255.0f, GetA() / 255.0f );
 }
 
 c32	c32::Add( c32 colour ) const

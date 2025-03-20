@@ -141,7 +141,7 @@ struct DList
 //
 //*****************************************************************************
 void RDP_MoveMemViewport(u32 address);
-void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
+void MatrixFromN64FixedPoint( glm::mat4 & mat, u32 address );
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
 
 enum LightSource
@@ -327,8 +327,8 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 			f32 tu = f32(nTU) * (1.0f / 32.0f);
 			f32 tv = f32(nTV) * (1.0f / 32.0f);
 
-			const v4 & t = gRenderer->GetTransformedVtxPos( idx );
-			const v4 & p = gRenderer->GetProjectedVtxPos( idx );
+			const glm::vec4 & t = gRenderer->GetTransformedVtxPos( idx );
+			const glm::vec4 & p = gRenderer->GetProjectedVtxPos( idx );
 
 			psSrc += 8;			// Increase by 16 bytes
 			pcSrc += 16;
@@ -565,7 +565,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 //*****************************************************************************
 //
 //*****************************************************************************
-void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
+void MatrixFromN64FixedPoint( glm::mat4 & mat, u32 address )
 {
 	if( !IsAddressValid(address, 64, "MatrixFromN64FixedPoint") )
 		return;
@@ -575,68 +575,65 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 
 	for (u32 i = 0; i < 4; i++)
 	{
-		mat.m[i][0] = ((Imat->h[i].x << 16) | Imat->l[i].x) * fRecip;
-		mat.m[i][1] = ((Imat->h[i].y << 16) | Imat->l[i].y) * fRecip;
-		mat.m[i][2] = ((Imat->h[i].z << 16) | Imat->l[i].z) * fRecip;
-		mat.m[i][3] = ((Imat->h[i].w << 16) | Imat->l[i].w) * fRecip;
+		mat[i][0] = ((Imat->h[i].x << 16) | Imat->l[i].x) * fRecip;
+		mat[i][1] = ((Imat->h[i].y << 16) | Imat->l[i].y) * fRecip;
+		mat[i][2] = ((Imat->h[i].z << 16) | Imat->l[i].z) * fRecip;
+		mat[i][3] = ((Imat->h[i].w << 16) | Imat->l[i].w) * fRecip;
 	}
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-template< LightSource Source, u32 LightSize > 
+template<LightSource Source, u32 LightSize>
 void RDP_MoveMemLight(u32 address, u32 light_idx)
 {
-	if( Source == POINT_LIGHT_ACCLAIM )
-	{
-		DAEDALUS_ERROR("ACCLAIM Lightning not supported");
-		return;
+    if (light_idx >= LightSize)
+    {
+        DBGConsole_Msg(0, "Warning: invalid light # = %d, Max light # = %d", light_idx, LightSize);
+        return; // Early return to avoid further computation on invalid light_idx
+    }
 
-	}
+    if (!IsAddressValid(address, 40, "RDP_MoveMemLight"))
+        return;
 
-	if( light_idx >= LightSize )
-	{
-		DBGConsole_Msg(0, "Warning: invalid light # = %d, Max light # = %d", light_idx, LightSize);
-	}
-	else
-	{
-		if( !IsAddressValid(address, 40, "RDP_MoveMemLight") )
-			return;
+    // Cache pointer to light data in a local variable for faster access
+    const N64Light *light = reinterpret_cast<const N64Light*>(g_pu8RamBase + address);
 
-		const N64Light *light = (const N64Light*)(g_pu8RamBase + address);
+    // Local variables for light data to minimize member access
+    u8 r = light->r, g = light->g, b = light->b;
+    s8 dir_x = light->dir_x, dir_y = light->dir_y, dir_z = light->dir_z;
 
-		u8 r = light->r;
-		u8 g = light->g;
-		u8 b = light->b;
+    // Log light information
+    DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, dir_x, dir_y, dir_z);
 
-		s8 dir_x = light->dir_x;
-		s8 dir_y = light->dir_y;
-		s8 dir_z = light->dir_z;
+    // Set light color and direction
+    gRenderer->SetLightCol(light_idx, r, g, b);
+    gRenderer->SetLightDirection(light_idx, dir_x, dir_y, dir_z);
 
-		DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, dir_x, dir_y, dir_z);
+    // Handle light position and ambient light for different sources
+    switch (Source)
+    {
+        case POINT_LIGHT_MM:
+            gRenderer->SetLightPosition(light_idx, light->x1, light->y1, light->z1, 1.0f);
+            gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa);
+            break;
 
-		//Color
-		gRenderer->SetLightCol( light_idx, r, g, b );
+        case POINT_LIGHT_CBFD:
+            gRenderer->SetLightPosition(light_idx, light->x, light->y, light->z, light->w);
+            gRenderer->SetLightCBFD(light_idx, light->nonzero);
+            break;
 
-		//Direction
-		gRenderer->SetLightDirection( light_idx, dir_x, dir_y, dir_z );
+        case POINT_LIGHT_ACCLAIM:
+            DAEDALUS_ERROR("ACCLAIM Lightning not supported");
+            return;
 
-		//Position and Ambient light for Majora's Mask
-		if( Source == POINT_LIGHT_MM )
-		{ 
-			gRenderer->SetLightPosition(light_idx, light->x1, light->y1, light->z1, 1.0f);
-			gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa);
-		}
-
-		//Position and Ambient light for Conker
-		if( Source == POINT_LIGHT_CBFD )
-		{ 
-			gRenderer->SetLightPosition( light_idx, light->x, light->y, light->z , light->w);
-			gRenderer->SetLightCBFD( light_idx, light->nonzero);
-		}
-	}
+        default:
+            // Handle unknown light source case if needed
+            break;
+    }
 }
+
 
 //*****************************************************************************
 //
@@ -660,8 +657,8 @@ void RDP_MoveMemViewport(u32 address)
 	// we truncated them to 0. This happens a lot, as things
 	// seem to specify the scale as the screen w/2 h/2
 
-	v2 vec_scale( vp->scale_x * 0.25f, vp->scale_y * 0.25f );
-	v2 vec_trans( vp->trans_x * 0.25f, vp->trans_y * 0.25f );
+	glm::vec2 vec_scale( vp->scale_x * 0.25f, vp->scale_y * 0.25f );
+	glm::vec2 vec_trans( vp->trans_x * 0.25f, vp->trans_y * 0.25f );
 
 	gRenderer->SetN64Viewport( vec_scale, vec_trans );
 
@@ -767,8 +764,8 @@ void DLParser_SetScissor( MicroCodeCommand command )
 	{
 		scissors.left += 160;
 		scissors.right += 160;
-		v2 vec_trans( 240, 120 );
-		v2 vec_scale( 80, 120 );
+		glm::vec2 vec_trans( 240, 120 );
+		glm::vec2 vec_scale( 80, 120 );
 		gRenderer->SetN64Viewport( vec_scale, vec_trans );
 	}
 
@@ -933,8 +930,8 @@ void DLParser_TexRect( MicroCodeCommand command )
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
 
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
+	glm::vec2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
+	glm::vec2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
 
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    Tex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", rect_s0/32.f, rect_t0/32.f, rect_s1/32.f, rect_t1/32.f, rect_dsdx/1024.f, rect_dtdy/1024.f);
@@ -991,8 +988,8 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
 
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
+	glm::vec2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
+	glm::vec2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
 
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    FlipTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", rect_s0/32.f, rect_t0/32.f, rect_s1/32.f, rect_t1/32.f, rect_dsdx/1024.f, rect_dtdy/1024.f);
@@ -1107,8 +1104,8 @@ void DLParser_FillRect( MicroCodeCommand command )
 	}
 	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", x0, y0, x1, y1);
 
-	v2 xy0( (f32)x0, (f32)y0 );
-	v2 xy1( (f32)x1, (f32)y1 );
+	glm::vec2 xy0( (f32)x0, (f32)y0 );
+	glm::vec2 xy1( (f32)x1, (f32)y1 );
 
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
 	// This is done in BaseRenderer.

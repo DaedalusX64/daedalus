@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef MATH_MATHUTIL_H_
 #define MATH_MATHUTIL_H_
 
-#include "Math/Math.h"
 #include <algorithm>
 
 

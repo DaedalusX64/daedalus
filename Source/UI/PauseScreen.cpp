@@ -76,7 +76,7 @@ class IPauseScreen : public CPauseScreen, public CUIScreen
 		virtual void				Run();
 
 		// CUIScreen
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 		virtual bool				IsFinished() const									{ return mIsFinished; }
 
@@ -183,7 +183,7 @@ bool	IPauseScreen::IsOptionValid( EMenuOption option [[maybe_unused]] ) const
 }
 
 
-void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	IPauseScreen::Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	static bool button_released = false;
 

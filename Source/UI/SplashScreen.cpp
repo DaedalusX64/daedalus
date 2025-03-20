@@ -23,14 +23,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
-#include "Math/Math.h"	// VFPU Math
+
 #include "DrawTextUtilities.h"
 #include "Menu.h"
 #include "SplashScreen.h"
 #include "UIContext.h"
 #include "UIScreen.h"
+#include <cmath>
 
 #include "Interface/Preferences.h"
+
 
 extern bool g32bitColorMode;
 
@@ -45,7 +47,7 @@ class ISplashScreen : public CSplashScreen, public CUIScreen
 		virtual void				Run();
 
 		// CUIScreen
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 		virtual bool				IsFinished() const									{ return mIsFinished; }
 
@@ -76,7 +78,7 @@ ISplashScreen::ISplashScreen( CUIContext * p_context )
 ISplashScreen::~ISplashScreen() {}
 
 
-void	ISplashScreen::Update( float elapsed_time , const v2 & stick[[maybe_unused]], u32 old_buttons, u32 new_buttons )
+void	ISplashScreen::Update( float elapsed_time , const glm::vec2 & stick[[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	// If any button was unpressed and is now pressed, exit
 	if((~old_buttons) & new_buttons)
@@ -93,7 +95,7 @@ void	ISplashScreen::Update( float elapsed_time , const v2 & stick[[maybe_unused]
 
 void	ISplashScreen::Render()
 {
-	f32	alpha = 255.0f * sinf( mElapsedTime * PI / MAX_TIME );
+	f32	alpha = 255.0f * sinf( mElapsedTime * M_PI / MAX_TIME );
 	u8		a = 0;
 	if( alpha >= 255.0f )
 	{ a = 255;

@@ -82,7 +82,7 @@ class IMainMenuScreen : public CMainMenuScreen, public CUIScreen
 		virtual void				Run();
 
 		// CUIScreen
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 		virtual bool				IsFinished() const									{ return mIsFinished; }
 
@@ -220,7 +220,7 @@ bool	IMainMenuScreen::IsOptionValid( EMenuOption option ) const
 
 //
 
-void	IMainMenuScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	IMainMenuScreen::Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{

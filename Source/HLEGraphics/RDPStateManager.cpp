@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/uCodes/UcodeDefs.h"
 #include "Utility/MathUtil.h"
 #include "Ultra/ultra_gbi.h"
+#include <cmath>
 
 
 extern SImageDescriptor g_TI;		//Texture data from Timg ucode

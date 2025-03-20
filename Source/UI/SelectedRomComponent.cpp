@@ -44,7 +44,7 @@ class ISelectedRomComponent : public CSelectedRomComponent
 		~ISelectedRomComponent();
 
 		// CUIComponent
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 
 		virtual void				SetRomID( const RomID & rom_id )			{ mRomID = rom_id; }
@@ -96,7 +96,7 @@ ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, std::funct
 ISelectedRomComponent::~ISelectedRomComponent() {}
 
 
-void	ISelectedRomComponent::Update( float elapsed_time[[maybe_unused]], const v2 & stick[[maybe_unused]], u32 old_buttons, u32 new_buttons )
+void	ISelectedRomComponent::Update( float elapsed_time[[maybe_unused]], const glm::vec2 & stick[[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{

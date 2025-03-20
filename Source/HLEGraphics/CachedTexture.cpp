@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativeTexture.h"
 #include "Graphics/PngUtil.h"
 #include "Graphics/TextureTransform.h"
-#include "Math/Math.h"
+
 #include "Utility/MathUtil.h"
 #include "Ultra/ultra_gbi.h"
 

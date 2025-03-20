@@ -51,7 +51,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev
+        sudo apt update
+        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libglm-dev
     
     - name: Compile project
       run: |
@@ -80,7 +81,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libfmt-dev
+        sudo apt update
+        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libfmt-dev libglm-dev
     
     - name: Compile project
       run: |
@@ -103,7 +105,7 @@ jobs:
 
 
   build-ctr:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     container: wally4000/daedalusx64:latest
 
     steps:
@@ -138,7 +140,7 @@ jobs:
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     - name: Install dependencies
       run: |
-        brew install git bash cmake libpng minizip sdl2 sdl2_ttf glew
+        brew install git bash cmake libpng minizip sdl2 sdl2_ttf glew glm
     
     - name: Compile project
       run: |
@@ -166,17 +168,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: lukka/get-cmake@latest
-
-      - name: Setup a new (or from cache) vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: aa628ceb5f15f0c30d4d481f14fa5b2be2b4a658
-          runVcpkgInstall: true
-
+      - name: Install packages
+        run: | 
+          vcpkg install 
+          
       - name: Run CMake config
         run: |
-          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
+          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
 
       - name: Build
         run: |

@@ -20,10 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_BASERENDERER_H_
 #define HLEGRAPHICS_BASERENDERER_H_
 
-#include "Math/Vector2.h"
-#include "Math/Vector3.h"
-#include "Math/Vector4.h"
-#include "Math/Matrix4x4.h"
 
 #include "HLEGraphics/DaedalusVtx.h"
 #include "HLEGraphics/TextureInfo.h"
@@ -53,8 +49,8 @@ struct TempVerts;
 // FIXME - this is for the PSP only.
 struct TextureVtx
 {
-	v2  t0;
-	v3  pos;
+	glm::vec2  t0;
+	glm::vec3  pos;
 };
 
 struct TriDKR
@@ -136,11 +132,11 @@ DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtx) == 16 );
 
 struct alignas(DATA_ALIGN) DaedalusLight
 {
-	v3		Direction;		// w component is ignored. Should be normalised
+	glm::vec3		Direction;		// w component is ignored. Should be normalised
 	u32		SkipIfZero;		// Used by CBFD & MM
-	v3		Colour;			// Colour, components in range 0..1
+	glm::vec3		Colour;			// Colour, components in range 0..1
 	f32		Iscale;			// Used by CBFD
-	v4		Position;		// Position -32768 to 32767
+	glm::vec4		Position;		// Position -32768 to 32767
 	f32		ca;				// Used by MM(GBI2 point light)
 	f32		la;				// Used by MM(GBI2 point light)
 	f32		qa;				// Used by MM(GBI2 point light)
@@ -292,7 +288,7 @@ public:
 
 	inline void			SetNumLights(u32 num)					{ mTnL.NumLights = num; }
 	inline void			SetLightCol(u32 l, u8 r, u8 g, u8 b)	{ mTnL.Lights[l].SkipIfZero=(r+g+b); mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; }
-	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z) { v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; }
+	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z) { glm::vec3 n(x, y, z); n = glm::normalize(n); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; }
 	inline void			SetLightPosition(u32 l, f32 x, f32 y, f32 z, f32 w) { mTnL.Lights[l].Position.x=x; mTnL.Lights[l].Position.y=y; mTnL.Lights[l].Position.z=z; mTnL.Lights[l].Position.w=w; }
 	inline void			SetLightCBFD(u32 l, u8 nonzero)			{ mTnL.Lights[l].Iscale=(f32)(nonzero << 12); mTnL.Lights[l].SkipIfZero = mTnL.Lights[l].SkipIfZero&&nonzero; }
 	inline void			SetLightEx(u32 l, f32 ca, f32 la, f32 qa) { mTnL.Lights[l].ca=ca/16.0f; mTnL.Lights[l].la=la/65535.0f; mTnL.Lights[l].qa=qa/(8.0f*65535.0f); }
@@ -302,16 +298,16 @@ public:
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 
 	// TextRect stuff
-	virtual void		TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
-	virtual void		TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
-	virtual void		FillRect( const v2 & xy0, const v2 & xy1, u32 color ) = 0;
+	virtual void		TexRect( u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
+	virtual void		TexRectFlip( u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
+	virtual void		FillRect( const glm::vec2 & xy0, const glm::vec2 & xy1, u32 color ) = 0;
 
 	// Texture stuff
 	virtual void		Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1, f32 u0, f32 v0, f32 u1, f32 v1, const std::shared_ptr<CNativeTexture> texture) = 0;
 	virtual void		Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t, const std::shared_ptr <CNativeTexture> texture) = 0;
 
 	// Viewport stuff
-	void				SetN64Viewport( const v2 & scale, const v2 & trans );
+	void				SetN64Viewport( const glm::vec2 & scale, const glm::vec2 & trans );
 	void				SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -350,8 +346,8 @@ public:
 	bool				TestVerts( u32 v0, u32 vn ) const;
 	inline f32			GetVtxDepth( u32 i ) const				{ return mVtxProjected[ i ].ProjectedPos.z; }
 	inline f32			GetVtxWeight( u32 i ) const				{ return mVtxProjected[ i ].ProjectedPos.w; }
-	inline v4			GetTransformedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].TransformedPos; }
-	inline v4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
+	inline glm::vec4			GetTransformedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].TransformedPos; }
+	inline glm::vec4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
 	inline u32			GetVtxFlags( u32 i ) const				{ return mVtxProjected[ i ].ClipFlags; }
 
 	inline u64			GetMux() const							{ return mMux; }
@@ -399,13 +395,13 @@ protected:
 	// We round these value here, so that when we scale up the coords to our screen
 	// coords we don't get any gaps.
 	//*****************************************************************************
-	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
+	inline void ConvertN64ToScreen( const glm::vec2 & n64_coords, glm::vec2 & answ ) const
 	{
 		answ.x = roundf( N64ToScreenX( roundf( n64_coords.x ) ) );
 		answ.y = roundf( N64ToScreenY( roundf( n64_coords.y ) ) );
 	}
 
-	inline void ScaleN64ToScreen( const v2 & n64_coords, v2 & answ ) const
+	inline void ScaleN64ToScreen( const glm::vec2 & n64_coords, glm::vec2 & answ ) const
 	{
 		answ.x = roundf( roundf( n64_coords.x ) * mN64ToScreenScale.x );
 		answ.y = roundf( roundf( n64_coords.y ) * mN64ToScreenScale.y );
@@ -414,16 +410,16 @@ protected:
 
 	virtual void		RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer ) = 0;
 
-	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
+	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const glm::mat4 & mat_world );
 	template< bool FogEnable, int TextureMode >
-	void ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
+	void ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const glm::mat4 & mat_world );
 
 
 	void				PrepareTrisClipped( TempVerts * temp_verts ) const;
 	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;
 
-	v3					LightVert( const v3 & norm ) const;
-	v3					LightPointVert( const v4 & w ) const;
+	glm::vec3					LightVert( const glm::vec3 & norm ) const;
+	glm::vec3					LightPointVert( const glm::vec4 & w ) const;
 
 private:
 	void				InitViewport();
@@ -434,11 +430,11 @@ private:
 protected:
 	TnLParams			mTnL;
 
-	v2					mN64ToScreenScale;
-	v2					mN64ToScreenTranslate;
+	glm::vec2					mN64ToScreenScale;
+	glm::vec2					mN64ToScreenTranslate;
 
-	v2					mVpScale;
-	v2					mVpTrans;
+	glm::vec2					mVpScale;
+	glm::vec2					mVpTrans;
 
 	u64					mMux;
 	
@@ -484,10 +480,10 @@ protected:
 	//I think we should make this more deep to avoid any issues //Salvy
 	static const u32 MATRIX_STACK_SIZE = 20;
 
-	mutable Matrix4x4	mWorldProject;
-	Matrix4x4			mTempMat;
-	Matrix4x4			mProjectionMat;
-	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
+	alignas(DATA_ALIGN) mutable glm::mat4	mWorldProject;
+	alignas(DATA_ALIGN) glm::mat4			mTempMat;
+	alignas(DATA_ALIGN) glm::mat4			mProjectionMat;
+	alignas(DATA_ALIGN) glm::mat4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
 	u32					mModelViewTop;
 	u32					mMatStackSize;
 	mutable bool		mWorldProjectValid;
@@ -499,7 +495,7 @@ protected:
 	float				mScreenHeight;
 
 #if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES)
-	Matrix4x4			mScreenToDevice;					// Used by OSX renderer - scales screen coords (0..640 etc) to device coords (-1..+1)
+	glm::mat4			mScreenToDevice;					// Used by OSX renderer - scales screen coords (0..640 etc) to device coords (-1..+1)
 #endif
 
 	static const u32 	kMaxIndices = 320;					// We need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn

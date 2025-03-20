@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 #include "Interface/SaveState.h"
 #include "Graphics/NativeTexture.h"
-#include "Math/Vector2.h"
 #include "DrawTextUtilities.h"
 #include "UICommand.h"
 #include "UIContext.h"
@@ -51,7 +50,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		~ISavestateSelectorComponent();
 
 		// CUIScreen
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 		virtual bool				IsFinished() const									{ return mIsFinished; }
 	public:
@@ -216,7 +215,7 @@ void ISavestateSelectorComponent::LoadSlots() {
 ISavestateSelectorComponent::~ISavestateSelectorComponent() {}
 
 
-void	ISavestateSelectorComponent::Update( float elapsed_time [[maybe_unused]], const v2 & stick [[maybe_unused]], [[maybe_unused]] u32 old_buttons, u32 new_buttons )
+void	ISavestateSelectorComponent::Update( float elapsed_time [[maybe_unused]], const glm::vec2 & stick [[maybe_unused]], [[maybe_unused]] u32 old_buttons, u32 new_buttons )
 {
 	//	Trigger the save on the first update AFTER mSelectedSlot was set.
 	//	This ensures we get at least one frame where we can display "Saving..." etc.
@@ -330,8 +329,8 @@ void	ISavestateSelectorComponent::Render()
 			if( mPVExists[ mElements.GetSelectedIndex() ] == 1 )
 			{
 				// Render Preview Image
-				v2	tl( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2 );
-				v2	wh( PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4 );
+				glm::vec2	tl( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2 );
+				glm::vec2	wh( PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4 );
 
 				if( mPreviewTexture == NULL || mElements.GetSelectedIndex() != mLastPreviewLoad )
 				{

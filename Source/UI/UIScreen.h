@@ -34,7 +34,7 @@ class CUIScreen
 		CUIScreen( CUIContext * p_context );
 		virtual ~CUIScreen();
 
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons ) = 0;
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons ) = 0;
 		virtual void				Render() = 0;
 		virtual bool				IsFinished() const = 0;
 

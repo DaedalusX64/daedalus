@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UI_UICOMPONENT_H_
 
 #include "Base/Types.h"
+#include <glm/glm.hpp>
 
-class v2;
 class CUIContext;
 
 class CUIComponent
@@ -32,7 +32,7 @@ class CUIComponent
 		CUIComponent( CUIContext * p_context );
 		virtual ~CUIComponent();
 
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons ) = 0;
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons ) = 0;
 		virtual void				Render() = 0;
 		virtual bool				IsFinished() const			{ return true; }
 
@@ -57,7 +57,7 @@ class CUIComponentScreen : public CUIScreen
 		static std::unique_ptr<CUIComponentScreen>	Create( CUIContext * p_context, CUIComponent * component, const char * title );
 
 		// CUIScreen
-		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
+		virtual void				Update( float elapsed_time, const glm::vec2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 		virtual bool				IsFinished() const;
 

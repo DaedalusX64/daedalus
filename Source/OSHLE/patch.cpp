@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 #include "DynaRec/Fragment.h"
 #include "DynaRec/FragmentCache.h"
-#include "Math/Math.h"	// VFPU Math
+
 #include "OSHLE/OS.h"
 #include "OSHLE/OSMesgQueue.h"
 #include "OSHLE/patch.h"
