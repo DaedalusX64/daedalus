@@ -395,7 +395,7 @@ void DLParser_GBI2_Texture( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI2_DMA_IO( MicroCodeCommand command )
+void DLParser_GBI2_DMA_IO( MicroCodeCommand command [[maybe_unused]] )
 {
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DL_UNIMPLEMENTED_ERROR( "G_DMA_IO" );

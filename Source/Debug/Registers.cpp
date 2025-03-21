@@ -4,6 +4,9 @@
 //
 //	Exclude this from public release builds to save a little on the elf size
 //
+
+#ifndef DAEDALUS_SILENT
+
 const char *Cop1WOpCodeNames[64] = {
 	"-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?",
 	"-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?",
@@ -46,3 +49,5 @@ const char *ShortCop0RegNames[32] = {
 	"Cfg", "LLA", "WLo", "WHi", "XCtx", "*", "*", "*",
 	"*", "*", "PErr", "CErr", "TLo", "THi", "EEPC", "*"
 };
+
+#endif

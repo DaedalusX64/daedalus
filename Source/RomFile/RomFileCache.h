@@ -48,10 +48,10 @@ class ROMFileCache
 		std::shared_ptr<ROMFile> 		mpROMFile;
 
 		u8 *				mpStorage;			// Underlying storage. This is carved up between different chunks
-		SChunkInfo *		mpChunkInfo;		// Info about which region a chunk is allocated to
+		std::unique_ptr<SChunkInfo[]>		mpChunkInfo;		// Info about which region a chunk is allocated to
 
 		u32					mChunkMapEntries;	// i.e. Number of chunks in the rom
-		CacheIdx *			mpChunkMap;			// Map allowing quick lookups from address -> chunkidx
+		std::unique_ptr<CacheIdx[]>			mpChunkMap;			// Map allowing quick lookups from address -> chunkidx
 
 		u32					mMRUIdx;			// Most recently used index
 

@@ -43,7 +43,7 @@ public:
 
 private:
 	std::fstream	mFH;
-	u32					mRomSize;
+	int					mRomSize;
 };
 
 #endif // UTILITY_ROMFILEUNCOMPRESSED_H_

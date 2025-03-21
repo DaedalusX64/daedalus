@@ -10,7 +10,7 @@
 #include "HLEAudio/AudioBuffer.h"
 #include "HLEAudio/HLEAudioInternal.h"
 #include "Utility/FramerateLimiter.h"
-#include "System/Thread.h"
+
 #include "System/Timing.h"
 
 #ifdef DAEDALUS_PSP

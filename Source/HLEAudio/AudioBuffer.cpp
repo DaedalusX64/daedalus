@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioBuffer.h"
-#include "System/Thread.h"
+
 #include <cstring>
 #include <fstream>
 

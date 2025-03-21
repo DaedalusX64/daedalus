@@ -40,7 +40,7 @@ template<> bool CSingleton< CTextureCache >::Create()
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 #endif
-	mpInstance = std::make_shared<CTextureCache>();
+	mpInstance = std::make_unique<CTextureCache>();
 	return mpInstance != nullptr;
 }
 

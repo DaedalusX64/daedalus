@@ -20,6 +20,10 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     	endif()
 endif()
 
+if(NOT WIN32)
+	add_compile_options("-Wall")
+	add_compile_options("-Wextra")
+endif()
 
 ## if DEBUG is added to the build_daedalus script it will execute teh Debug section otherwise by default do release.
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -32,10 +36,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	option(DAEDALUS_DEBUG_DISPLAYLIST "Options for debugging the display list, useful for determining texture issues" OFF)
 	option(DAEDALUS_LOG "Enable various logging" ON)
 	option(DAEDALUS_SILENT "Shhh, no debug console message, on by default" OFF)
-if(NOT WIN32)
-	add_compile_options("-Wall")
-	add_compile_options("-Wextra")
-endif()
+
 else()
 	message("Release Build")
 	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)

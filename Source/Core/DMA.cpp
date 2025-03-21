@@ -332,7 +332,9 @@ void DMA_PI_CopyFromRDRAM()
 	u32 mem_address = Memory_PI_GetRegister(PI_DRAM_ADDR_REG) & 0xFFFFFFFF;
 	u32 cart_address = Memory_PI_GetRegister(PI_CART_ADDR_REG)  & 0xFFFFFFFF;
 	u32 pi_length_reg = (Memory_PI_GetRegister(PI_RD_LEN_REG)  & 0xFFFFFFFF) + 1;
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	bool copy_succeeded = false;
+	#endif
 
 	if( pi_length_reg & 0x1 )
 	{
@@ -346,30 +348,37 @@ void DMA_PI_CopyFromRDRAM()
 	if ( IsDom2Addr1( cart_address ) )
 	{
 		//DBGConsole_Msg(0, "[YWriting to Cart domain 2/addr1]");
-		u8 * p_dst = (u8 *)g_pMemoryBuffers[MEM_SAVE];
-		u32	dst_size = MemoryRegionSizes[MEM_SAVE];
-		cart_address -= PI_DOM2_ADDR1;
 
+		
+		cart_address -= PI_DOM2_ADDR1;
+		#ifdef DAEDALUS_DEBUG_CONSOLE
+		u32	dst_size = MemoryRegionSizes[MEM_SAVE];
+		u8 * p_dst = (u8 *)g_pMemoryBuffers[MEM_SAVE];
 		copy_succeeded = DMA_HandleTransfer( p_dst, cart_address, dst_size, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
+		#endif
 		Save_MarkSaveDirty();
 	}
 	else if ( IsDom1Addr1( cart_address ) )
 	{
 		//DBGConsole_Msg(0, "[YWriting to Cart domain 1/addr1]");
 		cart_address -= PI_DOM1_ADDR1;
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		copy_succeeded = RomBuffer::CopyFromRam( cart_address, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
+		#endif
 	}
 	else if ( IsDom2Addr2( cart_address ) )
 	{
 		//DBGConsole_Msg(0, "[YWriting to Cart domain 2/addr2]");
+
+		cart_address -= PI_DOM2_ADDR2;
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		u8 * p_dst = (u8 *)g_pMemoryBuffers[MEM_SAVE];
 		u32	dst_size = MemoryRegionSizes[MEM_SAVE];
-		cart_address -= PI_DOM2_ADDR2;
-
 		if (g_ROM.settings.SaveType != SAVE_TYPE_FLASH)
 			copy_succeeded = DMA_HandleTransfer( p_dst, cart_address, dst_size, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
 		else
 			copy_succeeded = DMA_FLASH_CopyFromDRAM(mem_address, pi_length_reg);
+		#endif
 
 		Save_MarkSaveDirty();
 	}
@@ -377,13 +386,17 @@ void DMA_PI_CopyFromRDRAM()
 	{
 		//DBGConsole_Msg(0, "[YWriting to Cart domain 1/addr2]");
 		cart_address -= PI_DOM1_ADDR2;
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		copy_succeeded = RomBuffer::CopyFromRam( cart_address, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
+		#endif
 	}
 	else if ( IsDom1Addr3( cart_address ) )
 	{
 		//DBGConsole_Msg(0, "[YWriting to Cart domain 1/addr3]");
 		cart_address -= PI_DOM1_ADDR3;
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		copy_succeeded = RomBuffer::CopyFromRam( cart_address, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
+		#endif
 	}
 	else
 	{
