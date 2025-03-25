@@ -507,7 +507,7 @@ bool	IController::ProcessController(u8 *cmd, u32 channel )
 		#endif
 		cmd[3] = 0x05;
 		cmd[4] = 0x00;
-		cmd[5] = CONT_STATUS_PAK_PRESENT | CONT_STATUS_PAK_CHANGED;
+		cmd[5] = CONT_STATUS_PAK_PRESENT;
 		break;
 
 	case CONT_READ_CONTROLLER:
@@ -610,22 +610,25 @@ void	IController::CommandWriteEeprom(u8* cmd)
 }
 
 
-u8 IController::CalculateDataCrc(const u8 *data) const
+u8 IController::CalculateDataCrc(const u8 * data) const
 {
+	size_t i;
     uint8_t crc = 0;
 
-    for (size_t i = 0; i < 32; ++i) // ✅ Exactly 32 bytes
+    for(i = 0; i <= 0x20; ++i)
     {
-        for (int mask = 0x80; mask >= 1; mask >>= 1)
+        int mask;
+        for (mask = 0x80; mask >= 1; mask >>= 1)
         {
             uint8_t xor_tap = (crc & 0x80) ? 0x85 : 0x00;
             crc <<= 1;
-            if (data[i] & mask) crc |= 1;
+            if (i != 0x20 && (data[i] & mask)) crc |= 1;
             crc ^= xor_tap;
         }
     }
     return crc;
 }
+
 
 // Returns new position to continue reading
 // i is the address of the first write info (after command itself)
@@ -635,7 +638,7 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 	u16 addr = (cmd[3] << 8) | (cmd[4] & 0xE0);
 	u8* data = &cmd[5];
 
-	if (addr <= 0x8001)
+	if (addr < 0x8000)
 	{
 		memcpy(data, &mMemPack[channel][addr], 32);
 	}
@@ -644,9 +647,7 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 		memset(data, 0, 32);
 	}
 
-	u8 expected_crc = CalculateDataCrc(data);
-    cmd[37] = expected_crc;
-
+	cmd[37] = CalculateDataCrc(data);
 }
 
 
@@ -658,7 +659,7 @@ void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 	u16 addr = (cmd[3] << 8) | (cmd[4] & 0xE0);
 	u8* data = &cmd[5];
 
-	if (addr <= 0x8000)
+	if (addr < 0x8000)
     {
 		Save_MarkMempackDirty();
 		memcpy(&mMemPack[channel][addr], data, 32);
