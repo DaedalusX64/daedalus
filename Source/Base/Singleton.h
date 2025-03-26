@@ -48,7 +48,7 @@ template < class T > class CSingleton
 		//CSingleton();
 		virtual ~CSingleton() {}
 
-		inline static std::shared_ptr<T> Get()
+		inline static std::unique_ptr<T>& Get()
 		{
 			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT(mpInstance != nullptr, "%s", __PRETTY_FUNCTION__ );
@@ -82,9 +82,9 @@ template < class T > class CSingleton
 		}
 
 	protected:
-		static std::shared_ptr<T> mpInstance;
+		static std::unique_ptr<T> mpInstance;
 };
 
-template < class T > std::shared_ptr<T> CSingleton< T >::mpInstance = NULL;
+template < class T > std::unique_ptr<T> CSingleton< T >::mpInstance = NULL;
 
 #endif // UTILITY_SINGLETON_H_

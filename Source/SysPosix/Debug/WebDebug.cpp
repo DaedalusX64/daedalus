@@ -28,7 +28,7 @@
 #include "Utility/Paths.h"
 #include "Base/Macros.h"
 #include "Utility/StringUtil.h"
-#include "System/Thread.h"
+
 
 
 enum
@@ -479,7 +479,6 @@ bool WebDebug_Init()
 
 	gKeepRunning = true;
 	gThread = std::thread(WebDebugThread, gServer);
-	// gThread      = CreateThread( "WebDebug", &WebDebugThread, gServer );
 
 	return true;
 }

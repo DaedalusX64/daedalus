@@ -42,414 +42,414 @@ static const char *Cop1BC1OpCodeNames[4] = {
 
 
 
-static void SprintOp_Unk( char * str, u32 address, OpCode op );
+static void SprintOp_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
-static void SprintOp_Special( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm( char * str, u32 address, OpCode op );
-static void SprintOp_J( char * str, u32 address, OpCode op );
-static void SprintOp_JAL( char * str, u32 address, OpCode op );
-static void SprintOp_BEQ( char * str, u32 address, OpCode op );
-static void SprintOp_BNE( char * str, u32 address, OpCode op );
-static void SprintOp_BLEZ( char * str, u32 address, OpCode op );
-static void SprintOp_BGTZ( char * str, u32 address, OpCode op );
-static void SprintOp_ADDI( char * str, u32 address, OpCode op );
-static void SprintOp_ADDIU( char * str, u32 address, OpCode op );
-static void SprintOp_SLTI( char * str, u32 address, OpCode op );
-static void SprintOp_SLTIU( char * str, u32 address, OpCode op );
-static void SprintOp_ANDI( char * str, u32 address, OpCode op );
-static void SprintOp_ORI( char * str, u32 address, OpCode op );
-static void SprintOp_XORI( char * str, u32 address, OpCode op );
-static void SprintOp_LUI( char * str, u32 address, OpCode op );
-static void SprintOp_CoPro0( char * str, u32 address, OpCode op );
-static void SprintOp_CoPro1( char * str, u32 address, OpCode op );
-static void SprintOp_UnOpt( char * str, u32 address, OpCode op );
-static void SprintOp_Opt( char * str, u32 address, OpCode op );
-static void SprintOp_NoOpt( char * str, u32 address, OpCode op );
-static void SprintOp_BEQL( char * str, u32 address, OpCode op );
-static void SprintOp_BNEL( char * str, u32 address, OpCode op );
-static void SprintOp_BLEZL( char * str, u32 address, OpCode op );
-static void SprintOp_BGTZL( char * str, u32 address, OpCode op );
-static void SprintOp_DADDI( char * str, u32 address, OpCode op );
-static void SprintOp_DADDIU( char * str, u32 address, OpCode op );
-static void SprintOp_LDL( char * str, u32 address, OpCode op );
-static void SprintOp_LDR( char * str, u32 address, OpCode op );
-static void SprintOp_Patch( char * str, u32 address, OpCode op );
-static void SprintOp_LB( char * str, u32 address, OpCode op );
-static void SprintOp_LH( char * str, u32 address, OpCode op );
-static void SprintOp_LWL( char * str, u32 address, OpCode op );
-static void SprintOp_LW( char * str, u32 address, OpCode op );
-static void SprintOp_LBU( char * str, u32 address, OpCode op );
-static void SprintOp_LHU( char * str, u32 address, OpCode op );
-static void SprintOp_LWR( char * str, u32 address, OpCode op );
-static void SprintOp_LWU( char * str, u32 address, OpCode op );
-static void SprintOp_SB( char * str, u32 address, OpCode op );
-static void SprintOp_SH( char * str, u32 address, OpCode op );
-static void SprintOp_SWL( char * str, u32 address, OpCode op );
-static void SprintOp_SW( char * str, u32 address, OpCode op );
-static void SprintOp_SDL( char * str, u32 address, OpCode op );
-static void SprintOp_SDR( char * str, u32 address, OpCode op );
-static void SprintOp_SWR( char * str, u32 address, OpCode op );
-static void SprintOp_CACHE( char * str, u32 address, OpCode op );
-static void SprintOp_LL( char * str, u32 address, OpCode op );
-static void SprintOp_LWC1( char * str, u32 address, OpCode op );
-static void SprintOp_LLD( char * str, u32 address, OpCode op );
-static void SprintOp_LDC1( char * str, u32 address, OpCode op );
-static void SprintOp_LDC2( char * str, u32 address, OpCode op );
-static void SprintOp_LD( char * str, u32 address, OpCode op );
-static void SprintOp_SC( char * str, u32 address, OpCode op );
-static void SprintOp_SWC1( char * str, u32 address, OpCode op );
-static void SprintOp_SCD( char * str, u32 address, OpCode op );
-static void SprintOp_SDC1( char * str, u32 address, OpCode op );
-static void SprintOp_SDC2( char * str, u32 address, OpCode op );
-static void SprintOp_SD( char * str, u32 address, OpCode op );
-
-
-
-static void SprintOp_Special_Unk( char * str, u32 address, OpCode op );
-
-static void SprintOp_Special_SLL( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SRL( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SRA( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SLLV( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SRLV( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SRAV( char * str, u32 address, OpCode op );
-static void SprintOp_Special_JR( char * str, u32 address, OpCode op );
-static void SprintOp_Special_JALR( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SYSCALL( char * str, u32 address, OpCode op );
-static void SprintOp_Special_BREAK( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SYNC( char * str, u32 address, OpCode op );
-static void SprintOp_Special_MFHI( char * str, u32 address, OpCode op );
-static void SprintOp_Special_MTHI( char * str, u32 address, OpCode op );
-static void SprintOp_Special_MFLO( char * str, u32 address, OpCode op );
-static void SprintOp_Special_MTLO( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSLLV( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSRLV( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSRAV( char * str, u32 address, OpCode op );
-static void SprintOp_Special_MULT( char * str, u32 address, OpCode op );
-static void SprintOp_Special_MULTU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DIV( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DIVU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DMULT( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DMULTU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DDIV( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DDIVU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_ADD( char * str, u32 address, OpCode op );
-static void SprintOp_Special_ADDU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SUB( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SUBU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_AND( char * str, u32 address, OpCode op );
-static void SprintOp_Special_OR( char * str, u32 address, OpCode op );
-static void SprintOp_Special_XOR( char * str, u32 address, OpCode op );
-static void SprintOp_Special_NOR( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SLT( char * str, u32 address, OpCode op );
-static void SprintOp_Special_SLTU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DADD( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DADDU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSUB( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSUBU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_TGE( char * str, u32 address, OpCode op );
-static void SprintOp_Special_TGEU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_TLT( char * str, u32 address, OpCode op );
-static void SprintOp_Special_TLTU( char * str, u32 address, OpCode op );
-static void SprintOp_Special_TEQ( char * str, u32 address, OpCode op );
-static void SprintOp_Special_TNE( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSLL( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSRL( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSRA( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSLL32( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSRL32( char * str, u32 address, OpCode op );
-static void SprintOp_Special_DSRA32( char * str, u32 address, OpCode op );
+static void SprintOp_Special( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_J( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_JAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_BEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_BNE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_BLEZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_BGTZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_ADDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_ADDIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SLTI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SLTIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_ANDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_ORI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_XORI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LUI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_CoPro0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_CoPro1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_UnOpt( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Opt( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_NoOpt( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_BEQL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_BNEL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_BLEZL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_BGTZL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_DADDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_DADDIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LDL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LDR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Patch( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LWL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LHU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LWR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LWU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SWL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SDL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SDR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SWR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_CACHE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LWC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LLD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LDC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LDC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_LD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SWC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SCD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SDC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SDC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_SD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
 
-static void SprintOp_RegImm_Unk( char * str, u32 address, OpCode op );
 
-static void SprintOp_RegImm_BLTZ( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_BGEZ( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_BLTZL( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_BGEZL( char * str, u32 address, OpCode op );
+static void SprintOp_Special_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
-static void SprintOp_RegImm_TGEI( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_TGEIU( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_TLTI( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_TLTIU( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_TEQI( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_TNEI( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_BLTZAL( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_BGEZAL( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_BLTZALL( char * str, u32 address, OpCode op );
-static void SprintOp_RegImm_BGEZALL( char * str, u32 address, OpCode op );
-
-
-static void SprintOp_Cop0_Unk( char * str, u32 address, OpCode op );
-static void SprintOp_Cop0_MFC0( char * str, u32 address, OpCode op );
-static void SprintOp_Cop0_MTC0( char * str, u32 address, OpCode op );
-static void SprintOp_Cop0_TLB( char * str, u32 address, OpCode op );
-
-static void SprintOp_TLB_Unk( char * str, u32 address, OpCode op );
-static void SprintOp_TLB_TLBR( char * str, u32 address, OpCode op );
-static void SprintOp_TLB_TLBWI( char * str, u32 address, OpCode op );
-static void SprintOp_TLB_TLBWR( char * str, u32 address, OpCode op );
-static void SprintOp_TLB_TLBP( char * str, u32 address, OpCode op );
-static void SprintOp_TLB_ERET( char * str, u32 address, OpCode op );
-
-static void SprintOp_Cop1_Unk( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_MFC1( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_DMFC1( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_CFC1( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_MTC1( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_DMTC1( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_CTC1( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_BCInstr( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_SInstr( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_DInstr( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_WInstr( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_LInstr( char * str, u32 address, OpCode op );
-
-
-static void SprintOp_Cop1_S_Unk( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_ADD( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_SUB( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_MUL( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_DIV( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_SQRT( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_ABS( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_MOV( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_NEG( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_ROUND_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_TRUNC_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_CEIL_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_FLOOR_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_ROUND_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_TRUNC_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_CEIL_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_FLOOR_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_CVT_D( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_CVT_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_CVT_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_F( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_UN( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_EQ( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_UEQ( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_OLT( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_ULT( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_OLE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_ULE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_SF( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_NGLE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_SEQ( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_NGL( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_LT( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_NGE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_LE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_S_NGT( char * str, u32 address, OpCode op );
-
-static void SprintOp_Cop1_D_Unk( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_ADD( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_SUB( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_MUL( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_DIV( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_SQRT( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_ABS( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_MOV( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_NEG( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_ROUND_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_TRUNC_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_CEIL_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_FLOOR_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_ROUND_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_TRUNC_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_CEIL_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_FLOOR_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_CVT_S( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_CVT_W( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_CVT_L( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_F( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_UN( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_EQ( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_UEQ( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_OLT( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_ULT( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_OLE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_ULE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_SF( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_NGLE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_SEQ( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_NGL( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_LT( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_NGE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_LE( char * str, u32 address, OpCode op );
-static void SprintOp_Cop1_D_NGT( char * str, u32 address, OpCode op );
+static void SprintOp_Special_SLL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SRL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SRA( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SLLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SRLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SRAV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_JR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_JALR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SYSCALL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_BREAK( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SYNC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_MFHI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_MTHI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_MFLO( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_MTLO( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSLLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSRLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSRAV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_MULT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_MULTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DIV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DIVU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DMULT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DMULTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DDIV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DDIVU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_ADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_ADDU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SUBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_AND( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_OR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_XOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_NOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_SLTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DADDU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSUBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_TGE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_TGEU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_TLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_TLTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_TEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_TNE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSLL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSRL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSRA( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSLL32( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSRL32( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Special_DSRA32( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
 
+static void SprintOp_RegImm_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintOp_RegImm_BLTZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_BGEZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_BLTZL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_BGEZL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintOp_RegImm_TGEI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_TGEIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_TLTI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_TLTIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_TEQI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_TNEI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_BLTZAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_BGEZAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_BLTZALL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_RegImm_BGEZALL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+
+static void SprintOp_Cop0_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop0_MFC0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop0_MTC0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop0_TLB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintOp_TLB_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_TLB_TLBR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_TLB_TLBWI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_TLB_TLBWR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_TLB_TLBP( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_TLB_ERET( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintOp_Cop1_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_MFC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_DMFC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_CFC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_MTC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_DMTC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_CTC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_BCInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_SInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_DInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_WInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_LInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+
+static void SprintOp_Cop1_S_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_ADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_SUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_MUL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_DIV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_SQRT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_ABS( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_MOV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_NEG( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_ROUND_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_TRUNC_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_CEIL_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_FLOOR_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_ROUND_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_TRUNC_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_CEIL_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_FLOOR_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_CVT_D( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_CVT_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_CVT_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_F( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_UN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_EQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_UEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_OLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_ULT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_OLE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_ULE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_SF( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_NGLE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_SEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_NGL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_LT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_NGE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_LE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_S_NGT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintOp_Cop1_D_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_ADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_SUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_MUL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_DIV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_SQRT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_ABS( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_MOV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_NEG( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_ROUND_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_TRUNC_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_CEIL_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_FLOOR_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_ROUND_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_TRUNC_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_CEIL_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_FLOOR_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_CVT_S( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_CVT_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_CVT_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_F( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_UN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_EQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_UEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_OLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_ULT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_OLE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_ULE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_SF( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_NGLE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_SEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_NGL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_LT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_NGE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_LE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintOp_Cop1_D_NGT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
 
 
 
 
 
-static void SprintRSPOp_Unk( char * str, u32 address, OpCode op );
-
-static void SprintRSPOp_Special( char * str, u32 address, OpCode op );
-static void SprintRSPOp_RegImm( char * str, u32 address, OpCode op );
-static void SprintRSPOp_CoPro0( char * str, u32 address, OpCode op );
-static void SprintRSPOp_CoPro2( char * str, u32 address, OpCode op );
 
 
-static void SprintRSPOp_J( char * str, u32 address, OpCode op );
-static void SprintRSPOp_JAL( char * str, u32 address, OpCode op );
-static void SprintRSPOp_BEQ( char * str, u32 address, OpCode op );
-static void SprintRSPOp_BNE( char * str, u32 address, OpCode op );
-static void SprintRSPOp_BLEZ( char * str, u32 address, OpCode op );
-static void SprintRSPOp_BGTZ( char * str, u32 address, OpCode op );
-static void SprintRSPOp_ADDI( char * str, u32 address, OpCode op );
-static void SprintRSPOp_ADDIU( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SLTI( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SLTIU( char * str, u32 address, OpCode op );
-static void SprintRSPOp_ANDI( char * str, u32 address, OpCode op );
-static void SprintRSPOp_ORI( char * str, u32 address, OpCode op );
-static void SprintRSPOp_XORI( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LUI( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LB( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LH( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LW( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LBU( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LHU( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SB( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SH( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SW( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2( char * str, u32 address, OpCode op );
+static void SprintRSPOp_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintRSPOp_Special( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_RegImm( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_CoPro0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_CoPro2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
 
-static void SprintRSPOp_Special_Unk( char * str, u32 address, OpCode op );
-
-static void SprintRSPOp_Special_SLL( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_SRL( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_SRA( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_SLLV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_SRLV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_SRAV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_JR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_JALR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_BREAK( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_ADD( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_ADDU( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_SUB( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_SUBU( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_AND( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_OR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_XOR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_NOR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_SLT( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Special_SLTU( char * str, u32 address, OpCode op );
-
-
-static void SprintRSPOp_RegImm_Unk( char * str, u32 address, OpCode op );
-
-static void SprintRSPOp_RegImm_BLTZ( char * str, u32 address, OpCode op );
-static void SprintRSPOp_RegImm_BGEZ( char * str, u32 address, OpCode op );
-static void SprintRSPOp_RegImm_BLTZAL( char * str, u32 address, OpCode op );
-static void SprintRSPOp_RegImm_BGEZAL( char * str, u32 address, OpCode op );
+static void SprintRSPOp_J( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_JAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_BEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_BNE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_BLEZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_BGTZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_ADDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_ADDIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SLTI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SLTIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_ANDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_ORI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_XORI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LUI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LHU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
 
-static void SprintRSPOp_Cop0_Unk( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Cop0_MFC0( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Cop0_MTC0( char * str, u32 address, OpCode op );
+static void SprintRSPOp_Special_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintRSPOp_Special_SLL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_SRL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_SRA( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_SLLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_SRLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_SRAV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_JR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_JALR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_BREAK( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_ADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_ADDU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_SUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_SUBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_AND( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_OR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_XOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_NOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_SLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Special_SLTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
 
-static void SprintRSPOp_LWC2_Unk( char * str, u32 address, OpCode op );
+static void SprintRSPOp_RegImm_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
-static void SprintRSPOp_LWC2_LSV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LLV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LDV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LQV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LTV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LBV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LRV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LPV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LUV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LHV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LFV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_LWC2_LWV( char * str, u32 address, OpCode op );
-
-static void SprintRSPOp_SWC2_Unk( char * str, u32 address, OpCode op );
-
-static void SprintRSPOp_SWC2_SSV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SLV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SDV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SQV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_STV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SBV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SRV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SPV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SUV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SHV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SFV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_SWC2_SWV( char * str, u32 address, OpCode op );
-
-static void SprintRSPOp_Cop2_Unk( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Cop2_MFC2( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Cop2_MTC2( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Cop2_VOP( char * str, u32 address, OpCode op );
+static void SprintRSPOp_RegImm_BLTZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_RegImm_BGEZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_RegImm_BLTZAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_RegImm_BGEZAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
 
-
-static void SprintRSPOp_Vop_Unk( char * str, u32 address, OpCode op );
-
-static void SprintRSPOp_Vop_VMULF( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMULU( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VRNDP( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMULQ( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMUDL( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMUDM( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMUDN( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMUDH( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMACF( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMACU( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VRNDN( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMACQ( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMADL( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMADM( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMADN( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMADH( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VADD( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VSUB( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VSUT( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VABS( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VADDC( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VSUBC( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VADDB( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VSUBB( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VACCB( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VSUCB( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VSAD( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VSAC( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VSUM( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VSAW( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VLT( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VEQ( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VNE( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VGE( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VCL( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VCH( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VCR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMRG( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VAND( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VNAND( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VOR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VNOR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VXOR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VNXOR( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VRCP( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VRCPL( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VRCPH( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VMOV( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VRSQ( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VRSQL( char * str, u32 address, OpCode op );
-static void SprintRSPOp_Vop_VRSQH( char * str, u32 address, OpCode op );
+static void SprintRSPOp_Cop0_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Cop0_MFC0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Cop0_MTC0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
 
-using SprintOpInstruction = void (*) ( char * str, u32 address, OpCode op );
+static void SprintRSPOp_LWC2_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintRSPOp_LWC2_LSV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LDV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LQV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LTV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LBV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LRV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LPV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LUV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LHV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LFV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_LWC2_LWV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintRSPOp_SWC2_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintRSPOp_SWC2_SSV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SDV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SQV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_STV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SBV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SRV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SPV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SUV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SHV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SFV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_SWC2_SWV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintRSPOp_Cop2_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Cop2_MFC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Cop2_MTC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Cop2_VOP( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+
+
+static void SprintRSPOp_Vop_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+static void SprintRSPOp_Vop_VMULF( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMULU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VRNDP( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMULQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMUDL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMUDM( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMUDN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMUDH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMACF( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMACU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VRNDN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMACQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMADL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMADM( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMADN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMADH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VSUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VSUT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VABS( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VADDC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VSUBC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VADDB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VSUBB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VACCB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VSUCB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VSAD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VSAC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VSUM( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VSAW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VNE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VGE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VCL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VCH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VCR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMRG( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VAND( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VNAND( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VNOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VXOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VNXOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VRCP( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VRCPL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VRCPH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VMOV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VRSQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VRSQL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+static void SprintRSPOp_Vop_VRSQH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
+
+
+using SprintOpInstruction = void (*) ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op );
 
 // Opcode Jump Table
 SprintOpInstruction SprintOp_Instructions[64] =
@@ -543,17 +543,17 @@ SprintOpInstruction SprintOp_Cop1DInstruction[64] =
 #define BranchAddress(op, address) (    (address)+4 + (s16)(((op).immediate))*4)
 #define JumpTarget(op, address)    (   ((address) & 0xF0000000) | (((op).target)<<2)   )
 
-void SprintOp_Unk( char * str, u32 address, OpCode op ) { strcpy(str, "Op_Unk?"); }
+void SprintOp_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op ) { strcpy(str, "Op_Unk?"); }
 
-void SprintOp_Special( char * str, u32 address, OpCode op )		{ SprintOp_SpecialInstructions[op.spec_op]( str, address, op ); }
-void SprintOp_RegImm( char * str, u32 address, OpCode op )		{ SprintOp_RegImmInstructions[op.rt]( str, address, op ); }
-void SprintOp_CoPro0( char * str, u32 address, OpCode op )		{ SprintOp_Cop0Instructions[op.cop0_op]( str, address, op ); }
-void SprintOp_CoPro1( char * str, u32 address, OpCode op )		{ SprintOp_Cop1Instructions[op.cop1_op]( str, address, op ); }
+void SprintOp_Special( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ SprintOp_SpecialInstructions[op.spec_op]( str, address, op ); }
+void SprintOp_RegImm( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ SprintOp_RegImmInstructions[op.rt]( str, address, op ); }
+void SprintOp_CoPro0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ SprintOp_Cop0Instructions[op.cop0_op]( str, address, op ); }
+void SprintOp_CoPro1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ SprintOp_Cop1Instructions[op.cop1_op]( str, address, op ); }
 
-void SprintOp_UnOpt( char * str, u32 address, OpCode op )		{ strcpy(str, "SRHack UnOpt"); }
-void SprintOp_Opt( char * str, u32 address, OpCode op )			{ strcpy(str, "SRHack Opt"); }
+void SprintOp_UnOpt( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ strcpy(str, "SRHack UnOpt"); }
+void SprintOp_Opt( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ strcpy(str, "SRHack Opt"); }
 
-void SprintOp_NoOpt( char * str, u32 address, OpCode op )		{   if( op.spec_op == 0 )
+void SprintOp_NoOpt( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{   if( op.spec_op == 0 )
 																	{
 																		snprintf(str, 128,"EXT       %s = %s [%d] [%d]", RegNames[op.rt], RegNames[op.rs], op.rd, op.sa);
 																	}
@@ -567,14 +567,14 @@ void SprintOp_NoOpt( char * str, u32 address, OpCode op )		{   if( op.spec_op ==
 																	}
 																}
 
-void SprintOp_Patch( char * str, u32 address, OpCode op )		{ strcpy(str, "Patch");
+void SprintOp_Patch( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ strcpy(str, "Patch");
 
 
 //Patch_GetJumpAddressName(JumpTarget(op, address)) );
 
 }
 
-void SprintOp_J( char * str, u32 address, OpCode op )
+void SprintOp_J( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )
 {
 	const char * p_name( "?" );
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
@@ -582,7 +582,7 @@ void SprintOp_J( char * str, u32 address, OpCode op )
 #endif
 	snprintf(str, 128,"J         0x%08x        %s", JumpTarget(op, address), p_name );
 }
-void SprintOp_JAL( char * str, u32 address, OpCode op )
+void SprintOp_JAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )
 {
 	const char * p_name( "?" );
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
@@ -590,248 +590,248 @@ void SprintOp_JAL( char * str, u32 address, OpCode op )
 #endif
 	snprintf(str, 128,"JAL       0x%08x        %s", JumpTarget(op, address), p_name );
 }
-void SprintOp_BEQ( char * str, u32 address, OpCode op ) {
+void SprintOp_BEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op ) {
 						if (op.rs == 0 && op.rt == 0)             snprintf(str, 128,"B         --> 0x%08x", address+4 + (s16)op.immediate*4);
 						else                                      snprintf(str, 128,"BEQ       %s == %s --> 0x%08x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
-void SprintOp_BNE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"BNE       %s != %s --> 0x%08x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
-void SprintOp_BLEZ( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BLEZ      %s <= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_BGTZ( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BGTZ      %s > 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_ADDI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"ADDI      %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintOp_ADDIU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"ADDIU     %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintOp_SLTI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SLTI      %s = (%s < 0x%04x)", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintOp_SLTIU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SLTIU     %s = (%s < 0x%04x)", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintOp_ANDI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"ANDI      %s = %s & 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintOp_ORI( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"ORI       %s = %s | 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintOp_XORI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"XORI      %s = %s ^ 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintOp_LUI( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LUI       %s = 0x%08x", RegNames[op.rt], op.immediate<<16); }
-void SprintOp_BEQL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BEQL      %s == %s --> 0x%08x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
-void SprintOp_BNEL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BNEL      %s != %s --> 0x%08x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
-void SprintOp_BLEZL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BLEZL     %s <= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_BGTZL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BGTZL     %s > 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_DADDI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DADDI     %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintOp_DADDIU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DADDIU    %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintOp_LDL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LDL       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LDR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LDR       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LB( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LB        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LH( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LH        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LWL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LWL       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LW( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LW        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LBU( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LBU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LHU( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LHU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LWR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LWR       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LWU( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LWU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SB( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SB        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SH( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SH        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SWL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SWL       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SW( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SW        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SDL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SDL       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SDR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SDR       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SWR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SWR       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_CACHE( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CACHE     0x%02x,0x%04x(%s)", op.rt, op.immediate, RegNames[op.rs]); }
-void SprintOp_LL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LL        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LWC1( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"LWC1      FP%02d <- 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
-void SprintOp_LLD( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LLD       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_LDC1( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"LDC1      FP%02d <- 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
-void SprintOp_LDC2( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"LDC2      GR%02d <- 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
-void SprintOp_LD( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LD        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SC( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SC        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SWC1( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SWC1      FP%02d -> 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
-void SprintOp_SCD( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SCD       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintOp_SDC1( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SDC1      FP%02d -> 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
-void SprintOp_SDC2( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SDC2      GR%02d -> 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
-void SprintOp_SD( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SD        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_BNE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"BNE       %s != %s --> 0x%08x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
+void SprintOp_BLEZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BLEZ      %s <= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_BGTZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BGTZ      %s > 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_ADDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"ADDI      %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintOp_ADDIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"ADDIU     %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintOp_SLTI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SLTI      %s = (%s < 0x%04x)", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintOp_SLTIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SLTIU     %s = (%s < 0x%04x)", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintOp_ANDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"ANDI      %s = %s & 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintOp_ORI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"ORI       %s = %s | 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintOp_XORI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"XORI      %s = %s ^ 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintOp_LUI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LUI       %s = 0x%08x", RegNames[op.rt], op.immediate<<16); }
+void SprintOp_BEQL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BEQL      %s == %s --> 0x%08x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
+void SprintOp_BNEL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BNEL      %s != %s --> 0x%08x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
+void SprintOp_BLEZL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BLEZL     %s <= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_BGTZL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BGTZL     %s > 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_DADDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DADDI     %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintOp_DADDIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DADDIU    %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintOp_LDL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LDL       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LDR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LDR       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LB        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LH        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LWL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LWL       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LW        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LBU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LHU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LHU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LWR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LWR       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LWU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LWU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SB        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SH        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SWL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SWL       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SW        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SDL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SDL       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SDR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SDR       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SWR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SWR       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_CACHE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CACHE     0x%02x,0x%04x(%s)", op.rt, op.immediate, RegNames[op.rs]); }
+void SprintOp_LL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LL        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LWC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"LWC1      FP%02d <- 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
+void SprintOp_LLD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LLD       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_LDC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"LDC1      FP%02d <- 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
+void SprintOp_LDC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"LDC2      GR%02d <- 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
+void SprintOp_LD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LD        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SC        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SWC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SWC1      FP%02d -> 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
+void SprintOp_SCD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SCD       %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintOp_SDC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SDC1      FP%02d -> 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
+void SprintOp_SDC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SDC2      GR%02d -> 0x%04x(%s)", op.ft, op.immediate, RegNames[op.rs]); }
+void SprintOp_SD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SD        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
 
 
-void SprintOp_Special_Unk( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"Special_Unk?"); }
+void SprintOp_Special_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"Special_Unk?"); }
 
-void SprintOp_Special_SLL( char * str, u32 address, OpCode op )			{
+void SprintOp_Special_SLL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{
 								if (op._u32 == 0)						  snprintf(str, 128,"NOP");
 								else									  snprintf(str, 128,"SLL       %s = %s << 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
-void SprintOp_Special_SRL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SRL       %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
-void SprintOp_Special_SRA( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SRA       %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
-void SprintOp_Special_SLLV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SLLV      %s = %s << %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
-void SprintOp_Special_SRLV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SRLV      %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
-void SprintOp_Special_SRAV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SRAV      %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
-void SprintOp_Special_JR( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"JR        %s", RegNames[op.rs]); }
-void SprintOp_Special_JALR( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"JALR      %s, %s", RegNames[op.rd], RegNames[op.rs]); }
-void SprintOp_Special_SYSCALL( char * str, u32 address, OpCode op )	{ snprintf(str, 128,"SYSCALL"); }
-void SprintOp_Special_BREAK( char * str, u32 address, OpCode op )	{ snprintf(str, 128,"BREAK     0x%08x", (op._u32>>6)&0xFFFFF); }
-void SprintOp_Special_SYNC( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SYNC"); }
-void SprintOp_Special_MFHI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MFHI      %s", RegNames[op.rd]); }
-void SprintOp_Special_MTHI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MTHI      %s", RegNames[op.rs]); }
-void SprintOp_Special_MFLO( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MFLO      %s", RegNames[op.rd]); }
-void SprintOp_Special_MTLO( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MTLO      %s", RegNames[op.rs]); }
-void SprintOp_Special_DSLLV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSLLV     %s = %s << %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
-void SprintOp_Special_DSRLV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSRLV     %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
-void SprintOp_Special_DSRAV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSRAV     %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
-void SprintOp_Special_MULT( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MULT      %s * %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_MULTU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MULTU     %s * %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DIV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"DIV       %s / %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DIVU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DIVU      %s / %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DMULT( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DMULT     %s * %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DMULTU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DMULTU    %s * %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DDIV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DDIV      %s / %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DDIVU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DDIVU     %s / %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_ADD( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"ADD       %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_ADDU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"ADDU      %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_SUB( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SUB       %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_SUBU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SUBU      %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_AND( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"AND       %s = %s & %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_OR( char * str, u32 address, OpCode op )			{
+void SprintOp_Special_SRL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SRL       %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
+void SprintOp_Special_SRA( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SRA       %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
+void SprintOp_Special_SLLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SLLV      %s = %s << %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
+void SprintOp_Special_SRLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SRLV      %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
+void SprintOp_Special_SRAV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SRAV      %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
+void SprintOp_Special_JR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"JR        %s", RegNames[op.rs]); }
+void SprintOp_Special_JALR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"JALR      %s, %s", RegNames[op.rd], RegNames[op.rs]); }
+void SprintOp_Special_SYSCALL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ snprintf(str, 128,"SYSCALL"); }
+void SprintOp_Special_BREAK( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ snprintf(str, 128,"BREAK     0x%08x", (op._u32>>6)&0xFFFFF); }
+void SprintOp_Special_SYNC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SYNC"); }
+void SprintOp_Special_MFHI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MFHI      %s", RegNames[op.rd]); }
+void SprintOp_Special_MTHI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MTHI      %s", RegNames[op.rs]); }
+void SprintOp_Special_MFLO( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MFLO      %s", RegNames[op.rd]); }
+void SprintOp_Special_MTLO( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MTLO      %s", RegNames[op.rs]); }
+void SprintOp_Special_DSLLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSLLV     %s = %s << %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
+void SprintOp_Special_DSRLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSRLV     %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
+void SprintOp_Special_DSRAV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSRAV     %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
+void SprintOp_Special_MULT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MULT      %s * %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_MULTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MULTU     %s * %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DIV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"DIV       %s / %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DIVU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DIVU      %s / %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DMULT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DMULT     %s * %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DMULTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DMULTU    %s * %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DDIV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DDIV      %s / %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DDIVU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DDIVU     %s / %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_ADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"ADD       %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_ADDU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"ADDU      %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_SUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SUB       %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_SUBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SUBU      %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_AND( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"AND       %s = %s & %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_OR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{
 							if (op.rs == 0 && op.rt == 0)	  snprintf(str, 128,"CLEAR     %s = 0", RegNames[op.rd]);
  							else if (op.rt == 0)					  snprintf(str, 128,"MOV       %s = %s", RegNames[op.rd], RegNames[op.rs]);
 							else										  snprintf(str, 128,"OR        %s = %s | %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_XOR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"XOR       %s = %s ^ %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_NOR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"NOR       %s = ~(%s | %s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_SLT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SLT       %s = (%s<%s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_SLTU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SLTU      %s = (%s<%s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DADD( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DADD      %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DADDU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DADDU     %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DSUB( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSUB      %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DSUBU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSUBU     %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_DSLL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSLL      %s = %s << 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
-void SprintOp_Special_DSRL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSRL      %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
-void SprintOp_Special_DSRA( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSRA      %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
-void SprintOp_Special_DSLL32( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSLL32    %s = %s << 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa+32); }
-void SprintOp_Special_DSRL32( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSRL32    %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa+32); }
-void SprintOp_Special_DSRA32( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"DSRA32    %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa+32); }
+void SprintOp_Special_XOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"XOR       %s = %s ^ %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_NOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"NOR       %s = ~(%s | %s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_SLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SLT       %s = (%s<%s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_SLTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SLTU      %s = (%s<%s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DADD      %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DADDU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DADDU     %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DSUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSUB      %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DSUBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSUBU     %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_DSLL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSLL      %s = %s << 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
+void SprintOp_Special_DSRL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSRL      %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
+void SprintOp_Special_DSRA( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSRA      %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
+void SprintOp_Special_DSLL32( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSLL32    %s = %s << 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa+32); }
+void SprintOp_Special_DSRL32( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSRL32    %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa+32); }
+void SprintOp_Special_DSRA32( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"DSRA32    %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa+32); }
 
-void SprintOp_Special_TGE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TGE       %s >= %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_TGEU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"TGEU      %s >= %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_TLT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TLT       %s < %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_TLTU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"TLTU      %s < %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_TEQ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TEQ       %s == %s", RegNames[op.rs], RegNames[op.rt]); }
-void SprintOp_Special_TNE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TNE       %s != %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_TGE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TGE       %s >= %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_TGEU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"TGEU      %s >= %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_TLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TLT       %s < %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_TLTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"TLTU      %s < %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_TEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TEQ       %s == %s", RegNames[op.rs], RegNames[op.rt]); }
+void SprintOp_Special_TNE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TNE       %s != %s", RegNames[op.rs], RegNames[op.rt]); }
 
-void SprintOp_RegImm_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"RegImm_Unk?"); }
+void SprintOp_RegImm_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"RegImm_Unk?"); }
 
-void SprintOp_RegImm_BLTZ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"BLTZ      %s < 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_RegImm_BGEZ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"BGEZ      %s >= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_RegImm_BLTZL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BLTZL     %s < 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_RegImm_BGEZL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BGEZL     %s >= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_RegImm_BLTZAL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BLTZAL    %s < 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_RegImm_BGEZAL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BGEZAL    %s >= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_RegImm_BLTZALL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BLTZALL   %s < 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintOp_RegImm_BGEZALL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BGEZALL   %s >= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_RegImm_BLTZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"BLTZ      %s < 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_RegImm_BGEZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"BGEZ      %s >= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_RegImm_BLTZL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BLTZL     %s < 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_RegImm_BGEZL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BGEZL     %s >= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_RegImm_BLTZAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BLTZAL    %s < 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_RegImm_BGEZAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BGEZAL    %s >= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_RegImm_BLTZALL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BLTZALL   %s < 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintOp_RegImm_BGEZALL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BGEZALL   %s >= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
 
-void SprintOp_RegImm_TGEI( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TGEI      %s >= 0x%04x", RegNames[op.rs], op.immediate); }
-void SprintOp_RegImm_TGEIU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"TGEIU     %s >= 0x%04x", RegNames[op.rs], op.immediate); }
-void SprintOp_RegImm_TLTI( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TLTI      %s < 0x%04x", RegNames[op.rs], op.immediate); }
-void SprintOp_RegImm_TLTIU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"TLTIU     %s < 0x%04x", RegNames[op.rs], op.immediate); }
-void SprintOp_RegImm_TEQI( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TEQI      %s == 0x%04x", RegNames[op.rs], op.immediate); }
-void SprintOp_RegImm_TNEI( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TNEI      %s != 0x%04x", RegNames[op.rs], op.immediate); }
-
-
-void SprintOp_Cop0_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"Cop0_Unk?"); }
-void SprintOp_Cop0_MFC0( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"MFC0      %s <- %s", RegNames[op.rt], Cop0RegNames[op.fs]); }
-void SprintOp_Cop0_MTC0( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"MTC0      %s -> %s", RegNames[op.rt], Cop0RegNames[op.fs]); }
-void SprintOp_Cop0_TLB( char * str, u32 address, OpCode op )			{ SprintOp_TLBInstructions[op.cop0tlb_funct](str, address, op); }
+void SprintOp_RegImm_TGEI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TGEI      %s >= 0x%04x", RegNames[op.rs], op.immediate); }
+void SprintOp_RegImm_TGEIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"TGEIU     %s >= 0x%04x", RegNames[op.rs], op.immediate); }
+void SprintOp_RegImm_TLTI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TLTI      %s < 0x%04x", RegNames[op.rs], op.immediate); }
+void SprintOp_RegImm_TLTIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"TLTIU     %s < 0x%04x", RegNames[op.rs], op.immediate); }
+void SprintOp_RegImm_TEQI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TEQI      %s == 0x%04x", RegNames[op.rs], op.immediate); }
+void SprintOp_RegImm_TNEI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TNEI      %s != 0x%04x", RegNames[op.rs], op.immediate); }
 
 
-void SprintOp_TLB_Unk( char * str, u32 address, OpCode op )				{ snprintf(str, 128,"TLB_Unk?"); }
-void SprintOp_TLB_TLBR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TLBR"); }
-void SprintOp_TLB_TLBWI( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TLBWI"); }
-void SprintOp_TLB_TLBWR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TLBWR"); }
-void SprintOp_TLB_TLBP( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"TLBP"); }
-void SprintOp_TLB_ERET( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"ERET"); }
-
-void SprintOp_Cop1_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"Cop1_Unk?"); }
-void SprintOp_Cop1_MFC1( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"MFC1      %s <- FP%02d", RegNames[op.rt], op.fs); }
-void SprintOp_Cop1_DMFC1( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"DMFC1     %s <- FP%02d", RegNames[op.rt], op.fs); }
-void SprintOp_Cop1_CFC1( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"CFC1      %s <- CCR%02d", RegNames[op.rt], op.rd); }
-void SprintOp_Cop1_MTC1( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"MTC1      %s -> FP%02d", RegNames[op.rt], op.fs); }
-void SprintOp_Cop1_DMTC1( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"DMTC1     %s -> FP%02d", RegNames[op.rt], op.fs); }
-void SprintOp_Cop1_CTC1( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"CTC1      %s -> CCR%02d", RegNames[op.rt], op.rd); }
-void SprintOp_Cop1_BCInstr( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"%-10.10s%08x", Cop1BC1OpCodeNames[op.cop1_bc], BranchAddress(op, address)); }
+void SprintOp_Cop0_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"Cop0_Unk?"); }
+void SprintOp_Cop0_MFC0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"MFC0      %s <- %s", RegNames[op.rt], Cop0RegNames[op.fs]); }
+void SprintOp_Cop0_MTC0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"MTC0      %s -> %s", RegNames[op.rt], Cop0RegNames[op.fs]); }
+void SprintOp_Cop0_TLB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ SprintOp_TLBInstructions[op.cop0tlb_funct](str, address, op); }
 
 
-void SprintOp_Cop1_SInstr( char * str, u32 address, OpCode op ) { SprintOp_Cop1SInstruction[op.cop1_funct](str, address, op); }
+void SprintOp_TLB_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )				{ snprintf(str, 128,"TLB_Unk?"); }
+void SprintOp_TLB_TLBR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TLBR"); }
+void SprintOp_TLB_TLBWI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TLBWI"); }
+void SprintOp_TLB_TLBWR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TLBWR"); }
+void SprintOp_TLB_TLBP( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"TLBP"); }
+void SprintOp_TLB_ERET( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"ERET"); }
 
-void SprintOp_Cop1_S_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"Cop1_S_Unk?"); }
-void SprintOp_Cop1_S_ADD( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"ADD.S     FP%02d = FP%02d + FP%02d", op.fd, op.fs, op.ft); }
-void SprintOp_Cop1_S_SUB( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SUB.S     FP%02d = FP%02d - FP%02d", op.fd, op.fs, op.ft); }
-void SprintOp_Cop1_S_MUL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"MUL.S     FP%02d = FP%02d * FP%02d", op.fd, op.fs, op.ft); }
-void SprintOp_Cop1_S_DIV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"DIV.S     FP%02d = FP%02d / FP%02d", op.fd, op.fs, op.ft); }
-void SprintOp_Cop1_S_SQRT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SQRT.S    FP%02d = sqrt(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_ABS( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"ABS.S     FP%02d = fabs(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_MOV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"MOV.S     FP%02d = FP%02d", op.fd, op.fs); }
-void SprintOp_Cop1_S_NEG( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"NEG.S     FP%02d = -FP%02d", op.fd, op.fs); }
-void SprintOp_Cop1_S_ROUND_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"RND.L.S   FP%02d = round(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_TRUNC_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"TRUN.L.S  FP%02d = trunc(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_CEIL_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CEIL.L.S  FP%02d = ceil(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_FLOOR_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"FLR.L.S   FP%02d = floor(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_ROUND_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"RND.W.S   FP%02d = round(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_TRUNC_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"TRUN.W.S  FP%02d = trunc(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_CEIL_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CEIL.W.S  FP%02d = ceil(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_FLOOR_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"FLR.W.S   FP%02d = floor(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_S_CVT_D( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CVT.D.S   FP%02d = (d)FP%02d", op.fd, op.fs); }
-void SprintOp_Cop1_S_CVT_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CVT.W.S   FP%02d = (w)FP%02d", op.fd, op.fs); }
-void SprintOp_Cop1_S_CVT_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CVT.L.S   FP%02d = (l)FP%02d", op.fd, op.fs); }
-
-void SprintOp_Cop1_S_F( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.F.S     FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_UN( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.UN.S    FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_EQ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.EQ.S    FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_UEQ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.UEQ.S   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_OLT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.OLT.S   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_ULT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.ULT.S   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_OLE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.OLE.S   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_ULE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.ULE.S   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_SF( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.SF.S    FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_NGLE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.NGLE.S  FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_SEQ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.SEQ.S   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_NGL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.NGL.S   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_LT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.LT.S    FP%02d < FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_NGE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.NGE.S   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_LE( char * str, u32 address, OpCode op ) 			{ snprintf(str, 128,"C.LE.S    FP%02d <= FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_S_NGT( char * str, u32 address, OpCode op ) 			{ snprintf(str, 128,"C.NGT.S   FP%02d ? FP%02d", op.fs, op.ft); }
-
-void SprintOp_Cop1_DInstr( char * str, u32 address, OpCode op )			{ SprintOp_Cop1DInstruction[op.cop1_funct](str, address, op); }
-
-void SprintOp_Cop1_D_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"Cop1_D_Unk?"); }
-void SprintOp_Cop1_D_ADD( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"ADD.D     FP%02d = FP%02d + FP%02d", op.fd, op.fs, op.ft); }
-void SprintOp_Cop1_D_SUB( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SUB.D     FP%02d = FP%02d - FP%02d", op.fd, op.fs, op.ft); }
-void SprintOp_Cop1_D_MUL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"MUL.D     FP%02d = FP%02d * FP%02d", op.fd, op.fs, op.ft); }
-void SprintOp_Cop1_D_DIV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"DIV.D     FP%02d = FP%02d / FP%02d", op.fd, op.fs, op.ft); }
-void SprintOp_Cop1_D_SQRT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SQRT.D    FP%02d = sqrt(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_ABS( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"ABS.D     FP%02d = fabs(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_MOV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"MOV.D     FP%02d = FP%02d", op.fd, op.fs); }
-void SprintOp_Cop1_D_NEG( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"NEG.D     FP%02d = -FP%02d", op.fd, op.fs); }
-void SprintOp_Cop1_D_ROUND_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"RND.L.D   FP%02d = round(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_TRUNC_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"TRUN.L.D  FP%02d = trunc(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_CEIL_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CEIL.L.D  FP%02d = ceil(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_FLOOR_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"FLR.L.D   FP%02d = floor(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_ROUND_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"RND.W.D   FP%02d = round(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_TRUNC_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"TRUN.W.D  FP%02d = trunc(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_CEIL_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CEIL.W.D  FP%02d = ceil(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_FLOOR_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"FLR.W.D   FP%02d = floor(FP%02d)", op.fd, op.fs); }
-void SprintOp_Cop1_D_CVT_S( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CVT.S.D   FP%02d = (s)FP%02d", op.fd, op.fs); }
-void SprintOp_Cop1_D_CVT_W( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CVT.W.D   FP%02d = (w)FP%02d", op.fd, op.fs); }
-void SprintOp_Cop1_D_CVT_L( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"CVT.L.D   FP%02d = (l)FP%02d", op.fd, op.fs); }
-
-void SprintOp_Cop1_D_F( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.F.D     FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_UN( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.UN.D    FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_EQ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.EQ.D    FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_UEQ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.UEQ.D   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_OLT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.OLT.D   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_ULT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.ULT.D   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_OLE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.OLE.D   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_ULE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.ULE.D   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_SF( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.DF.D    FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_NGLE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.NGLE.D  FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_SEQ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.DEQ.D   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_NGL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.NGL.D   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_LT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.LT.D    FP%02d < FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_NGE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"C.NGE.D   FP%02d ? FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_LE( char * str, u32 address, OpCode op ) 			{ snprintf(str, 128,"C.LE.D    FP%02d <= FP%02d", op.fs, op.ft); }
-void SprintOp_Cop1_D_NGT( char * str, u32 address, OpCode op ) 			{ snprintf(str, 128,"C.NGT.D   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"Cop1_Unk?"); }
+void SprintOp_Cop1_MFC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"MFC1      %s <- FP%02d", RegNames[op.rt], op.fs); }
+void SprintOp_Cop1_DMFC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"DMFC1     %s <- FP%02d", RegNames[op.rt], op.fs); }
+void SprintOp_Cop1_CFC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"CFC1      %s <- CCR%02d", RegNames[op.rt], op.rd); }
+void SprintOp_Cop1_MTC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"MTC1      %s -> FP%02d", RegNames[op.rt], op.fs); }
+void SprintOp_Cop1_DMTC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"DMTC1     %s -> FP%02d", RegNames[op.rt], op.fs); }
+void SprintOp_Cop1_CTC1( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"CTC1      %s -> CCR%02d", RegNames[op.rt], op.rd); }
+void SprintOp_Cop1_BCInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"%-10.10s%08x", Cop1BC1OpCodeNames[op.cop1_bc], BranchAddress(op, address)); }
 
 
-void SprintOp_Cop1_WInstr( char * str, u32 address, OpCode op )
+void SprintOp_Cop1_SInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op ) { SprintOp_Cop1SInstruction[op.cop1_funct](str, address, op); }
+
+void SprintOp_Cop1_S_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"Cop1_S_Unk?"); }
+void SprintOp_Cop1_S_ADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"ADD.S     FP%02d = FP%02d + FP%02d", op.fd, op.fs, op.ft); }
+void SprintOp_Cop1_S_SUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SUB.S     FP%02d = FP%02d - FP%02d", op.fd, op.fs, op.ft); }
+void SprintOp_Cop1_S_MUL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"MUL.S     FP%02d = FP%02d * FP%02d", op.fd, op.fs, op.ft); }
+void SprintOp_Cop1_S_DIV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"DIV.S     FP%02d = FP%02d / FP%02d", op.fd, op.fs, op.ft); }
+void SprintOp_Cop1_S_SQRT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SQRT.S    FP%02d = sqrt(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_ABS( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"ABS.S     FP%02d = fabs(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_MOV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"MOV.S     FP%02d = FP%02d", op.fd, op.fs); }
+void SprintOp_Cop1_S_NEG( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"NEG.S     FP%02d = -FP%02d", op.fd, op.fs); }
+void SprintOp_Cop1_S_ROUND_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"RND.L.S   FP%02d = round(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_TRUNC_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"TRUN.L.S  FP%02d = trunc(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_CEIL_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CEIL.L.S  FP%02d = ceil(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_FLOOR_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"FLR.L.S   FP%02d = floor(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_ROUND_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"RND.W.S   FP%02d = round(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_TRUNC_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"TRUN.W.S  FP%02d = trunc(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_CEIL_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CEIL.W.S  FP%02d = ceil(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_FLOOR_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"FLR.W.S   FP%02d = floor(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_S_CVT_D( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CVT.D.S   FP%02d = (d)FP%02d", op.fd, op.fs); }
+void SprintOp_Cop1_S_CVT_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CVT.W.S   FP%02d = (w)FP%02d", op.fd, op.fs); }
+void SprintOp_Cop1_S_CVT_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CVT.L.S   FP%02d = (l)FP%02d", op.fd, op.fs); }
+
+void SprintOp_Cop1_S_F( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.F.S     FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_UN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.UN.S    FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_EQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.EQ.S    FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_UEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.UEQ.S   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_OLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.OLT.S   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_ULT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.ULT.S   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_OLE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.OLE.S   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_ULE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.ULE.S   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_SF( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.SF.S    FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_NGLE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.NGLE.S  FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_SEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.SEQ.S   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_NGL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.NGL.S   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_LT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.LT.S    FP%02d < FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_NGE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.NGE.S   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_LE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op ) 			{ snprintf(str, 128,"C.LE.S    FP%02d <= FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_S_NGT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op ) 			{ snprintf(str, 128,"C.NGT.S   FP%02d ? FP%02d", op.fs, op.ft); }
+
+void SprintOp_Cop1_DInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ SprintOp_Cop1DInstruction[op.cop1_funct](str, address, op); }
+
+void SprintOp_Cop1_D_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"Cop1_D_Unk?"); }
+void SprintOp_Cop1_D_ADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"ADD.D     FP%02d = FP%02d + FP%02d", op.fd, op.fs, op.ft); }
+void SprintOp_Cop1_D_SUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SUB.D     FP%02d = FP%02d - FP%02d", op.fd, op.fs, op.ft); }
+void SprintOp_Cop1_D_MUL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"MUL.D     FP%02d = FP%02d * FP%02d", op.fd, op.fs, op.ft); }
+void SprintOp_Cop1_D_DIV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"DIV.D     FP%02d = FP%02d / FP%02d", op.fd, op.fs, op.ft); }
+void SprintOp_Cop1_D_SQRT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SQRT.D    FP%02d = sqrt(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_ABS( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"ABS.D     FP%02d = fabs(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_MOV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"MOV.D     FP%02d = FP%02d", op.fd, op.fs); }
+void SprintOp_Cop1_D_NEG( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"NEG.D     FP%02d = -FP%02d", op.fd, op.fs); }
+void SprintOp_Cop1_D_ROUND_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"RND.L.D   FP%02d = round(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_TRUNC_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"TRUN.L.D  FP%02d = trunc(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_CEIL_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CEIL.L.D  FP%02d = ceil(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_FLOOR_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"FLR.L.D   FP%02d = floor(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_ROUND_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"RND.W.D   FP%02d = round(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_TRUNC_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"TRUN.W.D  FP%02d = trunc(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_CEIL_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CEIL.W.D  FP%02d = ceil(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_FLOOR_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"FLR.W.D   FP%02d = floor(FP%02d)", op.fd, op.fs); }
+void SprintOp_Cop1_D_CVT_S( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CVT.S.D   FP%02d = (s)FP%02d", op.fd, op.fs); }
+void SprintOp_Cop1_D_CVT_W( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CVT.W.D   FP%02d = (w)FP%02d", op.fd, op.fs); }
+void SprintOp_Cop1_D_CVT_L( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"CVT.L.D   FP%02d = (l)FP%02d", op.fd, op.fs); }
+
+void SprintOp_Cop1_D_F( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.F.D     FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_UN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.UN.D    FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_EQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.EQ.D    FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_UEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.UEQ.D   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_OLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.OLT.D   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_ULT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.ULT.D   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_OLE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.OLE.D   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_ULE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.ULE.D   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_SF( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.DF.D    FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_NGLE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.NGLE.D  FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_SEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.DEQ.D   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_NGL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.NGL.D   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_LT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.LT.D    FP%02d < FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_NGE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"C.NGE.D   FP%02d ? FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_LE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op ) 			{ snprintf(str, 128,"C.LE.D    FP%02d <= FP%02d", op.fs, op.ft); }
+void SprintOp_Cop1_D_NGT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op ) 			{ snprintf(str, 128,"C.NGT.D   FP%02d ? FP%02d", op.fs, op.ft); }
+
+
+void SprintOp_Cop1_WInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )
 {
 	snprintf(str, 128,"%-10.10sFP%02d,FP%02d", Cop1WOpCodeNames[op.cop1_funct], op.fd, op.fs);
 
 }
-void SprintOp_Cop1_LInstr( char * str, u32 address, OpCode op )
+void SprintOp_Cop1_LInstr( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )
 {
 	snprintf(str, 128,"%-10.10sFP%02d,FP%02d", Cop1LOpCodeNames[op.cop1_funct], op.fd, op.fs);
 }
@@ -924,82 +924,82 @@ SprintOpInstruction SprintRSPOp_VopInstructions[64] = {
 
 
 
-void SprintRSPOp_Unk( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"?"); }
+void SprintRSPOp_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"?"); }
 
 
-void SprintRSPOp_Special( char * str, u32 address, OpCode op )	{ SprintRSPOp_SpecialInstructions[op.spec_op](str, address, op); }
-void SprintRSPOp_RegImm( char * str, u32 address, OpCode op )	{ SprintRSPOp_RegImmInstructions[op.regimm_op](str, address, op); }
-void SprintRSPOp_CoPro0( char * str, u32 address, OpCode op )	{ SprintRSPOp_Cop0Instructions[op.cop0_op](str, address, op); }
-void SprintRSPOp_CoPro2( char * str, u32 address, OpCode op )	{ SprintRSPOp_Cop2Instructions[op.cop1_op](str, address, op); }
-void SprintRSPOp_LWC2( char * str, u32 address, OpCode op )		{ SprintRSPOp_LWC2Instructions[op.rd](str, address, op); }
-void SprintRSPOp_SWC2( char * str, u32 address, OpCode op )		{ SprintRSPOp_SWC2Instructions[op.rd](str, address, op); }
+void SprintRSPOp_Special( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ SprintRSPOp_SpecialInstructions[op.spec_op](str, address, op); }
+void SprintRSPOp_RegImm( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ SprintRSPOp_RegImmInstructions[op.regimm_op](str, address, op); }
+void SprintRSPOp_CoPro0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ SprintRSPOp_Cop0Instructions[op.cop0_op](str, address, op); }
+void SprintRSPOp_CoPro2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ SprintRSPOp_Cop2Instructions[op.cop1_op](str, address, op); }
+void SprintRSPOp_LWC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ SprintRSPOp_LWC2Instructions[op.rd](str, address, op); }
+void SprintRSPOp_SWC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ SprintRSPOp_SWC2Instructions[op.rd](str, address, op); }
 
-void SprintRSPOp_Cop2_VOP( char * str, u32 address, OpCode op )	{ SprintRSPOp_VopInstructions[op.cop2_funct](str, address, op); }
+void SprintRSPOp_Cop2_VOP( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ SprintRSPOp_VopInstructions[op.cop2_funct](str, address, op); }
 
-void SprintRSPOp_J( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"J         0x%04x        %s", RSPJumpTarget(op, address), "?" ); }
-void SprintRSPOp_JAL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"JAL       0x%04x        %s", RSPJumpTarget(op, address), "?" ); }
-void SprintRSPOp_BEQ( char * str, u32 address, OpCode op ) {
+void SprintRSPOp_J( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"J         0x%04x        %s", RSPJumpTarget(op, address), "?" ); }
+void SprintRSPOp_JAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"JAL       0x%04x        %s", RSPJumpTarget(op, address), "?" ); }
+void SprintRSPOp_BEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op ) {
 						if (op.rs == 0 && op.rt == 0)             snprintf(str, 128,"B         --> 0x%04x", address+4 + (s16)op.immediate*4);
 						else                                      snprintf(str, 128,"BEQ       %s == %s --> 0x%04x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
-void SprintRSPOp_BNE( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BNE       %s != %s --> 0x%04x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
-void SprintRSPOp_BLEZ( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BLEZ      %s <= 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintRSPOp_BGTZ( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BGTZ      %s > 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintRSPOp_ADDI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"ADDI      %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintRSPOp_ADDIU( char * str, u32 address, OpCode op )	{ snprintf(str, 128,"ADDIU     %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintRSPOp_SLTI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SLTI      %s = (%s < 0x%04x)", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintRSPOp_SLTIU( char * str, u32 address, OpCode op )	{ snprintf(str, 128,"SLTIU     %s = (%s < 0x%04x)", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintRSPOp_ANDI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"ANDI      %s = %s & 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintRSPOp_ORI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"ORI       %s = %s | 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintRSPOp_XORI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"XORI      %s = %s ^ 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
-void SprintRSPOp_LUI( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"LUI       %s = 0x%08x", RegNames[op.rt], op.immediate<<16); }
-void SprintRSPOp_LB( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"LB        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintRSPOp_LH( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"LH        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintRSPOp_LW( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"LW        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintRSPOp_LBU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"LBU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintRSPOp_LHU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"LHU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintRSPOp_SB( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SB        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintRSPOp_SH( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SH        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
-void SprintRSPOp_SW( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SW        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintRSPOp_BNE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BNE       %s != %s --> 0x%04x", RegNames[op.rs], RegNames[op.rt], BranchAddress(op, address)); }
+void SprintRSPOp_BLEZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BLEZ      %s <= 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintRSPOp_BGTZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BGTZ      %s > 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintRSPOp_ADDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"ADDI      %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintRSPOp_ADDIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ snprintf(str, 128,"ADDIU     %s = %s + 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintRSPOp_SLTI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SLTI      %s = (%s < 0x%04x)", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintRSPOp_SLTIU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ snprintf(str, 128,"SLTIU     %s = (%s < 0x%04x)", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintRSPOp_ANDI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"ANDI      %s = %s & 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintRSPOp_ORI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"ORI       %s = %s | 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintRSPOp_XORI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"XORI      %s = %s ^ 0x%04x", RegNames[op.rt], RegNames[op.rs], op.immediate); }
+void SprintRSPOp_LUI( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"LUI       %s = 0x%08x", RegNames[op.rt], op.immediate<<16); }
+void SprintRSPOp_LB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"LB        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintRSPOp_LH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"LH        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintRSPOp_LW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"LW        %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintRSPOp_LBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"LBU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintRSPOp_LHU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"LHU       %s <- 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintRSPOp_SB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SB        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintRSPOp_SH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SH        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
+void SprintRSPOp_SW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SW        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
 
-void SprintRSPOp_Special_Unk( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"?"); }
+void SprintRSPOp_Special_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"?"); }
 
-void SprintRSPOp_Special_SLL( char * str, u32 address, OpCode op )		{
+void SprintRSPOp_Special_SLL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{
 								if (op._u32 == 0)						  snprintf(str, 128,"NOP");
 								else									  snprintf(str, 128,"SLL       %s = %s << 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
-void SprintRSPOp_Special_SRL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SRL       %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
-void SprintRSPOp_Special_SRA( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SRA       %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
-void SprintRSPOp_Special_SLLV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SLLV      %s = %s << %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
-void SprintRSPOp_Special_SRLV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SRLV      %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
-void SprintRSPOp_Special_SRAV( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SRAV      %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
-void SprintRSPOp_Special_JR( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"JR        %s", RegNames[op.rs]); }
-void SprintRSPOp_Special_JALR( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"JALR      %s, %s", RegNames[op.rd], RegNames[op.rs]); }
-void SprintRSPOp_Special_BREAK( char * str, u32 address, OpCode op )	{ snprintf(str, 128,"BREAK     0x%08x", (op._u32>>6)&0xFFFFF); }
-void SprintRSPOp_Special_ADD( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"ADD       %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintRSPOp_Special_ADDU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"ADDU      %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintRSPOp_Special_SUB( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SUB       %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintRSPOp_Special_SUBU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SUBU      %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintRSPOp_Special_AND( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"AND       %s = %s & %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintRSPOp_Special_OR( char * str, u32 address, OpCode op )		{
+void SprintRSPOp_Special_SRL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SRL       %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
+void SprintRSPOp_Special_SRA( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SRA       %s = %s >> 0x%04x", RegNames[op.rd], RegNames[op.rt], op.sa); }
+void SprintRSPOp_Special_SLLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SLLV      %s = %s << %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
+void SprintRSPOp_Special_SRLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SRLV      %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
+void SprintRSPOp_Special_SRAV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SRAV      %s = %s >> %s", RegNames[op.rd], RegNames[op.rt], RegNames[op.rs]); }
+void SprintRSPOp_Special_JR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"JR        %s", RegNames[op.rs]); }
+void SprintRSPOp_Special_JALR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"JALR      %s, %s", RegNames[op.rd], RegNames[op.rs]); }
+void SprintRSPOp_Special_BREAK( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ snprintf(str, 128,"BREAK     0x%08x", (op._u32>>6)&0xFFFFF); }
+void SprintRSPOp_Special_ADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"ADD       %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintRSPOp_Special_ADDU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"ADDU      %s = %s + %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintRSPOp_Special_SUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SUB       %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintRSPOp_Special_SUBU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SUBU      %s = %s - %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintRSPOp_Special_AND( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"AND       %s = %s & %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintRSPOp_Special_OR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{
 											if (op.rs == 0 && op.rt == 0) snprintf(str, 128,"CLEAR     %s = 0", RegNames[op.rd]);
  											else if (op.rt == 0)		  snprintf(str, 128,"MOV       %s = %s", RegNames[op.rd], RegNames[op.rs]);
 											else						  snprintf(str, 128,"OR        %s = %s | %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintRSPOp_Special_XOR( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"XOR       %s = %s ^ %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintRSPOp_Special_NOR( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"NOR       %s = ~(%s | %s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintRSPOp_Special_SLT( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SLT       %s = (%s<%s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
-void SprintRSPOp_Special_SLTU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"SLTU      %s = (%s<%s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintRSPOp_Special_XOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"XOR       %s = %s ^ %s", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintRSPOp_Special_NOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"NOR       %s = ~(%s | %s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintRSPOp_Special_SLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SLT       %s = (%s<%s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
+void SprintRSPOp_Special_SLTU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"SLTU      %s = (%s<%s)", RegNames[op.rd], RegNames[op.rs], RegNames[op.rt]); }
 
 
 
 
-void SprintRSPOp_RegImm_Unk( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"?"); }
+void SprintRSPOp_RegImm_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"?"); }
 
-void SprintRSPOp_RegImm_BLTZ( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BLTZ      %s < 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintRSPOp_RegImm_BGEZ( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"BGEZ      %s >= 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintRSPOp_RegImm_BLTZAL( char * str, u32 address, OpCode op )	{ snprintf(str, 128,"BLTZAL    %s < 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
-void SprintRSPOp_RegImm_BGEZAL( char * str, u32 address, OpCode op )	{ snprintf(str, 128,"BGEZAL    %s >= 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintRSPOp_RegImm_BLTZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BLTZ      %s < 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintRSPOp_RegImm_BGEZ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"BGEZ      %s >= 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintRSPOp_RegImm_BLTZAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ snprintf(str, 128,"BLTZAL    %s < 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
+void SprintRSPOp_RegImm_BGEZAL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )	{ snprintf(str, 128,"BGEZAL    %s >= 0 --> 0x%04x", RegNames[op.rs], BranchAddress(op, address)); }
 
 
-void SprintRSPOp_Cop0_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"?"); }
+void SprintRSPOp_Cop0_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"?"); }
 
 static const char * const g_szRSPControlReg[16] =
 {
@@ -1024,44 +1024,44 @@ static const char * const g_szRSPControlReg[16] =
 
 
 
-void SprintRSPOp_Cop0_MFC0( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MFC0      %s <- [%s]", RegNames[op.rt], g_szRSPControlReg[op.fs&0x0F]); }
-void SprintRSPOp_Cop0_MTC0( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MTC0      %s -> [%s]", RegNames[op.rt], g_szRSPControlReg[op.fs&0x0F]); }
+void SprintRSPOp_Cop0_MFC0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MFC0      %s <- [%s]", RegNames[op.rt], g_szRSPControlReg[op.fs&0x0F]); }
+void SprintRSPOp_Cop0_MTC0( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MTC0      %s -> [%s]", RegNames[op.rt], g_szRSPControlReg[op.fs&0x0F]); }
 
-void SprintRSPOp_LWC2_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"?"); }
+void SprintRSPOp_LWC2_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"?"); }
 
-void SprintRSPOp_LWC2_LBV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LBV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<0, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LSV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LSV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<1, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LLV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LLV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<2, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LDV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LDV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LQV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LQV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LTV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LTV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LRV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LRV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LPV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LPV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LUV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LUV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LHV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LHV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LFV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LFV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_LWC2_LWV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"LWV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LBV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LBV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<0, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LSV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LSV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<1, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LLV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<2, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LDV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LDV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LQV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LQV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LTV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LTV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LRV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LRV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LPV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LPV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LUV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LUV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LHV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LHV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LFV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LFV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_LWC2_LWV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"LWV       vec%02d[%d] <- 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
 
-void SprintRSPOp_SWC2_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"?"); }
+void SprintRSPOp_SWC2_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"?"); }
 
-void SprintRSPOp_SWC2_SBV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SBV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<0, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SSV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SSV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<1, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SLV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SLV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<2, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SDV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SDV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SQV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SQV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_SWC2_STV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"STV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SRV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SRV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SPV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SPV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SUV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SUV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SHV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SHV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SFV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SFV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
-void SprintRSPOp_SWC2_SWV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"SWV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SBV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SBV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<0, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SSV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SSV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<1, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SLV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SLV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<2, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SDV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SDV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SQV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SQV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_SWC2_STV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"STV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SRV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SRV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SPV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SPV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SUV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SUV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<3, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SHV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SHV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SFV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SFV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
+void SprintRSPOp_SWC2_SWV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"SWV       vec%02d[%d] -> 0x%04x(%s)", op.rt, op.del, op.voffset<<4, RegNames[op.base]); }
 
-void SprintRSPOp_Cop2_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"?"); }
-void SprintRSPOp_Cop2_MFC2( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MFC2      %s <- vec%d[%d]", RegNames[op.rt], op.rd, op.sa>>1); }
-void SprintRSPOp_Cop2_MTC2( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"MTC2      %s -> vec%d[%d]", RegNames[op.rt], op.rd, op.sa>>1); }
+void SprintRSPOp_Cop2_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"?"); }
+void SprintRSPOp_Cop2_MFC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MFC2      %s <- vec%d[%d]", RegNames[op.rt], op.rd, op.sa>>1); }
+void SprintRSPOp_Cop2_MTC2( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"MTC2      %s -> vec%d[%d]", RegNames[op.rt], op.rd, op.sa>>1); }
 
-void SprintRSPOp_Vop_Unk( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"?"); }
+void SprintRSPOp_Vop_Unk( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"?"); }
 
 
 static const char * gVSelName[16] =
@@ -1084,61 +1084,61 @@ static const char * gVSelName[16] =
 	"7 "		// 15
 };
 
-void SprintRSPOp_Vop_VMULF( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMULF     vec%02d  = vec%02d * vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMULU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMULU     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VRNDP( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VRNDP     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMULQ( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMULQ     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMUDL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMUDL     vec%02d  = ( acc  = vec%02d * vec%02d[%s]       )", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMUDM( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMUDM     vec%02d  = ( acc  = vec%02d * vec%02d[%s] >> 16 )", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMUDN( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMUDN     vec%02d  = ( acc  = vec%02d * vec%02d[%s]       ) >> 16", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMUDH( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMUDH     vec%02d  = ( acc  = vec%02d * vec%02d[%s] >> 16 ) >> 16", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMULF( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMULF     vec%02d  = vec%02d * vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMULU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMULU     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VRNDP( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VRNDP     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMULQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMULQ     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMUDL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMUDL     vec%02d  = ( acc  = vec%02d * vec%02d[%s]       )", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMUDM( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMUDM     vec%02d  = ( acc  = vec%02d * vec%02d[%s] >> 16 )", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMUDN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMUDN     vec%02d  = ( acc  = vec%02d * vec%02d[%s]       ) >> 16", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMUDH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMUDH     vec%02d  = ( acc  = vec%02d * vec%02d[%s] >> 16 ) >> 16", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
 
-void SprintRSPOp_Vop_VMACF( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMACF     vec%02d += vec%02d * vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMACU( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMACU     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VRNDN( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VRNDN     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMACQ( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMACQ     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMADL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMADL     vec%02d  = ( acc += vec%02d * vec%02d[%s]       )", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMADM( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMADM     vec%02d  = ( acc += vec%02d * vec%02d[%s] >> 16 )", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMADN( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMADN     vec%02d  = ( acc += vec%02d * vec%02d[%s]       ) >> 16", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMADH( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VMADH     vec%02d  = ( acc += vec%02d * vec%02d[%s] >> 16 ) >> 16", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMACF( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMACF     vec%02d += vec%02d * vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMACU( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMACU     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VRNDN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VRNDN     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMACQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMACQ     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMADL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMADL     vec%02d  = ( acc += vec%02d * vec%02d[%s]       )", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMADM( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMADM     vec%02d  = ( acc += vec%02d * vec%02d[%s] >> 16 )", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMADN( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMADN     vec%02d  = ( acc += vec%02d * vec%02d[%s]       ) >> 16", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMADH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VMADH     vec%02d  = ( acc += vec%02d * vec%02d[%s] >> 16 ) >> 16", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
 
-void SprintRSPOp_Vop_VADD( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VADD      vec%02d  = vec%02d + vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VSUB( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VSUB      vec%02d  = vec%02d - vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VSUT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VSUT      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VABS( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VABS      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VADDC( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VADDC     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VSUBC( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VSUBC     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VADDB( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VADDB     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VSUBB( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VSUBB     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VADD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VADD      vec%02d  = vec%02d + vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VSUB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VSUB      vec%02d  = vec%02d - vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VSUT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VSUT      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VABS( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VABS      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VADDC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VADDC     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VSUBC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VSUBC     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VADDB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VADDB     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VSUBB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VSUBB     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
 
-void SprintRSPOp_Vop_VACCB( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VACCB     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VSUCB( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VSUCB     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VSAD( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VSAD      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VSAC( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VSAC      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VSUM( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VSUM      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VSAW( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VSAW      vec%02d [%d] = vec%02d, vec%02d", op.sa, (op.rs & 0xf), op.rd, op.rt ); }
+void SprintRSPOp_Vop_VACCB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VACCB     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VSUCB( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VSUCB     vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VSAD( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VSAD      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VSAC( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VSAC      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VSUM( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VSUM      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VSAW( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VSAW      vec%02d [%d] = vec%02d, vec%02d", op.sa, (op.rs & 0xf), op.rd, op.rt ); }
 
-void SprintRSPOp_Vop_VLT( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VLT       vec%02d  = vec%02d <  vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VEQ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VEQ       vec%02d  = vec%02d == vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VNE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VNE       vec%02d  = vec%02d != vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VGE( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VGE       vec%02d  = vec%02d >= vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VCL( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VCL       vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VCH( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VCH       vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VCR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VCR       vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMRG( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VMRG      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VAND( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VAND      vec%02d  = vec%02d & vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VNAND( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VNAND     vec%02d  = ~(vec%02d & vec%02d[%s])", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VOR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VOR       vec%02d  = vec%02d | vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VNOR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VNOR      vec%02d  = ~(vec%02d | vec%02d[%s])", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VXOR( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VXOR      vec%02d  = vec%02d ^ vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VNXOR( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VNXOR     vec%02d  = ~(vec%02d ^ vec%02d[%s])", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VRCP( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VRCP      vec%02d [%d], vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VRCPL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VRCPL     vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VRCPH( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VRCPH     vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VMOV( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VMOV      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VRSQ( char * str, u32 address, OpCode op )			{ snprintf(str, 128,"VRSQ      vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VRSQL( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VRSQL     vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
-void SprintRSPOp_Vop_VRSQH( char * str, u32 address, OpCode op )		{ snprintf(str, 128,"VRSQH     vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VLT( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VLT       vec%02d  = vec%02d <  vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VEQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VEQ       vec%02d  = vec%02d == vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VNE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VNE       vec%02d  = vec%02d != vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VGE( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VGE       vec%02d  = vec%02d >= vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VCL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VCL       vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VCH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VCH       vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VCR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VCR       vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMRG( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VMRG      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VAND( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VAND      vec%02d  = vec%02d & vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VNAND( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VNAND     vec%02d  = ~(vec%02d & vec%02d[%s])", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VOR       vec%02d  = vec%02d | vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VNOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VNOR      vec%02d  = ~(vec%02d | vec%02d[%s])", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VXOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VXOR      vec%02d  = vec%02d ^ vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VNXOR( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VNXOR     vec%02d  = ~(vec%02d ^ vec%02d[%s])", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VRCP( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VRCP      vec%02d [%d], vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VRCPL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VRCPL     vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VRCPH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VRCPH     vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VMOV( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VMOV      vec%02d  = vec%02d ? vec%02d[%s]", op.sa, op.rd, op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VRSQ( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )			{ snprintf(str, 128,"VRSQ      vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VRSQL( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VRSQL     vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
+void SprintRSPOp_Vop_VRSQH( char * str, [[maybe_unused]] u32 address, [[maybe_unused]] OpCode op )		{ snprintf(str, 128,"VRSQH     vec%02d [%d],  vec%02d[%s]", op.sa, (op.rd & 0x7), op.rt, gVSelName[ op.rs & 0xf ]); }
 
 
 

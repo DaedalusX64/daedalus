@@ -242,7 +242,7 @@ template<> bool CSingleton< CInputManager >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
 
-	mpInstance = std::make_shared<IInputManager>();
+	mpInstance = std::make_unique<IInputManager>();
 	return mpInstance->Initialise();
 }
 
@@ -254,30 +254,34 @@ u32	 IInputManager::GetNumConfigurations() const
 
 const char * IInputManager::GetConfigurationName( u32 configuration_idx ) const
 {
-	DAEDALUS_ERROR( "Invalid controller config" );
+	// DAEDALUS_ERROR( "Invalid controller config" );
+	std::cout << "Invalid Controller Config Name" << std::endl;
 	return "?";
 }
 
 const char * IInputManager::GetConfigurationDescription( u32 configuration_idx ) const
 {
+	std::cout << "Invalid Controller Description" << std::endl;
 	DAEDALUS_ERROR( "Invalid controller config" );
 	return "?";
 }
 
 void IInputManager::SetConfiguration( u32 configuration_idx )
 {
-	DAEDALUS_ERROR( "Invalid controller config" );
+	std::cout << "Invalid Controller Set Configuration" << std::endl;
+	// DAEDALUS_ERROR( "Invalid controller config" );
 }
 
 u32		IInputManager::GetConfigurationFromName( const char * name ) const
 {
 	// Return the default controller config
+	
 	return 0;
 }
 
 static bool toggle_fullscreen = false;
 static s16 button = 0;
-void sceCtrlPeekBufferPositive(SceCtrlData *data, int count){
+void sceCtrlPeekBufferPositive(SceCtrlData *data, int count [[maybe_unused]]){
 
 	SDL_Event event;
 	SDL_PumpEvents();

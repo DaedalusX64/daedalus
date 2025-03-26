@@ -6,7 +6,6 @@ add_library(System OBJECT
 
             CompressedStream.cpp 
             DataSink.cpp
-            Thread.cpp
             SystemInit.cpp
             ${Timing}    
             )
