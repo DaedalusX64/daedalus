@@ -41,7 +41,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // 2 - Forces a linear transfer which assumes a count of 0 and skip of 0
 // 3 - Uses non swizle memcpy since alignment and size constrains are met 
 #ifdef DAEDALUS_PSP
-#define FAST_DMA_SP
+#define FAST_DMA_SP            
+#include <pspkernel.h>
 #endif
 
 bool gDMAUsed = false;
@@ -61,7 +62,10 @@ void DMA_SP_CopyFromRDRAM()
 #ifdef FAST_DMA_SP
 	if((spmem_address_reg & 0x1000) == 0)
 	{
-		fast_memcpy(&g_pu8SpDmemBase[spmem_address], &g_pu8RamBase[rdram_address], length);
+		sceKernelDcacheWritebackRange(&g_pu8RamBase[rdram_address], length);
+		memcpy_dma(&g_pu8SpDmemBase[spmem_address], &g_pu8RamBase[rdram_address], length);
+		sceKernelDcacheInvalidateRange(&g_pu8SpDmemBase[spmem_address], length);
+		//fast_memcpy(&g_pu8SpDmemBase[spmem_address], &g_pu8RamBase[rdram_address], length);
 	}
 #else
 	u32 count  = ((rdlen_reg>>12)&0x00FF)+1;

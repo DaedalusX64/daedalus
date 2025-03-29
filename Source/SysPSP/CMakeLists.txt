@@ -19,7 +19,7 @@ set(daed_libs ${daed_libs} PARENT_SCOPE)
 if(DAEDALUS_SDL)
 list(APPEND sys_libraries pspkubridge pspfpu pspdebug SDL2_ttf freetype harfbuzz bz2)
 else()
-list(APPEND sys_libraries intrafont pspkubridge pspfpu pspdebug pspgu pspge pspaudio pspaudiolib psppower pspctrl pspdisplay)
+list(APPEND sys_libraries intrafont pspkubridge pspdmac pspfpu pspdebug pspgu pspge pspaudio pspaudiolib psppower pspctrl pspdisplay)
 endif()
  set(sys_libraries ${sys_libraries} PARENT_SCOPE)
 

@@ -11,12 +11,81 @@ homepage: http://wordpress.fx-world.org
 #include "Base/Types.h"
 #include "Utility/FastMemcpy.h"
 #include "Base/Types.h"
-
+#include <psptypes.h>
 #include <string.h>
+
+typedef unsigned int SceSize; 
+
+//#include <pspDmac.h>
 
 
 // Avoid using VFPU in our audio plugin, otherwise the ME will choke
 //
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * Copy data in memory using DMAC
+ *
+ * @param dst - The pointer to the destination
+ * @param src - The pointer to the source
+ * @param n - The size of data
+ *
+ * @return 0 on success; otherwise an error code
+ */
+int sceDmacMemcpy(void *dst, const void *src, SceSize n);
+
+int sceDmacTryMemcpy(void *dst, const void *src, SceSize n);
+
+#ifdef __cplusplus
+}
+#endif
+
+#include <pspkernel.h>
+#include <pspDmac.h>
+#include <string.h>
+
+//*****************************************************************************
+// Uses PSP DMA to efficiently memset a buffer with a given byte value
+//*****************************************************************************
+void memset_dma(void* dst, u8 value, size_t size)
+{
+    if (size == 0 || dst == NULL) return;
+
+    static u8 align_buf[64] __attribute__((aligned(64)));
+    memset(align_buf, value, sizeof(align_buf));
+
+    sceKernelDcacheWritebackRange(align_buf, sizeof(align_buf));
+    sceKernelDcacheWritebackRange(dst, size);
+
+    u8* out = (u8*)dst;
+    while (size >= sizeof(align_buf))
+    {
+        sceDmacMemcpy(out, align_buf, sizeof(align_buf));
+        out += sizeof(align_buf);
+        size -= sizeof(align_buf);
+    }
+
+    if (size > 0)
+    {
+        sceDmacMemcpy(out, align_buf, size);
+    }
+
+    sceKernelDcacheInvalidateRange(dst, size);
+}
+
+//*****************************************************************************
+// Uses PSP DMA instead of VFPU to copy memory safely and efficiently
+//*****************************************************************************
+
+void memcpy_dma(void* dst, const void* src, size_t size)
+{
+    if (size == 0 || dst == src) return;
+
+    // sceDmacMemcpy performs fast memory copies using the DMA controller
+    sceDmacMemcpy(dst, src, size);
+}
 
 //*****************************************************************************
 //Uses VFPU if possible else normal memcpy() (orignal code by Alex? Modified by Corn)

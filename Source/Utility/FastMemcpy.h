@@ -28,7 +28,10 @@ void memcpy_byteswap( void* dst, const void* src, size_t size );	// Little endia
 
 void memcpy_vfpu( void* dst, const void* src, size_t size );
 void memcpy_vfpu_byteswap( void* dst, const void* src, size_t size );
+void memcpy_dma(void* dst, const void* src, size_t size);
+void memset_dma(void* dst, u8 value, size_t size);
 
+//#define memset              memset_dma
 #define fast_memcpy 		memcpy_vfpu
 #define fast_memcpy_swizzle memcpy_vfpu_byteswap
 

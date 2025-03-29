@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Utility/CacheUtil.h"
+#include "Utility/FastMemcpy.h"
 #endif
 
 CAudioBuffer::CAudioBuffer(u32 buffer_size)
@@ -202,7 +203,12 @@ std::ofstream fh;
   if (samples_required > 0) {
     // DBGConsole_Msg( 0, "Buffer underflow (%d samples)\n", samples_required );
     // printf( "Buffer underflow (%d samples)\n", samples_required );
+    #ifdef DAEDALUS_PSP
+    memset_dma(out_ptr, 0, samples_required * sizeof(Sample));
+    #else
     memset(out_ptr, 0, samples_required * sizeof(Sample));
+    #endif
+    
   }
 
   // Return the number of samples written
