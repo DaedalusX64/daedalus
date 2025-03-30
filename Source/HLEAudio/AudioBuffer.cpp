@@ -133,9 +133,6 @@ fh.flush();
       // ToDo: Adjust Audio Frequency/ Look at Turok in this regard.
       // We might want to put a Sleep in when executing on the SC?
       // Give time to other threads when using SYNC mode.
-      #ifdef DAEDALUS_PSP
-      sceKernelDelayThread(1); 
-      #endif
 
       read_ptr = mReadPtr;
     }

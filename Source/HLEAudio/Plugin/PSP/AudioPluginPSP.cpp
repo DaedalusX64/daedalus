@@ -160,9 +160,12 @@ static int audioOutput(SceSize args, void *argp)
 				BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL);
 
 				     while (CheckME(mei) != 1) {
-               		 sceKernelDelayThread(50);  // Yield to other threads to avoid 100% CPU usage
+               		 sceKernelDelayThread(1);  // Yield to other threads to avoid 100% CPU usage
             		}
 
+				Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_TASKDONE|SP_STATUS_YIELDED|SP_STATUS_BROKE|SP_STATUS_HALT);
+
+				Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP);
 
 				}
 
@@ -179,10 +182,9 @@ static int audiobuffer(SceSize args, void *argp)
 
 
 				 while (CheckME(mei) != 1) {
-               		 sceKernelDelayThread(50);  // Yield to other threads to avoid 100% CPU usage
+               		 sceKernelDelayThread(1);  // Yield to other threads to avoid 100% CPU usage
             		}
 
-				Memory_AI_SetRegisterBits(AI_STATUS_REG, AI_STATUS_FIFO_FULL);
 				gAudioPlugin->LenChangedME();
 
 
@@ -227,6 +229,8 @@ AudioPluginPSP::AudioPluginPSP()
 	#ifdef DAEDALUS_PSP_USE_ME
 	InitialiseMediaEngine();
 	#endif
+
+	StartAudio();
 }
 
 AudioPluginPSP::~AudioPluginPSP( )
@@ -309,7 +313,7 @@ void	AudioPluginPSP::LenChanged()
 
 EProcessResult	AudioPluginPSP::ProcessAList()
 {
-	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
+	//Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
 
 	EProcessResult	result = PR_NOT_STARTED;
 
@@ -326,7 +330,7 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 					audiothreadactive = true;
 					sceKernelStartThread(audioThid, 0, NULL);
 				} 
-				result = PR_COMPLETED;
+				result = PR_STARTED;
 				break;
 
 			}
@@ -345,8 +349,6 @@ void audioCallback( void * buf, unsigned int length, void * userdata )
 	AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
 
 	ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
-	Memory_AI_ClrRegisterBits(AI_STATUS_REG, AI_STATUS_FIFO_FULL);
-	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_AI);
 }
 
 
@@ -371,9 +373,6 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 {
 	if (length == 0)
 		return;
-
-	if (!mKeepRunning)
-		StartAudio();
 
 	u32 num_samples = length / sizeof( Sample );
 
