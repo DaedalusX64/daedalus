@@ -37,9 +37,7 @@ enum EAssertResult
 	AR_BREAK,
 };
 
-#ifdef DAEDALUS_PSP
-    #define DAEDALUS_HALT			__asm__ __volatile__ ( "break" )
-#elif DAEDALUS_POSIX
+#if defined(DAEDALUS_PSP) || defined(DAEDALUS_POSIX)
     #define DAEDALUS_HALT			__builtin_trap()
 #elif DAEDALUS_CTR
     #define DAEDALUS_HALT			__asm__ __volatile__ ( "bkpt" )
