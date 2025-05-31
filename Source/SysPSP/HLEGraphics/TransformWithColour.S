@@ -102,7 +102,7 @@ next_vertex_colour_\function:
 	
 	# Load and normalise the RGBA colour
 	lv.s		S200, 12($a2)					// load colour word [a,b,g,r]
-	.word		0xd0380000 | (8<<8) | (40)		// vuc2i.s	R200, S200					// R200 = [?,z,y,x]
+	vuc2ifs.s	R200, S200             // R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 23					// int -> float
 	vscl.q		R200, R200[w,z,y,x], S203		// R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
 	

@@ -120,7 +120,7 @@ next_vertex_:
 	sw			$t5, 0x38($a3)				// Store ClipFlags
 	
 #Convert the alpha in R200 to float and pass it along to light color
-	.word		0xd0380000 | (8<<8) | (43)	// vuc2i.s	R203, S200					// R200 = [a,z,y,x]
+	vuc2ifs.s		R203, S200				// R200 = [a,z,y,x]
 	vi2f.s		S431, S203, 31				// int -> float, R431 = [a * 1/256]
 
 #Check if there are any lights to process
@@ -183,7 +183,7 @@ do_texgen_:
 		
 do_color_:
 # Normalise the RGBA colour
-	.word		0xd0380000 | (8<<8) | (40)	// vuc2i.s	R200, S200	// R200 = [a,b,g,r]
+	vuc2ifs.s		R200, S200				// R200 = [a,b,g,r]
 	vi2f.q		R401, R200[w,z,y,x], 31		// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
 
 do_texture_:
@@ -308,7 +308,7 @@ next_vertex_Plight:
 	sw			$t5, 0x38($a3)				// Store ClipFlags
 
 #Convert the alpha in R200 to float and pass it along to light color
-	.word		0xd0380000 | (8<<8) | (43)	// vuc2i.s	R203, S200					// R200 = [a,z,y,x]
+	vuc2ifs.s		R203, S200				// R200 = [a,z,y,x]
 	vi2f.s		S431, S203, 31				// int -> float, R431 = [a * 1/256]
 
 #Check if there are any lights to process
@@ -445,7 +445,7 @@ next_vertex_CBFD:
 
 #Load & Normalise the vertex RGBA colour
 	lv.s		S200, 12($a2)				// load normal word [w,z,y,x]
-	.word		0xd0380000 | (8<<8) | (40)	// vuc2i.s	R200, S200					// R200 = [a,b,g,r]
+	vuc2ifs.s		R200, S200				// R200 = [a,b,g,r]
 	vi2f.q		R400, R200[w,z,y,x], 31		// int -> float, R403 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
 
 	vtfm4.q		R202, M100, R201			// Projection transform
@@ -705,7 +705,7 @@ next_vertex_PD:
 	sw			$t5, 0x38($a3)				// Store ClipFlags
 	
 #Do lighting Convert the alpha in R200 to float and pass it along to light color
-	.word		0xd0380000 | (8<<8) | (43)	// vuc2i.s	R203, S200					// R200 = [?,z,y,x]
+	vuc2ifs.s		R203, S200				// R200 = [a,z,y,x]
 	vi2f.s		S431, S203, 31				// int -> float, R431 = [a * 1/256]
 	
 # Convert the normal in R200 to float and transform
@@ -760,7 +760,7 @@ do_texgen_PD:
 		
 do_color_PD:
 # Normalise the RGBA colour
-	.word		0xd0380000 | (8<<8) | (40)	// vuc2i.s	R200, S200					// R200 = [a,b,g,r]
+	vuc2ifs.s		R200, S200				// R200 = [a,b,g,r]
 	vi2f.q		R200, R200[w,z,y,x], 31		// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
 	sv.q		R200, 0x20($a3)				// Store colour
 
@@ -848,7 +848,7 @@ next_vertex_DKR:
 	addiu		$a2, $a2, 0x2				// = vtx_ptr + 2
 	mtv			$t5, S200					// store on VFPU
 
-	.word		0xd0380000 | (8<<8) | (40)	// vuc2i.s	R200, S200					// R200 = [a,b,g,r]
+	vuc2ifs.s		R200, S200				// R200 = [a,b,g,r]
 	vi2f.q		R200, R200[w,z,y,x], 31		// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
 	sv.q		R200, 0x20($a3)				// Store colour
 
@@ -926,7 +926,7 @@ next_vertex_DKRB:
 	addiu		$a2, $a2, 0x2				// = vtx_ptr + 2
 	mtv			$t5, S200					// store on VFPU
 
-	.word		0xd0380000 | (8<<8) | (40)	// vuc2i.s	R200, S200					// R200 = [a,b,g,r]
+	vuc2ifs.s		R200, S200				// R200 = [a,b,g,r]
 	vi2f.q		R200, R200[w,z,y,x], 31		// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
 	sv.q		R200, 0x20($a3)				// Store colour
 

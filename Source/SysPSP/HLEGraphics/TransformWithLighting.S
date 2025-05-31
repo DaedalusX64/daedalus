@@ -94,7 +94,7 @@ next_vertex_\function:
 	
 	# Convert the alpha in R200 to float and pass it along to light color
 	lv.s		S200, 12($a2)				// load normal word [w,z,y,x]
-	.word		0xd0380000 | (8<<8) | (43)	// vuc2i.s	R203, S200					// R200 = [?,z,y,x]
+	vuc2ifs.s	R203, S200				// R200 = [?,z,y,x]
 	vi2f.s		S203, S203, 23				// int -> float
 	vmul.s		S431, S400, S203			// R431 = [a * 1/256]
 	
