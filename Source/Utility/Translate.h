@@ -33,7 +33,7 @@ const char * Translate_Strings(const std::string& original, u32 & len);
 // Translate a single string
 //
 const char * Translate_String(const char *original);
-bool		 Translate_Read(u32 idx, const std::filesystem::path& dir);
+bool		 Translate_Read(u32 idx);
 void		 Translate_Unload();
 void		 Translate_Load( const std::filesystem::path& p_dir );
 const char * Translate_Name(u32 idx);
