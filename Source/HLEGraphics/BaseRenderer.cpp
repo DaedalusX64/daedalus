@@ -1933,32 +1933,34 @@ std::shared_ptr<CNativeTexture> BaseRenderer::LoadTextureDirectly( const Texture
 void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 {
 	//Clamp scissor to max N64 screen resolution //Corn
-	if( x1 > uViWidth )  x1 = uViWidth;
-	if( y1 > uViHeight ) y1 = uViHeight;
+	x1 = std::min(x1, uViWidth);
+	y1 = std::min(y1, uViHeight);
 
 	glm::vec2 n64_tl( (f32)x0, (f32)y0 );
 	glm::vec2 n64_br( (f32)x1, (f32)y1 );
 
-	glm::vec2 screen_tl;
-	glm::vec2 screen_br;
+	glm::vec2 screen_tl, screen_br;
 	ConvertN64ToScreen( n64_tl, screen_tl );
 	ConvertN64ToScreen( n64_br, screen_br );
 
 	//Clamp TOP and LEFT values to 0 if < 0 , needed for zooming //Corn
-	s32 l = std::max<s32>( s32(screen_tl.x), 0 );
-	s32 t = std::max<s32>( s32(screen_tl.y), 0 );
-	s32 r =           s32(screen_br.x);
-	s32 b =           s32(screen_br.y);
+	s32 l = std::max<s32>(screen_tl.x, 0 );
+	s32 t = std::max<s32>(screen_tl.y, 0 );
+	s32 r = static_cast<s32>(screen_br.x);
+	s32 b = static_cast<s32>(screen_br.y);
 
-#if defined(DAEDALUS_PSP)
-	// N.B. Think the arguments are x0,y0,x1,y1, and not x,y,w,h as the docs describe
-	//printf("%d %d %d %d\n", s32(screen_tl.x),s32(screen_tl.y),s32(screen_br.x),s32(screen_br.y));
-	sceGuScissor( l, t, r, b );
-#elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES) 
-	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
 	s32 w = std::max<s32>( r - l, 0 );
 	s32 h = std::max<s32>( b - t, 0 );
-	glScissor( l, (s32)mScreenHeight - (t + h), w, h );
+
+	s32 y = static_cast<s32>(mScreenHeight) - (t + h);
+
+#if defined(DAEDALUS_PSP)
+	sceGuScissor(l, y, w, h);
+#elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES) 
+	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
+
+	glScissor( l, y, w, h );
+
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 #else
 
