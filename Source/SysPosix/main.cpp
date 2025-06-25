@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <filesystem>
 #include <iostream>
 #include <algorithm>
+#include <string_view>
 
 #ifdef DAEDALUS_LINUX
 #include <linux/limits.h>
@@ -110,97 +111,98 @@ void HandleEndOfFrame()
 	gTimer.Reset();
 #endif
 }
-
 int main(int argc, char **argv)
 {
-	int result = 0;
+	bool batch_test = false;
+	const char* filename = nullptr;
 
-
-	// ReadConfiguration();
-
-	if (argc > 1)
+	// Stage 1: Parse arguments
+	for (int i = 1; i < argc; ++i)
 	{
-		bool batch_test = false;
-		const char *filename = NULL;
+		std::string_view arg(argv[i]);
 
-		for (int i = 1; i < argc; ++i)
+		if (arg == "--batch")
+			batch_test = true;
+		else if (arg == "--fullscreen")
+			gFullScreenMode = true;
+		else if (arg == "--roms")
 		{
-			const char *arg = argv[i];
-			if (*arg == '-')
+			if (i + 1 < argc)
 			{
-				++arg;
-				if (strcmp(arg, "-batch") == 0)
+				const char* relative_path = argv[++i];
+				try
 				{
-					batch_test = true;
-					break;
+					std::filesystem::path dir = std::filesystem::absolute(relative_path);
+					CRomDB::Get()->AddRomDirectory(dir.string().c_str());
 				}
-				else if (strcmp(arg, "-roms") == 0)
+				catch (const std::filesystem::filesystem_error& e)
 				{
-					if (i + 1 < argc)
-					{
-						const char *relative_path = argv[i + 1];
-						++i;
-						try 
-						{ 
-							std::filesystem::path dir = std::filesystem::absolute(relative_path);
-							CRomDB::Get()->AddRomDirectory(dir.string().c_str());
-						}
-						catch (const std::filesystem::filesystem_error& e) 
-						{
-                    std::cerr << "Error resolving path: " << e.what() << std::endl;
-						}
-                	}
-				}
-				else if (strcmp(arg, "-fullscreen") == 0)
-				{
-					std::cout << "Full screen enabled" << std::endl;
-					gFullScreenMode = true;
+					std::cerr << "Error resolving path: " << e.what() << std::endl;
 				}
 			}
-					else
-					{
-						filename = arg;
-					}
+			else
+			{
+				std::cerr << "--roms requires a directory argument\n";
+			}
 		}
-
-		if (batch_test)
+		else if (arg.starts_with('-'))
 		{
-#ifdef DAEDALUS_BATCH_TEST_ENABLED
-			BatchTestMain(argc, argv);
-#else
-			fprintf(stderr, "BatchTest mode is not present in this build.\n");
-#endif
+			std::cerr << "Unknown option: " << arg << '\n';
 		}
-		else if (filename)
+		else if (!filename)
 		{
-			System_Open(filename);
-
-			//
-			// Commit the preferences and roms databases before starting to run
-			//
-			CRomDB::Get()->Commit();
-			CPreferences::Get()->Commit();
-
-			CPU_Run();
-			System_Close();
+			filename = argv[i];
 		}
 	}
 
+	// Stage 2: Init AFTER flags are parsed
 	if (!System_Init())
 	{
 		fprintf(stderr, "System_Init failed\n");
 		return 1;
 	}
 
-	
+	// Now fullscreen mode has been set before System_Init()
+
+	if (batch_test)
+	{
+#ifdef DAEDALUS_BATCH_TEST_ENABLED
+		BatchTestMain(argc, argv);
+#else
+		fprintf(stderr, "BatchTest mode is not present in this build.\n");
+#endif
+		return 0;
+	}
+
+	if (filename)
+	{
+		if (filename[0] == '-')
+		{
+			fprintf(stderr, "Invalid ROM filename: %s\n", filename);
+			return 1;
+		}
+
+		if (!System_Open(filename))
+		{
+			fprintf(stderr, "System_Open failed for %s\n", filename);
+			return 1;
+		}
+
+		CRomDB::Get()->Commit();
+		CPreferences::Get()->Commit();
+
+		CPU_Run();
+		System_Close();
+		return 0;
+	}
+
+	// Menu loop
 	Translate_Init();
 	bool show_splash = true;
 	for (;;)
 	{
 		DisplayRomsAndChoose(show_splash);
 		show_splash = false;
-
-		// CRomDB::Get()->Commit();
 		CPreferences::Get()->Commit();
 		isRunning = true;
 		CPU_Run();
@@ -208,5 +210,5 @@ int main(int argc, char **argv)
 	}
 
 	System_Finalize();
-	return result;
+	return 0;
 }
