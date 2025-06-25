@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/RomDB.h"
 #include "System/SystemInit.h"
 #include "Utility/BatchTest.h"
-
+#include "Graphics/GraphicsContext.h"
 #include "Interface/ConfigOptions.h"
 #include "Interface/Preferences.h"
 #include "Utility/Translate.h"
@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #include "UI/UIContext.h"
-#include "Graphics/GraphicsContext.h"
+
 #include "UI/DrawText.h"
 #include "UI/PauseScreen.h"
 
@@ -49,6 +49,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static CTimer gTimer;
 #endif
 bool isRunning = false;
+bool gFullScreenMode = false;
 
 void HandleEndOfFrame()
 {
@@ -117,12 +118,6 @@ int main(int argc, char **argv)
 
 	// ReadConfiguration();
 
-	if (!System_Init())
-	{
-		fprintf(stderr, "System_Init failed\n");
-		return 1;
-	}
-
 	if (argc > 1)
 	{
 		bool batch_test = false;
@@ -156,6 +151,11 @@ int main(int argc, char **argv)
 						}
                 	}
 				}
+				else if (strcmp(arg, "-fullscreen") == 0)
+				{
+					std::cout << "Full screen enabled" << std::endl;
+					gFullScreenMode = true;
+				}
 			}
 					else
 					{
@@ -185,6 +185,14 @@ int main(int argc, char **argv)
 			System_Close();
 		}
 	}
+
+	if (!System_Init())
+	{
+		fprintf(stderr, "System_Init failed\n");
+		return 1;
+	}
+
+	
 	Translate_Init();
 	bool show_splash = true;
 	for (;;)

@@ -102,6 +102,19 @@ bool GraphicsContextGL::Initialise()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+    //Create window
+	u32 window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
+
+	if (gFullScreenMode)
+{
+	std::cout << "Fullscreen called in GraphicsContextGL" << std::endl;
+	window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+}	
+else
+{
+	window_flags |= SDL_WINDOW_RESIZABLE;
+}
+
     // Create the window
     gWindow = SDL_CreateWindow( 
         "Daedalus - GLES 3.1", 
@@ -109,7 +122,7 @@ bool GraphicsContextGL::Initialise()
         SDL_WINDOWPOS_CENTERED, 
         SCREEN_WIDTH, 
         SCREEN_HEIGHT, 
-        SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
+        window_flags
     );
     if (!gWindow)
     {
