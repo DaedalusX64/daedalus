@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Singleton.h"
 
 class c32;
-
+extern bool gFullScreenMode;
 // This class basically provides an extra level of security for our
 // multithreaded code. Threads can Grab the CGraphicsContext to prevent
 // other threads from changing/releasing any of the pointers while it is

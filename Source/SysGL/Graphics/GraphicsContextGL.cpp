@@ -19,6 +19,7 @@ SDL_Window * gWindow = nullptr;
 SDL_Renderer * gSdlRenderer = nullptr;
 SDL_GLContext gContext = nullptr;
 
+
 extern void HandleEndOfFrame();
 
 class GraphicsContextGL : public CGraphicsContext
@@ -105,7 +106,18 @@ bool GraphicsContextGL::Initialise()
 
 
 	//Create window
-	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+	u32 window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
+
+	if (gFullScreenMode)
+{
+	std::cout << "Fullscreen called in GraphicsContextGL" << std::endl;
+	window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+}	
+else
+{
+	window_flags |= SDL_WINDOW_RESIZABLE;
+}
+	gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, window_flags);
 
 	//Create context
 	gContext = SDL_GL_CreateContext( gWindow );
