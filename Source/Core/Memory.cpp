@@ -76,9 +76,9 @@ const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 	0x40,				// PIF_RAM
 
 	//1*1024*1024,		// RD_REG	(Don't need this much really)?
-	0x30,				// RD_REG0
+	0x20,				// RD_REG0
 
-	0x20,				// SP_REG
+	0x28,				// SP_REG
 	0x08,				// SP_PC_REG
 	0x20,				// DPC_REG
 	0x10,				// MI_REG
@@ -89,9 +89,8 @@ const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 	0x1C,				// SI_REG
 
 	0x20000,			// SAVE
-	0x20000				// MEMPACK
+	0x8000				// MEMPACK
 };
-
 u32			gRamSize =  kMaximumMemSize;	// Size of emulated RAM
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
