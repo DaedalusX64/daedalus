@@ -263,6 +263,8 @@ endif(DAEDALUS_GL)
 find_package(PNG REQUIRED)
 link_libraries(PNG::PNG)
 
+find_package(SQLite3 REQUIRED)
+link_libraries(SQLite::SQLite3)
 
 find_package(ZLIB REQUIRED)
 link_libraries(ZLIB::ZLIB)

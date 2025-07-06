@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include <cstring> 
+#include <sqlite3.h>
 
 #include <set>
 #include <map>
@@ -152,7 +153,7 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	#endif
 	mpInstance = std::make_shared<IRomSettingsDB>();
-	mpInstance->OpenSettingsFile( setBasePath("roms.ini") );
+	mpInstance->OpenSettingsFile( setBasePath("daedalus.db") );
 	return true;
 }
 
@@ -217,107 +218,132 @@ static RomID	RomIDFromString( const char * str )
 
 bool IRomSettingsDB::OpenSettingsFile( const std::filesystem::path &filename )
 {
-
 	std::filesystem::path mFilename = filename;
-	
-	auto p_ini_file = CIniFile::Create(filename);
-	if( p_ini_file == nullptr )
+	sqlite3* db = nullptr;
+	if (sqlite3_open(filename.string().c_str(), &db) != SQLITE_OK)
 	{
-		DBGConsole_Msg( 0, "Failed to open roms.ini from %s\n", filename.c_str() );
-		return false;
+		DBGConsole_Msg(0, "Failed to open SQLite database %s\n", filename.c_str());
 	}
 
-	for( u32 section_idx = 0; section_idx < p_ini_file->GetNumSections(); ++section_idx )
-	{
-		const CIniFileSection * p_section( p_ini_file->GetSection( section_idx ) );
+		// Elaborate on this later
+		const char* query = "SELECT daedcrc, game_name, SaveType FROM games;";
 
-		RomID			id( RomIDFromString( p_section->GetName() ) );
-		RomSettings	settings;
+		sqlite3_stmt* stmt = nullptr;
+		if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK)
+		{
+			DBGConsole_Msg(0, "Failed to prepare SQLite statement.\n");
+			sqlite3_close(db);
+			return false;
+		}
 
-		const CIniFileProperty * p_property;
-		if( p_section->FindProperty( "Comment", &p_property ) )
+		while (sqlite3_step(stmt) == SQLITE_ROW)
 		{
-			settings.Comment = p_property->GetValue();
-		}
-		if( p_section->FindProperty( "Info", &p_property ) )
-		{
-			settings.Info = p_property->GetValue();
-		}
-		if( p_section->FindProperty( "Name", &p_property ) )
-		{
-			settings.GameName = p_property->GetValue();
-		}
-		if( p_section->FindProperty( "Preview", &p_property ) )
-		{
-			settings.Preview = p_property->GetValue();
-		}
-		if( p_section->FindProperty( "ExpansionPakUsage", &p_property ) )
-		{
-			settings.ExpansionPakUsage = ExpansionPakUsageFromString( p_property->GetValue() );
-		}
-		if( p_section->FindProperty( "SaveType", &p_property ) )
-		{
-			settings.SaveType = SaveTypeFromString( p_property->GetValue() );
-		}
-		if( p_section->FindProperty( "PatchesEnabled", &p_property ) )
-		{
-			settings.PatchesEnabled = p_property->GetBooleanValue( true );
-		}
-		if( p_section->FindProperty( "SpeedSyncEnabled", &p_property ) )
-		{
-			settings.SpeedSyncEnabled = atoi( p_property->GetValue() );
-		}
-		if( p_section->FindProperty( "DynarecSupported", &p_property ) )
-		{
-			settings.DynarecSupported = p_property->GetBooleanValue( true );
-		}
-		if( p_section->FindProperty( "DynarecLoopOptimisation", &p_property ) )
-		{
-			settings.DynarecLoopOptimisation = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "DynarecDoublesOptimisation", &p_property ) )
-		{
-			settings.DynarecDoublesOptimisation = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "DoubleDisplayEnabled", &p_property ) )
-		{
-			settings.DoubleDisplayEnabled = p_property->GetBooleanValue( true );
-		}
-		if( p_section->FindProperty( "CleanSceneEnabled", &p_property ) )
-		{
-			settings.CleanSceneEnabled = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "ClearDepthFrameBuffer", &p_property ) )
-		{
-			settings.ClearDepthFrameBuffer = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "AudioRateMatch", &p_property ) )
-		{
-			settings.AudioRateMatch = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "VideoRateMatch", &p_property ) )
-		{
-			settings.VideoRateMatch = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "FogEnabled", &p_property ) )
-		{
-			settings.FogEnabled = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "MemoryAccessOptimisation", &p_property ) )
-		{
-			settings.MemoryAccessOptimisation = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "CheatsEnabled", &p_property ) )
-		{
-			settings.CheatsEnabled = p_property->GetBooleanValue( false );
-		}
+	std::string daedcrc       = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+		RomID id = RomIDFromString(daedcrc.c_str());
+		RomSettings settings;
+		settings.GameName                = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+		settings.SaveType= SaveTypeFromString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));		
 		SetSettings( id, settings );
 	}
 
-	mDirty = false;
-
 	return true;
 }
+	// auto p_ini_file = CIniFile::Create(filename);
+	// if( p_ini_file == nullptr )
+	// {
+	// 	DBGConsole_Msg( 0, "Failed to open roms.ini from %s\n", filename.c_str() );
+	// 	return false;
+	// }
+
+	// for( u32 section_idx = 0; section_idx < p_ini_file->GetNumSections(); ++section_idx )
+	// {
+	// 	const CIniFileSection * p_section( p_ini_file->GetSection( section_idx ) );
+
+	// 	RomID			id( RomIDFromString( p_section->GetName() ) );
+	// 	RomSettings	settings;
+
+	// 	const CIniFileProperty * p_property;
+	// 	if( p_section->FindProperty( "Comment", &p_property ) )
+	// 	{
+	// 		settings.Comment = p_property->GetValue();
+	// 	}
+	// 	if( p_section->FindProperty( "Info", &p_property ) )
+	// 	{
+	// 		settings.Info = p_property->GetValue();
+	// 	}
+	// 	if( p_section->FindProperty( "Name", &p_property ) )
+	// 	{
+	// 		settings.GameName = p_property->GetValue();
+	// 	}
+	// 	if( p_section->FindProperty( "Preview", &p_property ) )
+	// 	{
+	// 		settings.Preview = p_property->GetValue();
+	// 	}
+	// 	if( p_section->FindProperty( "ExpansionPakUsage", &p_property ) )
+	// 	{
+	// 		settings.ExpansionPakUsage = ExpansionPakUsageFromString( p_property->GetValue() );
+	// 	}
+	// 	if( p_section->FindProperty( "SaveType", &p_property ) )
+	// 	{
+	// 		settings.SaveType = SaveTypeFromString( p_property->GetValue() );
+	// 	}
+	// 	if( p_section->FindProperty( "PatchesEnabled", &p_property ) )
+	// 	{
+	// 		settings.PatchesEnabled = p_property->GetBooleanValue( true );
+	// 	}
+	// 	if( p_section->FindProperty( "SpeedSyncEnabled", &p_property ) )
+	// 	{
+	// 		settings.SpeedSyncEnabled = atoi( p_property->GetValue() );
+	// 	}
+	// 	if( p_section->FindProperty( "DynarecSupported", &p_property ) )
+	// 	{
+	// 		settings.DynarecSupported = p_property->GetBooleanValue( true );
+	// 	}
+	// 	if( p_section->FindProperty( "DynarecLoopOptimisation", &p_property ) )
+	// 	{
+	// 		settings.DynarecLoopOptimisation = p_property->GetBooleanValue( false );
+	// 	}
+	// 	if( p_section->FindProperty( "DynarecDoublesOptimisation", &p_property ) )
+	// 	{
+	// 		settings.DynarecDoublesOptimisation = p_property->GetBooleanValue( false );
+	// 	}
+	// 	if( p_section->FindProperty( "DoubleDisplayEnabled", &p_property ) )
+	// 	{
+	// 		settings.DoubleDisplayEnabled = p_property->GetBooleanValue( true );
+	// 	}
+	// 	if( p_section->FindProperty( "CleanSceneEnabled", &p_property ) )
+	// 	{
+	// 		settings.CleanSceneEnabled = p_property->GetBooleanValue( false );
+	// 	}
+	// 	if( p_section->FindProperty( "ClearDepthFrameBuffer", &p_property ) )
+	// 	{
+	// 		settings.ClearDepthFrameBuffer = p_property->GetBooleanValue( false );
+	// 	}
+	// 	if( p_section->FindProperty( "AudioRateMatch", &p_property ) )
+	// 	{
+	// 		settings.AudioRateMatch = p_property->GetBooleanValue( false );
+	// 	}
+	// 	if( p_section->FindProperty( "VideoRateMatch", &p_property ) )
+	// 	{
+	// 		settings.VideoRateMatch = p_property->GetBooleanValue( false );
+	// 	}
+	// 	if( p_section->FindProperty( "FogEnabled", &p_property ) )
+	// 	{
+	// 		settings.FogEnabled = p_property->GetBooleanValue( false );
+	// 	}
+	// 	if( p_section->FindProperty( "MemoryAccessOptimisation", &p_property ) )
+	// 	{
+	// 		settings.MemoryAccessOptimisation = p_property->GetBooleanValue( false );
+	// 	}
+	// 	if( p_section->FindProperty( "CheatsEnabled", &p_property ) )
+	// 	{
+	// 		settings.CheatsEnabled = p_property->GetBooleanValue( false );
+	// 	}
+	// 	SetSettings( id, settings );
+	// }
+
+	// mDirty = false;
+
 
 // //	Write out the .ini file, keeping the original comments intact
 void IRomSettingsDB::Commit(){}

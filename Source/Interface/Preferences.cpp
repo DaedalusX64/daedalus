@@ -211,98 +211,98 @@ bool IPreferences::OpenPreferencesFile( const std::filesystem::path  &filename )
 		}
 	}
 
-	for( u32 section_idx = 0; section_idx < p_ini_file->GetNumSections(); ++section_idx )
-	{
-		const CIniFileSection * section( p_ini_file->GetSection( section_idx ) );
+// 	for( u32 section_idx = 0; section_idx < p_ini_file->GetNumSections(); ++section_idx )
+// 	{
+// 		const CIniFileSection * section( p_ini_file->GetSection( section_idx ) );
 
-		RomID			id( RomIDFromString( section->GetName() ) );
-		SRomPreferences	preferences;
+// 		RomID			id( RomIDFromString( section->GetName() ) );
+// 		SRomPreferences	preferences;
 
-		const CIniFileProperty * property;
-		if( section->FindProperty( "PatchesEnabled", &property ) )
-		{
-			preferences.PatchesEnabled = property->GetBooleanValue( true );
-		}
-		if( section->FindProperty( "SpeedSyncEnabled", &property ) )
-		{
-			preferences.SpeedSyncEnabled = atoi( property->GetValue() );
-		}
-		if( section->FindProperty( "DynarecEnabled", &property ) )
-		{
-			preferences.DynarecEnabled = property->GetBooleanValue( true );
-		}
-		if( section->FindProperty( "DynarecLoopOptimisation", &property ) )
-		{
-			preferences.DynarecLoopOptimisation = property->GetBooleanValue( false );
-		}
-		if( section->FindProperty( "DynarecDoublesOptimisation", &property ) )
-		{
-			preferences.DynarecDoublesOptimisation = property->GetBooleanValue( false );
-		}
-		if( section->FindProperty( "DoubleDisplayEnabled", &property ) )
-		{
-			preferences.DoubleDisplayEnabled = property->GetBooleanValue( true );
-		}
-		if( section->FindProperty( "CleanSceneEnabled", &property ) )
-		{
-			preferences.CleanSceneEnabled = property->GetBooleanValue( false );
-		}
-		if( section->FindProperty( "ClearDepthFrameBuffer", &property ) )
-		{
-			preferences.ClearDepthFrameBuffer = property->GetBooleanValue( false );
-		}
-		if( section->FindProperty( "AudioRateMatch", &property ) )
-		{
-            preferences.AudioRateMatch = property->GetBooleanValue( false );
-		}
-		if( section->FindProperty( "VideoRateMatch", &property ) )
-		{
-            preferences.VideoRateMatch = property->GetBooleanValue( false );
-		}
-		if( section->FindProperty( "FogEnabled", &property ) )
-		{
-            preferences.FogEnabled = property->GetBooleanValue( false );
-		}
-		if( section->FindProperty( "CheckTextureHashFrequency", &property ) )
-		{
-			preferences.CheckTextureHashFrequency = GetTextureHashFrequencyFromFrames( atoi( property->GetValue() ) );
-		}
-		if( section->FindProperty( "Frameskip", &property ) )
-		{
-			preferences.Frameskip = GetFrameskipValueFromInt( atoi( property->GetValue() ) );
-		}
-		if( section->FindProperty( "AudioEnabled", &property ) )
-		{
-			int audio_enabled = atoi( property->GetValue() );
+// 		const CIniFileProperty * property;
+// 		if( section->FindProperty( "PatchesEnabled", &property ) )
+// 		{
+// 			preferences.PatchesEnabled = property->GetBooleanValue( true );
+// 		}
+// 		if( section->FindProperty( "SpeedSyncEnabled", &property ) )
+// 		{
+// 			preferences.SpeedSyncEnabled = atoi( property->GetValue() );
+// 		}
+// 		if( section->FindProperty( "DynarecEnabled", &property ) )
+// 		{
+// 			preferences.DynarecEnabled = property->GetBooleanValue( true );
+// 		}
+// 		if( section->FindProperty( "DynarecLoopOptimisation", &property ) )
+// 		{
+// 			preferences.DynarecLoopOptimisation = property->GetBooleanValue( false );
+// 		}
+// 		if( section->FindProperty( "DynarecDoublesOptimisation", &property ) )
+// 		{
+// 			preferences.DynarecDoublesOptimisation = property->GetBooleanValue( false );
+// 		}
+// 		if( section->FindProperty( "DoubleDisplayEnabled", &property ) )
+// 		{
+// 			preferences.DoubleDisplayEnabled = property->GetBooleanValue( true );
+// 		}
+// 		if( section->FindProperty( "CleanSceneEnabled", &property ) )
+// 		{
+// 			preferences.CleanSceneEnabled = property->GetBooleanValue( false );
+// 		}
+// 		if( section->FindProperty( "ClearDepthFrameBuffer", &property ) )
+// 		{
+// 			preferences.ClearDepthFrameBuffer = property->GetBooleanValue( false );
+// 		}
+// 		if( section->FindProperty( "AudioRateMatch", &property ) )
+// 		{
+//             preferences.AudioRateMatch = property->GetBooleanValue( false );
+// 		}
+// 		if( section->FindProperty( "VideoRateMatch", &property ) )
+// 		{
+//             preferences.VideoRateMatch = property->GetBooleanValue( false );
+// 		}
+// 		if( section->FindProperty( "FogEnabled", &property ) )
+// 		{
+//             preferences.FogEnabled = property->GetBooleanValue( false );
+// 		}
+// 		if( section->FindProperty( "CheckTextureHashFrequency", &property ) )
+// 		{
+// 			preferences.CheckTextureHashFrequency = GetTextureHashFrequencyFromFrames( atoi( property->GetValue() ) );
+// 		}
+// 		if( section->FindProperty( "Frameskip", &property ) )
+// 		{
+// 			preferences.Frameskip = GetFrameskipValueFromInt( atoi( property->GetValue() ) );
+// 		}
+// 		if( section->FindProperty( "AudioEnabled", &property ) )
+// 		{
+// 			int audio_enabled = atoi( property->GetValue() );
 
-			if( audio_enabled >= APM_DISABLED && audio_enabled <= APM_ENABLED_SYNC )
-				preferences.AudioEnabled = static_cast<EAudioPluginMode>( audio_enabled );
-			else
-				preferences.AudioEnabled = APM_DISABLED;
-		}
-//		if( section->FindProperty( "AudioAdaptFrequency", &property ) )
-//		{
-//			preferences.AudioAdaptFrequency = property->GetBooleanValue( false );
-//		}
-		if( section->FindProperty( "ZoomX", &property ) )
-		{
-			preferences.ZoomX = (f32)atof( property->GetValue() );
-		}
+// 			if( audio_enabled >= APM_DISABLED && audio_enabled <= APM_ENABLED_SYNC )
+// 				preferences.AudioEnabled = static_cast<EAudioPluginMode>( audio_enabled );
+// 			else
+// 				preferences.AudioEnabled = APM_DISABLED;
+// 		}
+// //		if( section->FindProperty( "AudioAdaptFrequency", &property ) )
+// //		{
+// //			preferences.AudioAdaptFrequency = property->GetBooleanValue( false );
+// //		}
+// 		if( section->FindProperty( "ZoomX", &property ) )
+// 		{
+// 			preferences.ZoomX = (f32)atof( property->GetValue() );
+// 		}
 
-		if( section->FindProperty( "Controller", &property ) )
-		{
-			preferences.ControllerIndex = CInputManager::Get()->GetConfigurationFromName( property->GetValue() );
-		}
-		if( section->FindProperty( "MemoryAccessOptimisation", &property ) )
-		{
-			preferences.MemoryAccessOptimisation = property->GetBooleanValue( false );
-		}
-		if( section->FindProperty( "CheatsEnabled", &property ) )
-		{
-			preferences.CheatsEnabled = property->GetBooleanValue( false );
-		}
-		mPreferences[ id ] = preferences;
-	}
+// 		if( section->FindProperty( "Controller", &property ) )
+// 		{
+// 			preferences.ControllerIndex = CInputManager::Get()->GetConfigurationFromName( property->GetValue() );
+// 		}
+// 		if( section->FindProperty( "MemoryAccessOptimisation", &property ) )
+// 		{
+// 			preferences.MemoryAccessOptimisation = property->GetBooleanValue( false );
+// 		}
+// 		if( section->FindProperty( "CheatsEnabled", &property ) )
+// 		{
+// 			preferences.CheatsEnabled = property->GetBooleanValue( false );
+// 		}
+// 		mPreferences[ id ] = preferences;
+// 	}
 
 	mDirty = false;
 
