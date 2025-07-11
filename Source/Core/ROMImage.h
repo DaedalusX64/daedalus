@@ -51,7 +51,7 @@ struct ROMHeader
 	u16		Unknown3;
 	u8		Unknown4;
 	u8		Manufacturer;
-	u16		CartID;
+	u8		CartID[2];
 	s8		CountryID;
 	u8		Unknown5;
 };
