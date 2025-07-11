@@ -113,15 +113,9 @@ void IInputManager::GetGamePadStatus()
 		controller = SDL_GameControllerOpen(0);
 		if(!controller){
 			mGamePadAvailable = true;
-			#ifdef DAEDALUS_DEBUG_CONSOLE
-			std::cout << "Controller Not Found" << std::endl;
-			#endif
 		}
 		else{
 			mGamePadAvailable = false;
-			#ifdef DAEDALUS_DEBUG_CONSOLE
-			std::cout << "Controller found" << std::endl; // We probably need to confirm what the controller is
-			#endif
 		}
 	}
 
