@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 #include <cstring>
+#include <fstream> 
 
 #include "Interface/Cheats.h"
 #include "Core/CPU.h"
@@ -476,7 +477,7 @@ bool ROM_LoadFile()
 	{
 		RomSettings			settings;
 		SRomPreferences		preferences;
-
+		
 		if (!CRomSettingsDB::Get()->GetSettings( rom_id, &settings ))
 		{
 			settings.Reset();
@@ -587,10 +588,36 @@ bool ROM_GetRomName( const std::filesystem::path &filename, std::string & game_n
 	return true;
 }
 
-bool ROM_GetRomDetailsByFilename( const std::filesystem::path &filename, RomID * id, u32 * rom_size, ECicType * boot_type )
+bool ROM_GetRomDetailsByFilename(const std::filesystem::path &filename, RomID *id, u32 *rom_size, ECicType *boot_type)
 {
-	return CRomDB::Get()->QueryByFilename( filename.c_str(), id, rom_size, boot_type );
+	if (!CRomDB::Get()->QueryByFilename(filename, id, rom_size, boot_type))
+		return false;
+
+	// AHH SaveType detection
+	ROMHeader header{};
+	std::ifstream rom(filename, std::ios::binary);
+	if (rom && rom.read(reinterpret_cast<char*>(&header), sizeof(header)))
+	{
+		if (strncmp(reinterpret_cast<const char*>(header.CartID), "ED", 2) == 0)
+		{
+			u8 flags = header.Unknown5;
+			u8 raw = (flags >> 4) & 0x0F;
+
+			RomSettings settings;
+			settings.SaveType = static_cast<ESaveType>(raw);
+			settings.Comment = "Detected via AHH";
+
+			if (!ROM_GetRomName(filename, settings.GameName))
+				settings.GameName = filename.filename().string();
+			settings.GameName = settings.GameName.substr(0, 63);
+
+			CRomSettingsDB::Get()->SetSettings(*id, settings);
+		}
+	}
+
+	return true;
 }
+
 
 bool ROM_GetRomDetailsByID( const RomID & id, u32 * rom_size, ECicType * boot_type )
 {
