@@ -372,76 +372,90 @@ void IController::Process()
 
 	// Read controller data here (here gets called fewer times than CONT_READ_CONTROLLER)
 	CInputManager::Get()->GetState( mContPads );
+bool stop = false;
+while (count < PIF_RAM_SIZE)
+{
+	u8* cmd = &mpPifRam[count];
 
-	bool stop = false;
-
-	while (count < PIF_RAM_SIZE)
+	switch (cmd[0])
 	{
-		u8 *cmd = &mpPifRam[count];
+	case CONT_TX_SIZE_FORMAT_END:
+		DPF_PIF("Command Format End on Chn %ld", channel);
+		stop = true;
+		break;
 
-		switch (cmd[0]) {
-		case CONT_TX_SIZE_FORMAT_END:
-#ifdef DAEDALUS_DEBUG_PIF
-			DPF_PIF("Command Format End on Chn %ld", channel);
-#endif
-			stop = true;
-			break;
-		case CONT_TX_SIZE_DUMMYDATA:
-#ifdef DAEDALUS_DEBUG_PIF
-			DPF_PIF("Command Dummy Data on Chn %ld", channel);
-#endif
-			count++;
-			break;
-		case CONT_TX_SIZE_CHANSKIP:
-#ifdef DAEDALUS_DEBUG_PIF
-			DPF_PIF("Command Chn Skip on Chn %ld", channel);
-#endif
-			count++;
-			channel++;
-			break;
-		case CONT_TX_SIZE_CHANRESET:
-#ifdef DAEDALUS_DEBUG_PIF
-			DPF_PIF("Command Chn Reset on Chn %ld", channel);
-#endif
-			count++;
-			channel++;
-			break;
-		default:
-#ifdef DAEDALUS_DEBUG_PIF
-			DPF_PIF("Processing Chn %ld", channel);
-#endif
-			// HACK?: some games sends bogus PIF commands while accessing controller paks
-			// Yoshi Story, Top Gear Rally 2, Indiana Jones, ...
-			// When encountering such commands, we skip this bogus byte.
-			if ((count < PIF_RAM_SIZE - 1) && (cmd[1] == 0xFE)) {
-				count++;
-				break;
-			}
+	case CONT_TX_SIZE_DUMMYDATA:
+		DPF_PIF("Command Dummy Data on Chn %ld", channel);
+		count++;
+		break;
 
-			switch (channel) {
-			case PC_CONTROLLER_0:
-			case PC_CONTROLLER_1:
-			case PC_CONTROLLER_2:
-			case PC_CONTROLLER_3:
-				ProcessController(cmd, channel);
-				break;
-			case PC_EEPROM:
-				ProcessEeprom(cmd);
-				break;
-			default:
-				#ifdef DAEDALUS_DEBUG_CONSOLE
-				DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
-				#endif
-				break;
-			}
+	case CONT_TX_SIZE_CHANSKIP:
+		DPF_PIF("Command Chn Skip on Chn %ld", channel);
+		count++;
+		channel++;
+		break;
 
-			channel++;
-			count += (cmd[0] & 0x3F) + (cmd[1] & 0x3F) + 2;
+	case CONT_TX_SIZE_CHANRESET:
+		DPF_PIF("Command Chn Reset on Chn %ld", channel);
+		count++;
+		channel++;
+		break;
+
+	default:
+		DPF_PIF("Processing Chn %ld", channel);
+
+		// HACK: Some games send 0xXX 0xFE bogus PIF commands
+		if ((count < PIF_RAM_SIZE - 1) && (cmd[1] == 0xFE)) {
+			count++;
 			break;
 		}
 
-		if (stop) break;
+		// Validate sizes before doing anything
+		const u32 txSize = cmd[0] & 0x3F;
+		const u32 rxSize = cmd[1] & 0x3F;
+		const u32 totalSize = txSize + rxSize + 2;
+
+		if (count + totalSize > PIF_RAM_SIZE)
+		{
+			DBGConsole_Msg(0, "[RMalformed PIF command: channel=%u, tx=%u, rx=%u, offset=%u]",
+				channel, txSize, rxSize, count);
+			return;  // Stop hard: corrupted input
+		}
+
+		if (channel >= NUM_CHANNELS)
+		{
+			DBGConsole_Msg(0, "[RInvalid controller channel: %u (PIF parsing error)]", channel);
+			return;  // Stop hard: don't flood
+		}
+
+		switch (channel)
+		{
+		case PC_CONTROLLER_0:
+		case PC_CONTROLLER_1:
+		case PC_CONTROLLER_2:
+		case PC_CONTROLLER_3:
+			ProcessController(cmd, channel);
+			break;
+		case PC_EEPROM:
+			ProcessEeprom(cmd);
+			break;
+		case PC_UNKNOWN_1:
+			DBGConsole_Msg(0, "[YAccessing Unknown Peripheral: Chn %u]", channel);
+			break;
+		default:
+			DBGConsole_Msg(0, "[RUnhandled controller channel: %u]", channel);
+			break;
+		}
+
+		count += totalSize;
+		channel++;
+		break;
 	}
+
+	if (stop)
+		break;
+}
+
 
 	mpPifRam[PIF_RAM_SIZE - 1] = 0;	// Set the last bit as 0 as successfully return
 
