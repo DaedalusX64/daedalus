@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <iostream>
 #include <cctype>
+#include <fstream>
 #include <string_view>
 
 #include "Base/Types.h"
@@ -84,42 +85,69 @@ namespace
 
 struct SRomInfo
 {
-	std::filesystem::path	mFilename;
-	RomID			mRomID;
-	u32				mRomSize;
-	ECicType		mCicType;
-	RomSettings		mSettings;
+	std::filesystem::path mFilename;
+	RomID                 mRomID{};
+	u32                   mRomSize{};
+	ECicType              mCicType{};
+	RomSettings           mSettings;
 
-	SRomInfo( const std::filesystem::path& filename )
-		:	mFilename( filename )
+	SRomInfo(const std::filesystem::path& filename)
+		: mFilename(filename)
 	{
-		if ( ROM_GetRomDetailsByFilename( filename, &mRomID, &mRomSize, &mCicType ) )
+		if (ROM_GetRomDetailsByFilename(filename, &mRomID, &mRomSize, &mCicType))
 		{
-			if ( !CRomSettingsDB::Get()->GetSettings( mRomID, &mSettings ) )
+			// Try to load from DB first
+			if (!CRomSettingsDB::Get()->GetSettings(mRomID, &mSettings))
 			{
-				// Create new entry, add
-				mSettings.Reset();
 				mSettings.Comment = "Unknown";
 
-				// Get internal file name for rom from header, otherwise get filename
-				if ( !ROM_GetRomName( filename, mSettings.GameName ) )
+				// Attempt to read internal game name
+				if (!ROM_GetRomName(filename, mSettings.GameName))
 				{
-					mSettings.GameName = filename.string();
+					mSettings.GameName = filename.filename().string();
 				}
-				mSettings.GameName = mSettings.GameName.substr(0,63);
-				CRomSettingsDB::Get()->SetSettings( mRomID, mSettings );
+				mSettings.GameName = mSettings.GameName.substr(0, 63);
+
+				// Store basic fallback
+				CRomSettingsDB::Get()->SetSettings(mRomID, mSettings);
 			}
 		}
 		else
 		{
+			// Failed to get ROM details
 			mSettings.GameName = "Can't get rom info";
+			return;
 		}
 
+		ROMHeader header{};
+		std::ifstream romFile(filename, std::ios::binary);
+		if (romFile && romFile.read(reinterpret_cast<char*>(&header), sizeof(header)))
+		{
+			if (strncmp(reinterpret_cast<const char*>(header.CartID), "ED", 2) == 0)
+			{
+				u8 flags = header.Unknown5;
+				u8 raw_save = (flags >> 4) & 0x0F;
+
+				mSettings.SaveType = static_cast<ESaveType>(raw_save);
+
+				if (!ROM_GetRomName(filename, mSettings.GameName))
+				{
+					mSettings.GameName = filename.filename().string();
+				}
+				mSettings.GameName = mSettings.GameName.substr(0, 63);
+
+				// Save updated settings with AHH override
+				CRomSettingsDB::Get()->SetSettings(mRomID, mSettings);
+			}
+		}
 	}
 };
 
 ECategory Categorise( std::string_view name )
 {
+
+	if (name.empty())
+		return ECategory::C_UNK;
 	return GetCategory(name[0]);
 }
 
