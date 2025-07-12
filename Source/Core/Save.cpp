@@ -112,9 +112,8 @@ bool Save_Reset()
 		std::fstream file(gMempackFileName, std::ios::in | std::ios::out | std::ios::binary);
 		if (!file)
 		{
-			DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", gMempackFileName.string().c_str());
-			 InitMempackContent();
-			 gMempackDirty = true;
+			// Initialise Mempack but do not write file unless it's needed
+			InitMempackContent();
 
 		}
 		else
@@ -225,7 +224,6 @@ static void InitMempackContent()
 			mempack[i + 1] = 0x03;
 		}
 
-		std::cout << "size of gMempak Initalise: " << sizeof(gMempackInitialize) << std::endl;
 		memcpy(mempack, gMempackInitialize, sizeof(gMempackInitialize));
 
 		DAEDALUS_ASSERT(dst_off + 0x8000 <= MemoryRegionSizes[MEM_MEMPACK], "Buffer overflow");

@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 #include <cstring>
+#include <fstream> 
 
 #include "Interface/Cheats.h"
 #include "Core/CPU.h"
@@ -74,7 +75,7 @@ static void DumpROMInfo( const ROMHeader & header )
 	DBGConsole_Msg(0, "Unknown3:        0x%04x", header.Unknown3);
 	DBGConsole_Msg(0, "Unknown4:        0x%02x", header.Unknown4);
 	DBGConsole_Msg(0, "Manufacturer:    0x%02x", header.Manufacturer);
-	DBGConsole_Msg(0, "CartID:          0x%04x", header.CartID);
+	DBGConsole_Msg(0, "CartID:          '%c%c'", header.CartID[0], header.CartID[1]);
 	DBGConsole_Msg(0, "CountryID:       0x%02x - '%c'", header.CountryID, (char)header.CountryID);
 	DBGConsole_Msg(0, "Unknown5:        0x%02x", header.Unknown5);
 
@@ -352,104 +353,104 @@ void SpecificGameHacks( const ROMHeader & id )
 
 	g_ROM.HACKS_u32 = 0;	//Default to no game hacks
 
-	switch( id.CartID )
-	{
-	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
-	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
-	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;
-	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
-	case 0x5632: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
-	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
-	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
-	case 0x504A: g_ROM.GameHacks = ISS64;				break;
-	case 0x5944: g_ROM.GameHacks = DKR;					break;
-	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
-	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
-	case 0x4C42: g_ROM.GameHacks = BUCK_BUMBLE;			break;
-	case 0x4441: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
-	case 0x3357: g_ROM.GameHacks = WCW_NITRO;			break;
+// 	switch( id.CartID )
+// 	{
+// 	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
+// 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
+// 	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;
+// 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
+// 	case 0x5632: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
+// 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
+// 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
+// 	case 0x504A: g_ROM.GameHacks = ISS64;				break;
+// 	case 0x5944: g_ROM.GameHacks = DKR;					break;
+// 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
+// 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
+// 	case 0x4C42: g_ROM.GameHacks = BUCK_BUMBLE;			break;
+// 	case 0x4441: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
+// 	case 0x3357: g_ROM.GameHacks = WCW_NITRO;			break;
 
-	case 0x464A:	// Jet Force Geminy
-	case 0x5647:	// Glover
-		g_ROM.SET_ROUND_MODE = true;
-		break;
-	case 0x4B42:	//Banjo-Kazooie
-		g_ROM.TLUT_HACK = true;
-	//	g_ROM.DISABLE_LBU_OPT = true;
-		break;
-	//case 0x5750:	//PilotWings64
-	case 0x4450:	//Perfect Dark
-		g_ROM.DISABLE_LBU_OPT = true;
-		break;
-	case 0x5941:	//AIDYN_CRONICLES
-		g_ROM.ALPHA_HACK = true;
-		g_ROM.GameHacks = AIDYN_CRONICLES;
-		break;
-	case 0x424C:	//Mario Party 1
-		g_ROM.DISABLE_SIM_CVT_D_S = true;
-		break;
-	case 0x4A54:	//Tom and Jerry
-	case 0x4d4a:	//Earthworm Jim
-	case 0x5150:	//PowerPuff Girls
-		g_ROM.DISABLE_SIM_CVT_D_S = true;
-		g_ROM.LOAD_T1_HACK = true;
-		break;
-	case 0x5144:	//Donald Duck
-	case 0x3259:	//Rayman2
-		g_ROM.SET_ROUND_MODE = true;
-		g_ROM.LOAD_T1_HACK = true;
-		g_ROM.T1_HACK = true;
-		break;
-	case 0x3358:	//GEX3
-	case 0x3258:	//GEX64
-		g_ROM.GameHacks = GEX_GECKO;
-		break;
-	case 0x4c5a:	//ZELDA_OOT
-		g_ROM.ZELDA_HACK = true;
-		g_ROM.GameHacks = ZELDA_OOT;
-		break;
-	case 0x4F44:	//DK64
-		g_ROM.SET_ROUND_MODE = true;
-		g_ROM.GameHacks = DK64;
-		break;
-	case 0x535a:	//ZELDA_MM
-		g_ROM.TLUT_HACK = true;
-		g_ROM.ZELDA_HACK = true;
-		g_ROM.GameHacks = ZELDA_MM;
-		break;
-	case 0x5653:	//SSV
-		g_ROM.LOAD_T1_HACK = true;
-		g_ROM.TLUT_HACK = true;
-		break;
-	case 0x5547:	//Sin and punishment
-		g_ROM.TLUT_HACK = true;
-		g_ROM.GameHacks = SIN_PUNISHMENT;
-		break;
-	case 0x3742:	//Banjo Tooie
-		g_ROM.GameHacks = BANJO_TOOIE;
-		g_ROM.TLUT_HACK = true;
-		break;
-	case 0x5544:	//Duck Dodgers
-	case 0x3653:	//Star soldier - vanishing earth
-	case 0x324C:	//Top Gear Rally 2
-	case 0x5247:	//Top Gear Rally
-	case 0x4552:	//Resident Evil 2
-	case 0x4446:	//Flying Dragon
-	case 0x534E:	//Beetle Racing
-		g_ROM.TLUT_HACK = true;
-		break;
-	case 0x4641:	//Animal crossing
-		g_ROM.TLUT_HACK = true;
-		g_ROM.GameHacks = ANIMAL_CROSSING;
-		break;
-	case 0x4842:	//Body Harvest
-	case 0x434E:	//Nightmare Creatures
-	case 0x5543:	//Cruisn' USA
-		g_ROM.GameHacks = BODY_HARVEST;
-		break;
-	default:
-		break;
-	}
+// 	case 0x464A:	// Jet Force Geminy
+// 	case 0x5647:	// Glover
+// 		g_ROM.SET_ROUND_MODE = true;
+// 		break;
+// 	case 0x4B42:	//Banjo-Kazooie
+// 		g_ROM.TLUT_HACK = true;
+// 	//	g_ROM.DISABLE_LBU_OPT = true;
+// 		break;
+// 	//case 0x5750:	//PilotWings64
+// 	case 0x4450:	//Perfect Dark
+// 		g_ROM.DISABLE_LBU_OPT = true;
+// 		break;
+// 	case 0x5941:	//AIDYN_CRONICLES
+// 		g_ROM.ALPHA_HACK = true;
+// 		g_ROM.GameHacks = AIDYN_CRONICLES;
+// 		break;
+// 	case 0x424C:	//Mario Party 1
+// 		g_ROM.DISABLE_SIM_CVT_D_S = true;
+// 		break;
+// 	case 0x4A54:	//Tom and Jerry
+// 	case 0x4d4a:	//Earthworm Jim
+// 	case 0x5150:	//PowerPuff Girls
+// 		g_ROM.DISABLE_SIM_CVT_D_S = true;
+// 		g_ROM.LOAD_T1_HACK = true;
+// 		break;
+// 	case 0x5144:	//Donald Duck
+// 	case 0x3259:	//Rayman2
+// 		g_ROM.SET_ROUND_MODE = true;
+// 		g_ROM.LOAD_T1_HACK = true;
+// 		g_ROM.T1_HACK = true;
+// 		break;
+// 	case 0x3358:	//GEX3
+// 	case 0x3258:	//GEX64
+// 		g_ROM.GameHacks = GEX_GECKO;
+// 		break;
+// 	case 0x4c5a:	//ZELDA_OOT
+// 		g_ROM.ZELDA_HACK = true;
+// 		g_ROM.GameHacks = ZELDA_OOT;
+// 		break;
+// 	case 0x4F44:	//DK64
+// 		g_ROM.SET_ROUND_MODE = true;
+// 		g_ROM.GameHacks = DK64;
+// 		break;
+// 	case 0x535a:	//ZELDA_MM
+// 		g_ROM.TLUT_HACK = true;
+// 		g_ROM.ZELDA_HACK = true;
+// 		g_ROM.GameHacks = ZELDA_MM;
+// 		break;
+// 	case 0x5653:	//SSV
+// 		g_ROM.LOAD_T1_HACK = true;
+// 		g_ROM.TLUT_HACK = true;
+// 		break;
+// 	case 0x5547:	//Sin and punishment
+// 		g_ROM.TLUT_HACK = true;
+// 		g_ROM.GameHacks = SIN_PUNISHMENT;
+// 		break;
+// 	case 0x3742:	//Banjo Tooie
+// 		g_ROM.GameHacks = BANJO_TOOIE;
+// 		g_ROM.TLUT_HACK = true;
+// 		break;
+// 	case 0x5544:	//Duck Dodgers
+// 	case 0x3653:	//Star soldier - vanishing earth
+// 	case 0x324C:	//Top Gear Rally 2
+// 	case 0x5247:	//Top Gear Rally
+// 	case 0x4552:	//Resident Evil 2
+// 	case 0x4446:	//Flying Dragon
+// 	case 0x534E:	//Beetle Racing
+// 		g_ROM.TLUT_HACK = true;
+// 		break;
+// 	case 0x4641:	//Animal crossing
+// 		g_ROM.TLUT_HACK = true;
+// 		g_ROM.GameHacks = ANIMAL_CROSSING;
+// 		break;
+// 	case 0x4842:	//Body Harvest
+// 	case 0x434E:	//Nightmare Creatures
+// 	case 0x5543:	//Cruisn' USA
+// 		g_ROM.GameHacks = BODY_HARVEST;
+// 		break;
+// 	default:
+// 		break;
+// 	}
 }
 
 // Copy across text, nullptr terminate, and strip spaces
@@ -476,7 +477,7 @@ bool ROM_LoadFile()
 	{
 		RomSettings			settings;
 		SRomPreferences		preferences;
-
+		
 		if (!CRomSettingsDB::Get()->GetSettings( rom_id, &settings ))
 		{
 			settings.Reset();
@@ -587,10 +588,36 @@ bool ROM_GetRomName( const std::filesystem::path &filename, std::string & game_n
 	return true;
 }
 
-bool ROM_GetRomDetailsByFilename( const std::filesystem::path &filename, RomID * id, u32 * rom_size, ECicType * boot_type )
+bool ROM_GetRomDetailsByFilename(const std::filesystem::path &filename, RomID *id, u32 *rom_size, ECicType *boot_type)
 {
-	return CRomDB::Get()->QueryByFilename( filename.c_str(), id, rom_size, boot_type );
+	if (!CRomDB::Get()->QueryByFilename(filename, id, rom_size, boot_type))
+		return false;
+
+	// AHH SaveType detection
+	ROMHeader header{};
+	std::ifstream rom(filename, std::ios::binary);
+	if (rom && rom.read(reinterpret_cast<char*>(&header), sizeof(header)))
+	{
+		if (strncmp(reinterpret_cast<const char*>(header.CartID), "ED", 2) == 0)
+		{
+			u8 flags = header.Unknown5;
+			u8 raw = (flags >> 4) & 0x0F;
+
+			RomSettings settings;
+			settings.SaveType = static_cast<ESaveType>(raw);
+			settings.Comment = "Detected via AHH";
+
+			if (!ROM_GetRomName(filename, settings.GameName))
+				settings.GameName = filename.filename().string();
+			settings.GameName = settings.GameName.substr(0, 63);
+
+			CRomSettingsDB::Get()->SetSettings(*id, settings);
+		}
+	}
+
+	return true;
 }
+
 
 bool ROM_GetRomDetailsByID( const RomID & id, u32 * rom_size, ECicType * boot_type )
 {
