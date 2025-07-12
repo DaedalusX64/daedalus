@@ -55,7 +55,7 @@ namespace
 	bool			sRomFixed	= false;
 	bool			sRomWritten	= false;
 	u32				sRomValue	= 0;
-	std::shared_ptr<ROMFileCache> spRomFileCache	= nullptr;
+	std::unique_ptr<ROMFileCache> spRomFileCache	= nullptr;
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 	static bool		DECOMPRESS_ROMS	= true;
@@ -186,6 +186,8 @@ void RomBuffer::Destroy()
 
 bool RomBuffer::Open()
 {
+
+	RomBuffer::Close();
 	CNullOutputStream messages;
 	const std::filesystem::path &filename   = g_ROM.mFileName;
 	auto p_rom_file = ROMFile::Create( filename.c_str() );
@@ -312,6 +314,7 @@ bool RomBuffer::Open()
 
 	DBGConsole_Msg(0, "Opened [C%s]\n", filename.string().c_str());
 	sRomLoaded = true;
+
 	return true;
 }
 
@@ -327,6 +330,7 @@ void	RomBuffer::Close()
 	if (spRomFileCache)
 	{
 		spRomFileCache->Close();
+		spRomFileCache.reset();
 	}
 
 	sRomSize   = 0;
@@ -341,7 +345,7 @@ u32		RomBuffer::GetRomSize() { return sRomSize; }
 
 namespace
 {
-	void	CopyBytesRaw( std::shared_ptr<ROMFileCache> p_cache, u8 * p_dst, u32 rom_offset, u32 length )
+	void	CopyBytesRaw( std::unique_ptr<ROMFileCache> &p_cache, u8 * p_dst, u32 rom_offset, u32 length )
 	{
 		// Read the cached bytes into our scratch buffer, and return that
 		u32		dst_offset( 0 );
