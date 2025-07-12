@@ -89,7 +89,7 @@ const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 	0x1C,				// SI_REG
 
 	0x20000,			// SAVE
-	0x20000				// MEMPACK
+	0x8000,				// MEMPACK
 };
 
 u32			gRamSize =  kMaximumMemSize;	// Size of emulated RAM
