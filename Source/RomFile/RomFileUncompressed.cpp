@@ -111,7 +111,7 @@ bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputSt
 
     mFH.read(reinterpret_cast<char*>(p_bytes), bytes_to_read);
     if (mFH.gcount() != bytes_to_read) {
-        std::cerr << "Failed to read expected number of bytes. Read " << mFH.gcount() << " out of " << bytes_to_read << std::endl;
+        std::cerr << "Failed to read expected number of bytes from LoadRawData. Read " << mFH.gcount() << " out of " << bytes_to_read << std::endl;
         return false;
     }
 
@@ -138,7 +138,7 @@ bool	ROMFileUncompressed::ReadChunk( u32 offset, u8 * p_dst, u32 length )
 
     mFH.read(reinterpret_cast<char*>(p_dst), length);
     if (mFH.gcount() != length) {
-        std::cerr << "Failed to read expected number of bytes. Read " << mFH.gcount() << " out of " << length << std::endl;
+        std::cerr << "Failed to read expected number of bytes from ReadChunk. Read " << mFH.gcount() << " out of " << length << std::endl;
         return false;
     }
 
