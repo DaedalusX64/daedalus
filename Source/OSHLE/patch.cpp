@@ -530,9 +530,9 @@ void Patch_RecurseAndFind()
 		CGraphicsContext::Get()->BeginFrame();
 		CGraphicsContext::Get()->ClearToBlack();
 		#ifdef INTRAFONT
-		intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for os functions. This may take several seconds...");
+		intraFontPrintf( ltn8, 480/2, (272>>1)-100, "Searching for os functions. This may take several seconds...");
 		intraFontPrintf( ltn8, 480/2, (272>>1), "OS HLE Patching: %d%%", i * 100 / (nPatchSymbols-1));
-		intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for %s", g_PatchSymbols[i]->Name );
+		intraFontPrintf( ltn8, 480/2, (272>>1)+150, "Searching for %s", g_PatchSymbols[i]->Name );
 		#endif
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
