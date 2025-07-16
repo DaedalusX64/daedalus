@@ -31,7 +31,7 @@
 
 #include "Interface/Preferences.h"
 #include "Utility/Profiler.h"
-#include "System/Thread.h"
+#include "System/Thread/Thread.h"
 
 
 #include "Utility/Timer.h"

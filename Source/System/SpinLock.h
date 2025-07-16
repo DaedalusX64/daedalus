@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_SPINLOCK_H_
 #define UTILITY_SPINLOCK_H_
 
-#include "System/Thread.h"
+#include "System/Thread/Thread.h"
 
 class CSpinLock
 {
