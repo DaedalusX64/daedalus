@@ -11,7 +11,7 @@
 #include "HLEAudio/HLEAudioInternal.h"
 #include "Utility/FramerateLimiter.h"
 #include "System/Thread.h"
-#include "System/Timing.h"
+#include "System/Timing/Timing.h"
 
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Utility/CacheUtil.h"

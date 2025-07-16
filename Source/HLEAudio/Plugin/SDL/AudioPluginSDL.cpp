@@ -7,7 +7,7 @@
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioPlugin.h"
 #include "HLEAudio/HLEAudioInternal.h"
-#include "System/Timing.h"
+#include "System/Timing/Timing.h"
 
 EAudioPluginMode gAudioPluginEnabled = APM_ENABLED_ASYNC;
 

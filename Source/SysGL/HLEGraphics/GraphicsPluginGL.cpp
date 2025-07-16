@@ -16,7 +16,7 @@
 
 #include "HLEGraphics/GraphicsPlugin.h"
 
-#include "System/Timing.h"
+#include "System/Timing/Timing.h"
 
 #include "SysGL/GL.h"
 

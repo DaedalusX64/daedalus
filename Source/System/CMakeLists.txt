@@ -1,5 +1,10 @@
-if(NOT DAEDALUS_CTR)
-set(Timing Timing.cpp)
+
+if(DAEDALUS_PSP)
+set(Timing Timing/PSP/Timing.cpp)
+elseif(DAEDALUS_CTR)
+set(Timing Timing/CTR/Timing.cpp)
+else()
+set(Timing Timing/Posix/Timing.cpp)
 endif()
 
 add_library(System OBJECT 
