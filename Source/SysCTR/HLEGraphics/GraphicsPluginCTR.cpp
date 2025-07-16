@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Profiler.h"
 #include "Utility/FramerateLimiter.h"
 #include "Interface/Preferences.h"
-#include "System/Timing.h"
+#include "System/Timing/Timing.h"
 
 #include "Core/Memory.h"
 

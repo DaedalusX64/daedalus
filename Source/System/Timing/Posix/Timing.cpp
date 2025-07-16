@@ -17,31 +17,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#include "System/Timing/Timing.h"
 
-#include "System/Timing.h"
-
-#include <3ds.h>
-
-#define TICKS_PER_SEC 268123480.0
+#include <sys/time.h>
 
 namespace NTiming {
-
 bool GetPreciseFrequency( u64 * p_freq )
 {
-	*p_freq = TICKS_PER_SEC;
+	*p_freq = 1 * 1000 * 1000;  // Microseconds
 	return true;
 }
 
 bool GetPreciseTime( u64 * p_time )
 {
-	*p_time = svcGetSystemTick();
-	return true;
+	timeval		tv;
+	if(::gettimeofday( &tv, NULL ) == 0)
+	{
+		*p_time = u64(tv.tv_sec) * 1000000LL + u64(tv.tv_usec);
+		return true;
+	}
+
+	*p_time = 0;
+	return false;
 }
 
 u64 ToMilliseconds( u64 ticks )
 {
-	//?
-	return (ticks * 1000 * 1000) / TICKS_PER_SEC;
+	return (ticks*1000LL) / 1000000LL;
 }
 
 } // NTiming
+

@@ -1,7 +1,6 @@
 add_library(Utility_CTR OBJECT
                 CacheCTR.S
                 MemoryCTR.c
-                TimingCTR.cpp 
             )
 
 if(DAEDALUS_PROFILE_UTILITY_CTR)
