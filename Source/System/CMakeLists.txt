@@ -1,17 +1,20 @@
 
 if(DAEDALUS_PSP)
 set(Timing Timing/PSP/Timing.cpp)
+set(Thread Thread/PSP/Thread.cpp)
 elseif(DAEDALUS_CTR)
 set(Timing Timing/CTR/Timing.cpp)
+set(Thread Thread/CTR/Thread.cpp)
 else()
 set(Timing Timing/Posix/Timing.cpp)
+set(Thread Thread/Posix/Thread.cpp)
 endif()
 
 add_library(System OBJECT 
 
             CompressedStream.cpp 
             DataSink.cpp
-            Thread.cpp
+            ${Thread}
             SystemInit.cpp
             ${Timing}    
             )
