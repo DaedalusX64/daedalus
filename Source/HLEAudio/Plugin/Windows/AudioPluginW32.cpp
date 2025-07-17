@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RSP_HLE.h"
 #include "HLEAudio/HLEAudioInternal.h"
 #include "Utility/FastMemcpy.h"
-#include "System/Thread.h"
+#include "System/Thread/Thread.h"
 #include "System/Mutex.h"
 #include "System/Condition.h"
 

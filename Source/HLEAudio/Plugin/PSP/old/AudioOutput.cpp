@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/CacheUtil.h"
 #include "SysPSP/Utility/JobManager.h"
 #include "Utility/FramerateLimiter.h"
-#include "System/Thread.h"
+#include "System/Thread/Thread.h"
 
 extern u32 gSoundSync;
 

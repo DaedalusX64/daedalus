@@ -40,8 +40,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/AudioBuffer.h"
 #include "HLEAudio/HLEAudioInternal.h"
 #include "Utility/FramerateLimiter.h"
-#include "System/Thread.h"
-#include "System/Timing.h"
+#include "System/Thread/Thread.h"
+#include "System/Timing/Timing.h"
 
 EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
 

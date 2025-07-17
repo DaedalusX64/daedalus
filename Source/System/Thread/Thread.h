@@ -25,12 +25,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Types.h"
 #include <thread>
 
+#ifdef DAEDALUS_PSP
+using ThreadHandle = s32;
+const s32 kInvalidThreadHandle = -1;
+#elif DAEDALUS_CTR
+using ThreadHandle = s32;
+const ThreadHandle	kInvalidThreadHandle = -1;
+#else
+using ThreadHandle = std::unique_ptr<std::thread>;  // Updated ThreadHandle type
+const ThreadHandle kInvalidThreadHandle = 0; 
+
+#endif
+
 using DaedThread = u32 ( * )(void * arg);
 
 
-using ThreadHandle = std::unique_ptr<std::thread>;  // Updated ThreadHandle type
 
-const ThreadHandle kInvalidThreadHandle = nullptr;  // nullptr works with std::unique_ptr
+
 
 extern const ThreadHandle	kInvalidThreadHandle;
 

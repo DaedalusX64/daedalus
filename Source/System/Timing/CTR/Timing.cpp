@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2001 StrmnNrmn
+Copyright (C) 2005 StrmnNrmn
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,33 +17,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#pragma once
 
-#ifndef UTILITY_SPINLOCK_H_
-#define UTILITY_SPINLOCK_H_
+#include "System/Timing/Timing.h"
 
-#include "System/Thread/Thread.h"
+#include <3ds.h>
 
-class CSpinLock
+#define TICKS_PER_SEC 268123480.0
+
+namespace NTiming {
+
+bool GetPreciseFrequency( u64 * p_freq )
 {
-public:
-	inline explicit CSpinLock( volatile u32 * var ) : Var( var )
-	{
-		// N.B. - this probably needs to use a CAS to prevent race conditions
-		while( *Var != 0 )
-		{
-			ThreadYield();
-		}
-		*Var = 1;
-	}
+	*p_freq = TICKS_PER_SEC;
+	return true;
+}
 
-	inline ~CSpinLock()
-	{
-		*Var = 0;
-	}
+bool GetPreciseTime( u64 * p_time )
+{
+	*p_time = svcGetSystemTick();
+	return true;
+}
 
-private:
-	volatile u32 * Var;
-};
+u64 ToMilliseconds( u64 ticks )
+{
+	//?
+	return (ticks * 1000 * 1000) / TICKS_PER_SEC;
+}
 
-#endif // UTILITY_SPINLOCK_H_
+} // NTiming

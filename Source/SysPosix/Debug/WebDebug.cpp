@@ -28,7 +28,7 @@
 #include "Utility/Paths.h"
 #include "Base/Macros.h"
 #include "Utility/StringUtil.h"
-#include "System/Thread.h"
+#include "System/Thread/Thread.h"
 
 
 enum
