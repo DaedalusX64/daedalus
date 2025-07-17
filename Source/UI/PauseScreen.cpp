@@ -230,17 +230,24 @@ void	IPauseScreen::Render()
 	EMenuOption		next = GetNextOption();
 
 	// Meh should be big enough regarding if translated..
-	char					info[120];
+	char					info[120] = "";
 
 #if DAEDALUS_PSP
 	s32 bat = scePowerGetBatteryLifePercent();
 	s32 batteryLifeTime = scePowerGetBatteryLifeTime();
+
 	if(!scePowerIsBatteryCharging())
 	{
+			if (bat >= 0 && batteryLifeTime >= 0)
+			{
 			snprintf(info, sizeof(info), " [%s %d%% %s %2dh %2dm]",
 			Translate_String("Battery / "), bat,
 			Translate_String("Time"), batteryLifeTime / 60, batteryLifeTime % 60);
-
+			}
+			else
+			{
+				snprintf(info, sizeof(info), "[%s]", Translate_String("Battery Info Unavailable"));
+			}
 	}
 	else
 	{
