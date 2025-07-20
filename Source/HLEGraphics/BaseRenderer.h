@@ -266,11 +266,23 @@ public:
 	// Fog stuff
 	inline void			SetFogMultOffs(f32 Mult, f32 Offs)		{ mTnL.FogMult=Mult/255.0f; mTnL.FogOffs=Offs/255.0f;}
 #ifdef DAEDALUS_PSP
-	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ mfog_near = fog_near; mfog_far = fog_far;}
-	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
-#elif defined(DAEDALUS_VITA) || defined (DAEDALUS_CTR) || defined (DAEDALUS_GL) || defined (DAEDALUS_GLES)
-	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ glFogf(GL_FOG_START, fog_near); glFogf(GL_FOG_END, fog_far); }
-	inline void			SetFogColour( c32 colour )				{ float fog_clr[4] = {colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf()}; glFogfv(GL_FOG_COLOR, &fog_clr[0]); }
+	inline void SetFogMinMax(f32 fog_near, f32 fog_far) { mfog_near = fog_near; mfog_far = fog_far; }
+	inline void SetFogColour(c32 colour)               { mFogColour = colour; }
+
+#elif defined(DAEDALUS_GL)
+	// Desktop OpenGL (fixed-function)
+	inline void SetFogMinMax(f32 fog_near, f32 fog_far) { glFogf(GL_FOG_START, fog_near); glFogf(GL_FOG_END, fog_far); }
+	inline void SetFogColour(c32 colour) {
+		float fog_clr[4] = { colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() };
+		glFogfv(GL_FOG_COLOR, fog_clr);
+	}
+
+#elif defined(DAEDALUS_GLES) || defined(DAEDALUS_VITA) || defined(DAEDALUS_CTR)
+	// GLES 2.0+ and shader-only platforms (fog must be done in shaders)
+	inline void SetFogMinMax(f32 fog_near, f32 fog_far) { mfog_near = fog_near; mfog_far = fog_far; /* Pass to shader */ }
+	inline void SetFogColour(c32 colour)               { mFogColour = colour; /* Pass to shader */ }
+
+	// Later in rendering: glUniforms set from mFogColour and mfog_near/far
 #endif
 
 
