@@ -249,8 +249,10 @@ if(DAEDALUS_SDL)
 endif(DAEDALUS_SDL)
 
 if(DAEDALUS_GLES)
-	find_package(GLESv2 REQUIRED)
-	target_link_libraries(my_target GLESv2::GLESv2)
+	link_directories("/opt/omap5-sgx-ddk-um-linux/lib")
+	target_link_libraries(${PROJECT_NAME}
+	PRIVATE
+	GLESv2)
 endif(DAEDALUS_GLES)
 
 if(DAEDALUS_GL)
