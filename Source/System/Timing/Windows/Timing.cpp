@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2001 StrmnNrmn
+Copyright (C) 2005 StrmnNrmn
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,33 +17,45 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#pragma once
 
-#ifndef UTILITY_SPINLOCK_H_
-#define UTILITY_SPINLOCK_H_
+#include "System/Timing/Timing.h"
 
-#include "System/Thread/Thread.h"
+#include <windows.h>
 
-class CSpinLock
+namespace NTiming {
+
+bool GetPreciseFrequency( u64 * p_freq )
 {
-public:
-	inline explicit CSpinLock( volatile u32 * var ) : Var( var )
+	LARGE_INTEGER	freq;
+	if(::QueryPerformanceFrequency( &freq ))
 	{
-		// N.B. - this probably needs to use a CAS to prevent race conditions
-		while( *Var != 0 )
-		{
-			ThreadYield();
-		}
-		*Var = 1;
+		*p_freq = freq.QuadPart;
+		return true;
 	}
 
-	inline ~CSpinLock()
+	*p_freq = 1;
+	return false;
+}
+
+bool GetPreciseTime( u64 * p_time )
+{
+	LARGE_INTEGER	time;
+	if(::QueryPerformanceCounter( &time ))
 	{
-		*Var = 0;
+		*p_time = time.QuadPart;
+		return true;
 	}
 
-private:
-	volatile u32 * Var;
-};
+	*p_time = 0;
+	return false;
+}
 
-#endif // UTILITY_SPINLOCK_H_
+u64 ToMilliseconds( u64 ticks )
+{
+	static u64 tick_resolution = 0;
+	if (tick_resolution == 0)
+		GetPreciseFrequency(&tick_resolution);
+	return (ticks*1000LL) / tick_resolution;
+}
+
+} // NTiming

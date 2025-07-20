@@ -52,7 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Base/Macros.h"
 #include "Debug/PrintOpCode.h"
 #include "Debug/Synchroniser.h"
-#include "System/Thread.h"
+#include "System/Thread/Thread.h"
 
 
 
