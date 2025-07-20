@@ -21,9 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <malloc.h>
 
-#ifdef DAEDALUS_CTR
+#ifdef DAEDALUS_POSIX
+#include <sys/mman.h>
+#elif DAEDALUS_CTR
 #include "SysCTR/Utility/MemoryCTR.h"
 #endif
+#include <iostream>
 
 #include "DynaRec/CodeBufferManager.h"
 #include "Debug/DBGConsole.h"
@@ -77,12 +80,25 @@ bool	CCodeBufferManagerARM::Initialise()
 {
 	// mpSecondBuffer is currently unused
 
-	#ifdef DAEDALUS_CTR
+#ifdef DAEDALUS_CTR
 	mpBuffer = (u8*)memalign(4096, CODE_BUFFER_SIZE*2);
-	mpSecondBuffer = mpBuffer + CODE_BUFFER_SIZE;
-	if (mpBuffer == NULL || mpSecondBuffer == NULL)
+#elif DAEDALUS_POSIX
+
+	mpBuffer = (u8*)mmap(nullptr, CODE_BUFFER_SIZE*2, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#endif	
+	if (mpBuffer == MAP_FAILED)
 		return false;
 
+	mpSecondBuffer = mpBuffer + CODE_BUFFER_SIZE;
+	
+#ifdef __linux__
+		// Make the memory executable
+	if (mprotect(mpBuffer, CODE_BUFFER_SIZE * 2, PROT_READ | PROT_WRITE | PROT_EXEC) != 0)
+	{
+		perror("mprotect");
+		return false;
+	}
+#elif DAEDALUS_CTR
 	_SetMemoryPermission((unsigned int*)mpBuffer, CODE_BUFFER_SIZE*2, 7);
 	//_SetMemoryPermission((unsigned int*)mpSecondBuffer, CODE_BUFFER_SIZE, 7);
 	#endif
@@ -143,6 +159,10 @@ u32 CCodeBufferManagerARM::FinaliseCurrentBlock()
 {
 	u32		main_block_size( mPrimaryBuffer.GetSize() );
 
+	 char* start = reinterpret_cast<char*>(mpBuffer + mBufferPtr);
+	 char* end   = start + main_block_size;
+
+
 	mBufferPtr += main_block_size;
 	mSecondBufferPtr += mSecondaryBuffer.GetSize();
 
@@ -151,8 +171,11 @@ u32 CCodeBufferManagerARM::FinaliseCurrentBlock()
 	mSecondBufferPtr = ((mSecondBufferPtr - 1) & 0xfffffff0) + 0x10; // align to 16-byte boundary
 	#endif
 
+
 	#ifdef DAEDALUS_CTR
 	_InvalidateAndFlushCaches();
+	#elif DAEDALUS_POSIXls
+	 __builtin___clear_cache(start,end);
 	#endif
 	
 	return main_block_size;
