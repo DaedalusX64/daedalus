@@ -55,9 +55,9 @@ bool	PatchJumpLongAndFlush( CJumpLocation jump, CCodeLabel target )
 	
 	#ifdef DAEDALUS_CTR
 	_InvalidateAndFlushCaches();
+	#elif DAEDALUS_POSIX
+	__builtin___clear_cache((char*)jump.GetAddress(), (char*)jump.GetAddress() + 8);
 	#endif
 
 	return true;
-}
-
 }

@@ -174,7 +174,7 @@ u32 CCodeBufferManagerARM::FinaliseCurrentBlock()
 
 	#ifdef DAEDALUS_CTR
 	_InvalidateAndFlushCaches();
-	#elif DAEDALUS_POSIXls
+	#elif DAEDALUS_POSIX
 	 __builtin___clear_cache(start,end);
 	#endif
 	
