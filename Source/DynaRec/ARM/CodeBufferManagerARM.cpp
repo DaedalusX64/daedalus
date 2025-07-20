@@ -91,7 +91,7 @@ bool	CCodeBufferManagerARM::Initialise()
 
 	mpSecondBuffer = mpBuffer + CODE_BUFFER_SIZE;
 	
-#ifdef __linux__
+#ifdef DAEDALUS_POSIX
 		// Make the memory executable
 	if (mprotect(mpBuffer, CODE_BUFFER_SIZE * 2, PROT_READ | PROT_WRITE | PROT_EXEC) != 0)
 	{

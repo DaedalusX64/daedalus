@@ -27,38 +27,40 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace AssemblyUtils
 {
 
-//*****************************************************************************
-//	Patch a long jump to target the specified location.
-//	Return true if the patching succeeded (i.e. within range), false otherwise
-//*****************************************************************************
-bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
-{
-	u32* p_jump_addr( reinterpret_cast< u32* >( jump.GetWritableU8P() ) );
+	//*****************************************************************************
+	//	Patch a long jump to target the specified location.
+	//	Return true if the patching succeeded (i.e. within range), false otherwise
+	//*****************************************************************************
+	bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
+	{
+		u32* p_jump_addr( reinterpret_cast< u32* >( jump.GetWritableU8P() ) );
 
-	auto address = target.GetTargetU8P();
+		auto address = target.GetTargetU8P();
 
-	s32 offset = jump.GetOffset(target) - 8;
-	
-	offset >>= 2;
-	p_jump_addr[0] = (p_jump_addr[0] &0xFF000000)| (offset & 0xFFFFFF);
-	
-	// All jumps are 32 bit offsets, and so always succeed.
-	return true;
-}
+		s32 offset = jump.GetOffset(target) - 8;
+		
+		offset >>= 2;
+		p_jump_addr[0] = (p_jump_addr[0] &0xFF000000)| (offset & 0xFFFFFF);
+		
+		// All jumps are 32 bit offsets, and so always succeed.
+		return true;
+	}
 
-//*****************************************************************************
-//	As above no (need to flush on intel)
-//*****************************************************************************
-bool	PatchJumpLongAndFlush( CJumpLocation jump, CCodeLabel target )
-{
-	PatchJumpLong( jump, target );
-	
-	#ifdef DAEDALUS_CTR
-	_InvalidateAndFlushCaches();
-	#elif DAEDALUS_POSIX
-	const char* addr = reinterpret_cast<const char*>(jump.GetTargetU8P());
-	__builtin___clear_cache(const_cast<char*>(addr), const_cast<char*>(addr + 8));
-	#endif
+	//*****************************************************************************
+	//	As above no (need to flush on intel)
+	//*****************************************************************************
+	bool	PatchJumpLongAndFlush( CJumpLocation jump, CCodeLabel target )
+	{
+		PatchJumpLong( jump, target );
+		
+		#ifdef DAEDALUS_CTR
+		_InvalidateAndFlushCaches();
+		#elif DAEDALUS_POSIX
+		const char* addr = reinterpret_cast<const char*>(jump.GetTargetU8P());
+		__builtin___clear_cache(const_cast<char*>(addr), const_cast<char*>(addr + 8));
+		#endif
 
-	return true;
+		return true;
+	}
+
 }
