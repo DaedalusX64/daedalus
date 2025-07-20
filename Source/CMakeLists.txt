@@ -249,10 +249,8 @@ if(DAEDALUS_SDL)
 endif(DAEDALUS_SDL)
 
 if(DAEDALUS_GLES)
-	link_directories("/opt/omap5-sgx-ddk-um-linux/lib")
-	target_link_libraries(${PROJECT_NAME}
-	PRIVATE
-	GLESv2)
+    link_directories("/opt/omap5-sgx-ddk-um-linux/lib")
+    link_libraries(GLESv2)
 endif(DAEDALUS_GLES)
 
 if(DAEDALUS_GL)
