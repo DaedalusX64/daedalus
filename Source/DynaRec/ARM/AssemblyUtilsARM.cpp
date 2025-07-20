@@ -56,8 +56,9 @@ namespace AssemblyUtils
 		#ifdef DAEDALUS_CTR
 		_InvalidateAndFlushCaches();
 		#elif DAEDALUS_POSIX
-		const char* addr = reinterpret_cast<const char*>(jump.GetTargetU8P());
-		__builtin___clear_cache(const_cast<char*>(addr), const_cast<char*>(addr + 8));
+		char* start = const_cast<char*>(reinterpret_cast<const char*>(jump.GetTargetU8P()));
+		char* end   = start + 8;
+		__builtin___clear_cache(start, end);
 		#endif
 
 		return true;

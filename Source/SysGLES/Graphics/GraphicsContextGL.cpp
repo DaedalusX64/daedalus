@@ -91,7 +91,7 @@ bool GraphicsContextGL::Initialise()
 
     // Request an OpenGL ES 3.1 context
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
     #ifdef DAEDALUS_DEBUG_CONSOLE
@@ -117,7 +117,7 @@ else
 
     // Create the window
     gWindow = SDL_CreateWindow( 
-        "Daedalus - GLES 3.1", 
+        "Daedalus - GLES 2.1", 
         SDL_WINDOWPOS_CENTERED, 
         SDL_WINDOWPOS_CENTERED, 
         SCREEN_WIDTH, 

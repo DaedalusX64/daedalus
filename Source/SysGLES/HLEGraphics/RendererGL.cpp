@@ -5,7 +5,7 @@
 #include <iostream>
 #include <filesystem>    
 
-#include <GLES3/gl3.h>
+#include <GLES2/gl2.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>  
 #include <SDL2/SDL_syswm.h>
