@@ -39,6 +39,7 @@
 #include "Core/RDRam.h"
 #include "Debug/DBGConsole.h"
 #include "Ultra/ultra_sptask.h"
+#include "Utility/MathUtil.h"
 
 #define SUBBLOCK_SIZE 64
 using tile_line_emitter_t = void (*)(const s16 *y, const s16 *u, u32 address);

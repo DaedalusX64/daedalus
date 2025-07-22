@@ -60,10 +60,10 @@ inline u32 Vector2ColourClampedVFPU(const glm::vec4 * col_in)
 // Around 463,000 ticks/million
 inline u32 Vector2ColourClampedCPU( const glm::vec4 * col_in )
 {
-	u8 r = u8( std::clamp<s32>( s32(col_in->x * 255.0f), 0, 255 ) );
-	u8 g = u8( std::clamp<s32>( s32(col_in->y * 255.0f), 0, 255 ) );
-	u8 b = u8( std::clamp<s32>( s32(col_in->z * 255.0f), 0, 255 ) );
-	u8 a = u8( std::clamp<s32>( s32(col_in->w * 255.0f), 0, 255 ) );
+    u8 r = clamp_f32_to_u8(col_in->x * 255.0f);
+    u8 g = clamp_f32_to_u8(col_in->y * 255.0f);
+    u8 b = clamp_f32_to_u8(col_in->z * 255.0f);
+    u8 a = clamp_f32_to_u8(col_in->w * 255.0f);
 
 	return c32::Make( r, g, b, a );
 }
@@ -80,22 +80,25 @@ inline u32 Vector2ColourClamped( const glm::vec4 & colour )
 
 inline u8 AddComponent( u8 a, u8 b )
 {
-	return u8( std::clamp< s32 >( s32( a ) + s32( b ), 0, 255 ) );
+	int sum = static_cast<int>(a) + static_cast<int>(b);
+	return static_cast<u8>(sum > 255 ? 255 : sum);
 }
 
 inline u8 SubComponent( u8 a, u8 b )
 {
-	return u8( std::clamp< s32 >( s32( a ) - s32( b ), 0, 255 ) );
+	int diff = static_cast<int>(a) - static_cast<int>(b);
+	return static_cast<u8>(diff < 0 ? 0 : diff);
 }
 
 inline u8 ModulateComponent( u8 a, u8 b )
 {
-	return u8( ( u32( a ) * u32( b ) ) >> 8 );		// >> 8 to return to 0..255
+	return u8((u32(a) * u32(b) + 127) / 255);
 }
 
 inline u8 InterpolateComponent( u8 a, u8 b, float factor )
 {
-	return u8(float(a) + (float(b) - float(a)) * factor);
+    u32 f = static_cast<u32>(factor * 256.0f); // fixed-point 8.8
+    return static_cast<u8>((a * (256 - f) + b * f) >> 8);
 }
 
 

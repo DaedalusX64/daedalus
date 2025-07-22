@@ -26,16 +26,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 template< typename T > constexpr inline T Saturate( s32 x );
 
-template<> constexpr inline s16 Saturate( s32 x )
+template<> constexpr inline s16 Saturate<s16>(s32 x)
 {
-	return static_cast<s16>( std::clamp< s32 >( x, -32768, 32767 ) );
+	return static_cast<s16>(x > 32767 ? 32767 : (x < -32768 ? -32768 : x));
 }
 
-template<> constexpr inline s8 Saturate( s32 x )
+template<> constexpr inline s8 Saturate<s8>(s32 x)
 {
-	return static_cast<s8>( std::clamp< s32 >( x, -128, 127 ) );
+	return static_cast<s8>(x > 127 ? 127 : (x < -128 ? -128 : x));
 }
-
 
 template< typename T >
 inline const T * RoundPointerDown( const T * p, uintptr_t r )
@@ -81,4 +80,33 @@ inline u32 GetNextPowerOf2( u32 x )
 	return x;
 }
 
+inline u8 clamp_u8(s16 x)
+{
+    return (x & (0xff00)) ? ((-x) >> 15) & 0xff : x;
+}
+
+inline s16 clamp_s12(s16 x)
+{
+    if (x < -0x800) { x = -0x800; } else if (x > 0x7f0) { x = 0x7f0; }
+    return x;
+}
+
+inline s16 clamp_s16(s32 x)
+{
+    if (x > 32767) { x = 32767; } else if (x < -32768) { x = -32768; }
+    return x;
+}
+
+inline u16 clamp_RGBA_component(s16 x)
+{
+    if (x > 0xff0) { x = 0xff0; } else if (x < 0) { x = 0; }
+    return (x & 0xf80);
+}
+inline u8 clamp_f32_to_u8(float x)
+{
+    s32 val = static_cast<s32>(x);
+    if (val < 0) return 0;
+    if (val > 255) return 255;
+    return static_cast<u8>(val);
+}
 #endif // MATH_MATHUTIL_H_

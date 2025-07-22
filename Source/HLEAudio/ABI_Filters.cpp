@@ -178,7 +178,7 @@ void POLEF(AudioHLECommand command )
         float currentY = inputSample + a1 * prevY1 + a2 * prevY2;
 
         // Clamp the result to prevent overflow (optional)
-        currentY = std::clamp(currentY, static_cast<float>(INT16_MIN), static_cast<float>(INT16_MAX));
+       currentY = std::max(-32768.0f, std::min(32767.0f, currentY));
 
         // Store the filtered result
         outputBuffer[i] = static_cast<int16_t>(currentY);

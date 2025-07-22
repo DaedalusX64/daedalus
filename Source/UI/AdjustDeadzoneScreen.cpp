@@ -89,26 +89,27 @@ IAdjustDeadzoneScreen::~IAdjustDeadzoneScreen() {}
 
 void	IAdjustDeadzoneScreen::Update( float elapsed_time[[maybe_unused]], const glm::vec2 & stick [[maybe_unused]], u32 old_buttons, u32 new_buttons )
 {
-	if(new_buttons & PSP_CTRL_DOWN)
+	if (new_buttons & PSP_CTRL_DOWN)
 	{
-		if( mAdjustingMinDeadzone )
+		if (mAdjustingMinDeadzone)
 		{
-			mStickMinDeadzone = std::clamp( mStickMinDeadzone - DEADZONE_INCREMENT, 0.0f, mStickMaxDeadzone );
+			mStickMinDeadzone = std::max(0.0f, std::min(mStickMinDeadzone - DEADZONE_INCREMENT, mStickMaxDeadzone));
 		}
 		else
 		{
-			mStickMaxDeadzone = std::clamp( mStickMaxDeadzone - DEADZONE_INCREMENT, mStickMinDeadzone, 1.0f );
+			mStickMaxDeadzone = std::max(mStickMinDeadzone, std::min(mStickMaxDeadzone - DEADZONE_INCREMENT, 1.0f));
 		}
 	}
-	if(new_buttons & PSP_CTRL_UP)
+
+	if (new_buttons & PSP_CTRL_UP)
 	{
-		if( mAdjustingMinDeadzone )
+		if (mAdjustingMinDeadzone)
 		{
-			mStickMinDeadzone = std::clamp( mStickMinDeadzone + DEADZONE_INCREMENT, 0.0f, mStickMaxDeadzone );
+			mStickMinDeadzone = std::max(0.0f, std::min(mStickMinDeadzone + DEADZONE_INCREMENT, mStickMaxDeadzone));
 		}
 		else
 		{
-			mStickMaxDeadzone = std::clamp( mStickMaxDeadzone + DEADZONE_INCREMENT, mStickMinDeadzone, 1.0f );
+			mStickMaxDeadzone = std::max(mStickMinDeadzone, std::min(mStickMaxDeadzone + DEADZONE_INCREMENT, 1.0f));
 		}
 	}
 

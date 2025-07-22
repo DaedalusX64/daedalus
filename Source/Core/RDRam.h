@@ -22,11 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef RDRAM_H_
 #define RDRAM_H_
 
-/* Helper functions */
-u8 clamp_u8(s16 x);
-s16 clamp_s12(s16 x);
-s16 clamp_s16(s32 x);
-u16 clamp_RGBA_component(s16 x);
+
 
 /* RDRam operations */
 void rdram_read_many_u8(u8 *dst, u32 address, u32 count);
