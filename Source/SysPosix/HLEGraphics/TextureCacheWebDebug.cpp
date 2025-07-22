@@ -7,7 +7,6 @@
 #include "SysPosix/Debug/WebDebugTemplate.h"
 
 #include "System/Mutex.h"
-#include "System/DataSink.h"
 #include "Graphics/PngUtil.h"
 
 

@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HLEGRAPHICS_DLDEBUG_H_
 
 #include "Ultra/ultra_sptask.h" // Ugh, could just fwd-decl OSTask, if it wasn't a crazy typedef union.
-#include "System/DataSink.h"
 #include "Base/Macros.h"
 
 struct RDP_OtherMode;
