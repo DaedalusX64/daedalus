@@ -38,28 +38,6 @@
 /* FIXME: assume presence of expansion pack */
 #define MEMMASK 0x7FFFFF
 
-u8 clamp_u8(s16 x)
-{
-    return (x & (0xff00)) ? ((-x) >> 15) & 0xff : x;
-}
-
-s16 clamp_s12(s16 x)
-{
-    if (x < -0x800) { x = -0x800; } else if (x > 0x7f0) { x = 0x7f0; }
-    return x;
-}
-
-s16 clamp_s16(s32 x)
-{
-    if (x > 32767) { x = 32767; } else if (x < -32768) { x = -32768; }
-    return x;
-}
-
-u16 clamp_RGBA_component(s16 x)
-{
-    if (x > 0xff0) { x = 0xff0; } else if (x < 0) { x = 0; }
-    return (x & 0xf80);
-}
 
 //ToDo: fast_memcpy_swizzle?
 void rdram_read_many_u8(u8 *dst, u32 address, u32 count)

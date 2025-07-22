@@ -685,18 +685,18 @@ void CTextureExplorerDebugMenuOption::Display() const
 	s32		min_to_show( mSelectedIdx - 16 );
 	s32		max_to_show( mSelectedIdx + 16 );
 
-	if( min_to_show < 0 )
+	if (min_to_show < 0)
 	{
-		s32	num_spare( 0 - min_to_show );
-		max_to_show = std::clamp< s32 >( max_to_show + num_spare, 0, mSnapshot.size() - 1 );
+		s32 num_spare = 0 - min_to_show;
+		max_to_show = std::max(0, std::min(max_to_show + num_spare, static_cast<s32>(mSnapshot.size()) - 1));
 		min_to_show = 0;
 	}
 
-	if( max_to_show >= s32( mSnapshot.size() ) )
+	if (max_to_show >= static_cast<s32>(mSnapshot.size()))
 	{
-		s32 num_spare( max_to_show - (mSnapshot.size() - 1) );
-		min_to_show = std::clamp< s32 >( min_to_show - num_spare, 0, mSnapshot.size() - 1 );
-		max_to_show = mSnapshot.size() - 1;
+		s32 num_spare = max_to_show - (static_cast<s32>(mSnapshot.size()) - 1);
+		min_to_show = std::max(0, std::min(min_to_show - num_spare, static_cast<s32>(mSnapshot.size()) - 1));
+		max_to_show = static_cast<s32>(mSnapshot.size()) - 1;
 	}
 
 	printf( "   #  LoadAddr (x,y -> w x h, p) fmt/size tmem pal\n" );
@@ -844,15 +844,15 @@ void CDisplayListLengthDebugMenuOption::Update( const SPspPadState & pad_state, 
 	mFractionalAdjustment += new_adjustment;
 
 	s32 adjustment = s32( mFractionalAdjustment );
-	if( adjustment != 0 )
-	{
-		s32 new_limit = *mInstructionCountLimit + adjustment;
+		if (adjustment != 0)
+		{
+			s32 new_limit = *mInstructionCountLimit + adjustment;
 
-		*mInstructionCountLimit = u32( std::clamp< s32 >( new_limit, 0, mTotalInstructionCount ) );
-		mFractionalAdjustment -= float( adjustment );
+			*mInstructionCountLimit = static_cast<u32>(std::max(0, std::min(new_limit, mTotalInstructionCount)));
+			mFractionalAdjustment -= float(adjustment);
 
-		InvalidateDisplay();
-	}
+			InvalidateDisplay();
+		}
 }
 
 

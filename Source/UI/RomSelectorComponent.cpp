@@ -666,8 +666,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const glm::vec2 & stick,
 		s32		min_offset = LIST_TEXT_HEIGHT - total_height;
 
 		s32	new_scroll_offset = mCurrentScrollOffset + static_cast<s32>(static_cast<float>(adjust_amount) * d);
-
-		mCurrentScrollOffset = std::clamp( new_scroll_offset, min_offset, static_cast<s32>(0) );
+			mCurrentScrollOffset = std::max(min_offset, std::min(new_scroll_offset, static_cast<s32>(0)));	
 	}
 	else
 	{

@@ -606,80 +606,6 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 	return vOut;
 }
 
-/*void BaseRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const glm::mat4 & mat_world )
-{
-	bool	env_map( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) );
-
-	u32 vend( v0 + num );
-	for (u32 i = v0; i < vend; i++)
-	{
-		const FiddledVtx & vert = verts[i - v0];
-		const v4 &	projected( mVtxProjected[i].ProjectedPos );
-
-		if (mTnL.Flags.Fog)
-		{
-			float eyespace_z = projected.z / projected.w;
-			float fog_coeff = (eyespace_z * mTnL.FogMult) + mTnL.FogOffset;
-
-			// Set the alpha
-			f32 value = std::clamp< f32 >( fog_coeff, 0.0f, 1.0f );
-
-			if( Abs( value - mVtxProjected[i].Colour.w ) > 0.01f )
-			{
-				printf( "Fog wrong: %f != %f\n", mVtxProjected[i].Colour.w, value );
-			}
-		}
-
-		if (mTnL.Flags.Texture)
-		{
-			// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
-
-			// If the vert is already lit, then there is no normal (and hence we
-			// can't generate tex coord)
-			float tx, ty;
-			if (env_map)
-			{
-				v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
-				v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
-
-				vecTransformedNormal = mat_world.TransformNormal( model_normal );
-				vecTransformedNormal.Normalise();
-
-				const v3 & norm = vecTransformedNormal;
-
-				// Assign the spheremap's texture coordinates
-				tx = (0.5f * ( 1.0f + ( norm.x*mat_world.m11 +
-										norm.y*mat_world.m21 +
-										norm.z*mat_world.m31 ) ));
-
-				ty = (0.5f * ( 1.0f - ( norm.x*mat_world.m12 +
-										norm.y*mat_world.m22 +
-										norm.z*mat_world.m32 ) ));
-			}
-			else
-			{
-				tx = (float)vert.tu * mTnL.TextureScaleX;
-				ty = (float)vert.tv * mTnL.TextureScaleY;
-			}
-
-			if( Abs(tx - mVtxProjected[i].Texture.x ) > 0.0001f ||
-				Abs(ty - mVtxProjected[i].Texture.y ) > 0.0001f )
-			{
-				printf( "tx/y wrong : %f,%f != %f,%f (%s)\n", mVtxProjected[i].Texture.x, mVtxProjected[i].Texture.y, tx, ty, env_map ? "env" : "scale" );
-			}
-		}
-
-		//
-		//	Initialise the clipping flags (always done on the VFPU, so skip here)
-		//
-		//u32 flags = CalcClipFlags( projected );
-		//if( flags != mVtxProjected[i].ClipFlags )
-		//{
-		//	printf( "flags wrong: %02x != %02x\n", mVtxProjected[i].ClipFlags, flags );
-		//}
-	}
-}*/
-
 #else	// FPU/CPU(slower)
 //*****************************************************************************
 //CPU interpolate line parameters
@@ -794,7 +720,6 @@ static u32 set_clip_flags(const glm::vec4 & projected)
 //*****************************************************************************
 namespace
 {
-		
 	// std::array<DaedalusVtx4, 8> temp_a;
 	// std::array<DaedalusVtx4, 8> temp_b;
 	DaedalusVtx4		temp_a[ 8 ];
@@ -1167,7 +1092,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 				f32 eye_z = projected.z / projected.w;
 				f32 fog_alpha = eye_z * mTnL.FogMult + mTnL.FogOffs;
 				//f32 fog_alpha = eye_z * 20.0f - 19.0f;	//Fog test line
-				mVtxProjected[i].Colour.w = std::clamp< f32 >( fog_alpha, 0.0f, 1.0f );
+				mVtxProjected[i].Colour.w = std::max(0.0f, std::min(1.0f, fog_alpha));					
 			}
 			else
 			{

@@ -996,8 +996,7 @@ glm::vec2	ApplyDeadzone( const glm::vec2 & in, f32 min_deadzone, f32 max_deadzon
 		return glm::vec2( 0,0 );
 
 	float	scale( ( length - min_deadzone ) / ( max_deadzone - min_deadzone )  );
-
-	scale = std::clamp( scale, 0.0f, 1.0f );
+	scale = std::max(0.0f, std::min(1.0f, scale));
 
 	return ProjectToUnitSquare( in * (scale / length) );
 }
