@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 #include <cstring>
+#include <iostream>
 #include <fstream> 
 
 #include "Interface/Cheats.h"
@@ -349,108 +350,107 @@ void ROM_Unload()
 //Most hacks are for the PSP, due the limitations of the hardware, and because we prefer speed over accuracy
 void SpecificGameHacks( const ROMHeader & id )
 {
-	printf("ROM ID[%04X]\n", id.CartID);
-
 	g_ROM.HACKS_u32 = 0;	//Default to no game hacks
+	u16 cart_val = (id.CartID[0] << 8) | id.CartID[1];
+	printf("Cart Value[%04X]\n", cart_val);
+	switch( cart_val)
+	{
+	case 0x4a32: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
+	case 0x4745: g_ROM.GameHacks = GOLDEN_EYE;			break;
+	case 0x4257: g_ROM.GameHacks = SUPER_BOWLING;		break;
+	case 0x4D51: g_ROM.GameHacks = PMARIO;				break;
+	case 0x4354: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
+	case 0x5441: g_ROM.GameHacks = TARZAN;				break;
+	case 0x4346: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
+	case 0x4A50: g_ROM.GameHacks = ISS64;				break;
+	case 0x4459: g_ROM.GameHacks = DKR;					break;
+	case 0x4547: g_ROM.GameHacks = EXTREME_G2;			break;
+	case 0x5953: g_ROM.GameHacks = YOSHI;				break;
+	case 0x424C: g_ROM.GameHacks = BUCK_BUMBLE;			break;
+	case 0x4144: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
+	case 0x5733: g_ROM.GameHacks = WCW_NITRO;			break;
 
-// 	switch( id.CartID )
-// 	{
-// 	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
-// 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
-// 	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;
-// 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
-// 	case 0x5632: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
-// 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
-// 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
-// 	case 0x504A: g_ROM.GameHacks = ISS64;				break;
-// 	case 0x5944: g_ROM.GameHacks = DKR;					break;
-// 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
-// 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
-// 	case 0x4C42: g_ROM.GameHacks = BUCK_BUMBLE;			break;
-// 	case 0x4441: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
-// 	case 0x3357: g_ROM.GameHacks = WCW_NITRO;			break;
-
-// 	case 0x464A:	// Jet Force Geminy
-// 	case 0x5647:	// Glover
-// 		g_ROM.SET_ROUND_MODE = true;
-// 		break;
-// 	case 0x4B42:	//Banjo-Kazooie
-// 		g_ROM.TLUT_HACK = true;
-// 	//	g_ROM.DISABLE_LBU_OPT = true;
-// 		break;
-// 	//case 0x5750:	//PilotWings64
-// 	case 0x4450:	//Perfect Dark
-// 		g_ROM.DISABLE_LBU_OPT = true;
-// 		break;
-// 	case 0x5941:	//AIDYN_CRONICLES
-// 		g_ROM.ALPHA_HACK = true;
-// 		g_ROM.GameHacks = AIDYN_CRONICLES;
-// 		break;
-// 	case 0x424C:	//Mario Party 1
-// 		g_ROM.DISABLE_SIM_CVT_D_S = true;
-// 		break;
-// 	case 0x4A54:	//Tom and Jerry
-// 	case 0x4d4a:	//Earthworm Jim
-// 	case 0x5150:	//PowerPuff Girls
-// 		g_ROM.DISABLE_SIM_CVT_D_S = true;
-// 		g_ROM.LOAD_T1_HACK = true;
-// 		break;
-// 	case 0x5144:	//Donald Duck
-// 	case 0x3259:	//Rayman2
-// 		g_ROM.SET_ROUND_MODE = true;
-// 		g_ROM.LOAD_T1_HACK = true;
-// 		g_ROM.T1_HACK = true;
-// 		break;
-// 	case 0x3358:	//GEX3
-// 	case 0x3258:	//GEX64
-// 		g_ROM.GameHacks = GEX_GECKO;
-// 		break;
-// 	case 0x4c5a:	//ZELDA_OOT
-// 		g_ROM.ZELDA_HACK = true;
-// 		g_ROM.GameHacks = ZELDA_OOT;
-// 		break;
-// 	case 0x4F44:	//DK64
-// 		g_ROM.SET_ROUND_MODE = true;
-// 		g_ROM.GameHacks = DK64;
-// 		break;
-// 	case 0x535a:	//ZELDA_MM
-// 		g_ROM.TLUT_HACK = true;
-// 		g_ROM.ZELDA_HACK = true;
-// 		g_ROM.GameHacks = ZELDA_MM;
-// 		break;
-// 	case 0x5653:	//SSV
-// 		g_ROM.LOAD_T1_HACK = true;
-// 		g_ROM.TLUT_HACK = true;
-// 		break;
-// 	case 0x5547:	//Sin and punishment
-// 		g_ROM.TLUT_HACK = true;
-// 		g_ROM.GameHacks = SIN_PUNISHMENT;
-// 		break;
-// 	case 0x3742:	//Banjo Tooie
-// 		g_ROM.GameHacks = BANJO_TOOIE;
-// 		g_ROM.TLUT_HACK = true;
-// 		break;
-// 	case 0x5544:	//Duck Dodgers
-// 	case 0x3653:	//Star soldier - vanishing earth
-// 	case 0x324C:	//Top Gear Rally 2
-// 	case 0x5247:	//Top Gear Rally
-// 	case 0x4552:	//Resident Evil 2
-// 	case 0x4446:	//Flying Dragon
-// 	case 0x534E:	//Beetle Racing
-// 		g_ROM.TLUT_HACK = true;
-// 		break;
-// 	case 0x4641:	//Animal crossing
-// 		g_ROM.TLUT_HACK = true;
-// 		g_ROM.GameHacks = ANIMAL_CROSSING;
-// 		break;
-// 	case 0x4842:	//Body Harvest
-// 	case 0x434E:	//Nightmare Creatures
-// 	case 0x5543:	//Cruisn' USA
-// 		g_ROM.GameHacks = BODY_HARVEST;
-// 		break;
-// 	default:
-// 		break;
-// 	}
+	case 0x4A46:	// Jet Force Gemini
+	case 0x4756:	// Glover
+		g_ROM.SET_ROUND_MODE = true;
+		break;
+	case 0x424B:	//Banjo-Kazooie
+		g_ROM.TLUT_HACK = true;
+	//	g_ROM.DISABLE_LBU_OPT = true;
+		break;
+	case 0x5057:	//PilotWings64
+	case 0x5044:	//Perfect Dark
+		g_ROM.DISABLE_LBU_OPT = true;
+		break;
+	case 0x4159:	//AIDYN_CRONICLES
+		g_ROM.ALPHA_HACK = true;
+		g_ROM.GameHacks = AIDYN_CRONICLES;
+		break;
+	case 0x4C42:	//Mario Party 1
+		g_ROM.DISABLE_SIM_CVT_D_S = true;
+		break;
+	case 0x544a:	//Tom and Jerry
+	case 0x4a4d:	//Earthworm Jim
+	case 0x5051:	//PowerPuff Girls
+		g_ROM.DISABLE_SIM_CVT_D_S = true;
+		g_ROM.LOAD_T1_HACK = true;
+		break;
+	case 0x4451:	//Donald Duck
+	case 0x5932:	//Rayman2
+		g_ROM.SET_ROUND_MODE = true;
+		g_ROM.LOAD_T1_HACK = true;
+		g_ROM.T1_HACK = true;
+		break;
+	case 0x5833:	//GEX3
+	case 0x5832:	//GEX64
+		g_ROM.GameHacks = GEX_GECKO;
+		break;
+	case 0x5a4c:	//ZELDA_OOT
+		g_ROM.ZELDA_HACK = true;
+		g_ROM.GameHacks = ZELDA_OOT;
+		break;
+	case 0x444f:	//DK64
+		g_ROM.SET_ROUND_MODE = true;
+		g_ROM.GameHacks = DK64;
+		break;
+	case 0x5a53:	//ZELDA_MM
+		g_ROM.TLUT_HACK = true;
+		g_ROM.ZELDA_HACK = true;
+		g_ROM.GameHacks = ZELDA_MM;
+		break;
+	case 0x5356:	//SSV
+		g_ROM.LOAD_T1_HACK = true;
+		g_ROM.TLUT_HACK = true;
+		break;
+	case 0x4755:	//Sin and punishment
+		g_ROM.TLUT_HACK = true;
+		g_ROM.GameHacks = SIN_PUNISHMENT;
+		break;
+	case 0x4237:	//Banjo Tooie
+		g_ROM.GameHacks = BANJO_TOOIE;
+		g_ROM.TLUT_HACK = true;
+		break;
+	case 0x4455:	//Duck Dodgers
+	case 0x5336:	//Star soldier - vanishing earth
+	case 0x4C32:	//Top Gear Rally 2
+	case 0x4752:	//Top Gear Rally
+	case 0x5245:	//Resident Evil 2
+	case 0x4644:	//Flying Dragon
+	case 0x4E53:	//Beetle Racing
+		g_ROM.TLUT_HACK = true;
+		break;
+	case 0x4146:	//Animal crossing
+		g_ROM.TLUT_HACK = true;
+		g_ROM.GameHacks = ANIMAL_CROSSING;
+		break;
+	case 0x4248:	//Body Harvest
+	case 0x4E43:	//Nightmare Creatures
+	case 0x4355:	//Cruisn' USA
+		g_ROM.GameHacks = BODY_HARVEST;
+		break;
+	default:
+		break;
+	}
 }
 
 // Copy across text, nullptr terminate, and strip spaces
