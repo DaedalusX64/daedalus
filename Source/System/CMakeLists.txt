@@ -14,9 +14,7 @@ set(Thread Thread/Posix/Thread.cpp)
 endif()
 
 add_library(System OBJECT 
-
             CompressedStream.cpp 
-            DataSink.cpp
             ${Thread}
             SystemInit.cpp
             ${Timing}    

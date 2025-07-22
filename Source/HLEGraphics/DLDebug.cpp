@@ -16,7 +16,7 @@
 #include "Ultra/ultra_gbi.h"
 
 #include "Base/Macros.h"
-#include "System/DataSink.h"
+#include "Utility/Paths.h"
 
 
 DLDebugOutput * gDLDebugOutput = nullptr;

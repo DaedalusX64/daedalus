@@ -2,14 +2,13 @@
 #define SYSPOSIX_DEBUG_WEBDEBUG_H_
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-#include "System/DataSink.h"
 #include "Utility/String.h"
 
 #include <vector>
 
 struct WebbyConnection;
 
-class WebDebugConnection : public DataSink
+class WebDebugConnection 
 {
 public:
 	explicit WebDebugConnection(WebbyConnection * connection);
