@@ -40,7 +40,7 @@ public:
 
   virtual void DacrateChanged(int SystemType) = 0;
   virtual void LenChanged() = 0;
-  virtual u32 ReadLength() = 0;
+  virtual void ReadLength() = 0;
   virtual EProcessResult ProcessAList() = 0;
 
 };
