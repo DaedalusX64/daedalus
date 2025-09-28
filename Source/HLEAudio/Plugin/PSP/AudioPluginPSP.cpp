@@ -51,24 +51,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP_USE_ME
 
-#include "SysPSP/PRX/MediaEngine/me.h"
+#include <me-core-mapper/me-core.h>
 #include "SysPSP/Utility/ModulePSP.h"
 
 bool gLoadedMediaEnginePRX {false};
-
-volatile me_struct *mei;
 
 bool InitialiseMediaEngine()
 {
 	if ( gLoadedMediaEnginePRX == false)
 	{
-		if( CModule::Load("Plugins/mediaengine.prx") < 0 )	return false;
-
-		mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
-		mei = (volatile struct me_struct *)(make_uncached_ptr(mei));
-		sceKernelDcacheWritebackInvalidateAll();
-
-		if (InitME(mei) == 0)
+		if (meLibDefaultInit() >= 0)
 		{
 			gLoadedMediaEnginePRX = true;
 			return true;
@@ -228,6 +220,11 @@ void	AudioPluginPSP::LenChanged()
 	}
 }
 
+#ifdef DAEDALUS_PSP_USE_ME
+void meLibOnProcess() {
+  // todo
+}
+#endif  
 
 EProcessResult	AudioPluginPSP::ProcessAList()
 {
@@ -243,12 +240,16 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 		case APM_ENABLED_ASYNC:
 			{
 #ifdef DAEDALUS_PSP_USE_ME
-				sceKernelDcacheWritebackInvalidateAll();
+        // todo: process to be defined, to be used with meLibOnProcess
+
+				/*
+         * sceKernelDcacheWritebackInvalidateAll();
 				if(BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL) < 0){
 						Audio_Ucode();
 						result = PR_COMPLETED;
 						break;
 				}
+        */
 #else
 				DAEDALUS_ERROR("Async audio is unimplemented");
 				Audio_Ucode();
