@@ -51,24 +51,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP_USE_ME
 
-#include "SysPSP/PRX/MediaEngine/me.h"
+#include <me-core-mapper/me-core.h>
 #include "SysPSP/Utility/ModulePSP.h"
 
 bool gLoadedMediaEnginePRX {false};
-
-volatile me_struct *mei;
 
 bool InitialiseMediaEngine()
 {
 	if ( gLoadedMediaEnginePRX == false)
 	{
-		if( CModule::Load("Plugins/mediaengine.prx") < 0 )	return false;
-
-		mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
-		mei = (volatile struct me_struct *)(make_uncached_ptr(mei));
-		sceKernelDcacheWritebackInvalidateAll();
-
-		if (InitME(mei) == 0)
+		if (meLibDefaultInit() >= 0)
 		{
 			gLoadedMediaEnginePRX = true;
 			return true;
@@ -115,7 +107,7 @@ public:
 
 	virtual void			DacrateChanged( int system_type );
 	virtual void			LenChanged();
-	virtual u32				ReadLength() {return 0;}
+	virtual void			ReadLength() {return;}
 	virtual EProcessResult	ProcessAList();
 
 	//virtual void SetFrequency(u32 frequency);
@@ -228,6 +220,69 @@ void	AudioPluginPSP::LenChanged()
 	}
 }
 
+#ifdef DAEDALUS_PSP_USE_ME
+// align shared vars to 64 for cached/uncached access compatibility
+volatile u32* shared __attribute__((aligned(64))) = nullptr;
+
+meLibSetSharedUncachedMem(3);
+#define meExit           (meLibSharedMemory[0])
+#define meCounter        (meLibSharedMemory[1])
+#define meStart          (meLibSharedMemory[2])
+
+void meLibOnProcess() {
+  do {
+    meLibDelayPipeline();
+  } while (!meStart);
+  
+  const u32 sharedSize = (sizeof(u32) * 4 + 63) & ~63;
+    
+  do {
+    meCounter++;
+    
+    while (meCoreHwMutexTryLock() < 0) {
+      meLibDelayPipeline();
+    }
+    
+    // invalidate cache, forcing next read to fetch from memory
+    meCoreDcacheInvalidateRange((u32)shared, sharedSize);
+    if (shared[1] > 100) {
+      shared[1] = 0;
+    }
+    Audio_Ucode();
+	meStart = false;
+    meCoreHwMutexUnlock();
+    meLibDelayPipeline();
+    
+    // write modified cache data back to memory
+    meCoreDcacheWritebackRange((u32)shared, sharedSize);
+  } while (meExit == 0);
+  
+  meExit = 2;
+  meLibHalt();
+}
+
+// function used to hold the mutex in the main loop as a proof
+static bool holdMutex() {
+  static u32 hold = 100;
+  if (hold-- > 0) {
+    return true;
+  }
+  hold = 100;
+  return false;
+}
+
+static void meWaitExit() {
+  // make sure the mutex is unlocked
+  meLibCallHwMutexUnlock();
+  // wait the me to exit
+  meExit = 1;
+  u8 retry = 0;
+  do {
+    sceKernelDelayThread(100000);
+  } while (meExit < 2 && ++retry <= 5);
+}
+
+#endif  
 
 EProcessResult	AudioPluginPSP::ProcessAList()
 {
@@ -243,12 +298,9 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 		case APM_ENABLED_ASYNC:
 			{
 #ifdef DAEDALUS_PSP_USE_ME
-				sceKernelDcacheWritebackInvalidateAll();
-				if(BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL) < 0){
-						Audio_Ucode();
-						result = PR_COMPLETED;
-						break;
-				}
+				meStart = true;
+				result = PR_COMPLETED;
+				break;
 #else
 				DAEDALUS_ERROR("Async audio is unimplemented");
 				Audio_Ucode();
