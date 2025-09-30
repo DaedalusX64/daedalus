@@ -62,6 +62,7 @@ bool InitialiseMediaEngine()
 	{
 		if (meLibDefaultInit() >= 0)
 		{
+      printf("meLibInit\n");
 			gLoadedMediaEnginePRX = true;
 			return true;
 		}
@@ -142,7 +143,7 @@ void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 }
 
 
-EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
+EAudioPluginMode gAudioPluginEnabled(APM_ENABLED_ASYNC);
 
 
 AudioPluginPSP::AudioPluginPSP()
@@ -221,54 +222,29 @@ void	AudioPluginPSP::LenChanged()
 }
 
 #ifdef DAEDALUS_PSP_USE_ME
-// align shared vars to 64 for cached/uncached access compatibility
-volatile u32* shared __attribute__((aligned(64))) = nullptr;
-
 meLibSetSharedUncachedMem(3);
 #define meExit           (meLibSharedMemory[0])
-#define meCounter        (meLibSharedMemory[1])
-#define meStart          (meLibSharedMemory[2])
+#define meStart          (meLibSharedMemory[1])
+#define meCounter        (meLibSharedMemory[2])
 
 void meLibOnProcess() {
   do {
-    meLibDelayPipeline();
-  } while (!meStart);
-  
-  const u32 sharedSize = (sizeof(u32) * 4 + 63) & ~63;
-    
-  do {
-    meCounter++;
-    
-    while (meCoreHwMutexTryLock() < 0) {
+    do {
       meLibDelayPipeline();
-    }
+    } while (!meStart);
+    meCounter += 1;
+    /*while (meCoreHwMutexTryLock() < 0) {
+      meLibDelayPipeline();
+    }*/
     
-    // invalidate cache, forcing next read to fetch from memory
-    meCoreDcacheInvalidateRange((u32)shared, sharedSize);
-    if (shared[1] > 100) {
-      shared[1] = 0;
-    }
-    Audio_Ucode();
-	meStart = false;
-    meCoreHwMutexUnlock();
-    meLibDelayPipeline();
-    
-    // write modified cache data back to memory
-    meCoreDcacheWritebackRange((u32)shared, sharedSize);
+    // Audio_MeUcode();
+    meStart = false;
+    // meCoreHwMutexUnlock();
+    // meLibDelayPipeline();
   } while (meExit == 0);
   
   meExit = 2;
   meLibHalt();
-}
-
-// function used to hold the mutex in the main loop as a proof
-static bool holdMutex() {
-  static u32 hold = 100;
-  if (hold-- > 0) {
-    return true;
-  }
-  hold = 100;
-  return false;
 }
 
 static void meWaitExit() {
@@ -281,15 +257,15 @@ static void meWaitExit() {
     sceKernelDelayThread(100000);
   } while (meExit < 2 && ++retry <= 5);
 }
-
-#endif  
+#endif
 
 EProcessResult	AudioPluginPSP::ProcessAList()
 {
 	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
-
 	EProcessResult	result = PR_NOT_STARTED;
 
+	gAudioPluginEnabled = APM_ENABLED_ASYNC; // tmp
+  
 	switch( gAudioPluginEnabled )
 	{
 		case APM_DISABLED:
@@ -299,7 +275,9 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 			{
 #ifdef DAEDALUS_PSP_USE_ME
 				meStart = true;
+        printf("Me Counter: %x\n", meCounter);
 				result = PR_COMPLETED;
+				// result = PR_STARTED;
 				break;
 #else
 				DAEDALUS_ERROR("Async audio is unimplemented");
@@ -354,6 +332,8 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 		StartAudio();
 
 	u32 num_samples = length / sizeof( Sample );
+
+gAudioPluginEnabled = APM_ENABLED_ASYNC;
 
 	switch( gAudioPluginEnabled )
 	{

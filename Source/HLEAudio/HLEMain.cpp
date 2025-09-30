@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Ultra/ultra_sptask.h"
 #include "Utility/Profiler.h"
 
+#include <me-core-mapper/me-lib.h>
+
 // Audio UCode lists
 // Dummy UCode Handler
 //
@@ -113,6 +115,42 @@ inline void Audio_Ucode_Detect(OSTask *pTask) {
 //*****************************************************************************
 //
 //*****************************************************************************
+#ifdef DAEDALUS_PSP_USE_ME
+  
+void Audio_MeUcode() {
+  #ifdef DAEDALUS_PROFILE
+  DAEDALUS_PROFILE("HLEMain::Audio_Ucode");
+  #endif
+
+  OSTask *pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
+
+  // Only detect ABI once per game
+  if (!bAudioChanged) {
+    bAudioChanged = true;
+    Audio_Ucode_Detect(pTask);
+  }
+
+  gAudioHLEState.LoopVal = 0;
+  meCoreMemset((unsigned int*)gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ));
+  
+  // memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
+  
+  u32 *p_alist = (u32 *)(g_pu8RamBase + (uintptr_t)pTask->t.data_ptr);
+  u32 ucode_size = (pTask->t.data_size >> 3); // ABI5 can return 0 here!!!
+
+  while (ucode_size) {
+    AudioHLECommand command;
+    command.cmd0 = *p_alist++;
+    command.cmd1 = *p_alist++;
+    ABI[command.cmd](command);
+    --ucode_size;
+  }
+  
+  // meCoreDcacheWritebackInvalidateAll(); // crash...
+
+}
+#endif
+
 void Audio_Ucode() {
 #ifdef DAEDALUS_PROFILE
   DAEDALUS_PROFILE("HLEMain::Audio_Ucode");
