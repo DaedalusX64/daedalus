@@ -430,9 +430,6 @@ void UNKNOWN(AudioHLECommand command);
 #define rdram ((u8 *)g_pMemoryBuffers[MEM_RD_RAM])
 
 // Use these functions to interface with the HLE Audio...
-#ifdef DAEDALUS_PSP_USE_ME
-void Audio_MeUcode();
-#endif
 void Audio_Ucode();
 void Audio_Reset();
 

@@ -51,10 +51,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP_USE_ME
 
+#include <psputilsforkernel.h>
 #include <me-core-mapper/me-core.h>
 #include "SysPSP/Utility/ModulePSP.h"
 
 bool gLoadedMediaEnginePRX {false};
+EAudioPluginMode gAudioPluginEnabled(APM_ENABLED_ASYNC);
 
 bool InitialiseMediaEngine()
 {
@@ -63,6 +65,7 @@ bool InitialiseMediaEngine()
 		if (meLibDefaultInit() >= 0)
 		{
       printf("meLibInit\n");
+      printf("gAudioPluginEnabled: %x\n", gAudioPluginEnabled);
 			gLoadedMediaEnginePRX = true;
 			return true;
 		}
@@ -142,10 +145,6 @@ void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 	sceKernelSignalSema( mSemaphore, 1 );
 }
 
-
-EAudioPluginMode gAudioPluginEnabled(APM_ENABLED_ASYNC);
-
-
 AudioPluginPSP::AudioPluginPSP()
 :mKeepRunning (false)
 //: mAudioBuffer( kAudioBufferSize )
@@ -158,7 +157,7 @@ AudioPluginPSP::AudioPluginPSP()
 	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
 	void * mem = malloc_64( sizeof( CAudioBuffer ) );
 	mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
-  mAudioBufferUncached = (CAudioBuffer*)make_uncached_ptr(mem);
+  mAudioBufferUncached = (CAudioBuffer*)/*make_uncached_ptr*/(mem);
 	// Ideally we could just invalidate this range?
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 
@@ -222,40 +221,23 @@ void	AudioPluginPSP::LenChanged()
 }
 
 #ifdef DAEDALUS_PSP_USE_ME
-meLibSetSharedUncachedMem(3);
+meLibSetSharedUncachedMem(2);
 #define meExit           (meLibSharedMemory[0])
 #define meStart          (meLibSharedMemory[1])
-#define meCounter        (meLibSharedMemory[2])
 
 void meLibOnProcess() {
+  meStart = false;
   do {
     do {
       meLibDelayPipeline();
     } while (!meStart);
-    meCounter += 1;
-    /*while (meCoreHwMutexTryLock() < 0) {
-      meLibDelayPipeline();
-    }*/
     
-    // Audio_MeUcode();
+    Audio_Ucode();
+    meCoreDcacheWritebackInvalidateAll();
+    
     meStart = false;
-    // meCoreHwMutexUnlock();
-    // meLibDelayPipeline();
   } while (meExit == 0);
-  
-  meExit = 2;
   meLibHalt();
-}
-
-static void meWaitExit() {
-  // make sure the mutex is unlocked
-  meLibCallHwMutexUnlock();
-  // wait the me to exit
-  meExit = 1;
-  u8 retry = 0;
-  do {
-    sceKernelDelayThread(100000);
-  } while (meExit < 2 && ++retry <= 5);
 }
 #endif
 
@@ -264,28 +246,29 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
 	EProcessResult	result = PR_NOT_STARTED;
 
-	gAudioPluginEnabled = APM_ENABLED_ASYNC; // tmp
-  
 	switch( gAudioPluginEnabled )
 	{
 		case APM_DISABLED:
 			result = PR_COMPLETED;
 			break;
-		case APM_ENABLED_ASYNC:
-			{
-#ifdef DAEDALUS_PSP_USE_ME
-				meStart = true;
-        printf("Me Counter: %x\n", meCounter);
-				result = PR_COMPLETED;
-				// result = PR_STARTED;
-				break;
-#else
-				DAEDALUS_ERROR("Async audio is unimplemented");
-				Audio_Ucode();
-				result = PR_COMPLETED;
-				break;
-#endif
-			}
+		case APM_ENABLED_ASYNC: {
+      #ifdef DAEDALUS_PSP_USE_ME
+      
+      sceKernelDcacheWritebackAll();
+      meStart = true;
+      // while (meStart) ;
+      CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
+      result = PR_STARTED;
+      // result = PR_COMPLETED;
+      
+      break;
+      #else
+      DAEDALUS_ERROR("Async audio is unimplemented");
+      Audio_Ucode();
+      result = (EProcessResult)PR_COMPLETED;
+      break;
+      #endif
+    }
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_SYNC:
@@ -333,8 +316,6 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
 	u32 num_samples = length / sizeof( Sample );
 
-gAudioPluginEnabled = APM_ENABLED_ASYNC;
-
 	switch( gAudioPluginEnabled )
 	{
 	case APM_DISABLED:
@@ -371,7 +352,6 @@ void AudioPluginPSP::StopAudio()
 		return;
 
 	mKeepRunning = false;
-
 	audio_open = false;
 }
 
