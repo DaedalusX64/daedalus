@@ -60,28 +60,27 @@ EAudioPluginMode gAudioPluginEnabled(APM_ENABLED_ASYNC);
 
 bool InitialiseMediaEngine()
 {
-	if ( gLoadedMediaEnginePRX == false)
-	{
-		if (meLibDefaultInit() >= 0)
-		{
+  if ( gLoadedMediaEnginePRX == false)
+  {
+    if (meLibDefaultInit() >= 0)
+    {
       printf("meLibInit\n");
-      printf("gAudioPluginEnabled: %x\n", gAudioPluginEnabled);
-			gLoadedMediaEnginePRX = true;
-			return true;
-		}
-		else
-		{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
-			printf(" Couldn't initialize MediaEngine Instance\n");
-			#endif
-			return false;
-		}
-	}
-	else
-	{
-		printf("Media Engine already Initialised\n");
-		return true;
-	}
+      gLoadedMediaEnginePRX = true;
+      return true;
+    }
+    else
+    {
+      #ifdef DAEDALUS_DEBUG_CONSOLE
+      printf(" Couldn't initialize MediaEngine Instance\n");
+      #endif
+      return false;
+    }
+  }
+  else
+  {
+    printf("Media Engine already Initialised\n");
+    return true;
+  }
 }
 
 #endif
@@ -134,14 +133,60 @@ private:
 //	u32 mBufferLenMs;
 };
 
+
+#ifdef DAEDALUS_PSP_USE_ME
+meLibSetSharedUncached32(10);
+#define meExit           (meLibSharedMemory[0])
+#define meStatus         (meLibSharedMemory[1])
+#define meAudioAc        (meLibSharedMemory[2])
+#define meCounter        (meLibSharedMemory[3])
+
+enum MeStatus
+{
+  ME_AUDIO_NOT_READY = 0,
+  ME_AUDIO_UCODE_TO_BE_PROCESSED = 1,
+  ME_AUDIO_BUFFER_TO_BE_FILLED = 2,
+  ME_AUDIO_READY = 3,
+  ME_AUDIO_TERMINATE = 4,
+  ME_AUDIO_SAMPLE_TO_BE_ADDED = 8,
+  ME_AUDIO_ASYNC_UCODE_PROCESSED = 16,
+  
+};
+
+void meLibOnProcess()
+{
+  meStatus = ME_AUDIO_NOT_READY;
+  meCoreSetCpuFrequency(0x1ff, 1);
+  meCoreSetBusFrequency(0x1ff, 1);
+  while (true)
+  {
+    if (meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED) {
+      AudioPluginPSP * ac(reinterpret_cast< AudioPluginPSP * >(meAudioAc));
+      u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
+      u32	length = Memory_AI_GetRegister(AI_LEN_REG);
+      ac->AddBuffer(g_pu8RamBase + address, length );
+      meStatus &= ~ME_AUDIO_SAMPLE_TO_BE_ADDED;
+      meStatus &= ~ME_AUDIO_UCODE_TO_BE_PROCESSED;
+    }
+    
+    if (meStatus & ME_AUDIO_UCODE_TO_BE_PROCESSED) {
+      Audio_Ucode();
+    }
+    meCoreDcacheWritebackInvalidateAll();
+
+    if (meStatus & ME_AUDIO_TERMINATE)
+      break;
+  }
+  meLibHalt();
+}
+#endif
+
 static AudioPluginPSP * ac;
 
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
 	sceKernelWaitSema( mSemaphore, 1, nullptr );
-
 	mAudioBufferUncached->Drain( buffer, num_samples );
-
 	sceKernelSignalSema( mSemaphore, 1 );
 }
 
@@ -154,16 +199,16 @@ AudioPluginPSP::AudioPluginPSP()
 //, mKeepRunning( false )
 //, mBufferLenMs ( 0 )
 {
-	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
-	void * mem = malloc_64( sizeof( CAudioBuffer ) );
-	mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
-  mAudioBufferUncached = (CAudioBuffer*)/*make_uncached_ptr*/(mem);
-	// Ideally we could just invalidate this range?
-	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
-
-	#ifdef DAEDALUS_PSP_USE_ME
-	InitialiseMediaEngine();
-	#endif
+  meAudioAc = (u32Me)this;
+  // Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
+  void * mem = malloc_64( sizeof( CAudioBuffer ) );
+  mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
+  mAudioBufferUncached = (CAudioBuffer*)make_uncached_ptr(mem);
+  // Ideally we could just invalidate this range?
+  dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
+  #ifdef DAEDALUS_PSP_USE_ME
+  InitialiseMediaEngine();
+  #endif
 }
 
 AudioPluginPSP::~AudioPluginPSP( )
@@ -182,180 +227,171 @@ bool		AudioPluginPSP::StartEmulation()
 
 void	AudioPluginPSP::StopEmulation()
 {
-    Audio_Reset();
-  	StopAudio();
-    sceKernelDeleteSema(mSemaphore);
-    pspAudioEndPre();
-    sceKernelDelayThread(100000);
-    pspAudioEnd();
-
-
+  Audio_Reset();
+  StopAudio();
+  sceKernelDeleteSema(mSemaphore);
+  pspAudioEndPre();
+  sceKernelDelayThread(100000);
+  pspAudioEnd();
 }
 
 void	AudioPluginPSP::DacrateChanged( int system_type )
 {
-u32 clock = (system_type == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
-u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
-u32 frequency = clock / (dacrate + 1);
+  u32 clock = (system_type == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
+  u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
+  u32 frequency = clock / (dacrate + 1);
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
-DBGConsole_Msg(0, "Audio frequency: %d", frequency);
-#endif
-mFrequency = frequency;
+  #ifdef DAEDALUS_DEBUG_CONSOLE
+  DBGConsole_Msg(0, "Audio frequency: %d", frequency);
+  #endif
+  mFrequency = frequency;
 }
-
 
 void	AudioPluginPSP::LenChanged()
 {
-	if( gAudioPluginEnabled > APM_DISABLED )
-	{
-		u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
-		u32	length = Memory_AI_GetRegister(AI_LEN_REG);
-
-		AddBuffer( g_pu8RamBase + address, length );
-	}
-	else
-	{
-		StopAudio();
-	}
+  switch (gAudioPluginEnabled) {
+    case APM_ENABLED_ASYNC:
+    {
+      #ifdef DAEDALUS_PSP_USE_ME
+      if (!mKeepRunning)
+        StartAudio();
+      
+      // sceKernelDcacheInvalidateAll();
+      sceKernelDcacheWritebackAll();
+      meStatus |= ME_AUDIO_SAMPLE_TO_BE_ADDED;
+      sceKernelDelayThread(1);
+      
+      #else
+      u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
+      u32 length = Memory_AI_GetRegister(AI_LEN_REG);
+      AddBuffer( g_pu8RamBase + address, length );
+      #endif
+      break;
+    }
+    case APM_ENABLED_SYNC:
+    {
+      u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
+      u32 length = Memory_AI_GetRegister(AI_LEN_REG);
+      AddBuffer( g_pu8RamBase + address, length );
+      break;
+    }
+    default:
+      StopAudio();
+  }
 }
-
-#ifdef DAEDALUS_PSP_USE_ME
-meLibSetSharedUncachedMem(2);
-#define meExit           (meLibSharedMemory[0])
-#define meStart          (meLibSharedMemory[1])
-
-void meLibOnProcess() {
-  meStart = false;
-  do {
-    do {
-      meLibDelayPipeline();
-    } while (!meStart);
-    
-    Audio_Ucode();
-    meCoreDcacheWritebackInvalidateAll();
-    
-    meStart = false;
-  } while (meExit == 0);
-  meLibHalt();
-}
-#endif
 
 EProcessResult	AudioPluginPSP::ProcessAList()
 {
-	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
-	EProcessResult	result = PR_NOT_STARTED;
+  Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
+  EProcessResult	result = PR_NOT_STARTED;
 
-	switch( gAudioPluginEnabled )
-	{
-		case APM_DISABLED:
-			result = PR_COMPLETED;
-			break;
-		case APM_ENABLED_ASYNC: {
+  switch( gAudioPluginEnabled )
+  {
+    case APM_DISABLED:
+      result = PR_COMPLETED;
+      break;
+    
+    case APM_ENABLED_ASYNC:
+    {
       #ifdef DAEDALUS_PSP_USE_ME
-      
+
       sceKernelDcacheWritebackAll();
-      meStart = true;
-      // while (meStart) ;
+      meStatus |= ME_AUDIO_UCODE_TO_BE_PROCESSED;
+
       CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
       result = PR_STARTED;
+
+      // Audio_Ucode();
       // result = PR_COMPLETED;
       
       break;
       #else
       DAEDALUS_ERROR("Async audio is unimplemented");
       Audio_Ucode();
-      result = (EProcessResult)PR_COMPLETED;
+      result = PR_COMPLETED;
       break;
       #endif
     }
-			result = PR_COMPLETED;
-			break;
-		case APM_ENABLED_SYNC:
-			Audio_Ucode();
-			result = PR_COMPLETED;
-			break;
-	}
+    
+    case APM_ENABLED_SYNC:
+      Audio_Ucode();
+      result = PR_COMPLETED;
+      break;
+  }
 
-	return result;
+  return result;
 }
 
 
 void audioCallback( void * buf, unsigned int length, void * userdata )
 {
-	AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
-
-	ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
+  AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
+  ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
 }
-
 
 void AudioPluginPSP::StartAudio()
 {
-	if (mKeepRunning)
-		return;
-
-	mKeepRunning = true;
-
-	ac = this;
-
-
-pspAudioInit();
-pspAudioSetChannelCallback( 0, audioCallback, this );
-
-	// Everything OK
-	audio_open = true;
+  if (mKeepRunning)
+    return;
+  
+  mKeepRunning = true;
+  ac = this;
+  
+  pspAudioInit();
+  pspAudioSetChannelCallback( 0, audioCallback, this );
+  
+  // Everything OK
+  audio_open = true;
 }
 
 void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 {
-	if (length == 0)
-		return;
+  if (length == 0)
+    return;
+  
+  u32 num_samples =  length / sizeof( Sample );
+  
+  switch( gAudioPluginEnabled )
+  {
+    case APM_DISABLED:
+      break;
 
-	if (!mKeepRunning)
-		StartAudio();
+    case APM_ENABLED_ASYNC:
+    {
+      mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );      
+      break;
+    }
 
-	u32 num_samples = length / sizeof( Sample );
+    case APM_ENABLED_SYNC:
+    {
+      if (!mKeepRunning)
+        StartAudio();
+    
+      mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
+      break;
+    }
+  }
 
-	switch( gAudioPluginEnabled )
-	{
-	case APM_DISABLED:
-		break;
-
-	case APM_ENABLED_ASYNC:
-		{
-
-			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
-		
-		}
-		break;
-
-	case APM_ENABLED_SYNC:
-		{
-			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
-		}
-		break;
-	}
-
-	/*
-	u32 remaining_samples = mAudioBuffer.GetNumBufferedSamples();
-	mBufferLenMs = (1000 * remaining_samples) / kOutputFrequency);
-	float ms = (float) num_samples * 1000.f / (float)mFrequency;
-	#ifdef DAEDALUS_DEBUG_CONSOLE
-	DPF_AUDIO("Queuing %d samples @%dHz - %.2fms - bufferlen now %d\n", num_samples, mFrequency, ms, mBufferLenMs);
-	#endif
-	*/
+  /*
+  u32 remaining_samples = mAudioBuffer.GetNumBufferedSamples();
+  mBufferLenMs = (1000 * remaining_samples) / kOutputFrequency);
+  float ms = (float) num_samples * 1000.f / (float)mFrequency;
+  #ifdef DAEDALUS_DEBUG_CONSOLE
+  DPF_AUDIO("Queuing %d samples @%dHz - %.2fms - bufferlen now %d\n", num_samples, mFrequency, ms, mBufferLenMs);
+  #endif
+  */
 }
 
 void AudioPluginPSP::StopAudio()
 {
-	if (!mKeepRunning)
-		return;
+  if (!mKeepRunning)
+    return;
 
-	mKeepRunning = false;
-	audio_open = false;
+  mKeepRunning = false;
+  audio_open = false;
 }
 
 std::unique_ptr<CAudioPlugin> CreateAudioPlugin()
 {
-	return std::make_unique<AudioPluginPSP>();
+  return std::make_unique<AudioPluginPSP>();
 }

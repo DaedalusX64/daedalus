@@ -119,6 +119,8 @@ else()
 
 	if(PSP) 
 		message("PSP")
+		set(CMAKE_CXX_FLAGS_RELEASE  "-O3 -DNDEBUG")
+		message (${CMAKE_CXX_FLAGS_RELEASE})
 		option(DAEDALUS_DIALOGS "Enable UI Dialogs" OFF)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_PSP "PSP specific Options" ON)
