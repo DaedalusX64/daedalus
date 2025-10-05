@@ -134,7 +134,7 @@ private:
 
 
 #ifdef DAEDALUS_PSP_USE_ME
-meLibSetSharedUncached32(10);
+meLibSetSharedUncached32(3);
 #define meExit           (meLibSharedMemory[0])
 #define meStatus         (meLibSharedMemory[1])
 #define meAudioAc        (meLibSharedMemory[2])
@@ -142,10 +142,11 @@ meLibSetSharedUncached32(10);
 enum MeStatus
 {
   ME_AUDIO_NO_REQUEST = 0,
-  ME_AUDIO_UCODE_TO_BE_PROCESSED = 1,
-  ME_AUDIO_SAMPLE_TO_BE_ADDED = 2,
-  ME_AUDIO_PROCESSES_REQUESTED = 3,
-  ME_AUDIO_TERMINATED = 4,
+  ME_AUDIO_UCODE_REQUESTED = 1,
+  ME_AUDIO_SAMPLE_REQUESTED = 2,
+  ME_AUDIO_UCODE_SIGNALED = 4,
+  ME_AUDIO_SAMPLE_SIGNALED = 8,
+  ME_AUDIO_TERMINATED = 16,
 };
 
 void meLibOnProcess()
@@ -155,31 +156,28 @@ void meLibOnProcess()
   meCoreSetBusFrequency(0x1ff, 1);
   
   while (true)
-  {
-    if (meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED)
+  {      
+    if (meStatus & ME_AUDIO_SAMPLE_REQUESTED)
     {
       AudioPluginPSP * ac(reinterpret_cast< AudioPluginPSP * >(meAudioAc));
       u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
       u32 length = Memory_AI_GetRegister(AI_LEN_REG);
       ac->AddBuffer(g_pu8RamBase + address, length );
-      
-      meCoreDcacheWritebackInvalidateAll();
-      meStatus &= ~ME_AUDIO_SAMPLE_TO_BE_ADDED;
-      meStatus &= ~ME_AUDIO_UCODE_TO_BE_PROCESSED;
+      meStatus &= ~ME_AUDIO_SAMPLE_REQUESTED;
     }
     
-    // else
-    if (meStatus & ME_AUDIO_UCODE_TO_BE_PROCESSED)
+    if (meStatus & ME_AUDIO_UCODE_REQUESTED)
     {
       // while (meCoreHwMutexTryLock() < 0) {
       //   ;
       // }
       Audio_Ucode();
-      meCoreDcacheWritebackInvalidateAll();
-      meStatus &= ~ME_AUDIO_UCODE_TO_BE_PROCESSED;
+      meStatus &= ~ME_AUDIO_UCODE_REQUESTED;
       // meCoreHwMutexUnlock();
     }
     
+    meCoreDcacheWritebackInvalidateAll();
+
     if (meStatus & ME_AUDIO_TERMINATED)
       break;
   }
@@ -191,11 +189,38 @@ static AudioPluginPSP * ac;
 
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
-  // while (meLibCallHwMutexTryLock() < 0) {
-  //   ;
-  // }
   mAudioBufferUncached->Drain( buffer, num_samples );
-  // meLibCallHwMutexUnlock();
+}
+
+// while (meLibCallHwMutexTryLock() < 0) {
+//   ;
+// }
+// ...
+// meLibCallHwMutexUnlock();
+  
+int asyncAudioThread(SceSize args, void *argp)
+{
+  while (1)
+  {
+    sceKernelDelayThread(100);
+    
+    sceKernelDcacheWritebackAll();
+    
+    if (meStatus & ME_AUDIO_SAMPLE_SIGNALED)
+    {
+      meStatus |= ME_AUDIO_SAMPLE_REQUESTED;
+      meStatus &= ~ME_AUDIO_SAMPLE_SIGNALED;
+      sceKernelDelayThread(10);
+    }
+        
+    if (meStatus & ME_AUDIO_UCODE_SIGNALED)
+    {
+      meStatus |= ME_AUDIO_UCODE_REQUESTED;
+      meStatus &= ~ME_AUDIO_UCODE_SIGNALED;
+      sceKernelDelayThread(10);
+    }
+  }
+  return 0;
 }
 
 AudioPluginPSP::AudioPluginPSP()
@@ -216,6 +241,11 @@ AudioPluginPSP::AudioPluginPSP()
   #ifdef DAEDALUS_PSP_USE_ME
   InitialiseMediaEngine();
   #endif
+  
+  int thid = sceKernelCreateThread("asyncAudioThread", asyncAudioThread, 0x1d, 0xFA0, THREAD_ATTR_USER, 0);
+  if (thid >= 0) {
+    sceKernelStartThread(thid, 0, 0);
+  }
 }
 
 AudioPluginPSP::~AudioPluginPSP( )
@@ -260,20 +290,18 @@ void	AudioPluginPSP::LenChanged()
   switch (gAudioPluginEnabled) {
     case APM_ENABLED_ASYNC:
     {
+      
       #ifdef DAEDALUS_PSP_USE_ME
-      if (!(meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED)) {
-        sceKernelDcacheWritebackAll();
-        meStatus |= ME_AUDIO_SAMPLE_TO_BE_ADDED;
-        // while (meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED)
-        {
-          sceKernelDelayThread(1);
-        }
-      }
+      //if (!(meStatus & ME_AUDIO_SAMPLE_REQUESTED)) {
+        meStatus |= ME_AUDIO_SAMPLE_SIGNALED;
+      //}
       #else
+      
       u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
       u32 length = Memory_AI_GetRegister(AI_LEN_REG);
       AddBuffer( g_pu8RamBase + address, length );
       #endif
+      
       break;
     }
     case APM_ENABLED_SYNC:
@@ -306,16 +334,9 @@ EProcessResult	AudioPluginPSP::ProcessAList()
       CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
       result = PR_STARTED;
       
-      if (!(meStatus & ME_AUDIO_UCODE_TO_BE_PROCESSED) && 
-          !(meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED))
-      {
-        sceKernelDcacheWritebackAll();
-        meStatus |= ME_AUDIO_UCODE_TO_BE_PROCESSED;
-        while (meStatus & ME_AUDIO_UCODE_TO_BE_PROCESSED)
-        {
-          sceKernelDelayThread(1);
-        }
-      }
+      //if (!(meStatus & ME_AUDIO_UCODE_REQUESTED)) {
+        meStatus |= ME_AUDIO_UCODE_SIGNALED;
+      //}
       
       break;
       #else
