@@ -156,25 +156,26 @@ fh.flush();
 #ifdef DAEDALUS_PSP_USE_ME
 u32 CAudioBuffer::Drain(Sample *samples, u32 num_samples) {
   const Sample *read_ptr = mReadPtr;
-  const Sample *write_ptr = mWritePtr;
   Sample *out_ptr = samples;
-  u32 samples_read = 0;
-
-  while (samples_read < num_samples) {
-    if (read_ptr == write_ptr)
-      break;
-
+  Sample *out_end = samples + num_samples;
+  
+  while (out_ptr < out_end && read_ptr != mWritePtr) {
     *out_ptr++ = *read_ptr++;
-    samples_read++;
 
     if (read_ptr >= mBufferEnd)
       read_ptr = mBufferBegin;
   }
-  mReadPtr = read_ptr;
 
+  mReadPtr = read_ptr;
+  u32 samples_read = out_ptr - samples;
+  
   if (samples_read < num_samples) {
-    memset(out_ptr, 0, (num_samples - samples_read) * sizeof(Sample));
+    Sample last_sample = (samples_read > 0) ? samples[samples_read - 1] : Sample(0);
+    while (out_ptr < out_end) {
+      *out_ptr++ = last_sample;
+    }
   }
+  
   return samples_read;
 }
 #else

@@ -129,7 +129,6 @@ private:
 	bool mExitAudioThread;
 	u32 mFrequency;
 	s32 mAudioThread;
-	s32 mSemaphore;
 //	u32 mBufferLenMs;
 };
 
@@ -139,42 +138,49 @@ meLibSetSharedUncached32(10);
 #define meExit           (meLibSharedMemory[0])
 #define meStatus         (meLibSharedMemory[1])
 #define meAudioAc        (meLibSharedMemory[2])
-#define meCounter        (meLibSharedMemory[3])
 
 enum MeStatus
 {
-  ME_AUDIO_NOT_READY = 0,
+  ME_AUDIO_NO_REQUEST = 0,
   ME_AUDIO_UCODE_TO_BE_PROCESSED = 1,
-  ME_AUDIO_BUFFER_TO_BE_FILLED = 2,
-  ME_AUDIO_READY = 3,
-  ME_AUDIO_TERMINATE = 4,
-  ME_AUDIO_SAMPLE_TO_BE_ADDED = 8,
-  ME_AUDIO_ASYNC_UCODE_PROCESSED = 16,
-  
+  ME_AUDIO_SAMPLE_TO_BE_ADDED = 2,
+  ME_AUDIO_PROCESSES_REQUESTED = 3,
+  ME_AUDIO_TERMINATED = 4,
 };
 
 void meLibOnProcess()
 {
-  meStatus = ME_AUDIO_NOT_READY;
+  meStatus = ME_AUDIO_NO_REQUEST;
   meCoreSetCpuFrequency(0x1ff, 1);
   meCoreSetBusFrequency(0x1ff, 1);
+  
   while (true)
   {
-    if (meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED) {
+    if (meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED)
+    {
       AudioPluginPSP * ac(reinterpret_cast< AudioPluginPSP * >(meAudioAc));
       u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
-      u32	length = Memory_AI_GetRegister(AI_LEN_REG);
+      u32 length = Memory_AI_GetRegister(AI_LEN_REG);
       ac->AddBuffer(g_pu8RamBase + address, length );
+      
+      meCoreDcacheWritebackInvalidateAll();
       meStatus &= ~ME_AUDIO_SAMPLE_TO_BE_ADDED;
       meStatus &= ~ME_AUDIO_UCODE_TO_BE_PROCESSED;
     }
     
-    if (meStatus & ME_AUDIO_UCODE_TO_BE_PROCESSED) {
+    // else
+    if (meStatus & ME_AUDIO_UCODE_TO_BE_PROCESSED)
+    {
+      // while (meCoreHwMutexTryLock() < 0) {
+      //   ;
+      // }
       Audio_Ucode();
+      meCoreDcacheWritebackInvalidateAll();
+      meStatus &= ~ME_AUDIO_UCODE_TO_BE_PROCESSED;
+      // meCoreHwMutexUnlock();
     }
-    meCoreDcacheWritebackInvalidateAll();
-
-    if (meStatus & ME_AUDIO_TERMINATE)
+    
+    if (meStatus & ME_AUDIO_TERMINATED)
       break;
   }
   meLibHalt();
@@ -185,16 +191,17 @@ static AudioPluginPSP * ac;
 
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
-	sceKernelWaitSema( mSemaphore, 1, nullptr );
-	mAudioBufferUncached->Drain( buffer, num_samples );
-	sceKernelSignalSema( mSemaphore, 1 );
+  // while (meLibCallHwMutexTryLock() < 0) {
+  //   ;
+  // }
+  mAudioBufferUncached->Drain( buffer, num_samples );
+  // meLibCallHwMutexUnlock();
 }
 
 AudioPluginPSP::AudioPluginPSP()
 :mKeepRunning (false)
 //: mAudioBuffer( kAudioBufferSize )
 , mFrequency( 44100 )
-,	mSemaphore( sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, nullptr ) )
 //, mAudioThread ( kInvalidThreadHandle )
 //, mKeepRunning( false )
 //, mBufferLenMs ( 0 )
@@ -203,9 +210,9 @@ AudioPluginPSP::AudioPluginPSP()
   // Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
   void * mem = malloc_64( sizeof( CAudioBuffer ) );
   mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
-  mAudioBufferUncached = (CAudioBuffer*)make_uncached_ptr(mem);
   // Ideally we could just invalidate this range?
   dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
+  mAudioBufferUncached = (CAudioBuffer*)make_uncached_ptr(mem);
   #ifdef DAEDALUS_PSP_USE_ME
   InitialiseMediaEngine();
   #endif
@@ -213,9 +220,8 @@ AudioPluginPSP::AudioPluginPSP()
 
 AudioPluginPSP::~AudioPluginPSP( )
 {
-	mAudioBuffer->~CAudioBuffer();
+  mAudioBuffer->~CAudioBuffer();
   free(mAudioBuffer);
-  sceKernelDeleteSema(mSemaphore);
   pspAudioEnd();
 }
 
@@ -229,7 +235,6 @@ void	AudioPluginPSP::StopEmulation()
 {
   Audio_Reset();
   StopAudio();
-  sceKernelDeleteSema(mSemaphore);
   pspAudioEndPre();
   sceKernelDelayThread(100000);
   pspAudioEnd();
@@ -249,18 +254,21 @@ void	AudioPluginPSP::DacrateChanged( int system_type )
 
 void	AudioPluginPSP::LenChanged()
 {
+  if (!mKeepRunning)
+    StartAudio();
+    
   switch (gAudioPluginEnabled) {
     case APM_ENABLED_ASYNC:
     {
       #ifdef DAEDALUS_PSP_USE_ME
-      if (!mKeepRunning)
-        StartAudio();
-      
-      // sceKernelDcacheInvalidateAll();
-      sceKernelDcacheWritebackAll();
-      meStatus |= ME_AUDIO_SAMPLE_TO_BE_ADDED;
-      sceKernelDelayThread(1);
-      
+      if (!(meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED)) {
+        sceKernelDcacheWritebackAll();
+        meStatus |= ME_AUDIO_SAMPLE_TO_BE_ADDED;
+        // while (meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED)
+        {
+          sceKernelDelayThread(1);
+        }
+      }
       #else
       u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
       u32 length = Memory_AI_GetRegister(AI_LEN_REG);
@@ -294,15 +302,20 @@ EProcessResult	AudioPluginPSP::ProcessAList()
     case APM_ENABLED_ASYNC:
     {
       #ifdef DAEDALUS_PSP_USE_ME
-
-      sceKernelDcacheWritebackAll();
-      meStatus |= ME_AUDIO_UCODE_TO_BE_PROCESSED;
-
+      
       CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
       result = PR_STARTED;
-
-      // Audio_Ucode();
-      // result = PR_COMPLETED;
+      
+      if (!(meStatus & ME_AUDIO_UCODE_TO_BE_PROCESSED) && 
+          !(meStatus & ME_AUDIO_SAMPLE_TO_BE_ADDED))
+      {
+        sceKernelDcacheWritebackAll();
+        meStatus |= ME_AUDIO_UCODE_TO_BE_PROCESSED;
+        while (meStatus & ME_AUDIO_UCODE_TO_BE_PROCESSED)
+        {
+          sceKernelDelayThread(1);
+        }
+      }
       
       break;
       #else
@@ -364,9 +377,6 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
     case APM_ENABLED_SYNC:
     {
-      if (!mKeepRunning)
-        StartAudio();
-    
       mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
       break;
     }
