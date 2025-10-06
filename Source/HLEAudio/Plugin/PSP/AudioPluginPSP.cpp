@@ -157,25 +157,14 @@ void meLibOnProcess()
   
   while (true)
   {
-    // while (meCoreHwMutexTryLock() < 0) { ; }
-    // meCoreHwMutexUnlock();
-    
-    if (meStatus & ME_AUDIO_SAMPLE_REQUESTED)
-    {
-      AudioPluginPSP * ac(reinterpret_cast< AudioPluginPSP * >(meAudioAc));
-      u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
-      u32 length = Memory_AI_GetRegister(AI_LEN_REG);
-      ac->AddBuffer(g_pu8RamBase + address, length );
-      meStatus &= ~ME_AUDIO_SAMPLE_REQUESTED;
-    }
-    
     if (meStatus & ME_AUDIO_UCODE_REQUESTED)
     {
+      while (meCoreHwMutexTryLock() < 0) { ; }
       Audio_Ucode();
+      meCoreDcacheWritebackInvalidateAll();
+      meCoreHwMutexUnlock();
       meStatus &= ~ME_AUDIO_UCODE_REQUESTED;
     }
-    
-    meCoreDcacheWritebackInvalidateAll();
     
     if (meStatus & ME_AUDIO_TERMINATED)
       break;
@@ -191,34 +180,6 @@ void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
   mAudioBufferUncached->Drain( buffer, num_samples );
 }
 
-// tmp
-int thid;
-int asyncATRunning;
-
-// ipc broker
-int asyncAudioThread(SceSize args, void *argp)
-{
-  while (asyncATRunning)
-  {
-    // while (meLibCallHwMutexTryLock() < 0) { ; }
-    // meLibCallHwMutexUnlock();
-
-    sceKernelDcacheWritebackInvalidateAll();
-    
-    if (meStatus & ME_AUDIO_SAMPLE_SIGNALED)
-    {
-      meStatus &= ~ME_AUDIO_SAMPLE_SIGNALED;
-      meStatus |= ME_AUDIO_SAMPLE_REQUESTED;
-    }
-    else if (meStatus & ME_AUDIO_UCODE_SIGNALED)
-    {
-      meStatus &= ~ME_AUDIO_UCODE_SIGNALED;
-      meStatus |= ME_AUDIO_UCODE_REQUESTED;
-    }
-    sceKernelDelayThread(200);
-  }
-  return 0;
-}
 
 AudioPluginPSP::AudioPluginPSP()
 :mKeepRunning (false)
@@ -238,12 +199,6 @@ AudioPluginPSP::AudioPluginPSP()
   #ifdef DAEDALUS_PSP_USE_ME
   InitialiseMediaEngine();
   #endif
-  
-  thid = sceKernelCreateThread("asyncAudioThread", asyncAudioThread, 0x1d, 0xFA0, THREAD_ATTR_USER, 0);
-  if (thid >= 0) {
-    asyncATRunning = 1;
-    sceKernelStartThread(thid, 0, 0);
-  }
 }
 
 AudioPluginPSP::~AudioPluginPSP( )
@@ -263,10 +218,6 @@ void	AudioPluginPSP::StopEmulation()
 {
   Audio_Reset();
   StopAudio();
-  asyncATRunning = 0;
-  sceKernelTerminateThread(thid);
-  sceKernelWaitThreadEnd(thid, NULL);
-  sceKernelDeleteThread(thid);
   pspAudioEndPre();
   sceKernelDelayThread(100000);
   pspAudioEnd();
@@ -288,24 +239,23 @@ void	AudioPluginPSP::LenChanged()
 {
   if (!mKeepRunning)
     StartAudio();
-    
+  
   switch (gAudioPluginEnabled) {
     case APM_ENABLED_ASYNC:
-    {
-      #ifdef DAEDALUS_PSP_USE_ME
-      meStatus |= ME_AUDIO_SAMPLE_SIGNALED;
-      #else
-      u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
-      u32 length = Memory_AI_GetRegister(AI_LEN_REG);
-      AddBuffer( g_pu8RamBase + address, length );
-      #endif
-      break;
-    }
     case APM_ENABLED_SYNC:
     {
+      #ifdef DAEDALUS_PSP_USE_ME
+      while (meLibCallHwMutexTryLock() < 0) { ; }
+      #endif
+      
       u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
       u32 length = Memory_AI_GetRegister(AI_LEN_REG);
       AddBuffer( g_pu8RamBase + address, length );
+      
+      #ifdef DAEDALUS_PSP_USE_ME
+      meLibCallHwMutexUnlock();
+      #endif
+      
       break;
     }
     default:
@@ -330,7 +280,11 @@ EProcessResult	AudioPluginPSP::ProcessAList()
       
       CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
       result = PR_STARTED;
-      meStatus |= ME_AUDIO_UCODE_SIGNALED;
+      
+      if (!(meStatus & ME_AUDIO_UCODE_REQUESTED)) {
+        sceKernelDcacheWritebackAll();
+        meStatus |= ME_AUDIO_UCODE_REQUESTED;
+      }
       
       break;
       #else
@@ -385,11 +339,6 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
       break;
 
     case APM_ENABLED_ASYNC:
-    {
-      mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );      
-      break;
-    }
-
     case APM_ENABLED_SYNC:
     {
       mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );

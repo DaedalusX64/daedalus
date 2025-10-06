@@ -170,16 +170,11 @@ u32 CAudioBuffer::Drain(Sample *samples, u32 num_samples) {
   u32 samples_read = out_ptr - samples;
   
   if (samples_read < num_samples) {
-    Sample last_sample = (samples_read > 0) ? samples[samples_read - 1] : lastOutputSample;
+    Sample last_sample = (samples_read > 0) ? samples[samples_read - 1] : Sample(0, 0);
     while (out_ptr < out_end) {
       *out_ptr++ = last_sample;
     }
   }
-  /*
-  if (samples_read > 0) {
-    lastOutputSample = samples[samples_read - 1];
-  }
-  */
 
   return samples_read;
 }

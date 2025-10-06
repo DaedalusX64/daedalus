@@ -51,7 +51,6 @@ private:
 
   const Sample *volatile mReadPtr;
   Sample *volatile mWritePtr;
-  Sample lastOutputSample = {0, 0};
 };
 
 #endif // HLEAUDIO_AUDIOBUFFER_H_
