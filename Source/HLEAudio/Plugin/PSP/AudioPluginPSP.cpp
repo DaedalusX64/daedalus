@@ -56,7 +56,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/ModulePSP.h"
 
 bool gLoadedMediaEnginePRX {false};
-EAudioPluginMode gAudioPluginEnabled(APM_ENABLED_ASYNC);
+EAudioPluginMode gAudioPluginEnabled(APM_DISABLED);
 
 bool InitialiseMediaEngine()
 {
@@ -143,9 +143,6 @@ enum MeStatus
 {
   ME_AUDIO_NO_REQUEST = 0,
   ME_AUDIO_UCODE_REQUESTED = 1,
-  ME_AUDIO_SAMPLE_REQUESTED = 2,
-  ME_AUDIO_UCODE_SIGNALED = 4,
-  ME_AUDIO_SAMPLE_SIGNALED = 8,
   ME_AUDIO_TERMINATED = 16,
 };
 
@@ -237,13 +234,13 @@ void	AudioPluginPSP::DacrateChanged( int system_type )
 
 void	AudioPluginPSP::LenChanged()
 {
-  if (!mKeepRunning)
-    StartAudio();
-  
   switch (gAudioPluginEnabled) {
     case APM_ENABLED_ASYNC:
     case APM_ENABLED_SYNC:
     {
+      if (!mKeepRunning)
+        StartAudio();
+    
       #ifdef DAEDALUS_PSP_USE_ME
       while (meLibCallHwMutexTryLock() < 0) { ; }
       #endif
@@ -268,6 +265,9 @@ EProcessResult	AudioPluginPSP::ProcessAList()
   Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
   EProcessResult	result = PR_NOT_STARTED;
 
+  if(!mKeepRunning)
+    return PR_COMPLETED;
+    
   switch( gAudioPluginEnabled )
   {
     case APM_DISABLED:
@@ -330,7 +330,7 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 {
   if (length == 0)
     return;
-  
+    
   u32 num_samples =  length / sizeof( Sample );
   
   switch( gAudioPluginEnabled )
