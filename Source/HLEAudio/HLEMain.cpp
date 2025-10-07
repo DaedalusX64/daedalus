@@ -131,15 +131,14 @@ void Audio_Ucode() {
   u32 *p_alist = (u32 *)(g_pu8RamBase + (uintptr_t)pTask->t.data_ptr);
   u32 ucode_size = (pTask->t.data_size >> 3); // ABI5 can return 0 here!!!
 
+  
   while (ucode_size) {
     AudioHLECommand command;
     command.cmd0 = *p_alist++;
     command.cmd1 = *p_alist++;
-
     ABI[command.cmd](command);
-
     --ucode_size;
-
     // printf("%08X %08X\n",command.cmd0,command.cmd1);
   }
 }
+

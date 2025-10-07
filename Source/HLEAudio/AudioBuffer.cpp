@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 CAudioBuffer::CAudioBuffer(u32 buffer_size)
     : mBufferBegin(new Sample[buffer_size]),
-      mBufferEnd(mBufferBegin + buffer_size), mReadPtr(mBufferBegin),
+      mBufferEnd(mBufferBegin + buffer_size - 1), mReadPtr(mBufferBegin),
       mWritePtr(mBufferBegin) {}
 
 CAudioBuffer::~CAudioBuffer() { delete[] mBufferBegin; }
@@ -153,6 +153,32 @@ fh.flush();
   mWritePtr = write_ptr; // Needs cache wbinv
 }
 
+#ifdef DAEDALUS_PSP_USE_ME
+u32 CAudioBuffer::Drain(Sample *samples, u32 num_samples) {
+  const Sample *read_ptr = mReadPtr;
+  Sample *out_ptr = samples;
+  Sample *out_end = samples + num_samples;
+  
+  while (out_ptr < out_end && read_ptr != mWritePtr) {
+    *out_ptr++ = *read_ptr++;
+
+    if (read_ptr >= mBufferEnd)
+      read_ptr = mBufferBegin;
+  }
+
+  mReadPtr = read_ptr;
+  u32 samples_read = out_ptr - samples;
+  
+  if (samples_read < num_samples) {
+    Sample last_sample = (samples_read > 0) ? samples[samples_read - 1] : Sample(0, 0);
+    while (out_ptr < out_end) {
+      *out_ptr++ = last_sample;
+    }
+  }
+
+  return samples_read;
+}
+#else
 u32 CAudioBuffer::Drain(Sample *samples, u32 num_samples) {
 // Todo: Check Cache Routines
 //  Ideally we could just invalidate this range?
@@ -208,3 +234,4 @@ std::ofstream fh;
   // Return the number of samples written
   return num_samples - samples_required;
 }
+#endif
