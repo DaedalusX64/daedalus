@@ -17,7 +17,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apk add build-base git bash cmake
+        apk add build-base git bash cmake 
     
     - name: Compile project
       run: |
@@ -52,7 +52,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libglm-dev
+        sudo apt install build-essential sqlite3 git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libglm-dev
     
     - name: Compile project
       run: |
@@ -82,7 +82,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install build-essential git bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libfmt-dev libglm-dev
+        sudo apt install build-essential git sqlite3 bash cmake libpng-dev libz-dev libminizip-dev libsdl2-dev libsdl2-ttf-dev libglew-dev libfmt-dev libglm-dev
     
     - name: Compile project
       run: |
