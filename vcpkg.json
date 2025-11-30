@@ -5,7 +5,7 @@
     "libpng",
     "sdl2",
     "sdl2-ttf",
-    "glm"
+    "glm",
     "sqlite3"
   ]
 }
