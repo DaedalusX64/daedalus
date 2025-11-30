@@ -263,8 +263,11 @@ endif(DAEDALUS_GL)
 find_package(PNG REQUIRED)
 link_libraries(PNG::PNG)
 
+if(NOT DAEDALUS_CTR) #CTR does not have standard SQLite and is built separately
 find_package(SQLite3 REQUIRED)
+
 link_libraries(SQLite::SQLite3)
+endif()
 
 find_package(ZLIB REQUIRED)
 link_libraries(ZLIB::ZLIB)
