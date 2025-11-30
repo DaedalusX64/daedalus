@@ -17,7 +17,7 @@ install(FILES ${PROJECT_SOURCE_DIR}/Source/SysGL/HLEGraphics/n64.psh DESTINATION
 install(FILES ${PROJECT_SOURCE_DIR}/Source/SysGLES/HLEGraphics/n64.psh DESTINATION DaedalusX64)
         endif(DAEDALUS_GLES)
 
-install(FILES ${PROJECT_BINARY_DIR}/../Data/roms.ini DESTINATION DaedalusX64)
+install(FILES ${PROJECT_BINARY_DIR}/../Data/daedalus.db DESTINATION DaedalusX64)
 install(FILES ${PROJECT_BINARY_DIR}/../Data/readme.txt DESTINATION DaedalusX64)
 install(FILES ${PROJECT_BINARY_DIR}/../Data/copying.txt DESTINATION DaedalusX64)
 
