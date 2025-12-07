@@ -175,15 +175,15 @@ jobs:
       #   run: | 
       #     vcpkg install 
           
-      - name: Run CMake config
+      - name: Build
         run: |
           ./build_daedalus.sh WIN
         #  cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows" "-DX_VCPKG_APPLOCAL_DEPS_INSTALL=1"
 
-      - name: Build
-        run: |
-          cmake --build build --config Release
-          cmake --install build --prefix DaedalusX64
+      # - name: Build
+      #   run: |
+      #     cmake --build build --config Release
+      #     cmake --install build --prefix DaedalusX64
 
       - name: Upload artifacts
         if: ${{ success() }}
