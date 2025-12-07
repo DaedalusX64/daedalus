@@ -48,32 +48,31 @@ else()
 	set( CMAKE_CXX_FLAGS_RELEASE  "-O3 -DNDEBUG")
 	endif()
 	endif()
-
 	#Determine Dynarec compatibility and link in appropriate Dynarec
 	#Todo: Move all relevant Dynarec to the Dynarec/arch folder and enable here when correct platform is detected
-	if( "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64" )
+	if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64" )
 		option(DAEDALUS_ENABLE_DYNAREC  "Enable Dynarec" OFF)
 		message("No Dynarec on arm64 yet")
-	elseif( "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "mips" )
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "mips" )
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
 		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
-	elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86")
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 		## X86 Dynarec Code needs to be moved from W32 emulator
-	elseif("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "armv")
+	elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv")
 		message("ARM Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
 		set(DYNAREC DynaRec) #Enable Dynarec Linker Flag
-	elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
 		message("x86_64 Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
-	elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "AMD64")
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
 		message("AMD64 Dynarec Enabled")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" ON)
-	elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "riscv64")
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "riscv64")
 		message("No Dynarec avaliable for Riscv64")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
-	elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
 		message("No Dynarec available for arm64")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 	else()
@@ -238,19 +237,28 @@ if(DAEDALUS_SDL)
 
 	if(NOT PSP)
 		# PSP is not needed as it uses built-in native font
-		find_package(SDL2_ttf CONFIG QUIET)
-
-    if(TARGET SDL2_ttf::SDL2_ttf)
-        # vcpkg / modern package: use the imported target
-        link_libraries(SDL2_ttf::SDL2_ttf)
-    else()
-        # Fallback for systems using pkg-config / old FindSDL2_ttf modules
-        PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf>=2.0.0)
-        link_libraries(${SDL2_TTF_LIBRARIES})
-    endif()
-endif()
+		find_package(SDL2_ttf QUIET)
+		if(SDL2_ttf_FOUND)
+			link_libraries(SDL2_ttf::SDL2_ttf)
+		else()
+			PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf>=2.0.0)
+			link_libraries(${SDL2_TTF_LIBRARIES})
+		endif()
+	endif()
 endif(DAEDALUS_SDL)
 
+if(DAEDALUS_GLES)
+	find_package(OpenGL REQUIRED)
+	link_libraries(OpenGL::GL)
+endif(DAEDALUS_GLES)
+
+if(DAEDALUS_GL)
+	find_package(OpenGL REQUIRED)
+	link_libraries(OpenGL::GL)
+
+	find_package(GLEW REQUIRED)
+	link_libraries(GLEW::GLEW)
+endif(DAEDALUS_GL)
 
 find_package(PNG REQUIRED)
 link_libraries(PNG::PNG)
@@ -262,7 +270,7 @@ link_libraries(SQLite::SQLite3)
 endif()
 
 find_package(ZLIB REQUIRED)
-
+link_libraries(ZLIB::ZLIB)
 
 add_definitions(-D_USE_MATH_DEFINES)
 
@@ -304,18 +312,7 @@ add_definitions(-D_USE_MATH_DEFINES)
 	
 	# ---  Build ---- 
 	add_executable(daedalus ${plat_main})
-		target_link_libraries(daedalus PRIVATE ZLIB::ZLIB)
-
-	if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    # MinGW / Windows: link to system OpenGL libs
-    target_link_libraries(daedalus PRIVATE /usr/x86_64-w64-mingw32/lib/libglew32.a opengl32 )
-else()
-    # Native Linux/macOS builds: use CMake's FindOpenGL
-    find_package(OpenGL REQUIRED)
-    target_link_libraries(daedalus PRIVATE OpenGL::GL)
-endif()
-
-
+	
 	if(GCC_LEGACY)
 	target_link_libraries(daedalus PRIVATE ${daed_libs} ${default_libraries} ${sys_libraries} fmt::fmt)
 	else()
