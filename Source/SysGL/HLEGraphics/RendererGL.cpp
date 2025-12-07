@@ -3,6 +3,7 @@
 
 
 #include <vector>
+#define GLEW_STATIC
 #include <GL/glew.h>
 #include <fstream>
 #include <iostream>

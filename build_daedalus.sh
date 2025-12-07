@@ -23,6 +23,9 @@ case "$1" in
     CMAKE="cmake -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/3DS.cmake""
     CMAKEDEFINES+="-DCTR=1"
     ;;
+    WIN)
+    CMAKE="cmake "-CMAKE_TOOLCHAIN_FILE="$PWD/Tools/cmake/mingw-g++.cmake"""
+    ;;
     *)
     CMAKE=cmake
     CMAKEDEFINES=""

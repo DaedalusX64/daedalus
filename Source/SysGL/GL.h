@@ -1,6 +1,8 @@
 #ifndef SYSGL_GL_H_
 #define SYSGL_GL_H_
 
+#define GLEW_STATIC
+
 #include <GL/glew.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL.h>
