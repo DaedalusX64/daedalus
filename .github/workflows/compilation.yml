@@ -177,7 +177,7 @@ jobs:
           
       - name: Run CMake config
         run: |
-          ./build_daedalus WIN
+          ./build_daedalus.sh WIN
         #  cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows" "-DX_VCPKG_APPLOCAL_DEPS_INSTALL=1"
 
       - name: Build
