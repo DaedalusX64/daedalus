@@ -363,7 +363,7 @@ auto it = text.begin();
 		std::advance(it, lengths[i]);
 	}
 
-	return 0;
+	return y - top;
 }
 
 //TODO: Should be in draw text interface
