@@ -21,6 +21,9 @@ list(APPEND daed_libs)
 set(daed_libs ${daed_libs} shlwapi dsound xinput uuid PARENT_SCOPE)
 set(plat_main SysPosix/main.cpp PARENT_SCOPE)
 
-file(GLOB DYNAMIC_LIBRARIES "/usr/x86_64-w64-mingw/bin/*.dll")
-
-install(FILES ${DYNAMIC_LIBRARIES} DESTINATION DaedalusX64)
+install(
+    DIRECTORY "/usr/x86_64-w64-mingw32/bin/"
+    DESTINATION DaedalusX64
+    FILES_MATCHING
+    PATTERN "*.dll"
+)
