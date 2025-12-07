@@ -11,8 +11,8 @@ set(CROSS_ROOT /usr/${TRIPLET})
 
 set(CMAKE_INSTALL_PREFIX "${CROSS_ROOT}")
 
-set(CMAKE_C_COMPILER   ${TRIPLET}-gcc-posix)
-set(CMAKE_CXX_COMPILER ${TRIPLET}-g++-posix)
+set(CMAKE_C_COMPILER   ${TRIPLET}-gcc)
+set(CMAKE_CXX_COMPILER ${TRIPLET}-g++)
 set(CMAKE_RC_COMPILER  ${TRIPLET}-windres)
 
 # Where to search for includes/libs for the target
