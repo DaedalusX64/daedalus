@@ -24,7 +24,7 @@ case "$1" in
     CMAKEDEFINES+="-DCTR=1"
     ;;
     WIN)
-    CMAKE="cmake "-CMAKE_TOOLCHAIN_FILE="$PWD/Tools/cmake/mingw-g++.cmake"""
+    CMAKE="cmake -CMAKE_TOOLCHAIN_FILE="$PWD/Tools/cmake/mingw-g++.cmake""
     ;;
     *)
     CMAKE=cmake
