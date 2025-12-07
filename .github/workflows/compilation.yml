@@ -177,7 +177,7 @@ jobs:
           
       - name: Run CMake config
         run: |
-          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=~/daedalus/cmake/mingw-g++.cmake"
+          cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=Tools/cmake/mingw-g++.cmake"
         #  cmake -S . -B build "-DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows" "-DX_VCPKG_APPLOCAL_DEPS_INSTALL=1"
 
       - name: Build
