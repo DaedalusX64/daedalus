@@ -13,11 +13,12 @@ rm -r build
    make --quiet -j $PROC_NR -C "$PWD/Source/SysPSP/PRX/MediaEngine" || { exit 1; }
  }
 
+
 # Add any custom console toolchains
 case "$1" in
     PSP)
     psp_plugins
-    CMAKE=psp-cmake
+    CMAKE="psp-cmake"
     ;;
     CTR)
     CMAKE="cmake -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/3DS.cmake""
@@ -25,6 +26,10 @@ case "$1" in
     ;;
     WIN)
     CMAKE="cmake -DCMAKE_TOOLCHAIN_FILE="Tools/cmake/mingw-g++.cmake""
+    ;;
+    DC)
+    . $KOS_BASE/environ.sh
+    CMAKE="kos-cmake"
     ;;
     *)
     CMAKE=cmake

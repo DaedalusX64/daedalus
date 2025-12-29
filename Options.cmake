@@ -76,6 +76,11 @@ if(DAEDALUS_W32)
     add_compile_definitions(DAEDALUS_W32)
 endif(DAEDALUS_W32)
 
+if(DAEDALUS_DC)
+    message("DAEDALUS_DC=ON")
+    add_compile_definitions(DAEDALUS_DC)
+    endif(DAEDALUS_DC)
+    
 if(DAEDALUS_PSP)
     message("DAEDALUS_PSP=ON")
     add_compile_definitions(DAEDALUS_PSP)
