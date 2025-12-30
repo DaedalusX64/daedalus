@@ -30,6 +30,7 @@ case "$1" in
     DC)
     . $KOS_BASE/environ.sh
     CMAKE="kos-cmake"
+    CMAKEDEFINES+="-DDC=1"
     ;;
     *)
     CMAKE=cmake

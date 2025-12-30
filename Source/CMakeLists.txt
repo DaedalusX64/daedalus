@@ -75,8 +75,11 @@ else()
 	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
 		message("No Dynarec available for arm64")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
+	elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "SH4")
+		message("No Dynarec available for Dreamcast (SH4)")
+		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 	else()
-		message("Platform unknown, Dynarec disabled")
+		message("Platform" ${CMAKE_SYSTEM_PROCESSOR} "not known, no Dynarec")
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynarec" OFF)
 	endif()
 	
@@ -128,7 +131,6 @@ else()
 		option(INTRAFONT "Use Native Fonts" ON) #If this is off, SDL will be enabled
 		option(DAEDALUS_SDL "Enable SDL" OFF)
 		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" ON) 
-
 	elseif(UNIX)
 		if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64" AND CMAKE_SYSTEM_NAME STREQUAL "Linux") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv" AND CMAKE_SYSTEM_NAME STREQUAL "Linux"))
 			option(DAEDALUS_GLES "OpenGLES 3.1 Renderer" ON)
@@ -140,8 +142,6 @@ else()
 		option(DAEDALUS_ACCURATE_TMEM "Accurate TMEM" ON)
 		option(DAEDALUS_128BIT_MULT "128 Bit Multiplication, not supported on PSP" ON)
 		option(DAEDALUS_ACCURATE_CVT "Convert using the rounding mode specified in the Floating Control/Status register (FCSR)" ON)
-
-		
 
 	elseif(WIN32)
 		option(DAEDALUS_SDL "SDL Build" ON)
@@ -155,6 +155,12 @@ else()
 	elseif(CTR)
 		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" OFF) ## Causes some weird black screen issues
 		option(DAEDALUS_CTR "3DS Specific Options" ON)
+	elseif(DC)
+		option(DAEDALUS_DC "Dreamcast" ON)
+		option(DAEDALUS_GL "OpenGL Renderer" OFF)
+		option(DAEDALUS_GLES "GLES REnderer" OFF)
+		option(DAEDALUS_SDL "SDL Build" OFF)
+		option(DAEDALUS_ENABLE_OS_HOOKS "Enable High Level Emulation Hooks" OFF)
 	endif()
 
 # Profiler Options
@@ -260,10 +266,22 @@ if(DAEDALUS_GL)
 	link_libraries(GLEW::GLEW)
 endif(DAEDALUS_GL)
 
+if(DAEDALUS_DC)
+set(KOS_PORTS "/opt/toolchains/dc/kos-ports")
+
+set(PNG_PNG_INCLUDE_DIR "${KOS_PORTS}/include/png")
+set(PNG_LIBRARY         "${KOS_PORTS}/lib/libpng.a")
+
+# Also hint zlib (FindPNG usually pulls it in)
+set(ZLIB_INCLUDE_DIR "${KOS_PORTS}/include")
+set(ZLIB_LIBRARY     "${KOS_PORTS}/lib/libz.a") # adjust if needed
+
+endif(DAEDALUS_DC) 
+
 find_package(PNG REQUIRED)
 link_libraries(PNG::PNG)
 
-if(NOT DAEDALUS_CTR) #CTR does not have standard SQLite and is built separately
+if(NOT (DAEDALUS_CTR OR DAEDALUS_DC)) #CTR does not have standard SQLite and is built separately
 find_package(SQLite3 REQUIRED)
 
 link_libraries(SQLite::SQLite3)
@@ -308,6 +326,8 @@ add_definitions(-D_USE_MATH_DEFINES)
 		add_subdirectory(SysCTR)
 	elseif(PSP)
 		add_subdirectory(SysPSP)
+	elseif(DC)
+		add_subdirectory(SysDC)
 	endif()
 	
 	# ---  Build ---- 

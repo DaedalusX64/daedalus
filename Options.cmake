@@ -100,6 +100,7 @@ if(DAEDALUS_DIALOGS)
     message("DAEDALUS_DIALOGS=ON")
     add_compile_definitions(DAEDALUS_DIALOGS)
 endif(DAEDALUS_DIALOGS)
+
 if(DAEDALUS_POSIX)
     message("DAEDALUS_POSIX=ON")
     add_compile_definitions(DAEDALUS_POSIX)

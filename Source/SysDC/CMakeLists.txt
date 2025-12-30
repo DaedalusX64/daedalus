@@ -1,8 +1,4 @@
-add_subdirectory(Debug)
 add_subdirectory(Graphics)
-add_subdirectory(HLEGraphics)
-add_subdirectory(UI)
-add_subdirectory(Utility)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../DaedalusX64.elf DESTINATION DaedalusX64)
 install(DIRECTORY ${PROJECT_BINARY_DIR}/../Data/ DESTINATION DaedalusX64)
