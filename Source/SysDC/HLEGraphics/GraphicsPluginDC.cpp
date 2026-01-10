@@ -35,12 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/Preferences.h"
 #include "System/Timing.h"
 
-#include <pspdebug.h>
-
 #include "Core/Memory.h"
 
 
-extern void battery_warning();
 extern void HandleEndOfFrame();
 
 extern bool gFrameskipActive;
@@ -205,33 +202,33 @@ void CGraphicsPluginImpl::UpdateScreen()
 		if( gVISyncRate > 4000 ) gVISyncRate = 4000;
 		else if ( gVISyncRate < 1500 ) gVISyncRate = 1500;
 
-		if(!gFrameskipActive)
-		{
-			if( gGlobalPreferences.DisplayFramerate )
-			{
-				pspDebugScreenSetTextColor( 0xffffffff );
-				pspDebugScreenSetBackColor(0);
-				pspDebugScreenSetXY(0, 0);
+// 		if(!gFrameskipActive)
+// 		{
+// 			if( gGlobalPreferences.DisplayFramerate )
+// 			{
+// 				pspDebugScreenSetTextColor( 0xffffffff );
+// 				pspDebugScreenSetBackColor(0);
+// 				pspDebugScreenSetXY(0, 0);
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-				pspDebugScreenPrintf( "Dlist[%d] Cull[%d] | Tris[%d] Cull[%d] | Rect[%d] Clip[%d] ", gNumInstructionsExecuted, gNumDListsCulled, gRenderer->GetNumTrisRendered(), gRenderer->GetNumTrisClipped(), gRenderer->GetNumRect(), gNumRectsClipped);
-#else
-				pspDebugScreenPrintf( "FPS[%#.1f] VB[%d/%d] Sync[%#.1f%%]   ", gCurrentFramerate, u32( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) ), FramerateLimiter_GetTvFrequencyHz(), Fsync * 100.0f );
-#endif
-			}
-			if( gGlobalPreferences.BatteryWarning )
-			{
-				battery_warning();
-			}
-			if(gTakeScreenshot)
-			{
-				CGraphicsContext::Get()->DumpNextScreen();
-				gTakeScreenshot = false;
-			}
+// #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+// 				pspDebugScreenPrintf( "Dlist[%d] Cull[%d] | Tris[%d] Cull[%d] | Rect[%d] Clip[%d] ", gNumInstructionsExecuted, gNumDListsCulled, gRenderer->GetNumTrisRendered(), gRenderer->GetNumTrisClipped(), gRenderer->GetNumRect(), gNumRectsClipped);
+// #else
+// 				pspDebugScreenPrintf( "FPS[%#.1f] VB[%d/%d] Sync[%#.1f%%]   ", gCurrentFramerate, u32( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) ), FramerateLimiter_GetTvFrequencyHz(), Fsync * 100.0f );
+// #endif
+// 			}
+// 			if( gGlobalPreferences.BatteryWarning )
+// 			{
+// 				battery_warning();
+// 			}
+// 			if(gTakeScreenshot)
+// 			{
+// 				CGraphicsContext::Get()->DumpNextScreen();
+// 				gTakeScreenshot = false;
+// 			}
 
-			CGraphicsContext::Get()->UpdateFrame( false );
-			HandleEndOfFrame();
-		}
+// 			CGraphicsContext::Get()->UpdateFrame( false );
+// 			HandleEndOfFrame();
+// 		}
 
 		static u32 current_frame = 0;
 		current_frame++;
@@ -265,7 +262,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 void CGraphicsPluginImpl::RomClosed()
 {
 	#ifdef DAEDALUS_DEBUG_CONSOLE
-	DBGConsole_Msg(0, "Finalising PSPGraphics");
+	DBGConsole_Msg(0, "Finalising DCGraphics");
 	#endif
 	DLParser_Finalise();
 	CTextureCache::Destroy();
@@ -274,7 +271,7 @@ void CGraphicsPluginImpl::RomClosed()
 
 class std::unique_ptr<CGraphicsPlugin>	CreateGraphicsPlugin()
 {
-	DBGConsole_Msg( 0, "Initialising Graphics Plugin [PSP]" );
+	DBGConsole_Msg( 0, "Initialising Graphics Plugin [DC]" );
 	auto plugin = std::make_unique<CGraphicsPluginImpl>();
 	if (!plugin->Initialise())
 	{

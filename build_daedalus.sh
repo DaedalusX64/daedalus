@@ -28,7 +28,7 @@ case "$1" in
     CMAKE="cmake -DCMAKE_TOOLCHAIN_FILE="Tools/cmake/mingw-g++.cmake""
     ;;
     DC)
-    . $KOS_BASE/environ.sh
+    . /opt/toolchains/dc/KOS/environ.sh
     CMAKE="kos-cmake"
     CMAKEDEFINES+="-DDC=1"
     ;;

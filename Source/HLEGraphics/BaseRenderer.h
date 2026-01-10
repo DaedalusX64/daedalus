@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <GL/picaGL.h>
 #elif defined(DAEDALUS_GLES)
 #include "SysGLES/GL.h"
+#elif defined(DAEDALUS_DC)
+
 #else
 #include "SysGL/GL.h"
 #endif
