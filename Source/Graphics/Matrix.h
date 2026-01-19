@@ -6,14 +6,20 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <cstring>
 
-#ifdef (DAEDALUS_CTR)
-#include <GL/picaGL.h>
+#ifdef DAEDALUS_GL
+    #include "SysGL/GL.h"
+#elif defined(DAEDALUS_CTR)
+    #include <GL/picaGL.h>
+#elif defined(DAEDALUS_PSP)
+    #include <psptypes.h>
+    #include <pspgu.h>
+#else
+// Fail here
 #endif
 
 #if defined(DAEDALUS_PSP)
 
-    #include <psptypes.h>
-    #include <pspgu.h>
+
 
     using EGuMatrixType = int; // GU_PROJECTION, GU_VIEW, etc.
 
