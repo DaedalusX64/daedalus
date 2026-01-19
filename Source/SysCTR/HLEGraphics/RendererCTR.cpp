@@ -29,21 +29,24 @@ extern float 	*gTexCoordBuffer;
 extern uint32_t  gVertexCount;
 extern uint32_t  gMaxVertices;
 
-struct ScePspFMatrix4
-{
-	float m[16];
-};
+#include "Graphics/Matrix.h"
+// struct ScePspFMatrix4
+// {
+// 	float m[16];
+// };
 
 
-ScePspFMatrix4		gProjection;
+// ScePspFMatrix4		gProjection;
 
-void sceGuSetMatrix(int type, const ScePspFMatrix4 * mtx)
-{
-	if (type == GL_PROJECTION)
-	{
-		memcpy(&gProjection, mtx, sizeof(gProjection));
-	}
-}
+// void sceGuSetMatrix(int type, const ScePspFMatrix4 * mtx)
+// {
+// 	if (type == GL_PROJECTION)
+// 	{
+// 		memcpy(&gProjection, mtx, sizeof(gProjection));
+// 	}
+// }
+
+glm::mat4 gProjection;
 
 static void InitBlenderMode()
 {
@@ -632,7 +635,7 @@ void RendererCTR::RenderTriangles(DaedalusVtx *p_vertices, u32 num_vertices, boo
 		}
 	}
 	
-	RenderUsingCurrentBlendMode(gProjection.m, p_vertices, num_vertices, GL_TRIANGLES, disable_zbuffer);
+	RenderUsingCurrentBlendMode(glm::value_ptr(gProjection), p_vertices, num_vertices, GL_TRIANGLES, disable_zbuffer);
 }
 
 void RendererCTR::TexRect(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)

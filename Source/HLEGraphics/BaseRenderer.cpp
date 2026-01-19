@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 #include "Debug/Dump.h"
 #include "Debug/DBGConsole.h"
+#include "Graphics/Matrix.h"
 #include "Graphics/NativeTexture.h"
 #include "Graphics/GraphicsContext.h"
 #include "HLEGraphics/BaseRenderer.h"
@@ -46,15 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Math/Math.h"
 #endif 
 
-#ifdef DAEDALUS_CTR
-struct ScePspFMatrix4
-{
-	float m[16];
-};
 
-extern void sceGuSetMatrix(int type, const ScePspFMatrix4 * mtx);
-#define GU_PROJECTION GL_PROJECTION
-#endif
 // Vertex allocation.
 // AllocVerts/FreeVerts:
 //   Allocate vertices whose lifetime must extend beyond the current scope.
@@ -1394,7 +1387,8 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 		{	
 			//Only reload matrix if it has been changed and no billbording //Corn
 			mWPmodified = false;
-			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mat_world_project) );
+			SetMatrix(GU_PROJECTION, mProjectionMat);
+			// sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mat_world_project) );
 		}
 #ifdef DAEDALUS_PSP_USE_VFPU
 		_TnLVFPUDKR( n, &mat_world_project, (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
@@ -1997,7 +1991,8 @@ void BaseRenderer::SetProjection(const u32 address, bool bReplace)
 	}
 
 	mWorldProjectValid = false;
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionMat) );
+	SetMatrix(GU_PROJECTION, mProjectionMat);
+	// sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionMat) );
 
 #ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF(
@@ -2111,7 +2106,8 @@ inline void BaseRenderer::UpdateWorldProject()
 		if( mReloadProj )
 		{
 			mReloadProj = false;
-			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionMat) );
+			SetMatrix(GU_PROJECTION, mProjectionMat);
+			// sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionMat) );
 		}
 		mWorldProject = mProjectionMat * mModelViewStack[mModelViewTop];
 	}
@@ -2131,7 +2127,8 @@ inline void BaseRenderer::UpdateWorldProject()
 			mWorldProject[2][0] *= HD_SCALE;  // Column 0, Row 2
 			mWorldProject[3][0] *= HD_SCALE;  // Column 0, Row 3
 		}
-		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
+		SetMatrix(GU_PROJECTION, mProjectionMat);
+		// sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
 		mModelViewStack[mModelViewTop] = glm::mat4(1.0f);;
 	}
 }

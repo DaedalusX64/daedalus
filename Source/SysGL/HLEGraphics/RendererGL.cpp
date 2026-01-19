@@ -4,10 +4,10 @@
 
 #include <vector>
 #define GLEW_STATIC
-#include <GL/glew.h>
+
+
 #include <fstream>
 #include <iostream>
-
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Graphics/ColourValue.h"
@@ -19,7 +19,7 @@
 #include "SysGL/GL.h"
 #include "SysGL/HLEGraphics/RendererGL.h"
 #include <glm/gtc/type_ptr.hpp> 
-
+#include "Graphics/Matrix.h"
 #include "Base/Macros.h"
 #include "Utility/Paths.h"
 #include "Utility/Profiler.h"
@@ -149,14 +149,15 @@ void sceGuFog(f32 mn [[maybe_unused]], f32 mx [[maybe_unused]], u32 col [[maybe_
 }
 
 
-ScePspFMatrix4		gProjection;
-void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx)
-{
-	if (type == GL_PROJECTION)
-	{
-		memcpy(&gProjection, mtx, sizeof(gProjection));
-	}
-}
+// ScePspFMatrix4		gProjection;
+// void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx)
+// {
+// 	if (type == GL_PROJECTION)
+// 	{
+// 		memcpy(&gProjection, mtx, sizeof(gProjection));
+// 	}
+// }
+glm::mat4 gProjection;
 
 // This defines all the state that is expressed by a given shader.
 // If any of these fields change, it requires building a different shader.
@@ -885,6 +886,7 @@ inline u32 MakeMirror(u32 mirror, u32 m)
 {
 	return (mirror && m) ? (1<<m) : 0;
 }
+
 void RendererGL::PrepareRenderState(const float *mat_project, bool disable_zbuffer) {
     DAEDALUS_PROFILE("RendererGL::PrepareRenderState");
 
@@ -1020,7 +1022,7 @@ void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bo
 		}
 	}
 
-	PrepareRenderState(gProjection.m, disable_zbuffer);
+	PrepareRenderState(glm::value_ptr(gProjection), disable_zbuffer);
 	RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }
 
