@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/DLDebug.h"
 
 #include "Utility/MathUtil.h"
+#include <iostream>
 #include "Ultra/ultra_gbi.h"
 #include "Ultra/ultra_os.h"		// System type
 #include "Utility/Profiler.h"
@@ -41,7 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <glm/ext.hpp>
 
 #include <vector>
-#include <random>
 
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Math/Math.h"
@@ -297,7 +297,7 @@ void BaseRenderer::InitViewport()
 	// Init the N64 viewport.
 	mVpScale = glm::vec2( 640.f*0.25f, 480.f*0.25f );
 	mVpTrans = glm::vec2( 640.f*0.25f, 480.f*0.25f );
-		std::default_random_engine FastRand;
+
 	// Get the current display dimensions. This might change frame by frame e.g. if the window is resized.
 	u32 display_width  = 0;
 	u32 display_height = 0;
@@ -328,8 +328,10 @@ void BaseRenderer::InitViewport()
 #ifndef DAEDALUS_CTR
 		if (gRumblePakActive)
 		{
-			mN64ToScreenTranslate.x += (FastRand() & 3);
-			mN64ToScreenTranslate.y += (FastRand() & 3);
+        static uint32_t seed = 0x12345678;
+        seed = seed * 1103515245 + 12345;
+        mN64ToScreenTranslate.x += (seed >> 16) & 3;
+        mN64ToScreenTranslate.y += (seed >> 24) & 3;
 		}
 #endif
 
@@ -795,7 +797,6 @@ namespace
 	// Flying Dragon clips more than 256
 	const u32			MAX_CLIPPED_VERTS = 320;
 	DaedalusVtx			clip_vtx[MAX_CLIPPED_VERTS];
-	// std::array<DaedalusVtx, MAX_CLIPPED_VERTS> clip_vtx;
 }
 
 //*****************************************************************************
@@ -1387,7 +1388,7 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 		{	
 			//Only reload matrix if it has been changed and no billbording //Corn
 			mWPmodified = false;
-			SetMatrix(GU_PROJECTION, mProjectionMat);
+			SetMatrix(GU_PROJECTION, mat_world_project);
 			// sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mat_world_project) );
 		}
 #ifdef DAEDALUS_PSP_USE_VFPU
@@ -1949,7 +1950,7 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	s32 y = static_cast<s32>(mScreenHeight) - (t + h);
 
 #if defined(DAEDALUS_PSP)
-	sceGuScissor(l, y, w, h);
+	sceGuScissor(l, t, w, h);
 #elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES) 
 	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
 
@@ -2127,7 +2128,7 @@ inline void BaseRenderer::UpdateWorldProject()
 			mWorldProject[2][0] *= HD_SCALE;  // Column 0, Row 2
 			mWorldProject[3][0] *= HD_SCALE;  // Column 0, Row 3
 		}
-		SetMatrix(GU_PROJECTION, mProjectionMat);
+		SetMatrix(GU_PROJECTION, mWorldProject);
 		// sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
 		mModelViewStack[mModelViewTop] = glm::mat4(1.0f);;
 	}
