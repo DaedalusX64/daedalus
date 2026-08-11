@@ -17,7 +17,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apk add build-base git bash cmake
+        apk add build-base git bash cmake 
     
     - name: Compile project
       run: |
@@ -105,7 +105,7 @@ jobs:
 
 
   build-ctr:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-24.04
     container: wally4000/daedalusx64:latest
 
     steps:
@@ -162,24 +162,18 @@ jobs:
         path: DaedalusX64
 
   build-windows:
-    runs-on: windows-latest
+    # runs-on: windows-latest
+    runs-on: ubuntu-24.04
+    container: wally4000/daedalus-win:latest
+
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install packages
-        run: | 
-          vcpkg install 
-          
-      - name: Run CMake config
-        run: |
-          cmake -S . -B build "-DX_VCPKG_APPLOCAL_DEPS_INSTALL=1 -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake" "-DVCPKG_TARGET_TRIPLET=x64-windows"
-
       - name: Build
         run: |
-          cmake --build build --config Release
-          cmake --install build --prefix DaedalusX64
+          ./build_daedalus.sh WIN
 
       - name: Upload artifacts
         if: ${{ success() }}
