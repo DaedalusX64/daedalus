@@ -27,3 +27,4 @@ Source/tmp
 /debug/
 /vcpkg_installed/
 /CMakeSettings.json
+.vscode/
