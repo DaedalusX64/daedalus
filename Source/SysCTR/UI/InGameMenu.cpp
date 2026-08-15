@@ -37,60 +37,48 @@ extern RomInfo g_ROM;
 static uint8_t currentPage = 0;
 
 
+static bool stateExists[5];
+
+
+static std::filesystem::path GetSaveStatePath(int slot)
+{
+    std::filesystem::path path = setBasePath("SaveStates");
+    path /= g_ROM.settings.GameName;
+    path /= FORMAT_NAMESPACE::format("saveslot{}.ss", slot);
+
+    return path;
+}
+
+
 static void ExecSaveState(int slot)
 {
-	std::filesystem::path savePath = setBasePath("SaveStates");
-	std::string name = g_ROM.settings.GameName;
-	savePath /= name;
-	std::filesystem::create_directories(savePath);
 
-	std::string filename = FORMAT_NAMESPACE::format("saveslot{}.ss", slot);
-
-	savePath /= filename;
-
-	std::cout << "Save Save Slot Path" << savePath << std::endl;
-	CPU_RequestSaveState(savePath);
+	auto path = GetSaveStatePath(slot);
+	std::filesystem::create_directories(path.parent_path());
+	CPU_RequestSaveState(path);
 }
 
 static void LoadSaveState(int slot)
 {
-	std::filesystem::path savePath = setBasePath("SaveStates");
-	std::string name = g_ROM.settings.GameName;
-	savePath /= name;
-	std::filesystem::create_directories(savePath);
-
-	std::string filename = FORMAT_NAMESPACE::format("saveslot{}.ss", slot);
-
-	
-	savePath /= filename;
-
-	std::cout << "Load Save Slot Path" << savePath << std::endl;
-	// snprintf(full_path),sizeof(full_path), "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
-
-	CPU_RequestLoadState(savePath);
+	CPU_RequestLoadState(GetSaveStatePath(slot));
 }
 
 static bool SaveStateExists(int slot)
 {
-	std::filesystem::path savePath = setBasePath("SaveStates");
-	std::string name = g_ROM.settings.GameName;
-	savePath /= name;
-	std::filesystem::create_directories(savePath);
-
-	std::string filename = FORMAT_NAMESPACE::format("saveslot{}.ss", slot);
-
-	
-	savePath /= filename;
-
-	// std::string path = fmt::format("{}/{}{}.ss", "SaveStates", g_ROM.settings.GameName.c_str(), slot);
-	// full_path = path;
-		std::cout << "Slot Exists Path" << savePath << std::endl;
-	// snprintf(full_path, sizeof(full_path), "%s%s.ss%d", DAEDALUS_CTR_PATH("SaveStates/"), g_ROM.settings.GameName.c_str(), slot);
-
-	// snprintf(full_path, sizeof(full_path),  "%s%s.ss%d", "SaveStates/", g_ROM.settings.GameName.c_str(), slot);
-
-	return std::filesystem::exists(savePath);
+	return std::filesystem::exists(GetSaveStatePath(slot));
 }
+
+
+static void RefreshSaveSlots()
+{
+	for (int i = 0; i < 5; ++i)
+	{
+		stateExists[i] = SaveStateExists(i);
+	}
+}
+
+
+
 
 static void DrawSaveStatePage()
 {
@@ -108,9 +96,10 @@ static void DrawSaveStatePage()
 	{
 		snprintf(buttonString, sizeof(buttonString),  "Save slot: %i", i);
 
-		if(ImGui::ColoredButton(buttonString, SaveStateExists(i) ? 0.16f : 0.40f, ImVec2(buttonWidth, 30)))
+		if(ImGui::ColoredButton(buttonString, stateExists[i] ? 0.16f : 0.40f, ImVec2(buttonWidth, 30)))
 		{
 			ExecSaveState(i);
+			stateExists[i] = true;
 		}
 	}
 
@@ -134,22 +123,22 @@ static void DrawLoadStatePage()
 
 	float buttonWidth = ImGui::GetContentRegionAvail().x;
 	
-	for(int i = 0; i < 5; i++)
-	{
-		snprintf(buttonString, sizeof(buttonString),  "Load slot: %i", i);
+    for(int i = 0; i < 5; i++)
+    {
+        snprintf(buttonString, sizeof(buttonString), "Load slot: %i", i);
 
-		if( SaveStateExists(i) )
-		{
-			if(ImGui::ColoredButton(buttonString, SaveStateExists(i) ? 0.40f : 0.0f, ImVec2(buttonWidth, 30)))
-			{
-				LoadSaveState(i);
-			}
-		}
-		else
-		{
-			ImGui::Button(buttonString, ImVec2(buttonWidth, 30));
-		}
-	}
+        if(stateExists[i])
+        {
+            if(ImGui::ColoredButton(buttonString, 0.40f, ImVec2(buttonWidth, 30)))
+            {
+                LoadSaveState(i);
+            }
+        }
+        else
+        {
+            ImGui::Button(buttonString, ImVec2(buttonWidth, 30));
+        }
+    }
 
 	if(ImGui::ColoredButton("Cancel", 0, ImVec2(buttonWidth, 30))) currentPage = 0;
 
@@ -362,8 +351,17 @@ static void DrawMainPage()
 
 	ImGui::Begin("Menu", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
-	if( ImGui::Button("Save State", ImVec2(ImGui::GetContentRegionAvail().x, 60)) ) currentPage = 1;
-	if( ImGui::Button("Load State", ImVec2(ImGui::GetContentRegionAvail().x, 60)) ) currentPage = 2;
+if(ImGui::Button("Save State", ImVec2(ImGui::GetContentRegionAvail().x, 60)))
+{
+    RefreshSaveSlots();
+    currentPage = 1;
+}
+
+if(ImGui::Button("Load State", ImVec2(ImGui::GetContentRegionAvail().x, 60)))
+{
+    RefreshSaveSlots();
+    currentPage = 2;
+}
 
 	int buttonWidth = (ImGui::GetContentRegionAvail().x - 6) / 2;
 	if( ImGui::ColoredButton("Close ROM", 0.02f, ImVec2(buttonWidth, 60)) )  ImGui::OpenPopup("Are you sure?");
