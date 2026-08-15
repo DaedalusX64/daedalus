@@ -64,7 +64,7 @@ static void asyncProcess(void *arg)
 //*****************************************************************************
 //
 //*****************************************************************************
-EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
+EAudioPluginMode gAudioPluginEnabled( APM_ENABLED_ASYNC );
 //bool gAdaptFrequency( false );
 
 //*****************************************************************************

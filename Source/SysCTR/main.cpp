@@ -42,7 +42,6 @@ bool isN3DS = false;
 bool shouldQuit = false;
     std::streambuf* coutBuf = nullptr;
     std::streambuf* cerrBuf = nullptr;
-EAudioPluginMode enable_audio = APM_ENABLED_ASYNC;
 
 
 void redirectOutputToLogFile(std::ofstream& logFile, std::streambuf*& coutBuf, std::streambuf*& cerrBuf) {

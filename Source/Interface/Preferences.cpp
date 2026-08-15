@@ -66,6 +66,9 @@ void OutputLanguage(std::ofstream& fh, const std::string& name, int index) {
 #ifdef DAEDALUS_PSP
 static const EAudioPluginMode      kDefaultAudioPluginMode      = APM_DISABLED;
 static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_DISABLED;
+#elif defined(DAEDALUS_CTR) || defined(DAEDALUS_VITA)
+static const EAudioPluginMode      kDefaultAudioPluginMode = APM_ENABLED_ASYNC;
+static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_EVERY_FRAME;
 #else
 static const EAudioPluginMode      kDefaultAudioPluginMode = APM_ENABLED_SYNC;
 static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_EVERY_FRAME;
