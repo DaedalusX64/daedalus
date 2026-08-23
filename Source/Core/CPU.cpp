@@ -470,9 +470,10 @@ bool CPU_RequestLoadState( const std::filesystem::path &filename )
 static void HandleSaveStateOperationOnVerticalBlank()
 {
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
+	std::scoped_lock lock(gSaveStateMutex);
+
 	if( gSaveStateOperation == SSO_NONE )
 		return;
-	std::scoped_lock lock(gSaveStateMutex);
 
 	//
 	// Handle the save state
@@ -512,10 +513,9 @@ static void HandleSaveStateOperationOnVerticalBlank()
 // Returns true if we handled a load request and should keep running.
 static bool HandleSaveStateOperationOnCPUStopRunning()
 {
+	std::scoped_lock lock(gSaveStateMutex);
 	if (gSaveStateOperation != SSO_LOAD)
 		return false;
-
-	std::scoped_lock lock(gSaveStateMutex);
 
 	gSaveStateOperation = SSO_NONE;
 

@@ -128,7 +128,6 @@ void HandleEndOfFrame()
 	}
 }
 
-extern u32 __ctru_heap_size;
 
 int main(int argc, char* argv[])
 {
