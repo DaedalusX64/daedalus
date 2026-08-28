@@ -1288,7 +1288,7 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 			w.y = *(s16*)((pVtxBase + 2) ^ 2);
 			w.z = *(s16*)((pVtxBase + 4) ^ 2);
 
-			w = glm::normalize(glm::transpose(glm::inverse(glm::mat3(mat))) * w);
+			w = glm::mat3(mat) * w;
 
 			glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
 			transformed.x = BaseVec.x + w.x;
@@ -1948,7 +1948,7 @@ void BaseRenderer::SetDKRMat(const u32 address, bool mul, u32 idx)
 	if( mul )
 	{
 		MatrixFromN64FixedPoint( mTempMat, address );
-		mModelViewStack[idx] = mTempMat * mModelViewStack[0];
+		mModelViewStack[idx] =  mModelViewStack[0] * mTempMat;
 	}
 	else
 	{
