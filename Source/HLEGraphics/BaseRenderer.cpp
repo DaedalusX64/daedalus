@@ -1909,7 +1909,7 @@ void BaseRenderer::SetScissor(u32 x0, u32 y0, u32 x1, u32 y1)
 	s32 y = static_cast<s32>(mScreenHeight) - (t + h);
 
 #if defined(DAEDALUS_PSP)
-	sceGuScissor(l, y, w, h);
+	sceGuScissor(l, t, w, h);
 #elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES)
 	glScissor(l, y, w, h);
 #else
