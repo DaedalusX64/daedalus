@@ -65,6 +65,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 std::unique_ptr<CGraphicsPlugin> gGraphicsPlugin;
 std::unique_ptr<CAudioPlugin> gAudioPlugin;
 
+
 static bool InitAudioPlugin()
 {
 	std::unique_ptr<CAudioPlugin> audio_plugin = CreateAudioPlugin();
@@ -78,12 +79,10 @@ static bool InitAudioPlugin()
 
 static void DisposeAudioPlugin()
 {
-	if ( gAudioPlugin != NULL )
-	{
+	if ( gAudioPlugin)
 		gAudioPlugin->StopEmulation();
-		gAudioPlugin.release();
-		gAudioPlugin = NULL;
-	}
+
+	gAudioPlugin.reset();
 }
 
 static bool InitGraphicsPlugin()
@@ -101,12 +100,10 @@ static bool InitGraphicsPlugin()
 
 static void DisposeGraphicsPlugin()
 {
-	if ( gGraphicsPlugin != NULL )
-	{
+	if (gGraphicsPlugin)
 		gGraphicsPlugin->RomClosed();
-		gGraphicsPlugin.release();
-		gGraphicsPlugin = NULL;
-	}
+
+	gGraphicsPlugin.reset();
 }
 
 
