@@ -27,6 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 class c32;
 extern bool gFullScreenMode;
+#ifdef DAEDALUS_PSP
+void GraphicsContextPSP_ReserveDisplayListMemory(u32 data_size);
+#endif
 // This class basically provides an extra level of security for our
 // multithreaded code. Threads can Grab the CGraphicsContext to prevent
 // other threads from changing/releasing any of the pointers while it is

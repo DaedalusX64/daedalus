@@ -79,6 +79,7 @@ struct TempVerts
 	{
 		u32 bytes = count * sizeof(DaedalusVtx);
 #ifdef DAEDALUS_PSP
+		GraphicsContextPSP_ReserveDisplayListMemory(bytes);
 		Verts = static_cast<DaedalusVtx*>(sceGuGetMemory(bytes));
 #endif
 #if defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES)

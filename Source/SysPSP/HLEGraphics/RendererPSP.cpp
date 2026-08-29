@@ -36,6 +36,13 @@ RendererPSP  * gRendererPSP = nullptr;
 
 extern void InitBlenderMode( u32 blender );
 
+struct FogVertex
+{
+	c32 Colour;
+	glm::vec3 Position;
+};
+DAEDALUS_STATIC_ASSERT( sizeof(FogVertex) == 16 );
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
 // General blender used for Blend Explorer when debuging Dlists //Corn
@@ -214,9 +221,6 @@ void RendererPSP::RestoreRenderStates()
 {
 	// Initialise the device to our default state
 
-	// No fog
-	sceGuDisable(GU_FOG);
-
 	// We do our own culling
 	sceGuDisable(GU_CULL_FACE);
 
@@ -253,7 +257,6 @@ void RendererPSP::RestoreRenderStates()
 	sceGuTexEnvColor( c32::White.GetColour() );
 	sceGuTexOffset(0.0f,0.0f);
 
-	//sceGuFog(near,far,mFogColour);
 	// Texturing stuff
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGB);
 	//sceGuTexFilter(GU_LINEAR,GU_LINEAR);
@@ -353,32 +356,35 @@ void RendererPSP::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 	RenderUsingCurrentBlendMode( p_vertices, num_vertices, DRAW_MODE, GU_TRANSFORM_3D, disable_zbuffer );
 }
 
-inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags )
+inline void RendererPSP::RenderFog( const DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool depth_written )
 {
-	//This will render a second pass on triangles that are fog enabled to blend in the fog color as a function of depth(alpha) //Corn
-	//
-	//if( gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3 )
+	const u32 fog_buffer_size = num_vertices * sizeof(FogVertex);
+	GraphicsContextPSP_ReserveDisplayListMemory(fog_buffer_size);
+	FogVertex * fog_vertices = static_cast<FogVertex *>(sceGuGetMemory(fog_buffer_size));
+
+	// N64 fog is an RDP blend after colour and texture combining. Build the
+	// compact fog-colour stream used by the OoT PSP renderer.
+	const u32 fog_rgb = mFogColour.GetColour() & c32::MASK_RGB;
+	for( u32 i = 0; i < num_vertices; ++i )
 	{
-		//sceGuShadeModel(GU_SMOOTH);
-		sceGuDepthFunc(GU_EQUAL);	//Make sure to only blend on pixels that has been rendered on first pass //Corn
-		sceGuDepthMask(GL_TRUE);	//GL_TRUE to disable z-writes, no need to write to zbuffer for second pass //Corn
-		sceGuEnable(GU_BLEND);
-		sceGuDisable(GU_TEXTURE_2D);	//Blend triangle without a texture
-		sceGuDisable(GU_ALPHA_TEST);
-		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-   		// Enable PSP hardware fog
-    	sceGuEnable(GU_FOG);
-
-    	// Configure fog range and color
-		u32 fogColor = (mFogColour.GetColour()); // Fog color
-   		sceGuFog(mfog_near, mfog_far, fogColor);
-
-		sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
-
-		sceGuDisable(GU_FOG);
-
-		sceGuDepthFunc(GU_GEQUAL);	//Restore default depth function
+		const u32 fog_alpha = p_vertices[i].Colour.GetColour() & c32::MASK_A;
+		fog_vertices[i].Colour = c32( fog_alpha | fog_rgb );
+		fog_vertices[i].Position = p_vertices[i].Position;
 	}
+
+	sceGuDepthMask(GL_TRUE);
+	if( depth_written )
+	{
+		sceGuDepthFunc(GU_EQUAL);
+	}
+	sceGuEnable(GU_BLEND);
+	sceGuDisable(GU_TEXTURE_2D);
+	sceGuDisable(GU_ALPHA_TEST);
+	sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+	sceGuDrawArray( triangle_mode, GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode, num_vertices, nullptr, fog_vertices );
+
+	sceGuDepthFunc(GU_GEQUAL);
+	sceGuDepthMask( depth_written ? GL_FALSE : GL_TRUE );
 }
 
 void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
@@ -481,6 +487,8 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 
 	u32 render_flags = GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode;
+	const bool use_fog = mTnL.Flags.Fog && gRDPOtherMode.c1_m1a == G_BL_CLR_FOG;
+	const bool depth_written = !disable_zbuffer && gRDPOtherMode.z_upd;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// Used for Blend Explorer, or Nasty texture
@@ -531,13 +539,12 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			sceGuDisable( GU_TEXTURE_2D );
 		}
 
-		if ( mTnL.Flags.Fog )
+		if ( use_fog )
 		{
-			DaedalusVtx * p_FogVtx = static_cast<DaedalusVtx *>(sceGuGetMemory(num_vertices * sizeof(DaedalusVtx)));
-			memcpy( p_FogVtx, p_vertices, num_vertices * sizeof( DaedalusVtx ) );
+			memcpy( mVtx_Save, p_vertices, num_vertices * sizeof(DaedalusVtx) );
 			details.ColourAdjuster.Process( p_vertices, num_vertices );
 			sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
-			RenderFog( p_FogVtx, num_vertices, triangle_mode, render_flags );
+			RenderFog( mVtx_Save, num_vertices, triangle_mode, render_mode, depth_written );
 		}
 		else
 		{
@@ -547,7 +554,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 	else if( blend_entry.States != nullptr )
 	{
-		RenderUsingRenderSettings( blend_entry.States, p_vertices, num_vertices, triangle_mode, render_flags );
+		RenderUsingRenderSettings( blend_entry.States, p_vertices, num_vertices, triangle_mode, render_flags, render_mode, depth_written );
 	}
 	else
 	{
@@ -560,9 +567,10 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 }
 
-void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags)
+void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u32 render_mode, bool depth_written )
 {
 	DAEDALUS_PROFILE( "RendererPSP::RenderUsingRenderSettings" );
+	const bool use_fog = mTnL.Flags.Fog && gRDPOtherMode.c1_m1a == G_BL_CLR_FOG;
 
 	const CAlphaRenderSettings *	alpha_settings( states->GetAlphaSettings() );
 
@@ -574,13 +582,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 	state.EnvironmentColour = mEnvColour;
 
 	//Avoid copying vertices twice if we already save a copy to render fog //Corn
-	DaedalusVtx * p_FogVtx( mVtx_Save );
-	if( mTnL.Flags.Fog )
-	{
-		p_FogVtx = static_cast<DaedalusVtx *>(sceGuGetMemory(num_vertices * sizeof(DaedalusVtx)));
-		memcpy( p_FogVtx, p_vertices, num_vertices * sizeof( DaedalusVtx ) );
-	}
-	else if( states->GetNumStates() > 1 )
+	if( use_fog || states->GetNumStates() > 1 )
 	{
 		memcpy( mVtx_Save, p_vertices, num_vertices * sizeof( DaedalusVtx ) );
 	}
@@ -602,7 +604,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 		// TODO: this nobbles the existing diffuse colour on each pass. Need to use a second buffer...
 		if( i > 0 )
 		{
-			memcpy( p_vertices, p_FogVtx, num_vertices * sizeof( DaedalusVtx ) );
+			memcpy( p_vertices, mVtx_Save, num_vertices * sizeof( DaedalusVtx ) );
 		}
 
 		if(out.VertexExpressionRGB != nullptr)
@@ -680,10 +682,11 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
 
-		if ( mTnL.Flags.Fog )
-		{
-			RenderFog( p_FogVtx, num_vertices, triangle_mode, render_flags );
-		}
+	}
+
+	if( use_fog )
+	{
+		RenderFog( mVtx_Save, num_vertices, triangle_mode, render_mode, depth_written );
 	}
 }
 

@@ -266,7 +266,9 @@ public:
 	// Fog stuff
 	inline void			SetFogMultOffs(f32 Mult, f32 Offs)		{ mTnL.FogMult=Mult/255.0f; mTnL.FogOffs=Offs/255.0f;}
 #ifdef DAEDALUS_PSP
-	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ mfog_near = fog_near; mfog_far = fog_far;}
+	// PSP fog is emulated as an RDP-style blend pass. The GU's fixed-function
+	// fog uses a different depth model and must not be configured here.
+	inline void			SetFogMinMax(f32, f32)					{}
 	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
 #elif defined(DAEDALUS_VITA) || defined (DAEDALUS_CTR) || defined (DAEDALUS_GL) || defined (DAEDALUS_GLES)
 	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ glFogf(GL_FOG_START, fog_near); glFogf(GL_FOG_END, fog_far); }
@@ -378,7 +380,7 @@ public:
 
 protected:
 #ifdef DAEDALUS_PSP
-	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
+	inline void			UpdateFogEnable()						{}
 	inline void			UpdateShadeModel()						{ sceGuShadeModel( mTnL.Flags.Shade ? GU_SMOOTH : GU_FLAT ); }
 #else
 	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? glEnable(GL_FOG) : glDisable(GL_FOG); }
@@ -442,9 +444,6 @@ protected:
 
 	f32					mPrimDepth;
 	f32					mPrimLODFraction;
-	f32 				mfog_near;
-	f32 				mfog_far;
-
 	c32					mFogColour;				// Blender
 	c32					mPrimitiveColour;		// Combiner
 	c32					mEnvColour;				// Combiner

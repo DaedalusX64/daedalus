@@ -60,8 +60,34 @@ static u32* list[2];
 //static u32 __attribute__((aligned(16))) list[2][262144];	//Some games uses huge amount here like Star Soldier - Vanishing Earth
 static u32 __attribute__((aligned(16))) callList[64];
 static u32 __attribute__((aligned(16))) ilist[256];
-
 u32 listNum = 0;
+
+// Keep transient vertex allocations from running past the fixed GU list.
+// Fog adds a second vertex stream, making dense scenes much more likely to
+// reach the limit on real hardware.
+void GraphicsContextPSP_ReserveDisplayListMemory(u32 data_size)
+{
+	const u32 allocation_size = (data_size + 3) & ~3U;
+	const u32 command_reserve = 4096;
+	const u32 required_size = allocation_size + 8 + command_reserve;
+
+	if( static_cast<u32>(sceGuCheckList()) + required_size <= DLISTSIZE )
+	{
+		return;
+	}
+
+	// A GU_CALL list must be invoked explicitly before it can be recycled.
+	sceGuFinish();
+	if( gDoubleDisplayEnabled )
+	{
+		sceGuStart(GU_DIRECT, callList);
+		sceGuCallList(list[listNum]);
+		sceGuFinish();
+	}
+	sceGuSync(GU_SYNC_FINISH, GU_SYNC_WHAT_DONE);
+	sceGuStart(gDoubleDisplayEnabled ? GU_CALL : GU_DIRECT, list[listNum]);
+}
+
 extern bool g32bitColorMode;
 extern bool gTakeScreenshotSS;
 //////////////////////////////////////////////
