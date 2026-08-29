@@ -259,11 +259,53 @@ bool UI::DrawOptionsPage(RomID mRomID)
 
 		ImGui::Spacing();
 
-		const char* viewporOptions[] = { "4:3", "Widescreen (Stretched)", "Widescreen (Hack)" };
+		const char* viewportOptions[] =
+		{
+			"4:3",
+			"Widescreen (Stretched)",
+			"Widescreen (Hack)"
+		};
+
+		int currentSelection = 0;
+
+		switch (gGlobalPreferences.ViewportType)
+		{
+			case VT_FULLSCREEN:
+				currentSelection = 1;
+				break;
+
+			case VT_FULLSCREEN_HD:
+				currentSelection = 2;
+				break;
+
+			default:
+				currentSelection = 0;
+				break;
+		}
+
 		ImGui::Text("Aspect Ratio");
-		currentSelection = (int)gGlobalPreferences.ViewportType;
-		ImGui::Combo("##viewport_combo", &currentSelection, viewporOptions, 3);
-		gGlobalPreferences.ViewportType = EViewportType(currentSelection);
+
+		if (ImGui::Combo(
+				"##viewport_combo",
+				&currentSelection,
+				viewportOptions,
+				3))
+		{
+			switch (currentSelection)
+			{
+				case 0:
+					gGlobalPreferences.ViewportType = VT_UNSCALED_4_3;
+					break;
+
+				case 1:
+					gGlobalPreferences.ViewportType = VT_FULLSCREEN;
+					break;
+
+				case 2:
+					gGlobalPreferences.ViewportType = VT_FULLSCREEN_HD;
+					break;
+			}
+		}
 
 		ImGui::EndTabItem();
 	}
