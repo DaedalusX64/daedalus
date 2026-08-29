@@ -634,34 +634,47 @@ void RendererCTR::RenderTriangles(DaedalusVtx *p_vertices, u32 num_vertices, boo
 	
 	RenderUsingCurrentBlendMode(gProjection.m, p_vertices, num_vertices, GL_TRIANGLES, disable_zbuffer);
 }
-
-void RendererCTR::TexRect(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)
+void RendererCTR::TexRect(u32 tile_idx, const glm::vec2 &xy0, const glm::vec2 &xy1, TexCoord st0, TexCoord st1)
 {
 	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
-	UpdateTileSnapshots( tile_idx );
+	UpdateTileSnapshots(tile_idx);
 
 	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
 	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
 	PrepareTexRectUVs(&st0, &st1);
-	
-	glm::vec2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
-	glm::vec2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
+
+	glm::vec2 uv0((float)st0.s / 32.f, (float)st0.t / 32.f);
+	glm::vec2 uv1((float)st1.s / 32.f, (float)st1.t / 32.f);
 
 	glm::vec2 screen0;
 	glm::vec2 screen1;
-	
-	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-	{
-		screen0.x = roundf( roundf( HD_SCALE * xy0.x ) * mN64ToScreenScale.x + 40 );
-		screen0.y = roundf( roundf( xy0.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
 
-		screen1.x = roundf( roundf( HD_SCALE * xy1.x ) * mN64ToScreenScale.x + 40 ); 
-		screen1.y = roundf( roundf( xy1.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
+	GLint old_viewport[4];
+	glGetIntegerv(GL_VIEWPORT, old_viewport);
+
+	if (gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD)
+	{
+		screen0.x = roundf(roundf(HD_SCALE * xy0.x) * mN64ToScreenScale.x + 40);
+		screen0.y = roundf(roundf(xy0.y) * mN64ToScreenScale.y + mN64ToScreenTranslate.y);
+
+		screen1.x = roundf(roundf(HD_SCALE * xy1.x) * mN64ToScreenScale.x + 40);
+		screen1.y = roundf(roundf(xy1.y) * mN64ToScreenScale.y + mN64ToScreenTranslate.y);
+
+		glViewport(0, 0, 400, 240);
+	}
+	else if (gGlobalPreferences.ViewportType == VT_FULLSCREEN)
+	{
+		ConvertN64ToScreen(xy0, screen0);
+		ConvertN64ToScreen(xy1, screen1);
+
+		glViewport(0, 0, 400, 240);
 	}
 	else
 	{
-		ConvertN64ToScreen( xy0, screen0 );
-		ConvertN64ToScreen( xy1, screen1 );
+		ConvertN64ToScreen(xy0, screen0);
+		ConvertN64ToScreen(xy1, screen1);
+
+		glViewport(40, 0, 320, 240);
 	}
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
@@ -681,7 +694,7 @@ void RendererCTR::TexRect(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 &
 	p_vertices[2].Texture.y = uv1.y * scale_y;
 	p_vertices[3].Texture.x = uv1.x * scale_x;
 	p_vertices[3].Texture.y = uv1.y * scale_y;
-	
+
 	p_vertices[0].Position.x = screen0.x;
 	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = depth;
@@ -705,6 +718,8 @@ void RendererCTR::TexRect(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 &
 	glEnable(GL_TEXTURE_2D);
 
 	RenderUsingCurrentBlendMode(glm::value_ptr(mScreenToDevice), p_vertices, 4, GL_TRIANGLE_STRIP, gRDPOtherMode.depth_source ? false : true);
+
+	glViewport(old_viewport[0], old_viewport[1], old_viewport[2], old_viewport[3]);
 }
 
 void RendererCTR::TexRectFlip(u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1)

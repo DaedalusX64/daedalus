@@ -132,7 +132,7 @@ void IGraphicsContext::ClearToBlack()
 	glDisable(GL_SCISSOR_TEST);
 
 	glDepthMask(GL_TRUE);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth( 1.0f );
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -172,6 +172,7 @@ void IGraphicsContext::BeginFrame()
 	if(newFrame)
 	{
 		UI::DrawInGameMenu();
+		pglSelectScreen(GFX_TOP, GFX_LEFT);
 		ClearToBlack();
 		newFrame = false;
 	}
@@ -202,6 +203,7 @@ void IGraphicsContext::ViewportType(u32 *d_width, u32 *d_height) const
 	switch ( gGlobalPreferences.ViewportType )
 	{
 		case VT_UNSCALED_4_3:
+		case VT_SCALED_4_3:
 			*d_width = 320;
 			*d_height = 240;
 			break;

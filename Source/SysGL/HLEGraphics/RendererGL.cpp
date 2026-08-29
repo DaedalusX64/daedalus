@@ -1023,50 +1023,57 @@ void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bo
 	RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }
 
-void RendererGL::TexRect( u32 tile_idx, const glm::vec2 & xy0, const glm::vec2 & xy1, TexCoord st0, TexCoord st1 )
+void RendererGL::TexRect(u32 tile_idx, const glm::vec2 &xy0, const glm::vec2 &xy1, TexCoord st0, TexCoord st1)
 {
-	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
+	UpdateTileSnapshots(tile_idx);
 
-	UpdateTileSnapshots( tile_idx );
-
-	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
-	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
 	PrepareTexRectUVs(&st0, &st1);
+
+	GLint old_viewport[4];
+	glGetIntegerv(GL_VIEWPORT, old_viewport);
+
+	glViewport(0, 0, static_cast<GLsizei>(mScreenWidth), static_cast<GLsizei>(mScreenHeight));
 
 	PrepareRenderState(glm::value_ptr(mScreenToDevice), gRDPOtherMode.depth_source ? false : true);
 
 	glm::vec2 screen0;
 	glm::vec2 screen1;
-	ConvertN64ToScreen( xy0, screen0 );
-	ConvertN64ToScreen( xy1, screen1 );
 
-	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", st0.s / 32.f, st0.t / 32.f, st1.s / 32.f, st1.t / 32.f );
+	ConvertN64ToScreen(xy0, screen0);
+	ConvertN64ToScreen(xy1, screen1);
+
+	DL_PF("    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y);
+	DL_PF("    Texture: %.1f,%.1f -> %.1f,%.1f", st0.s / 32.f, st0.t / 32.f, st1.s / 32.f, st1.t / 32.f);
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
-	float positions[] = {
+	float positions[] =
+	{
 		screen0.x, screen0.y, depth,
 		screen1.x, screen0.y, depth,
 		screen0.x, screen1.y, depth,
-		screen1.x, screen1.y, depth,
+		screen1.x, screen1.y, depth
 	};
 
-	TexCoord uvs[] = {
-		TexCoord( st0.s, st0.t ),
-		TexCoord( st1.s, st0.t ),
-		TexCoord( st0.s, st1.t ),
-		TexCoord( st1.s, st1.t ),
+	TexCoord uvs[] =
+	{
+		TexCoord(st0.s, st0.t),
+		TexCoord(st1.s, st0.t),
+		TexCoord(st0.s, st1.t),
+		TexCoord(st1.s, st1.t)
 	};
 
-	u32 colours[] = {
+	u32 colours[] =
+	{
 		0xffffffff,
 		0xffffffff,
 		0xffffffff,
-		0xffffffff,
+		0xffffffff
 	};
 
 	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
+
+	glViewport(old_viewport[0], old_viewport[1], old_viewport[2], old_viewport[3]);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;

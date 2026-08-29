@@ -322,6 +322,22 @@ void BaseRenderer::InitViewport()
 
 	s32 display_x = (s32)(frame_width  - display_width)  / 2;
 	s32 display_y = (s32)(frame_height - display_height) / 2;
+
+#elif defined(DAEDALUS_CTR)
+
+    u32 frame_width;
+    u32 frame_height;
+
+    CGraphicsContext::Get()->GetScreenSize(
+        &frame_width,
+        &frame_height
+    );
+
+    s32 display_x =
+        ((s32)frame_width - (s32)display_width) / 2;
+
+    s32 display_y =
+        ((s32)frame_height - (s32)display_height) / 2;
 #else
 	s32 display_x = 0, display_y = 0;
 #endif
@@ -395,6 +411,14 @@ void BaseRenderer::UpdateViewport()
 	s32		vp_w = s32( psp_max.x - psp_min.x );
 	s32		vp_h = s32( psp_max.y - psp_min.y );
 
+
+	#ifdef DAEDALUS_CTR
+	if (gGlobalPreferences.ViewportType == VT_UNSCALED_4_3 ||
+		gGlobalPreferences.ViewportType == VT_SCALED_4_3)
+	{
+		vp_x += 40;
+	}
+#endif
 	//DBGConsole_Msg(0, "[WViewport Changed (%d) (%d)]",vp_w,vp_h );
 
 #if defined(DAEDALUS_PSP)
@@ -1247,36 +1271,34 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 // DKR/Jet Force Gemini rendering pipeline
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboard)
-{	
-	alignas(DATA_ALIGN) const glm::mat4 & mat_world_project = mModelViewStack[mDKRMatIdx];
+{
+	const glm::mat4 &mat_world_project = mModelViewStack[mDKRMatIdx];
 
-	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
-	DL_PF( "    CMtx[%d] Add base[%s]", mDKRMatIdx, billboard? "On":"Off");
+	DL_PF("    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
+	DL_PF("    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light) ? "On" : "Off", (mTnL.Flags.Texture) ? "On" : "Off", (mTnL.Flags.TexGen) ? (mTnL.Flags.TexGenLin ? "Linear" : "Spherical") : "Off", (mTnL.Flags.Fog) ? "On" : "Off");
+	DL_PF("    CMtx[%d] Add base[%s]", mDKRMatIdx, billboard ? "On" : "Off");
 
 	uintptr_t pVtxBase = reinterpret_cast<uintptr_t>(g_pu8RamBase + address);
-	
-	if( billboard )
-	{	
-		//Copy vertices adding base vector and the color data
+
+	if (billboard)
+	{
 		mWPmodified = false;
 
 #ifdef DAEDALUS_PSP_USE_VFPU
-		_TnLVFPUDKRB( n, &mModelViewStack[0], (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
+		_TnLVFPUDKRB(n, &mModelViewStack[0], (const FiddledVtx *)pVtxBase, &mVtxProjected[v0]);
 #else
-		glm::vec4 & BaseVec( mVtxProjected[0].TransformedPos );
+		const glm::vec4 &BaseVec = mVtxProjected[0].TransformedPos;
 
-		//Hack to worldproj matrix to scale and rotate billbords //Corn
 		glm::mat4 mat = mModelViewStack[0];
 
 		mat[0][0] *= mModelViewStack[2][0][0] * 0.5f;
 		mat[1][0] *= mModelViewStack[2][0][0] * 0.5f;
 		mat[2][0] *= mModelViewStack[2][0][0] * 0.5f;
-		
+
 		mat[0][1] *= mModelViewStack[2][0][0] * 0.375f;
 		mat[1][1] *= mModelViewStack[2][0][0] * 0.375f;
 		mat[2][1] *= mModelViewStack[2][0][0] * 0.375f;
-		
+
 		mat[0][2] *= mModelViewStack[2][2][2] * 0.5f;
 		mat[1][2] *= mModelViewStack[2][2][2] * 0.5f;
 		mat[2][2] *= mModelViewStack[2][2][2] * 0.5f;
@@ -1284,24 +1306,24 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 		for (u32 i = v0; i < v0 + n; i++)
 		{
 			glm::vec3 w;
-			w.x = *(s16*)((pVtxBase + 0) ^ 2);
-			w.y = *(s16*)((pVtxBase + 2) ^ 2);
-			w.z = *(s16*)((pVtxBase + 4) ^ 2);
+
+			w.x = *(s16 *)((pVtxBase + 0) ^ 2);
+			w.y = *(s16 *)((pVtxBase + 2) ^ 2);
+			w.z = *(s16 *)((pVtxBase + 4) ^ 2);
 
 			w = glm::mat3(mat) * w;
 
-			glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
+			glm::vec4 &transformed = mVtxProjected[i].TransformedPos;
+
 			transformed.x = BaseVec.x + w.x;
 			transformed.y = BaseVec.y + w.y;
 			transformed.z = BaseVec.z + w.z;
 			transformed.w = 1.0f;
 
-			// Set Clipflags, zero clippflags if billbording //Corn
 			mVtxProjected[i].ClipFlags = 0;
 
-			// Assign true vert colour
-			const u32 WL = *(u16*)((pVtxBase + 6) ^ 2);
-			const u32 WH = *(u16*)((pVtxBase + 8) ^ 2);
+			const u32 WL = *(u16 *)((pVtxBase + 6) ^ 2);
+			const u32 WH = *(u16 *)((pVtxBase + 8) ^ 2);
 
 			mVtxProjected[i].Colour.x = (1.0f / 255.0f) * (WL >> 8);
 			mVtxProjected[i].Colour.y = (1.0f / 255.0f) * (WL & 0xFF);
@@ -1313,34 +1335,32 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 #endif
 	}
 	else
-	{	
-		//Normal path for transform of triangles
-		if( mWPmodified )
-		{	
-			//Only reload matrix if it has been changed and no billbording //Corn
+	{
+		if (mWPmodified)
+		{
 			mWPmodified = false;
-			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mat_world_project) );
+			sceGuSetMatrix(GU_PROJECTION, reinterpret_cast<const ScePspFMatrix4 *>(&mat_world_project));
 		}
+
 #ifdef DAEDALUS_PSP_USE_VFPU
-		_TnLVFPUDKR( n, &mat_world_project, (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
+		_TnLVFPUDKR(n, &mat_world_project, (const FiddledVtx *)pVtxBase, &mVtxProjected[v0]);
 #else
 		for (u32 i = v0; i < v0 + n; i++)
 		{
-			glm::vec4 & transformed( mVtxProjected[i].TransformedPos );
-			transformed.x = *(s16*)((pVtxBase + 0) ^ 2);
-			transformed.y = *(s16*)((pVtxBase + 2) ^ 2);
-			transformed.z = *(s16*)((pVtxBase + 4) ^ 2);
+			glm::vec4 &transformed = mVtxProjected[i].TransformedPos;
+
+			transformed.x = *(s16 *)((pVtxBase + 0) ^ 2);
+			transformed.y = *(s16 *)((pVtxBase + 2) ^ 2);
+			transformed.z = *(s16 *)((pVtxBase + 4) ^ 2);
 			transformed.w = 1.0f;
 
-			glm::vec4 & projected( mVtxProjected[i].ProjectedPos );
-			projected = mat_world_project * transformed;	//Do projection
+			glm::vec4 &projected = mVtxProjected[i].ProjectedPos;
+			projected = mat_world_project * transformed;
 
-			// Set Clipflags
-			mVtxProjected[i].ClipFlags = set_clip_flags( projected );
+			mVtxProjected[i].ClipFlags = set_clip_flags(projected);
 
-			// Assign true vert colour
-			const u32 WL = *(u16*)((pVtxBase + 6) ^ 2);
-			const u32 WH = *(u16*)((pVtxBase + 8) ^ 2);
+			const u32 WL = *(u16 *)((pVtxBase + 6) ^ 2);
+			const u32 WH = *(u16 *)((pVtxBase + 8) ^ 2);
 
 			mVtxProjected[i].Colour.x = (1.0f / 255.0f) * (WL >> 8);
 			mVtxProjected[i].Colour.y = (1.0f / 255.0f) * (WL & 0xFF);
@@ -1855,42 +1875,45 @@ std::shared_ptr<CNativeTexture> BaseRenderer::LoadTextureDirectly( const Texture
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
+void BaseRenderer::SetScissor(u32 x0, u32 y0, u32 x1, u32 y1)
 {
-	//Clamp scissor to max N64 screen resolution //Corn
+	// Clamp scissor to max N64 screen resolution
 	x1 = std::min(x1, uViWidth);
 	y1 = std::min(y1, uViHeight);
 
-	glm::vec2 n64_tl( (f32)x0, (f32)y0 );
-	glm::vec2 n64_br( (f32)x1, (f32)y1 );
+	glm::vec2 n64_tl((f32)x0, (f32)y0);
+	glm::vec2 n64_br((f32)x1, (f32)y1);
 
 	glm::vec2 screen_tl, screen_br;
-	ConvertN64ToScreen( n64_tl, screen_tl );
-	ConvertN64ToScreen( n64_br, screen_br );
+	ConvertN64ToScreen(n64_tl, screen_tl);
+	ConvertN64ToScreen(n64_br, screen_br);
 
-	//Clamp TOP and LEFT values to 0 if < 0 , needed for zooming //Corn
-	s32 l = std::max<s32>(screen_tl.x, 0 );
-	s32 t = std::max<s32>(screen_tl.y, 0 );
+#ifdef DAEDALUS_CTR
+	if (gGlobalPreferences.ViewportType == VT_UNSCALED_4_3 ||
+		gGlobalPreferences.ViewportType == VT_SCALED_4_3)
+	{
+		screen_tl.x += 40.0f;
+		screen_br.x += 40.0f;
+	}
+#endif
+
+	// Clamp TOP and LEFT values to 0 if < 0, needed for zooming
+	s32 l = std::max<s32>(screen_tl.x, 0);
+	s32 t = std::max<s32>(screen_tl.y, 0);
 	s32 r = static_cast<s32>(screen_br.x);
 	s32 b = static_cast<s32>(screen_br.y);
 
-	s32 w = std::max<s32>( r - l, 0 );
-	s32 h = std::max<s32>( b - t, 0 );
+	s32 w = std::max<s32>(r - l, 0);
+	s32 h = std::max<s32>(b - t, 0);
 
 	s32 y = static_cast<s32>(mScreenHeight) - (t + h);
 
 #if defined(DAEDALUS_PSP)
 	sceGuScissor(l, y, w, h);
-#elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES) 
-	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
-
-	glScissor( l, y, w, h );
-
-	#ifdef DAEDALUS_DEBUG_CONSOLE
+#elif defined(DAEDALUS_GL) || defined(DAEDALUS_CTR) || defined(DAEDALUS_GLES)
+	glScissor(l, y, w, h);
 #else
-
-    DAEDALUS_ERROR("Need to implement scissor for this platform.");
-#endif
+	DAEDALUS_ERROR("Need to implement scissor for this platform.");
 #endif
 }
 
