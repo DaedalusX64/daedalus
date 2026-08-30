@@ -1352,6 +1352,63 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 		}
 #endif
 	}
+
+	#ifdef DAEDALUS_PSP
+    //
+    // DKR fog
+    //
+    // Normal PSP vertex paths calculate N64 fog during T&L, but the
+    // specialised DKR paths do not. DKR matrices already produce normal
+    // floating-point clip coordinates, so use z/w directly.
+    //
+    if (mTnL.Flags.Fog)
+    {
+        for (u32 i = v0; i < v0 + n; ++i)
+        {
+            glm::vec4 projected;
+
+            if (billboard)
+            {
+                //
+                // The DKR billboard path only generates TransformedPos.
+                // Recreate the clip-space position used by the PSP GE.
+                //
+                projected =
+                    mModelViewStack[0] *
+                    mVtxProjected[i].TransformedPos;
+
+                mVtxProjected[i].ProjectedPos = projected;
+            }
+            else
+            {
+                //
+                // Both the CPU and VFPU normal DKR paths already
+                // generated this.
+                //
+                projected = mVtxProjected[i].ProjectedPos;
+            }
+
+            if (projected.w > 0.0f)
+            {
+                const f32 ndc_z =
+                    projected.z / projected.w;
+
+                const f32 fog_alpha =
+                    ndc_z * mTnL.FogMult +
+                    mTnL.FogOffs;
+
+                mVtxProjected[i].Colour.w =
+                    std::max(
+                        0.0f,
+                        std::min(1.0f, fog_alpha));
+            }
+            else
+            {
+                mVtxProjected[i].Colour.w = 0.0f;
+            }
+        }
+    }
+#endif
 }
 
 //*****************************************************************************
