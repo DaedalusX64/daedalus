@@ -151,7 +151,7 @@ ECategory Categorise( std::string_view name )
 	return GetCategory(name[0]);
 }
 
-bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
+bool SortByGameName( const std::unique_ptr<SRomInfo>& a, const std::unique_ptr<SRomInfo>& b )
 {
 	// Sort by the category first, then on the actual string.
 	auto	cat_a =  Categorise( a->mSettings.GameName.c_str() );
@@ -186,7 +186,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 				void				RenderRomList();
 				void				RenderCategoryList();
 
-				void				AddRomDirectory(const std::filesystem::path& p_roms_dir, std::vector<SRomInfo*> & roms);
+				void				AddRomDirectory(const std::filesystem::path& p_roms_dir, std::vector<std::unique_ptr<SRomInfo>> & roms);
 
 				ECategory			GetCurrentCategory() const;
 
@@ -194,7 +194,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 
 	private:
 		std::function<void(const char*)> mOnRomSelected;
-		std::vector<SRomInfo*>		mRomsList;
+		std::vector<std::unique_ptr<SRomInfo>>		mRomsList;
 		std::map< ECategory, u32> 	mRomCategoryMap;
 		s32							mCurrentScrollOffset;
 		float						mSelectionAccumulator;
@@ -254,16 +254,11 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, std::funct
 
 IRomSelectorComponent::~IRomSelectorComponent()
 {
-	for(std::vector<SRomInfo*>::iterator it = mRomsList.begin(); it != mRomsList.end(); ++it)
-	{
-		auto	p_rominfo = *it;
 
-		delete p_rominfo;
-	}
 	mRomsList.clear();
 
 }
-void	IRomSelectorComponent::AddRomDirectory(const std::filesystem::path &p_roms_dir, std::vector<SRomInfo*> & roms)
+void	IRomSelectorComponent::AddRomDirectory(const std::filesystem::path &p_roms_dir, std::vector<std::unique_ptr<SRomInfo>> & roms)
 {
 	for (const auto& entry : std::filesystem::directory_iterator(p_roms_dir))
 	{
@@ -277,8 +272,7 @@ void	IRomSelectorComponent::AddRomDirectory(const std::filesystem::path &p_roms_
 			
 				if(std::find(valid_extensions.begin(), valid_extensions.end(), rom_filename.extension()) != valid_extensions.end())
 			{
-				auto p_rom_info = new SRomInfo(entry);
-				roms.emplace_back( p_rom_info);
+				roms.emplace_back(std::make_unique<SRomInfo>(entry));
 			}
 		}
 	}
@@ -287,6 +281,7 @@ void	IRomSelectorComponent::AddRomDirectory(const std::filesystem::path &p_roms_
 
 void	IRomSelectorComponent::UpdateROMList()
 {
+
 	mRomsList.clear();
 
 	mCurrentScrollOffset = 0;
@@ -360,7 +355,7 @@ void IRomSelectorComponent::RenderPreview()
 	
 	if( mCurrentSelection < mRomsList.size() )
 	{
-		auto	p_rominfo =  mRomsList[ mCurrentSelection ];
+		const SRomInfo* p_rominfo = mRomsList[mCurrentSelection].get();
 
 		std::string rom_size = FORMAT_NAMESPACE::format("{} MB", p_rominfo->mRomSize  / (1024 * 1024));
 	
