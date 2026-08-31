@@ -211,6 +211,23 @@ void Dynarec_SetCPUStuffToDo()
 	_DaedalusICacheInvalidate( p_lower, size );
 }
 
+void CCodeGeneratorPSP::FlushFloatCompare(bool invalidate)
+{
+	if (!mFloatCMPIsValid)
+		return;
+
+	GetVar(PspReg_V0, &gCPUState.FPUControl[31]._u32);
+	CFC1(PspReg_A0, (EPspFloatReg)31);
+	EXT(PspReg_A0, PspReg_A0, 0, 23);
+	INS(PspReg_V0, PspReg_A0, 23, 23);
+	SetVar(&gCPUState.FPUControl[31]._u32, PspReg_V0);
+
+	if (invalidate)
+	{
+		mFloatCMPIsValid = false;
+	}
+}
+
 extern "C"
 {
 void HandleException_extern()
@@ -908,21 +925,21 @@ void CCodeGeneratorPSP::FlushRegister( CN64RegisterCachePSP & cache, EN64Reg n64
 //	in a consistent set across calls to generic functions. Ideally we need
 //	to reimplement generic functions with specialised code to avoid the flush.
 
-void	CCodeGeneratorPSP::FlushAllRegisters( CN64RegisterCachePSP & cache, bool invalidate )
+void CCodeGeneratorPSP::FlushAllRegisters(CN64RegisterCachePSP & cache, bool invalidate)
 {
-	mFloatCMPIsValid = false;	//invalidate float compare register
-	mMultIsValid = false;	//Mult hi/lo are invalid
+	FlushFloatCompare(true);
+	mMultIsValid = false;
 
 	// Skip r0
-	for( u32 i = 1; i < NUM_N64_REGS; i++ )
+	for (u32 i = 1; i < NUM_N64_REGS; i++)
 	{
-		EN64Reg	n64_reg = EN64Reg( i );
+		EN64Reg n64_reg = EN64Reg(i);
 
-		FlushRegister( cache, n64_reg, 0, invalidate );
-		FlushRegister( cache, n64_reg, 1, invalidate );
+		FlushRegister(cache, n64_reg, 0, invalidate);
+		FlushRegister(cache, n64_reg, 1, invalidate);
 	}
 
-	FlushAllFloatingPointRegisters( cache, invalidate );
+	FlushAllFloatingPointRegisters(cache, invalidate);
 }
 
 
@@ -4096,40 +4113,45 @@ inline void	CCodeGeneratorPSP::GenerateMTC1( u32 fs, EN64Reg rt )
 
 //
 
-inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
+inline void CCodeGeneratorPSP::GenerateCFC1(EN64Reg rt, u32 fs)
 {
-	if( (fs == 0) | (fs == 31) )
+	if ((fs == 0) | (fs == 31))
 	{
-		EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
+		if (fs == 31)
+		{
+			FlushFloatCompare(false);
+		}
 
-		GetVar( reg_dst, &gCPUState.FPUControl[ fs ]._u32 );
+		EPspReg reg_dst(GetRegisterNoLoadLo(rt, PspReg_V0));
+
+		GetVar(reg_dst, &gCPUState.FPUControl[fs]._u32);
+
 #ifdef ENABLE_64BIT
-		UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
+		UpdateRegister(rt, reg_dst, URO_HI_SIGN_EXTEND);
 #else
-		StoreRegisterLo( rt, reg_dst );
+		StoreRegisterLo(rt, reg_dst);
 #endif
 	}
 }
-
 
 //
 
 // This breaks BombreMan Hero, not sure how to fix it though, maybe because we don't set the rounding mode?
 // http://forums.daedalusx64.com/viewtopic.php?f=77&t=2258&p=36374&hilit=GenerateCTC1#p36374
 //
-void	CCodeGeneratorPSP::GenerateCTC1( u32 fs, EN64Reg rt )
+void CCodeGeneratorPSP::GenerateCTC1(u32 fs, EN64Reg rt)
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( fs == 31, "CTC1 register is invalid");
+	DAEDALUS_ASSERT(fs == 31, "CTC1 register is invalid");
 	#endif
-	EPspReg			psp_rt_lo( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
-	SetVar( &gCPUState.FPUControl[ fs ]._u32, psp_rt_lo );
 
-	// Only the lo part is ever set - Salvy
-	//EPspReg			psp_rt_hi( GetRegisterAndLoadHi( rt, PspReg_V0 ) );
-	//SetVar( &gCPUState.FPUControl[ fs ]._u32_1, psp_rt_hi );
+	EPspReg psp_rt_lo(GetRegisterAndLoadLo(rt, PspReg_V0));
 
-	//XXXX TODO:
+	SetVar(&gCPUState.FPUControl[fs]._u32, psp_rt_lo);
+
+	mFloatCMPIsValid = false;
+
+	// XXXX TODO:
 	// Change the rounding mode
 }
 
@@ -4632,41 +4654,18 @@ inline void	CCodeGeneratorPSP::GenerateCVT_S_D_Sim( u32 fd, u32 fs )
 
 //
 
-inline void	CCodeGeneratorPSP::GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op, u32 ft )
+inline void CCodeGeneratorPSP::GenerateCMP_D_Sim(u32 fs, ECop1OpFunction cmp_op, u32 ft)
 {
+	EN64FloatReg n64_fs = EN64FloatReg(fs);
+	EN64FloatReg n64_ft = EN64FloatReg(ft);
+
+	EPspFloatReg psp_fs(GetSimFloatRegisterAndLoad(n64_fs));
+	EPspFloatReg psp_ft(GetSimFloatRegisterAndLoad(n64_ft));
+
+	CMP_S(psp_fs, cmp_op, psp_ft);
+
 	mFloatCMPIsValid = true;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_ft = EN64FloatReg( ft );
-
-	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
-	EPspFloatReg	psp_ft( GetSimFloatRegisterAndLoad( n64_ft ) );
-
-	//Use float now instead of double :)
-	CMP_S( psp_fs, cmp_op, psp_ft );
-
-#if 1 //Improved version no branch //Corn
-	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
-	CFC1( PspReg_A0, (EPspFloatReg)31 );
-	EXT( PspReg_A0, PspReg_A0, 0, 23 );	//Extract condition bit (true/false)
-	INS( PspReg_V0, PspReg_A0, 23, 23 );	//Insert condition bit (true/false)
-	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_V0 );
-
-#else //Improved version with only one branch //Corn
-	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
-	LoadConstant( PspReg_A0, FPCSR_C );
-	CJumpLocation	test_condition( BC1T( CCodeLabel( nullptr ), false ) );
-	OR( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag |= c
-
-	NOR( PspReg_A0, PspReg_A0, PspReg_V0 );		// c = !c
-	AND( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag &= !c
-
-	CCodeLabel		condition_true( GetAssemblyBuffer()->GetLabel() );
-	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_V0 );
-	PatchJumpLong( test_condition, condition_true );
-#endif
 }
-
 
 //
 
@@ -4941,38 +4940,17 @@ inline void	CCodeGeneratorPSP::GenerateCVT_D_S( u32 fd, u32 fs )
 
 //
 
-inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u32 ft )
+inline void CCodeGeneratorPSP::GenerateCMP_S(u32 fs, ECop1OpFunction cmp_op, u32 ft)
 {
+	EN64FloatReg n64_fs = EN64FloatReg(fs);
+	EN64FloatReg n64_ft = EN64FloatReg(ft);
+
+	EPspFloatReg psp_fs(GetFloatRegisterAndLoad(n64_fs));
+	EPspFloatReg psp_ft(GetFloatRegisterAndLoad(n64_ft));
+
+	CMP_S(psp_fs, cmp_op, psp_ft);
+
 	mFloatCMPIsValid = true;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_ft = EN64FloatReg( ft );
-
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
-	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( n64_ft ) );
-
-	CMP_S( psp_fs, cmp_op, psp_ft );
-
-#if 1 //Improved version no branch //Corn
-	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
-	CFC1( PspReg_A0, (EPspFloatReg)31 );
-	EXT( PspReg_A0, PspReg_A0, 0, 23 );	//Extract condition bit (true/false)
-	INS( PspReg_V0, PspReg_A0, 23, 23 );	//Insert condition bit (true/false)
-	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_V0 );
-
-#else //Improved version with only one branch //Corn
-	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
-	LoadConstant( PspReg_A0, FPCSR_C );
-	CJumpLocation	test_condition( BC1T( CCodeLabel( nullptr ), false ) );
-	OR( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag |= c
-
-	NOR( PspReg_A0, PspReg_A0, PspReg_R0 );		// c = !c
-	AND( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag &= !c
-
-	CCodeLabel		condition_true( GetAssemblyBuffer()->GetLabel() );
-	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_V0 );
-	PatchJumpLong( test_condition, condition_true );
-#endif
 }
 
 

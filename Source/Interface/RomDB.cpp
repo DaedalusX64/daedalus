@@ -166,7 +166,7 @@ class IRomDB : public CRomDB
 template<> bool	CSingleton< CRomDB >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
-	mpInstance = std::make_shared<IRomDB>();
+	mpInstance = std::make_unique<IRomDB>();
 	mpInstance->OpenDB(setBasePath("rom.db"));
 	return true;
 }
