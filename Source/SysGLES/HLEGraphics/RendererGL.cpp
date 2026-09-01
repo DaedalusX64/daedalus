@@ -946,7 +946,7 @@ void RendererGL::PrepareRenderState(const float* mat_project, bool disable_zbuff
         if (!install_textures[i])
             continue;
 
-        std::shared_ptr<CNativeTexture> texture = mBoundTexture[i];
+        auto& texture = mBoundTexture[i];
 
         if (texture != nullptr) {
             glActiveTexture(GL_TEXTURE0 + i);
@@ -1003,7 +1003,7 @@ void RendererGL::RenderTriangles(DaedalusVtx* p_vertices, u32 num_vertices, bool
 
         if (mTnL.Flags.Light && mTnL.Flags.TexGen)
         {
-            if (std::shared_ptr<CNativeTexture> texture = mBoundTexture[0])
+            if (const CNativeTexture* texture = mBoundTexture[0].get())
             {
                 float x = float(mTileTopLeft[0].s) / 4.f;
                 float y = float(mTileTopLeft[0].t) / 4.f;
@@ -1163,7 +1163,7 @@ void RendererGL::FillRect(const glm::vec2 & xy0, const glm::vec2 & xy1, u32 colo
 }
 
 void RendererGL::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-                               f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture)
+                               f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture* texture)
 {
     DAEDALUS_PROFILE( "RendererGL::Draw2DTexture" );
     texture->InstallTexture();
@@ -1214,7 +1214,7 @@ void RendererGL::Draw2DTextureR(f32 x0, f32 y0,
                                 f32 x1, f32 y1,
                                 f32 x2, f32 y2,
                                 f32 x3, f32 y3,
-                                f32 s, f32 t, std::shared_ptr<CNativeTexture> texture)  // With Rotation
+                                f32 s, f32 t, CNativeTexture* texture)  // With Rotation
 {
     texture->InstallTexture();
     DAEDALUS_PROFILE( "RendererGL::Draw2DTextureR" );

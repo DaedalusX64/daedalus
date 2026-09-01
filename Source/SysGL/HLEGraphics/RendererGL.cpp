@@ -941,9 +941,9 @@ void RendererGL::PrepareRenderState(const float *mat_project, bool disable_zbuff
         if (!install_textures[i])
             continue;
 
-        std::shared_ptr<CNativeTexture> texture = mBoundTexture[i];
+        const auto& texture = mBoundTexture[i];
 
-        if (texture != nullptr) {
+        if (texture) {
             glActiveTexture(GL_TEXTURE0 + i);
 
             texture->InstallTexture();
@@ -1000,7 +1000,7 @@ void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bo
 		// FIXME: this should be applied in SetNewVertexInfo, and use TextureScaleX/Y to set the scale
 		if (mTnL.Flags.Light && mTnL.Flags.TexGen)
 		{
-			if (std::shared_ptr<CNativeTexture> texture = mBoundTexture[0])
+			if (auto& texture = mBoundTexture[0])
 			{
 				// FIXME(strmnnrmn): I don't understand why the tile t/l is used here,
 				// but without it the Goldeneye Rareware logo looks off.
@@ -1171,12 +1171,12 @@ void RendererGL::FillRect( const glm::vec2 & xy0, const glm::vec2 & xy1, u32 col
 }
 
 void RendererGL::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-							   f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture)
+							   f32 u0, f32 v0, f32 u1, f32 v1, const CNativeTexture* texture)
 {
 	DAEDALUS_PROFILE( "RendererGL::Draw2DTexture" );
 	texture->InstallTexture();
 	// FIXME(strmnnrmn): is this right? Gross anyway.
-	gRDPOtherMode.cycle_type = CYCLE_COPY;
+	gRDPOtherMode.cycle_type = CYCLE_COPY;S
 
 	PrepareRenderState(glm::value_ptr(mScreenToDevice), false /* disable_depth */);
 
@@ -1222,7 +1222,7 @@ void RendererGL::Draw2DTextureR(f32 x0, f32 y0,
 								f32 x1, f32 y1,
 								f32 x2, f32 y2,
 								f32 x3, f32 y3,
-								f32 s, f32 t, std::shared_ptr<CNativeTexture> texture)	// With Rotation
+								f32 s, f32 t, const CNativeTexture* texture)	// With Rotation
 {
 		texture->InstallTexture();
 	DAEDALUS_PROFILE( "RendererGL::Draw2DTextureR" );

@@ -40,7 +40,7 @@ class CachedTexture
 		inline const TextureInfo &		GetTextureInfo() const				{ return mTextureInfo; }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		static void						DumpTexture( const TextureInfo & ti, const std::shared_ptr<CNativeTexture> texture );
+		static void						DumpTexture( const TextureInfo & ti, const CNativeTexture* texture );
 #endif
 		bool							HasExpired() const;
 
@@ -55,7 +55,7 @@ class CachedTexture
 	private:
 		const TextureInfo				mTextureInfo;
 
-		std::shared_ptr<CNativeTexture>			mpTexture;
+		std::shared_ptr<CNativeTexture> mpTexture;
 
 		u32								mTextureContentsHash;
 		u32								mFrameLastUpToDate;	// Frame # that this was last updated

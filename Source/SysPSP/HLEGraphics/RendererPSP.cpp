@@ -34,7 +34,7 @@
 BaseRenderer * gRenderer    = nullptr;
 RendererPSP  * gRendererPSP = nullptr;
 
-extern void InitBlenderMode( u32 blender );
+extern void InitBlenderMode(u32 blender, u64 mux, bool two_cycles);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
@@ -146,8 +146,24 @@ u32 alignas(DATA_ALIGN) gSelectedTexture[kPlaceholderSize];
 	details.InstallTexture = gDBlend.TexInstall; \
 	sceGuTexFunc( PSPtxtFunc[ (gDBlend.TXTFUNC >> 1) % 6 ], PSPtxtA[ gDBlend.TXTFUNC & 1 ] ); \
 }
+#endif
+void RendererPSP::SetDepthMask(int mask)
+{
+	if (mCurrentDepthMask != mask)
+	{
+		sceGuDepthMask(mask);
+		mCurrentDepthMask = mask;
+	}
+}
 
-#endif // DAEDALUS_DEBUG_DISPLAYLIST
+void RendererPSP::SetTextureFilter(int filter)
+{
+	if (mCurrentTextureFilter != filter)
+	{
+		sceGuTexFilter(filter, filter);
+		mCurrentTextureFilter = filter;
+	}
+}
 
 RendererPSP::RendererPSP()
 {
@@ -240,10 +256,10 @@ void RendererPSP::RestoreRenderStates()
 	sceGuAlphaFunc(GU_GEQUAL, 0x04, 0xff );
 	sceGuEnable(GU_ALPHA_TEST);
 
-	sceGuDisable( GU_BLEND );
+	SetBlendEnabled(true );
 
 	// Default is ZBuffer disabled
-	sceGuDepthMask(GL_TRUE);	// GL_TRUE to disable z-writes
+	SetDepthMask(GL_TRUE);	// GL_TRUE to disable z-writes
 	sceGuDepthFunc(GU_GEQUAL);		// GEQUAL?
 	sceGuDisable(GU_DEPTH_TEST);
 
@@ -361,8 +377,8 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 	{
 		//sceGuShadeModel(GU_SMOOTH);
 		sceGuDepthFunc(GU_EQUAL);	//Make sure to only blend on pixels that has been rendered on first pass //Corn
-		sceGuDepthMask(GL_TRUE);	//GL_TRUE to disable z-writes, no need to write to zbuffer for second pass //Corn
-		sceGuEnable(GU_BLEND);
+		SetDepthMask(GL_TRUE);	//GL_TRUE to disable z-writes, no need to write to zbuffer for second pass //Corn
+		SetBlendEnabled(GU_BLEND);
 		sceGuDisable(GU_TEXTURE_2D);	//Blend triangle without a texture
 		sceGuDisable(GU_ALPHA_TEST);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
@@ -381,6 +397,39 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 	}
 }
 
+void RendererPSP::SetBlendEnabled(bool enabled)
+{
+	const int state = enabled ? 1 : 0;
+
+	if (mCurrentBlendEnabled != state)
+	{
+		if (enabled)
+			sceGuEnable(GU_BLEND);
+		else
+			sceGuDisable(GU_BLEND);
+
+		mCurrentBlendEnabled = state;
+	}
+}
+void RendererPSP::SetBlendFunc(int op, int src, int dst, u32 src_fix, u32 dst_fix)
+{
+	if (!mCurrentBlendFuncValid ||
+		mCurrentBlendOp != op ||
+		mCurrentBlendSrc != src ||
+		mCurrentBlendDst != dst ||
+		mCurrentBlendSrcFix != src_fix ||
+		mCurrentBlendDstFix != dst_fix)
+	{
+		sceGuBlendFunc(op, src, dst, src_fix, dst_fix);
+
+		mCurrentBlendOp = op;
+		mCurrentBlendSrc = src;
+		mCurrentBlendDst = dst;
+		mCurrentBlendSrcFix = src_fix;
+		mCurrentBlendDstFix = dst_fix;
+		mCurrentBlendFuncValid = true;
+	}
+}
 void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
 {
 	static bool	ZFightingEnabled = false;
@@ -390,7 +439,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	if ( disable_zbuffer )
 	{
 		sceGuDisable(GU_DEPTH_TEST);
-		sceGuDepthMask( GL_TRUE );	// GL_TRUE to disable z-writes
+		SetDepthMask( GL_TRUE );	// GL_TRUE to disable z-writes
 	}
 	else
 	{
@@ -419,8 +468,8 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			sceGuDisable(GU_DEPTH_TEST);
 		}
 
-		// GL_TRUE to disable z-writes
-		sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
+	SetDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
+
 	}
 
 	// Initiate Texture Filter
@@ -428,14 +477,8 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	// G_TF_AVERAGE : 1, G_TF_BILERP : 2 (linear)
 	// G_TF_POINT   : 0 (nearest)
 	//
-	if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )
-	{
-		sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-	}
-	else
-	{
-		sceGuTexFilter(GU_NEAREST,GU_NEAREST);
-	}
+	SetTextureFilter(GU_LINEAR);
+
 
 	u32 cycle_mode = gRDPOtherMode.cycle_type;
 
@@ -443,11 +486,11 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	//
 	if(cycle_mode < CYCLE_COPY && gRDPOtherMode.force_bl)
 	{
-		InitBlenderMode(gRDPOtherMode.blender);
+		InitBlenderMode(gRDPOtherMode.blender, mMux, cycle_mode == CYCLE_2CYCLE);
 	}
 	else
 	{
-		sceGuDisable( GU_BLEND );
+		SetBlendEnabled( false );
 	}
 
 	// Initiate Alpha test
@@ -891,7 +934,7 @@ void RendererPSP::FillRect( const glm::vec2 & xy0, const glm::vec2 & xy1, u32 co
 }
 
 void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-								f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture)
+								f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture* texture)
 {
 	texture->InstallTexture();
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
@@ -908,11 +951,11 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	}
 
 	// GL_TRUE to disable z-writes
-	sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
+	SetDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
 	//sceGuShadeModel(GU_FLAT);
 
 	//ToDO: Set alpha/blend states according RenderUsingCurrentBlendMode?
-	sceGuTexFilter(GU_LINEAR, GU_LINEAR);
+	SetTextureFilter(GU_LINEAR);
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
 
@@ -977,15 +1020,15 @@ void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 	}
 
 	// GL_TRUE to disable z-writes
-	sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
+	SetDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
 	//sceGuShadeModel(GU_FLAT);
 
 	//ToDO: Set alpha/blend states according RenderUsingCurrentBlendMode?
-	sceGuTexFilter(GU_LINEAR, GU_LINEAR);
+	SetTextureFilter(GU_LINEAR);
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
 
-	sceGuEnable(GU_BLEND);
+	SetBlendEnabled(true);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
 	// Why are we not blitting large textures here?

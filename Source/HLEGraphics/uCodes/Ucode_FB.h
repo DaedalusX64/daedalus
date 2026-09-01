@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HLEGRAPHICS_UCODES_UCODE_FB_H_
 
 #ifndef DAEDALUS_PSP
-static inline std::shared_ptr<CNativeTexture> LoadFrameBuffer(u32 origin)
+static inline CNativeTexture* LoadFrameBuffer(u32 origin)
 {
 	u32 width  = Memory_VI_GetRegister( VI_WIDTH_REG );
 	if( width == 0 )
@@ -62,7 +62,7 @@ static inline std::shared_ptr<CNativeTexture> LoadFrameBuffer(u32 origin)
 }
 
 //Borrowed from StrmnNrmn's N64js
-static inline void DrawFrameBuffer(u32 origin, const std::shared_ptr<CNativeTexture> texture)
+static inline void DrawFrameBuffer(u32 origin, const CNativeTexture*  texture)
 {
 
 	u16 * pixels = (u16*)malloc(FB_WIDTH*FB_HEIGHT * sizeof(u16));	// TODO: should cache this, but at some point we'll need to deal with variable framebuffer size, so do this later.
@@ -98,7 +98,7 @@ void RenderFrameBuffer(u32 origin)
 	gRenderer->SetVIScales();
 	gRenderer->BeginScene();
 
-	std::shared_ptr<CNativeTexture> texture = LoadFrameBuffer(origin);
+	auto texture = LoadFrameBuffer(origin);
 	if(texture != NULL)
 		DrawFrameBuffer(origin, texture);
 

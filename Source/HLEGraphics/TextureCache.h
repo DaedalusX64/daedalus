@@ -37,7 +37,7 @@ public:
 	CTextureCache();
 	virtual ~CTextureCache();
 
-	std::shared_ptr<CNativeTexture>	GetOrCreateTexture(const TextureInfo & ti);
+	CNativeTexture* GetOrCreateTexture(const TextureInfo & ti);
 
 	void		PurgeOldTextures();
 	void		DropTextures();
@@ -47,13 +47,13 @@ public:
 	Mutex * 	GetDebugMutex()		{ return &mDebugMutex; }
 	struct STextureInfoSnapshot
 	{
-		STextureInfoSnapshot( const TextureInfo & info, std::shared_ptr<CNativeTexture> texture )
+		STextureInfoSnapshot( const TextureInfo & info, CNativeTexture*  texture )
 		: Info( info ), Texture( texture )
 		{
 		}
 
 		TextureInfo					Info;
-		std::shared_ptr<CNativeTexture>		Texture;
+		CNativeTexture*		Texture;
 	};
 
 	// You must have a valid lock to call Snapshot.

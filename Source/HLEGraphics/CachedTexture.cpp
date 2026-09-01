@@ -153,7 +153,7 @@ static bool GenerateTexels(void ** p_texels,
 	return false;
 }
 
-static void UpdateTexture( const TextureInfo & ti, std::shared_ptr<CNativeTexture> texture )
+static void UpdateTexture( const TextureInfo & ti, CNativeTexture* texture )
 {
 	#ifdef DAEDALUS_PROFILE
 	DAEDALUS_PROFILE( "Texture Conversion" );
@@ -256,7 +256,7 @@ bool CachedTexture::Initialise()
 			mFrameLastUpToDate = gRDPFrame + (FastRand() & (gCheckTextureHashFrequency - 1));
 		}
 		UpdateTextureHash();
-		UpdateTexture( mTextureInfo, mpTexture );
+		UpdateTexture( mTextureInfo, mpTexture.get() );
 	}
 
 	return mpTexture != nullptr;
@@ -284,7 +284,7 @@ void CachedTexture::UpdateIfNecessary()
 	{
 		if (UpdateTextureHash())
 		{
-			UpdateTexture( mTextureInfo, mpTexture );
+			UpdateTexture( mTextureInfo, mpTexture.get() );
 		}
 
 		// FIXME(strmnrmn): should probably recreate mpWhiteTexture if it exists, else it may have stale data.
@@ -339,7 +339,7 @@ bool CachedTexture::HasExpired() const
 
 }
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void CachedTexture::DumpTexture( const TextureInfo & ti, const std::shared_ptr<CNativeTexture> texture  )
+void CachedTexture::DumpTexture( const TextureInfo & ti, const CNativeTexture* texture  )
 {
 	DAEDALUS_ASSERT(texture != nullptr, "Should have a texture");
 

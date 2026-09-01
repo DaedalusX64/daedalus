@@ -124,25 +124,37 @@ bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputSt
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	ROMFileUncompressed::ReadChunk( u32 offset, u8 * p_dst, u32 length )
+bool ROMFileUncompressed::ReadChunk(u32 offset, u8 *p_dst, u32 length)
 {
-    #ifdef DAEDALUS_ENABLE_ASSERTS
-    // DAEDALUS_ASSERT( mFH != NULL, "Reading data when Open failed?" );
-    #endif
-    // Try and read in data - reset to the specified offset
-    mFH.seekg(offset, std::ios::beg);
-    if (!mFH) {
+    if(!mFH.is_open() || p_dst == nullptr)
+        return false;
+
+    if(length == 0)
+        return true;
+
+    mFH.clear();
+    mFH.seekg(static_cast<std::streamoff>(offset), std::ios::beg);
+
+    if(!mFH)
+    {
         std::cerr << "Failed to seek to offset " << offset << std::endl;
         return false;
     }
 
-    mFH.read(reinterpret_cast<char*>(p_dst), length);
-    if (mFH.gcount() != length) {
-        std::cerr << "Failed to read expected number of bytes from ReadChunk. Read " << mFH.gcount() << " out of " << length << std::endl;
+    mFH.read(reinterpret_cast<char *>(p_dst), static_cast<std::streamsize>(length));
+
+    const std::streamsize bytes_read = mFH.gcount();
+
+    if(bytes_read != static_cast<std::streamsize>(length))
+    {
+        std::cerr << "Failed to read expected number of bytes from ReadChunk. Read "
+                  << bytes_read << " out of " << length
+                  << " at offset " << offset << std::endl;
+
+        mFH.clear();
         return false;
     }
 
-    // Apply the bytesswapping before returning the buffer
     CorrectSwap(p_dst, length);
     return true;
 }

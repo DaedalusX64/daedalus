@@ -500,7 +500,7 @@ void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 {
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( sprite, NULL );
+	auto texture = Load_ObjSprite( sprite, NULL );
 	Draw_ObjSprite< FULL_ROTATION >( sprite, texture );
 }
 
@@ -513,7 +513,7 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 {
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( sprite, gObjTxtr );
+	auto texture = Load_ObjSprite( sprite, gObjTxtr );
 	// Draw_ObjSprite( sprite, NO_ROTATION, texture );
 	Draw_ObjSprite< NO_ROTATION >(sprite, texture);
 }
@@ -534,7 +534,7 @@ void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 	// Would like to find a game that uses this though
 	DAEDALUS_ERROR("S2DEX_ObjRectangleR: Check me");
 
-	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( sprite, gObjTxtr );
+	auto texture = Load_ObjSprite( sprite, gObjTxtr );
 	// Draw_ObjSprite( sprite, PARTIAL_ROTATION, texture );
 	Draw_ObjSprite< PARTIAL_ROTATION >(sprite, texture);
 }
@@ -547,7 +547,7 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 {
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
+	auto texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
 	// Draw_ObjSprite( &sprite->sprite, FULL_ROTATION, texture );
 	Draw_ObjSprite< FULL_ROTATION >(&sprite->sprite, texture);
 }
@@ -560,7 +560,7 @@ void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 {
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
+	auto texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
 	// Draw_ObjSprite( &sprite->sprite, NO_ROTATION, texture );
 		Draw_ObjSprite< NO_ROTATION >(&sprite->sprite, texture);
 }
@@ -573,7 +573,7 @@ void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 {
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	std::shared_ptr<CNativeTexture> texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
+	auto texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
 		Draw_ObjSprite< PARTIAL_ROTATION >(&sprite->sprite, texture);
 }
 
@@ -699,7 +699,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetTLutFormat(kTT_RGBA16);
 
 
-	std::shared_ptr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
+	auto texture = gRenderer->LoadTextureDirectly(ti);
 	
 	// #ifdef DAEDALUS_CTR
 	gRenderer->Draw2DTexture( (f32)frameX, (f32)frameY, (f32)frameW, (f32)frameH,
@@ -752,7 +752,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetTlutAddress(gTlutLoadAddresses[0]);
 	ti.SetTLutFormat(kTT_RGBA16);
 
-	std::shared_ptr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
+	auto texture = gRenderer->LoadTextureDirectly(ti);
 
 
 	if (g_ROM.GameHacks != YOSHI)
@@ -762,9 +762,9 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 
 
-		std::shared_ptr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
+		auto texture = gRenderer->LoadTextureDirectly(ti);
 		// #ifdef DAEDALUS_CTR
-		gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1,texture );
+		gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1,texture.get() );
 		// #else
 		// gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1 );
 		// #endif

@@ -15,10 +15,10 @@ public:
 	virtual void		FillRect(const glm::vec2 & xy0, const glm::vec2 & xy1, u32 color);
 
 	virtual void		Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-									  f32 u0, f32 v0, f32 u1, f32 v1, std::shared_ptr<CNativeTexture> texture);
+									  f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture* texture);
 	virtual void		Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 									   f32 x2, f32 y2, f32 x3, f32 y3,
-									   f32 s, f32 t, std::shared_ptr<CNativeTexture> texture);
+									   f32 s, f32 t, CNativeTexture* texture);
 
 private:
 	void 				MakeShaderConfigFromCurrentState(struct ShaderConfiguration * config) const;

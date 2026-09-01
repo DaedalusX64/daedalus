@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RomFile/RomFile.h"
 #include "RomFile/RomFileCache.h"
 #include "RomFile/RomFileMemory.h"
+#include <cstring>
 
 
 #ifdef DAEDALUS_PSP
@@ -193,24 +194,30 @@ void	ROMFileCache::PurgeChunk( CacheIdx cache_idx )
 //*****************************************************************************
 //
 //*****************************************************************************
-ROMFileCache::CacheIdx	ROMFileCache::GetCacheIndex( u32 address )
+ROMFileCache::CacheIdx ROMFileCache::GetCacheIndex(u32 address)
 {
-	u32		chunk_map_idx( AddressToChunkMapIndex( address ) );
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( chunk_map_idx < mChunkMapEntries, "Chunk address is out of range?" );
-	#endif
+	u32 chunk_map_idx = AddressToChunkMapIndex(address);
+
+	if(chunk_map_idx >= mChunkMapEntries)
+	{
+		DBGConsole_Msg(0, "[RROM cache address out of range: %08x]", address);
+		return INVALID_IDX;
+	}
+
 	//
-	//	Check if this chunk is already cached, load if necessary
+	// Check if this chunk is already cached, load if necessary
 	//
-	CacheIdx	idx( mpChunkMap[ chunk_map_idx ] );
+	CacheIdx idx = mpChunkMap[chunk_map_idx];
+
 	if(idx == INVALID_IDX)
 	{
-		CacheIdx	selected_idx( 0 );
-		u32			oldest_timestamp( mpChunkInfo[ 0 ].LastUseIdx );
+		CacheIdx selected_idx = 0;
+		u32 oldest_timestamp = mpChunkInfo[0].LastUseIdx;
 
 		for(CacheIdx i = 1; i < CACHE_SIZE; ++i)
 		{
-			u32		timestamp( mpChunkInfo[ i ].LastUseIdx );
+			u32 timestamp = mpChunkInfo[i].LastUseIdx;
+
 			if(timestamp < oldest_timestamp)
 			{
 				oldest_timestamp = timestamp;
@@ -219,31 +226,64 @@ ROMFileCache::CacheIdx	ROMFileCache::GetCacheIndex( u32 address )
 		}
 
 		//
-		//	Purge the current chunk
+		// Purge the current chunk
 		//
-		PurgeChunk( selected_idx );
+		PurgeChunk(selected_idx);
 
 		//
-		//	And load up the new one
+		// Load the new chunk
 		//
-		SChunkInfo &		chunk_info( mpChunkInfo[ selected_idx ] );
-		chunk_info.StartOffset = GetChunkStartAddress( address );
+		SChunkInfo &chunk_info = mpChunkInfo[selected_idx];
+
+		chunk_info.StartOffset = GetChunkStartAddress(address);
 		chunk_info.LastUseIdx = ++mMRUIdx;
 
-		#ifdef DAEDALUS_ENABLE_ASSERTS
-		DAEDALUS_ASSERT( chunk_map_idx < mChunkMapEntries, "Chunk address is out of range?" );
-		#endif
+		u32 storage_offset = selected_idx * CHUNK_SIZE;
+		u8 *p_dst = mpStorage + storage_offset;
 
-		mpChunkMap[ chunk_map_idx ] = selected_idx;
+		const u32 rom_size = mpROMFile->GetRomSize();
 
-		u32		storage_offset( selected_idx * CHUNK_SIZE );
-		u8 *	p_dst( mpStorage + storage_offset );
+		if(chunk_info.StartOffset >= rom_size)
+		{
+			DBGConsole_Msg(0, "[RROM cache read beyond ROM: %08x / %08x]",
+				chunk_info.StartOffset, rom_size);
 
-		//DBGConsole_Msg( 0, "[CRomCache - loading %02x, %08x-%08x", selected_idx, chunk_info.StartOffset, chunk_info.StartOffset + CHUNK_SIZE );
-		mpROMFile->ReadChunk( chunk_info.StartOffset, p_dst, CHUNK_SIZE );
+			chunk_info.StartOffset = INVALID_ADDRESS;
+			chunk_info.LastUseIdx = 0;
 
+			return INVALID_IDX;
+		}
+
+		const u32 bytes_remaining = rom_size - chunk_info.StartOffset;
+		const u32 bytes_to_read = std::min(CHUNK_SIZE, bytes_remaining);
+
+		if(!mpROMFile->ReadChunk(chunk_info.StartOffset, p_dst, bytes_to_read))
+		{
+			DBGConsole_Msg(0, "[RROM cache read failed: %08x + %08x]",
+				chunk_info.StartOffset, bytes_to_read);
+
+			chunk_info.StartOffset = INVALID_ADDRESS;
+			chunk_info.LastUseIdx = 0;
+
+			return INVALID_IDX;
+		}
+
+		//
+		// Clear unused bytes in the final cache block.
+		//
+		if(bytes_to_read < CHUNK_SIZE)
+		{
+			memset(p_dst + bytes_to_read, 0, CHUNK_SIZE - bytes_to_read);
+		}
+
+		//
+		// Only register the chunk after a successful read.
+		//
+		mpChunkMap[chunk_map_idx] = selected_idx;
 		idx = selected_idx;
 	}
+
+	mpChunkInfo[idx].LastUseIdx = ++mMRUIdx;
 
 	return idx;
 }
