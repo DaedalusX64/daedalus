@@ -1689,12 +1689,12 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 		}
 		else
 		{
-			auto texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+	auto texture = CTextureCache::Get()->GetOrCreateTexture(ti);
 
-			if( texture != NULL && texture != mBoundTexture[ index ] )
-			{
-				mBoundTextureInfo[index] = ti;
-				mBoundTexture[index]     = texture;
+	if (texture && texture != mBoundTexture[index])
+	{
+		mBoundTextureInfo[index] = ti;
+		mBoundTexture[index] = texture;
 
 #ifdef DAEDALUS_PSP
 				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
@@ -1870,7 +1870,7 @@ CNativeTexture* BaseRenderer::LoadTextureDirectly( const TextureInfo & ti )
 	mBoundTexture[0] = texture;
 	mBoundTextureInfo[0] = ti;
 
-	return texture;
+	return texture.get();
 }
 //*****************************************************************************
 //

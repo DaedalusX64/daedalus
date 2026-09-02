@@ -54,7 +54,7 @@ class ISplashScreen : public CSplashScreen, public CUIScreen
 	private:
 		bool						mIsFinished;
 		float						mElapsedTime;
-		std::shared_ptr<CNativeTexture>		mpTexture;
+		std::shared_ptr<CNativeTexture> mpTexture;
 };
 
 
@@ -111,7 +111,7 @@ void	ISplashScreen::Render()
 	c32		colour( 255, 255, 255, a );
 
 	mpContext->ClearBackground();
-	mpContext->RenderTexture( mpTexture, (SCREEN_WIDTH - mpTexture->GetWidth()) / 2, (SCREEN_HEIGHT - mpTexture->GetHeight()) / 2, colour);
+	mpContext->RenderTexture( mpTexture.get(), (SCREEN_WIDTH - mpTexture->GetWidth()) / 2, (SCREEN_HEIGHT - mpTexture->GetHeight()) / 2, colour);
 
 #if DAEDALUS_PSP
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );

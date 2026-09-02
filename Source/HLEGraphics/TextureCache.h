@@ -37,7 +37,7 @@ public:
 	CTextureCache();
 	virtual ~CTextureCache();
 
-	CNativeTexture* GetOrCreateTexture(const TextureInfo & ti);
+	std::shared_ptr<CNativeTexture> GetOrCreateTexture(const TextureInfo & ti);
 
 	void		PurgeOldTextures();
 	void		DropTextures();

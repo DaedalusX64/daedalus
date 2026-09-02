@@ -234,9 +234,9 @@ CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 	return texture;
 }
 
-CNativeTexture* CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
+std::shared_ptr<CNativeTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
 {
-	CachedTexture * base_texture = GetOrCreateCachedTexture(ti);
+	auto base_texture = GetOrCreateCachedTexture(ti);
 	if (!base_texture)
 		return nullptr;
 

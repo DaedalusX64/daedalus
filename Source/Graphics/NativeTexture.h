@@ -47,8 +47,8 @@ class CNativeTexture
 		~CNativeTexture();
 
 	public:
-		static	std::shared_ptr<CNativeTexture>		Create( u32 width, u32 height, ETextureFormat texture_format );
-		static	std::shared_ptr<CNativeTexture>		CreateFromPng( const std::filesystem::path p_filename, ETextureFormat texture_format );
+		static	std::shared_ptr<CNativeTexture>	Create( u32 width, u32 height, ETextureFormat texture_format );
+		static	std::shared_ptr<CNativeTexture>	 CreateFromPng( const std::filesystem::path p_filename, ETextureFormat texture_format );
 
 		void							InstallTexture() const;
 

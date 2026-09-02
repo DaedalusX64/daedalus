@@ -464,7 +464,7 @@ protected:
 	static const u32 kNumBoundTextures = 2;
 
 	std::array<TextureInfo, kNumBoundTextures> mBoundTextureInfo;
-	CNativeTexture*	mBoundTexture[ kNumBoundTextures ];
+	std::shared_ptr<CNativeTexture> mBoundTexture[kNumBoundTextures];
 	std::array<TexCoord, kNumBoundTextures> mTileTopLeft;
 	std::array<TextureWrap, kNumBoundTextures> mTexWrap;
 

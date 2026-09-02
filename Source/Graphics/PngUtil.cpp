@@ -182,7 +182,7 @@ void PngSaveImage( const std::filesystem::path& filename, const void * data, con
 	PngSaveImage(file, data, palette, format, stride, width, height, use_alpha);
 }
 
-void PngSaveImage(std::ofstream& file, const std::shared_ptr<CNativeTexture> texture )
+void PngSaveImage(std::ofstream& file, const CNativeTexture* texture )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(texture->HasData(), "Should have a texture");
@@ -194,7 +194,7 @@ void PngSaveImage(std::ofstream& file, const std::shared_ptr<CNativeTexture> tex
 
 // Utility function to flatten a native texture into an array of NativePf8888 values.
 // Should live elsewhere, but need to share WritePngRow.
-void FlattenTexture(const std::shared_ptr<CNativeTexture> texture, void * dst, size_t len)
+void FlattenTexture(const CNativeTexture* texture, void * dst, size_t len)
 {
 	const u8 *           p       = reinterpret_cast< const u8 * >( texture->GetData() );
 	const NativePf8888 * pal8888 = reinterpret_cast< const NativePf8888 * >( texture->GetPalette() );

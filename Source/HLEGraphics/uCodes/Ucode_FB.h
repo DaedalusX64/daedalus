@@ -62,7 +62,7 @@ static inline CNativeTexture* LoadFrameBuffer(u32 origin)
 }
 
 //Borrowed from StrmnNrmn's N64js
-static inline void DrawFrameBuffer(u32 origin, const CNativeTexture*  texture)
+static inline void DrawFrameBuffer(u32 origin, CNativeTexture* texture)
 {
 
 	u16 * pixels = (u16*)malloc(FB_WIDTH*FB_HEIGHT * sizeof(u16));	// TODO: should cache this, but at some point we'll need to deal with variable framebuffer size, so do this later.

@@ -28,8 +28,8 @@ class CNativeTexture;
 
 void PngSaveImage( const std::filesystem::path& filename, const void * data, const void * palette, ETextureFormat pixelformat, s32 pitch, u32 width, u32 height, bool use_alpha );
 void PngSaveImage( std::ofstream& file, const void * data, const void * palette, ETextureFormat pixelformat, s32 pitch, u32 width, u32 height, bool use_alpha );
-void PngSaveImage( std::ofstream& file, const std::shared_ptr<CNativeTexture> texture );
+void PngSaveImage( std::ofstream& file, const CNativeTexture* texture );
 
-void FlattenTexture(const std::shared_ptr<CNativeTexture> texture, void * dst, size_t len);
+void FlattenTexture(const CNativeTexture* texture, void * dst, size_t len);
 
 #endif // GRAPHICS_PNGUTIL_H_

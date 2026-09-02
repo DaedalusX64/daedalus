@@ -339,7 +339,7 @@ void IRomSelectorComponent::RenderPreview()
 		}
 		
 		mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::Black );
-		mpContext->RenderTexture( mpPreviewTexture, tl, wh, colour );
+		mpContext->RenderTexture( mpPreviewTexture.get(), tl, wh, colour );
 	}
 	else
 	{

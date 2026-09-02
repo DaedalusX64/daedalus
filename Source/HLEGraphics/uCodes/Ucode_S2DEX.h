@@ -246,7 +246,7 @@ static void Load_BgSprite( const uObjScaleBg *objBg )
 //*****************************************************************************
 //
 //*****************************************************************************
-static inline std::shared_ptr<CNativeTexture> Load_ObjSprite( const uObjSprite *sprite, const uObjTxtr *txtr )
+static inline CNativeTexture* Load_ObjSprite( const uObjSprite *sprite, const uObjTxtr *txtr )
 {
 	TextureInfo ti;
 
@@ -298,7 +298,7 @@ static inline std::shared_ptr<CNativeTexture> Load_ObjSprite( const uObjSprite *
 //
 //*****************************************************************************
 template< ESpriteMode mode > 
-static void Draw_ObjSprite( const uObjSprite *sprite, const std::shared_ptr<CNativeTexture> texture )
+static void Draw_ObjSprite( const uObjSprite *sprite, const CNativeTexture* texture )
 {
 	f32 imageW = sprite->imageW / 32.0f;
 	f32 imageH = sprite->imageH / 32.0f;
@@ -764,7 +764,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 		auto texture = gRenderer->LoadTextureDirectly(ti);
 		// #ifdef DAEDALUS_CTR
-		gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1,texture.get() );
+		gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1,texture );
 		// #else
 		// gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1 );
 		// #endif

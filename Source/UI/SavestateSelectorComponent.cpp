@@ -79,7 +79,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		std::filesystem::path		mPVFilename[ NUM_SAVESTATE_SLOTS ];
 		std::filesystem::path		mPVScreenShot [ NUM_SAVESTATE_SLOTS ];
 		s8						mPVExists[ NUM_SAVESTATE_SLOTS ];	//0=skip, 1=file exists, -1=show no preview
-		std::shared_ptr<CNativeTexture>	mPreviewTexture;
+		std::shared_ptr<CNativeTexture> mPreviewTexture;
 		u32						mLastPreviewLoad;
 
 };
@@ -339,7 +339,7 @@ void	ISavestateSelectorComponent::Render()
 				}
 
 				mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::Black );
-				mpContext->RenderTexture( mPreviewTexture, tl, wh, c32::White );
+				mpContext->RenderTexture( mPreviewTexture.get(), tl, wh, c32::White );
 			}
 			else if( mPVExists[ mElements.GetSelectedIndex() ] == -1 && mElements.GetSelectedIndex() < NUM_SAVESTATE_SLOTS )
 			{
