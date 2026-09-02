@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Profiler.h"
 
 #include <vector>
+#include <cstring>
 #include <algorithm>
 
 //#define PROFILE_TEXTURE_CACHE
@@ -49,7 +50,7 @@ CTextureCache::CTextureCache()
 :	mDebugMutex()
 #endif
 {
-	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
+	std::memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
 }
 
 CTextureCache::~CTextureCache()

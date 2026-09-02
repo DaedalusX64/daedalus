@@ -1701,7 +1701,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 				//If T1 Hack is not enabled index can never be other than 0
 				if(index)
 				{
-					T1Hack(mBoundTextureInfo[0], mBoundTexture[0], mBoundTextureInfo[1], mBoundTexture[1]);
+					T1Hack(mBoundTextureInfo[0], mBoundTexture[0].get(), mBoundTextureInfo[1], mBoundTexture[1].get());
 				}
 #endif
 			}

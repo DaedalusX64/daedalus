@@ -934,7 +934,7 @@ void RendererPSP::FillRect( const glm::vec2 & xy0, const glm::vec2 & xy1, u32 co
 }
 
 void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-								f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture* texture)
+								f32 u0, f32 v0, f32 u1, f32 v1, const CNativeTexture* texture)
 {
 	texture->InstallTexture();
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
@@ -967,7 +967,7 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	if( u1 >= 512.f )
 	{
 		const std::shared_ptr<CNativeTexture> texture = mBoundTexture[0];
-		Draw2DTextureBlit( x0, y0, x1, y1, u0, v0, u1, v1, texture );
+		Draw2DTextureBlit( x0, y0, x1, y1, u0, v0, u1, v1, texture.get() );
 		return;
 	}
 
@@ -1003,7 +1003,7 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 
 void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 								 f32 x2, f32 y2, f32 x3, f32 y3,
-								 f32 s, f32 t, std::shared_ptr<CNativeTexture> texture)	// With Rotation
+								 f32 s, f32 t, const CNativeTexture* texture)	// With Rotation
 {
 	texture->InstallTexture();
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTextureR" );
@@ -1069,7 +1069,7 @@ void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 // See http://www.assembla.com/code/openTRI for more information.
 void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 									f32 u0, f32 v0, f32 u1, f32 v1,
-									const std::shared_ptr<CNativeTexture> texture)
+									const CNativeTexture* texture)
 {
 	if (texture == nullptr)
 	{

@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/TextureFormat.h"
 
-#include <string.h>
 
 enum ETLutFmt
 {
@@ -32,88 +31,181 @@ enum ETLutFmt
 	kTT_IA16,		// G_TT_IA16
 };
 
+
 struct TextureInfo
 {
 private:
-	u32			LoadAddress;		// Address to texture surface
-	u32			TlutAddress;		// Address to palette
-	u16			Width;				// X dimensions
-	u16			Height;				// Y dimensions
-	u16			Pitch;				// Number of bytes in a texture row
+	u32 LoadAddress = 0;		// Address to texture surface
+	u32 TlutAddress = 0;		// Address to palette
+	u16 Width = 0;				// X dimensions
+	u16 Height = 0;				// Y dimensions
+	u16 Pitch = 0;				// Number of bytes in a texture row
 
-	u32			TmemAddress : 9;	// TMEM address (0x000 - 0x1FF)
-	u32			Palette : 4;		// Palette index (0-15)
-	u32			Format : 3;			// e.g. RGBA, YUV, CI, IA, I...
-	u32			Size : 2;			// e.g. 4bpp, 8bpp, 16bpp, 32bpp
-	u32			TLutFmt : 2;		// e.g. ?, ?, RGBA16, IA16
-//	u32			Tile : 3;			// e.g. Tile number (0-7)
+	u32 TmemAddress : 9 = 0;	// TMEM address (0x000 - 0x1FF)
+	u32 Palette : 4 = 0;		// Palette index (0-15)
+	u32 Format : 3 = 0;			// e.g. RGBA, YUV, CI, IA, I...
+	u32 Size : 2 = 0;			// e.g. 4bpp, 8bpp, 16bpp, 32bpp
+	u32 TLutFmt : 2 = 0;		// e.g. ?, ?, RGBA16, IA16
+
 #ifdef DAEDALUS_ACCURATE_TMEM
-	u32			Line : 9;
+	u32 Line : 9 = 0;
 #endif
-	bool		Swapped : 1;		// Are odd lines word swapped?
-	bool		EmulateMirrorS : 1;
-	bool		EmulateMirrorT : 1;
 
-	bool		White : 1;			// Force the RGB channels to white (PSP Blender support).
-									// Typically this is set on a copy of the TextureInfo.
+	bool Swapped : 1 = false;			// Are odd lines word swapped?
+	bool EmulateMirrorS : 1 = false;
+	bool EmulateMirrorT : 1 = false;
+	bool White : 1 = false;				// Force RGB channels to white.
 
 public:
-	// Pretty gross. Needed so that any padding bytes are consistently zeroed.
-	TextureInfo()											{ memset( this, 0, sizeof( TextureInfo ) ); }
-	TextureInfo( const TextureInfo & rhs )					{ memcpy( this, &rhs, sizeof( TextureInfo ) ); }
-	TextureInfo & operator=( const TextureInfo & rhs )		{ memcpy( this, &rhs, sizeof( TextureInfo ) ); return *this; }
+	TextureInfo() = default;
+	TextureInfo(const TextureInfo &) = default;
+	TextureInfo & operator=(const TextureInfo &) = default;
 
-	//the hash output should match the number of bits used in the texture cache array
-	inline u32				GetHashCode() const				{ u8 *ptr( (u8*)this ); u8 *end_ptr( ptr + sizeof( TextureInfo ) ); u32 hash(0); while( ptr < end_ptr ) hash = ((hash << 1) | (hash >> 0x9)) ^ *ptr++; return hash; }
-	//inline u32				GetHashCode() const				{ return murmur2_neutral_hash( reinterpret_cast< const u8 * >( this ), sizeof( TextureInfo ), 0 ); }
+	inline u32 GetHashCode() const
+	{
+		u32 hash = LoadAddress;
 
-	// Compute a hash of the contents of the texture data. Not to be confused with GetHashCode() that hashes the Textureinfo!
-	u32						GenerateHashValue() const;
+		hash = (hash * 33) ^ TlutAddress;
+		hash = (hash * 33) ^ Width;
+		hash = (hash * 33) ^ Height;
+		hash = (hash * 33) ^ Pitch;
+		hash = (hash * 33) ^ TmemAddress;
+		hash = (hash * 33) ^ Palette;
+		hash = (hash * 33) ^ Format;
+		hash = (hash * 33) ^ Size;
+		hash = (hash * 33) ^ TLutFmt;
 
-	const char *			GetFormatName() const;
-	u32						GetSizeInBits() const;
-
-	inline u32				GetLoadAddress() const			{ return LoadAddress; }
-	inline u32				GetTlutAddress() const			{ return TlutAddress; }
-	inline u32				GetTmemAddress() const			{ return TmemAddress; }
-	inline u32				GetFormat() const				{ return Format; }
-	inline u32				GetSize() const					{ return Size; }
-	inline u32				GetWidth() const				{ return Width; }
-	inline u32				GetHeight() const				{ return Height; }
-	inline u32				GetPitch() const				{ return Pitch; }
-	inline ETLutFmt			GetTLutFormat() const			{ return (ETLutFmt)TLutFmt; }
 #ifdef DAEDALUS_ACCURATE_TMEM
-	inline u32				GetLine() const					{ return Line; }
+		hash = (hash * 33) ^ Line;
 #endif
-	inline u32				GetPalette() const				{ return Palette; }
-	inline bool				IsSwapped() const				{ return Swapped; }
-	inline bool				GetEmulateMirrorS() const		{ return EmulateMirrorS; }
-	inline bool				GetEmulateMirrorT() const		{ return EmulateMirrorT; }
-	inline bool				GetWhite() const				{ return White; }
 
-	inline void				SetLoadAddress( u32 address )	{ LoadAddress = address; }
-	inline void				SetTlutAddress( u32 address )	{ TlutAddress = address; }
-	inline void				SetTmemAddress( u32 address )	{ TmemAddress = address; }
-	inline void				SetFormat( u32 format )			{ Format = format; }
-	inline void				SetSize( u32 size )				{ Size = size; }
-	inline void				SetWidth( u32 width )			{ Width = width; }
-	inline void				SetHeight( u32 height )			{ Height = height; }
-	inline void				SetPitch( u32 pitch )			{ Pitch = pitch; }
-	inline void				SetTLutFormat( ETLutFmt format ){ TLutFmt = format; }
+		hash = (hash * 33) ^ Swapped;
+		hash = (hash * 33) ^ EmulateMirrorS;
+		hash = (hash * 33) ^ EmulateMirrorT;
+		hash = (hash * 33) ^ White;
+
+		return hash;
+	}
+
+	// Compute a hash of the contents of the texture data.
+	u32 GenerateHashValue() const;
+
+	const char * GetFormatName() const;
+	u32 GetSizeInBits() const;
+
+	inline u32 GetLoadAddress() const { return LoadAddress; }
+	inline u32 GetTlutAddress() const { return TlutAddress; }
+	inline u32 GetTmemAddress() const { return TmemAddress; }
+	inline u32 GetFormat() const { return Format; }
+	inline u32 GetSize() const { return Size; }
+	inline u32 GetWidth() const { return Width; }
+	inline u32 GetHeight() const { return Height; }
+	inline u32 GetPitch() const { return Pitch; }
+	inline ETLutFmt GetTLutFormat() const { return static_cast<ETLutFmt>(TLutFmt); }
+
 #ifdef DAEDALUS_ACCURATE_TMEM
-	inline void				SetLine( u32 line )				{ Line = line; }
+	inline u32 GetLine() const { return Line; }
 #endif
-	inline void				SetPalette( u32 index )			{ Palette = index; }
-	inline void				SetSwapped( bool swapped )		{ Swapped = swapped; }
-	inline void				SetEmulateMirrorS( bool e )		{ EmulateMirrorS = e; }
-	inline void				SetEmulateMirrorT( bool e )		{ EmulateMirrorT = e; }
-	inline void				SetWhite( bool white )			{ White = white; }
 
-	inline int				Compare( const TextureInfo & rhs ) const			{ return memcmp( this, &rhs, sizeof( TextureInfo ) ); }
-	inline bool				operator==( const TextureInfo & rhs ) const			{ return Compare( rhs ) == 0; }
-	inline bool				operator!=( const TextureInfo & rhs ) const			{ return Compare( rhs ) != 0; }
-	inline bool				operator<( const TextureInfo & rhs ) const			{ return Compare( rhs ) < 0; }
+	inline u32 GetPalette() const { return Palette; }
+	inline bool IsSwapped() const { return Swapped; }
+	inline bool GetEmulateMirrorS() const { return EmulateMirrorS; }
+	inline bool GetEmulateMirrorT() const { return EmulateMirrorT; }
+	inline bool GetWhite() const { return White; }
 
+	inline void SetLoadAddress(u32 address) { LoadAddress = address; }
+	inline void SetTlutAddress(u32 address) { TlutAddress = address; }
+	inline void SetTmemAddress(u32 address) { TmemAddress = address; }
+	inline void SetFormat(u32 format) { Format = format; }
+	inline void SetSize(u32 size) { Size = size; }
+	inline void SetWidth(u32 width) { Width = static_cast<u16>(width); }
+	inline void SetHeight(u32 height) { Height = static_cast<u16>(height); }
+	inline void SetPitch(u32 pitch) { Pitch = static_cast<u16>(pitch); }
+	inline void SetTLutFormat(ETLutFmt format) { TLutFmt = static_cast<u32>(format); }
+
+#ifdef DAEDALUS_ACCURATE_TMEM
+	inline void SetLine(u32 line) { Line = line; }
+#endif
+
+	inline void SetPalette(u32 index) { Palette = index; }
+	inline void SetSwapped(bool swapped) { Swapped = swapped; }
+	inline void SetEmulateMirrorS(bool emulate) { EmulateMirrorS = emulate; }
+	inline void SetEmulateMirrorT(bool emulate) { EmulateMirrorT = emulate; }
+	inline void SetWhite(bool white) { White = white; }
+inline bool operator==(const TextureInfo & rhs) const
+{
+	return LoadAddress == rhs.LoadAddress &&
+		   TlutAddress == rhs.TlutAddress &&
+		   Width == rhs.Width &&
+		   Height == rhs.Height &&
+		   Pitch == rhs.Pitch &&
+		   TmemAddress == rhs.TmemAddress &&
+		   Palette == rhs.Palette &&
+		   Format == rhs.Format &&
+		   Size == rhs.Size &&
+		   TLutFmt == rhs.TLutFmt
+#ifdef DAEDALUS_ACCURATE_TMEM
+		   && Line == rhs.Line
+#endif
+		   && Swapped == rhs.Swapped &&
+		   EmulateMirrorS == rhs.EmulateMirrorS &&
+		   EmulateMirrorT == rhs.EmulateMirrorT &&
+		   White == rhs.White;
+}
+
+inline bool operator!=(const TextureInfo & rhs) const
+{
+	return !(*this == rhs);
+}
+
+inline bool operator<(const TextureInfo & rhs) const
+{
+	if (LoadAddress != rhs.LoadAddress)
+		return LoadAddress < rhs.LoadAddress;
+
+	if (TlutAddress != rhs.TlutAddress)
+		return TlutAddress < rhs.TlutAddress;
+
+	if (Width != rhs.Width)
+		return Width < rhs.Width;
+
+	if (Height != rhs.Height)
+		return Height < rhs.Height;
+
+	if (Pitch != rhs.Pitch)
+		return Pitch < rhs.Pitch;
+
+	if (TmemAddress != rhs.TmemAddress)
+		return TmemAddress < rhs.TmemAddress;
+
+	if (Palette != rhs.Palette)
+		return Palette < rhs.Palette;
+
+	if (Format != rhs.Format)
+		return Format < rhs.Format;
+
+	if (Size != rhs.Size)
+		return Size < rhs.Size;
+
+	if (TLutFmt != rhs.TLutFmt)
+		return TLutFmt < rhs.TLutFmt;
+
+#ifdef DAEDALUS_ACCURATE_TMEM
+	if (Line != rhs.Line)
+		return Line < rhs.Line;
+#endif
+
+	if (Swapped != rhs.Swapped)
+		return Swapped < rhs.Swapped;
+
+	if (EmulateMirrorS != rhs.EmulateMirrorS)
+		return EmulateMirrorS < rhs.EmulateMirrorS;
+
+	if (EmulateMirrorT != rhs.EmulateMirrorT)
+		return EmulateMirrorT < rhs.EmulateMirrorT;
+
+	return White < rhs.White;
+}
 };
 
 #endif // HLEGRAPHICS_TEXTUREINFO_H_

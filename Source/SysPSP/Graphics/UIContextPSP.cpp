@@ -164,7 +164,7 @@ void	IUIContext::Update( float elapsed_time )
 }
 
 
-void	IUIContext::RenderTexture( CNativeTexture* texture, s32 x, s32 y, c32 colour )
+void	IUIContext::RenderTexture( const CNativeTexture* texture, s32 x, s32 y, c32 colour )
 {
 	if(texture == NULL)
 		return;

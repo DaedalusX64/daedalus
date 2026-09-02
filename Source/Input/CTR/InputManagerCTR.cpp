@@ -356,12 +356,12 @@ void IInputManager::GetState( OSContPad pPad[4] )
 template<> bool	CSingleton< CInputManager >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-	std::shared_ptr<IInputManager> manager = std::make_shared<IInputManager>();
+	std::unique_ptr<IInputManager> manager = std::make_unique<IInputManager>();
 	// IInputManager * manager = new IInputManager();
 
 	if(manager->Initialise())
 	{
-		mpInstance = manager;
+		mpInstance = std::move(manager);
 		return true;
 	}
 	return false;
