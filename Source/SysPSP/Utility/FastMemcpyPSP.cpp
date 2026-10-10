@@ -25,7 +25,7 @@ homepage: http://wordpress.fx-world.org
 void memcpy_vfpu( void* dst, const void* src, size_t size )
 {
     //less than 16bytes or there is no 32bit alignment -> not worth optimizing
-	if( ((u32)src&0x3) != ((u32)dst&0x3) && (size<16) )
+	if( ((u32)src&0x3) != ((u32)dst&0x3) || (size<16) )
     {
         memcpy( dst, src, size );
         return;
