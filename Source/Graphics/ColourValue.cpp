@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //ToDo: Needs work profiling testing and find faster VFPU/CPU implemtations
 //
-#ifdef DAEDALUS_PSP
+#if defined(DAEDALUS_PSP) && !defined(DAEDALUS_PSP_USE_ME)
 const glm::vec4 __attribute__((aligned(16))) SCALE( 255.0f, 255.0f, 255.0f, 255.0f );
 
 // Around 354,000 ticks/million - faster than the CPU version
@@ -71,7 +71,7 @@ inline u32 Vector2ColourClampedCPU( const glm::vec4 * col_in )
 inline u32 Vector2ColourClamped( const glm::vec4 & colour )
 {
 	//This is faster than the CPU Version
-#ifdef DAEDALUS_PSP
+#if defined(DAEDALUS_PSP) && !defined(DAEDALUS_PSP_USE_ME)
 	return Vector2ColourClampedVFPU( &colour );
 #else
 	return Vector2ColourClampedCPU( &colour );

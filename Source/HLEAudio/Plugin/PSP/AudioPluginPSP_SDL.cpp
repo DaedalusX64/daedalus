@@ -15,39 +15,6 @@
 
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Utility/CacheUtil.h"
-
-
-#include "SysPSP/PRX/MediaEngine/me.h"
-#include "SysPSP/Utility/ModulePSP.h"
-
-bool gLoadedMediaEnginePRX {false};
-
-volatile me_struct *mei;
-
-bool InitialiseMediaEngine()
-{
-	constexpr std::size_t size = 64;
-	if( CModule::Load("Plugins/mediaengine.prx") < 0 )	return false;
-
-	mei = (volatile struct me_struct *)std::malloc(size * sizeof(struct me_struct));
-	mei = (volatile struct me_struct *)(make_uncached_ptr(mei));
-	sceKernelDcacheWritebackInvalidateAll();
-
-	if (InitME(mei) == 0)
-	{
-		gLoadedMediaEnginePRX = true;
-		return true;
-	}
-	else
-	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
-		printf(" Couldn't initialize MediaEngine Instance\n");
-		#endif
-		return false;
-	}
-
-}
-
 #endif
 EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
 
@@ -126,7 +93,6 @@ AudioPluginSDL::AudioPluginSDL()
 	 mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
 	mAudioBufferUncached = (CAudioBuffer*)make_uncached_ptr(mem);
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
-	InitialiseMediaEngine();
 	#endif
 }
 
@@ -188,25 +154,13 @@ EProcessResult AudioPluginSDL::ProcessAList()
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_ASYNC:
-		#ifdef DAEDALUS_PSP
-			sceKernelDcacheWritebackInvalidateAll();
-				if(BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL) < 0){
-						Audio_Ucode();
-						result = PR_COMPLETED;
-						break;
-						#else
-			DAEDALUS_ERROR("Async audio is unimplemented");
-			Audio_Ucode();
-			result = PR_COMPLETED;
-			break;
-			#endif
+			// Audio HLE stays on the main CPU in both enabled modes.
 		case APM_ENABLED_SYNC:
 			Audio_Ucode();
 			result = PR_COMPLETED;
 			break;
 	}
 
-}
 	return result;
 }
 

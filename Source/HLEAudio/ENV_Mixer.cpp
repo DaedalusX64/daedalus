@@ -9,11 +9,13 @@
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
 
-extern bool isMKABI;
-extern bool isZeldaABI;
+extern bool &isMKABI;
+extern bool &isZeldaABI;
 
-static u32 gEnv_t3 = 0, gEnv_s5 = 0, gEnv_s6 = 0;
-static u16 env[8];
+struct ME_SHARED_ALIGN EnvelopeState { u32 t3 = 0, s5 = 0, s6 = 0; u16 values[8]{}; };
+static EnvelopeState envelope;
+static u32 &gEnv_t3 = envelope.t3, &gEnv_s5 = envelope.s5, &gEnv_s6 = envelope.s6;
+static u16 (&env)[8] = envelope.values;
 
 inline u16 Sample_Mask(u32 x) { return (u16)(x & 0xffff); }
 
@@ -179,7 +181,9 @@ void ENVMIXER3(AudioHLECommand command) {
 
   gAudioHLEState.VolRight = (s16)command.cmd0;
 
-  s16 *buff = (s16 *)(rdram + addy);
+  alignas(4) s16 state[24];
+  Audio_ReadMemory(addy, state, sizeof(state));
+  s16 *buff = state;
 
   if (flags & A_INIT) {
     LAdder = gAudioHLEState.VolRampLeft / 8;
@@ -304,6 +308,9 @@ void ENVMIXER3(AudioHLECommand command) {
   *(s32 *)(buff + 18) = RVol;   // 18-19
   *(s16 *)(buff + 20) = LSig;   // 20-21
   *(s16 *)(buff + 22) = RSig;   // 22-23
+  for (u32 offset : {0U, 4U, 8U, 12U, 40U, 44U})
+    Audio_WriteMemory(addy + offset, reinterpret_cast<const u8 *>(state) + offset, 2);
+  Audio_WriteMemory(addy + 16, reinterpret_cast<const u8 *>(state) + 16, 24);
                                 //*(u32 *)(buff + 24) = 0x13371337; // 22-23
 }
 

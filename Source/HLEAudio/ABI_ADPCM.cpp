@@ -9,8 +9,8 @@
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
 
-extern bool isMKABI;
-extern bool isZeldaABI;
+extern bool &isMKABI;
+extern bool &isZeldaABI;
 
 void ADPCM(AudioHLECommand command) {
   u8 flags = command.Abi1ADPCM.Flags;
@@ -175,7 +175,7 @@ void ADPCM2(AudioHLECommand command) {
     memset(out, 0, 32);
   } else {
     u32 src_addr = loop ? gAudioHLEState.LoopVal : Address;
-    memmove(out, &rdram[src_addr], 32); // XXXX Endian issues?
+    Audio_ReadMemory(src_addr, out, 32); // XXXX Endian issues?
   }
 
   u16 inPtr = 0;
@@ -219,7 +219,7 @@ void ADPCM2(AudioHLECommand command) {
     count -= 32;
   }
   out -= 16;
-  memmove(&rdram[Address], out, 32);
+  Audio_WriteMemory(Address, out, 32);
 }
 
 void ADPCM3(AudioHLECommand command) {
@@ -245,7 +245,7 @@ void ADPCM3(AudioHLECommand command) {
   memset(out, 0, 32);
 
   if (!(Flags & 0x1)) {
-    memmove(out, &rdram[(Flags & 0x2) ? gAudioHLEState.LoopVal : Address], 32);
+    Audio_ReadMemory((Flags & 0x2) ? gAudioHLEState.LoopVal : Address, out, 32);
   }
 
 // s32 l1 =std::array<s32, 15> out;
@@ -458,7 +458,7 @@ void ADPCM3(AudioHLECommand command) {
     count -= 32;
   }
   out -= 16;
-  memmove(&rdram[Address], out, 32);
+  Audio_WriteMemory(Address, out, 32);
 }
 
 void LOADADPCM(AudioHLECommand command) {

@@ -4,7 +4,6 @@
 #include <cstring>
 #include <algorithm>
 #include <iostream>
-#include <vector>
 
 #include "Utility/MathUtil.h"
 #include "Core/Memory.h"
@@ -12,17 +11,18 @@
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
 
-extern bool isMKABI;
-extern bool isZeldaABI;
+extern bool &isMKABI;
+extern bool &isZeldaABI;
 
 void FILTER2(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO
   DBGConsole_Msg(0, "FILTER2");
 #endif
 
-  static int cnt = 0;
-  static s16 *lutt6;
-  static s16 *lutt5;
+  struct ME_SHARED_ALIGN FilterState { int count = 0; s16 *lut6 = nullptr, *lut5 = nullptr; };
+  static FilterState state;
+  int &cnt = state.count;
+  s16 *&lutt6 = state.lut6, *&lutt5 = state.lut5;
   u8 *save = (rdram + (command.cmd1 & 0xFFFFFF));
   u8 t4 = (u8)((command.cmd0 >> 0x10) & 0xFF);
 
@@ -44,90 +44,96 @@ void FILTER2(AudioHLECommand command) {
 
   //			lutt5 = (short *)(dmem + 0xFC0);
   //			lutt6 = (short *)(dmem + 0xFE0);
+  const u32 addr6 = static_cast<u32>(reinterpret_cast<u8 *>(lutt6) - rdram);
+  const u32 addr5 = static_cast<u32>(reinterpret_cast<u8 *>(lutt5) - rdram);
   for (int x = 0; x < 8; x++) {
-    s32 a;
-    a = (lutt5[x] + lutt6[x]) >> 1;
-    lutt5[x] = lutt6[x] = (short)a;
+    // Observe previous coefficient writes even when the two tables overlap.
+    const s32 a = (s16(Audio_ReadHalf(addr5 + x * 2)) + s16(Audio_ReadHalf(addr6 + x * 2))) >> 1;
+    Audio_WriteHalf(addr5 + x * 2, s16(a));
+    Audio_WriteHalf(addr6 + x * 2, s16(a));
   }
+  s16 lut6[8], history[8];
+  Audio_ReadMemory(addr6, lut6, sizeof(lut6));
+  Audio_ReadMemory(static_cast<u32>(save - rdram), history, sizeof(history));
   short *inp1, *inp2;
   s32 out1[8];
   s16 outbuff[0x3c0], *outp;
   u32 inPtr = (u32)(command.cmd0 & 0xffff);
-  inp1 = (short *)(save);
+  inp1 = history;
   outp = outbuff;
   inp2 = (short *)(gAudioHLEState.Buffer + inPtr);
   for (int x = 0; x < cnt; x += 0x10) {
-    out1[1] = inp1[0] * lutt6[6];
-    out1[1] += inp1[3] * lutt6[7];
-    out1[1] += inp1[2] * lutt6[4];
-    out1[1] += inp1[5] * lutt6[5];
-    out1[1] += inp1[4] * lutt6[2];
-    out1[1] += inp1[7] * lutt6[3];
-    out1[1] += inp1[6] * lutt6[0];
-    out1[1] += inp2[1] * lutt6[1]; // 1
+    out1[1] = inp1[0] * lut6[6];
+    out1[1] += inp1[3] * lut6[7];
+    out1[1] += inp1[2] * lut6[4];
+    out1[1] += inp1[5] * lut6[5];
+    out1[1] += inp1[4] * lut6[2];
+    out1[1] += inp1[7] * lut6[3];
+    out1[1] += inp1[6] * lut6[0];
+    out1[1] += inp2[1] * lut6[1]; // 1
 
-    out1[0] = inp1[3] * lutt6[6];
-    out1[0] += inp1[2] * lutt6[7];
-    out1[0] += inp1[5] * lutt6[4];
-    out1[0] += inp1[4] * lutt6[5];
-    out1[0] += inp1[7] * lutt6[2];
-    out1[0] += inp1[6] * lutt6[3];
-    out1[0] += inp2[1] * lutt6[0];
-    out1[0] += inp2[0] * lutt6[1];
+    out1[0] = inp1[3] * lut6[6];
+    out1[0] += inp1[2] * lut6[7];
+    out1[0] += inp1[5] * lut6[4];
+    out1[0] += inp1[4] * lut6[5];
+    out1[0] += inp1[7] * lut6[2];
+    out1[0] += inp1[6] * lut6[3];
+    out1[0] += inp2[1] * lut6[0];
+    out1[0] += inp2[0] * lut6[1];
 
-    out1[3] = inp1[2] * lutt6[6];
-    out1[3] += inp1[5] * lutt6[7];
-    out1[3] += inp1[4] * lutt6[4];
-    out1[3] += inp1[7] * lutt6[5];
-    out1[3] += inp1[6] * lutt6[2];
-    out1[3] += inp2[1] * lutt6[3];
-    out1[3] += inp2[0] * lutt6[0];
-    out1[3] += inp2[3] * lutt6[1];
+    out1[3] = inp1[2] * lut6[6];
+    out1[3] += inp1[5] * lut6[7];
+    out1[3] += inp1[4] * lut6[4];
+    out1[3] += inp1[7] * lut6[5];
+    out1[3] += inp1[6] * lut6[2];
+    out1[3] += inp2[1] * lut6[3];
+    out1[3] += inp2[0] * lut6[0];
+    out1[3] += inp2[3] * lut6[1];
 
-    out1[2] = inp1[5] * lutt6[6];
-    out1[2] += inp1[4] * lutt6[7];
-    out1[2] += inp1[7] * lutt6[4];
-    out1[2] += inp1[6] * lutt6[5];
-    out1[2] += inp2[1] * lutt6[2];
-    out1[2] += inp2[0] * lutt6[3];
-    out1[2] += inp2[3] * lutt6[0];
-    out1[2] += inp2[2] * lutt6[1];
+    out1[2] = inp1[5] * lut6[6];
+    out1[2] += inp1[4] * lut6[7];
+    out1[2] += inp1[7] * lut6[4];
+    out1[2] += inp1[6] * lut6[5];
+    out1[2] += inp2[1] * lut6[2];
+    out1[2] += inp2[0] * lut6[3];
+    out1[2] += inp2[3] * lut6[0];
+    out1[2] += inp2[2] * lut6[1];
 
-    out1[5] = inp1[4] * lutt6[6];
-    out1[5] += inp1[7] * lutt6[7];
-    out1[5] += inp1[6] * lutt6[4];
-    out1[5] += inp2[1] * lutt6[5];
-    out1[5] += inp2[0] * lutt6[2];
-    out1[5] += inp2[3] * lutt6[3];
-    out1[5] += inp2[2] * lutt6[0];
-    out1[5] += inp2[5] * lutt6[1];
+    out1[5] = inp1[4] * lut6[6];
+    out1[5] += inp1[7] * lut6[7];
+    out1[5] += inp1[6] * lut6[4];
+    out1[5] += inp2[1] * lut6[5];
+    out1[5] += inp2[0] * lut6[2];
+    out1[5] += inp2[3] * lut6[3];
+    out1[5] += inp2[2] * lut6[0];
+    out1[5] += inp2[5] * lut6[1];
 
-    out1[4] = inp1[7] * lutt6[6];
-    out1[4] += inp1[6] * lutt6[7];
-    out1[4] += inp2[1] * lutt6[4];
-    out1[4] += inp2[0] * lutt6[5];
-    out1[4] += inp2[3] * lutt6[2];
-    out1[4] += inp2[2] * lutt6[3];
-    out1[4] += inp2[5] * lutt6[0];
-    out1[4] += inp2[4] * lutt6[1];
+    out1[4] = inp1[7] * lut6[6];
+    out1[4] += inp1[6] * lut6[7];
+    out1[4] += inp2[1] * lut6[4];
+    out1[4] += inp2[0] * lut6[5];
+    out1[4] += inp2[3] * lut6[2];
+    out1[4] += inp2[2] * lut6[3];
+    out1[4] += inp2[5] * lut6[0];
+    out1[4] += inp2[4] * lut6[1];
 
-    out1[7] = inp1[6] * lutt6[6];
-    out1[7] += inp2[1] * lutt6[7];
-    out1[7] += inp2[0] * lutt6[4];
-    out1[7] += inp2[3] * lutt6[5];
-    out1[7] += inp2[2] * lutt6[2];
-    out1[7] += inp2[5] * lutt6[3];
-    out1[7] += inp2[4] * lutt6[0];
-    out1[7] += inp2[7] * lutt6[1];
+    out1[7] = inp1[6] * lut6[6];
+    out1[7] += inp2[1] * lut6[7];
+    out1[7] += inp2[0] * lut6[4];
+    out1[7] += inp2[3] * lut6[5];
+    out1[7] += inp2[2] * lut6[2];
+    out1[7] += inp2[5] * lut6[3];
+    out1[7] += inp2[4] * lut6[0];
+    out1[7] += inp2[7] * lut6[1];
 
-    out1[6] = inp2[1] * lutt6[6];
-    out1[6] += inp2[0] * lutt6[7];
-    out1[6] += inp2[3] * lutt6[4];
-    out1[6] += inp2[2] * lutt6[5];
-    out1[6] += inp2[5] * lutt6[2];
-    out1[6] += inp2[4] * lutt6[3];
-    out1[6] += inp2[7] * lutt6[0];
-    out1[6] += inp2[6] * lutt6[1];
+    out1[6] = inp2[1] * lut6[6];
+    out1[6] += inp2[0] * lut6[7];
+    out1[6] += inp2[3] * lut6[4];
+    out1[6] += inp2[2] * lut6[5];
+    out1[6] += inp2[5] * lut6[2];
+    out1[6] += inp2[4] * lut6[3];
+    out1[6] += inp2[7] * lut6[0];
+    out1[6] += inp2[6] * lut6[1];
 
     // XXXX correct?
     outp[1] = /*CLAMP*/ s16((out1[1] + 0x4000) >> 0xF);
@@ -146,49 +152,28 @@ void FILTER2(AudioHLECommand command) {
   // 0x20);
   // std::copy(outbuff, gAudioHLEState.Buffer + (command.cmd0 & 0xffff) );
   // std::copy(inp2 - 8, save, 0x10);
-  memmove(save, inp2 - 8, 0x10);
+  Audio_WriteMemory(static_cast<u32>(save - rdram), inp2 - 8, 0x10);
   memmove(gAudioHLEState.Buffer + (command.cmd0 & 0xffff), outbuff, cnt);
 }
 
-void POLEF(AudioHLECommand command )
-
+void POLEF(AudioHLECommand command)
 {
-// Fetch the input audio buffer
-    // Assuming that command contains the address of the input buffer in cmd1
-    auto* inputBuffer = reinterpret_cast<s16*>(rdram + (command.cmd1 & 0xFFFFFF));
-    u32 bufferLength = command.cmd0 & 0xFFFF; // Size of the buffer
-
-    // Coefficients for the pole filter
-    // These values can be passed through the command structure or pre-defined
-    constexpr float a1 = 0.5f;  // Example coefficient for 1st order
-    constexpr float a2 = 0.25f; // Example coefficient for 2nd order
-
-    // Output buffer to store filtered result
-    std::vector<s16> outputBuffer(bufferLength);
-
-    // Previous output values (initially zero)
-    s16 prevY1 = 0;  // y[n-1]
-    s16 prevY2 = 0;  // y[n-2]
-
-    // Apply the pole filter to each sample
-    for (u32 i = 0; i < bufferLength; ++i) {
-        s16 inputSample = inputBuffer[i];
-
-        // Recursive pole filter formula (example for a 2nd order filter)
-        float currentY = inputSample + a1 * prevY1 + a2 * prevY2;
-
-        // Clamp the result to prevent overflow (optional)
-       currentY = std::max(-32768.0f, std::min(32767.0f, currentY));
-
-        // Store the filtered result
-        outputBuffer[i] = static_cast<int16_t>(currentY);
-
-        // Update previous values for the next iteration
-        prevY2 = prevY1;
-        prevY1 = static_cast<s16>(currentY);
+    const u32 address = command.cmd1 & 0xFFFFFF;
+    const u32 length = command.cmd0 & 0xFFFF;
+    s16 prevY1 = 0, prevY2 = 0;
+    s16 block[128];
+    for (u32 start = 0; start < length; start += 128)
+    {
+        const u32 count = std::min<u32>(128, length - start);
+        Audio_ReadMemory(address + start * sizeof(s16), block, count * sizeof(s16));
+        for (u32 i = 0; i < count; ++i)
+        {
+            float current = block[i] + 0.5f * prevY1 + 0.25f * prevY2;
+            current = std::max(-32768.0f, std::min(32767.0f, current));
+            block[i] = static_cast<s16>(current);
+            prevY2 = prevY1;
+            prevY1 = block[i];
+        }
+        Audio_WriteMemory(address + start * sizeof(s16), block, count * sizeof(s16));
     }
-
-    // Store the filtered buffer back into memory
-    // Replace the input buffer with the processed output
-    std::memcpy(inputBuffer, outputBuffer.data(), bufferLength * sizeof(int16_t));
 }

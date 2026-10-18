@@ -35,8 +35,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
 
-bool isMKABI = false;
-bool isZeldaABI = false;
+struct ME_SHARED_ALIGN AudioABIFlags { bool mk = false, zelda = false; };
+static AudioABIFlags audioFlags;
+bool &isMKABI = audioFlags.mk;
+bool &isZeldaABI = audioFlags.zelda;
 
 AudioHLEInstruction ABI2[0x20] = {
 // std::array<AudioHLEInstruction, 0x20> ABI2 = {

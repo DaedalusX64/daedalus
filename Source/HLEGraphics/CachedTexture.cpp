@@ -31,6 +31,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/ConvertImage.h"
 #include "HLEGraphics/ConvertTile.h"
 #include "HLEGraphics/TextureInfo.h"
+#ifdef DAEDALUS_PSP
+#include "SysPSP/ME/MEGraphics.h"
+#endif
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativePixelFormat.h"
 #include "Graphics/NativeTexture.h"
@@ -284,7 +287,20 @@ void CachedTexture::UpdateIfNecessary()
 	{
 		if (UpdateTextureHash())
 		{
-			UpdateTexture( mTextureInfo, mpTexture );
+#ifdef DAEDALUS_PSP_USE_ME
+            if (MEGraphics_IsOnME())
+            {
+                // Checking source RAM is safe on ME. Conversion/allocation,
+                // VRAM writes and cache syscalls still belong to the SC.
+                CachedTexture *texture = this;
+                MEGraphics_CallOnMainCPU([](void *data) {
+                    auto *t = *static_cast<CachedTexture **>(data);
+                    UpdateTexture(t->mTextureInfo, t->mpTexture);
+                }, texture);
+            }
+            else
+#endif
+                UpdateTexture( mTextureInfo, mpTexture );
 		}
 
 		// FIXME(strmnrmn): should probably recreate mpWhiteTexture if it exists, else it may have stale data.

@@ -44,6 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP
 #include "SysPSP/Math/Math.h"
+#include "SysPSP/ME/MEGraphics.h"
 #endif 
 
 #ifdef DAEDALUS_CTR
@@ -286,7 +287,17 @@ void BaseRenderer::BeginScene()
 //*****************************************************************************
 void BaseRenderer::EndScene()
 {
+#ifdef DAEDALUS_PSP_USE_ME
+    const bool trace = MEGraphics_IsFirstTask();
+    if (trace)
+        printf("ME graphics: EndScene entered\n");
+#endif
 	CGraphicsContext::Get()->EndFrame();
+
+#ifdef DAEDALUS_PSP_USE_ME
+    if (trace)
+        printf("ME graphics: EndFrame returned, releasing textures\n");
+#endif
 
 	//
 	//	Clear this, to ensure we're force to check for updates to it on the next frame
@@ -295,6 +306,10 @@ void BaseRenderer::EndScene()
 		mBoundTextureInfo[ i ] = TextureInfo();
 		mBoundTexture[ i ]     = NULL;
 	}
+#ifdef DAEDALUS_PSP_USE_ME
+    if (trace)
+        printf("ME graphics: EndScene completed\n");
+#endif
 }
 
 //*****************************************************************************
@@ -1650,9 +1665,27 @@ void BaseRenderer::UpdateTileSnapshots( u32 tile_idx )
 }
 
 #ifdef DAEDALUS_PSP
-static void T1Hack(const TextureInfo & ti0, std::shared_ptr<CNativeTexture> texture0,
-				   const TextureInfo & ti1, std::shared_ptr<CNativeTexture> texture1)
+static void T1Hack(const TextureInfo & ti0, CNativeTexture *texture0,
+				   const TextureInfo & ti1, CNativeTexture *texture1)
 {
+#ifdef DAEDALUS_PSP_USE_ME
+    if (MEGraphics_IsOnME())
+    {
+        // These surfaces may live in VRAM, which the ME cannot dereference.
+        struct Request { u8 info[2 * sizeof(TextureInfo)]; CNativeTexture *textures[2]; };
+        Request request{{}, {texture0, texture1}};
+        memcpy(request.info, &ti0, sizeof(ti0));
+        memcpy(request.info + sizeof(ti0), &ti1, sizeof(ti1));
+        MEGraphics_CallOnMainCPU([](void *data) {
+            auto &r = *static_cast<Request *>(data);
+            TextureInfo info0, info1;
+            memcpy(&info0, r.info, sizeof(info0));
+            memcpy(&info1, r.info + sizeof(info0), sizeof(info1));
+            T1Hack(info0, r.textures[0], info1, r.textures[1]);
+        }, request);
+        return;
+    }
+#endif
 	if((ti0.GetFormat() == G_IM_FMT_RGBA) &&
 	   (ti1.GetFormat() == G_IM_FMT_I) &&
 	   (ti1.GetWidth()  == ti0.GetWidth()) &&
@@ -1739,7 +1772,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 				//If T1 Hack is not enabled index can never be other than 0
 				if(index)
 				{
-					T1Hack(mBoundTextureInfo[0], mBoundTexture[0], mBoundTextureInfo[1], mBoundTexture[1]);
+					T1Hack(mBoundTextureInfo[0], mBoundTexture[0].get(), mBoundTextureInfo[1], mBoundTexture[1].get());
 				}
 #endif
 			}

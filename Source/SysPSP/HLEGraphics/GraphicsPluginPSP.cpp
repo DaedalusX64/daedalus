@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspdebug.h>
 
 #include "Core/Memory.h"
+#include "SysPSP/ME/MEGraphics.h"
 
 
 extern void battery_warning();
@@ -160,6 +161,7 @@ bool CGraphicsPluginImpl::Initialise()
 		return false;
 	}
 
+	MEGraphics_Initialise(); // CPU fallback if me-core cannot start.
 	return true;
 }
 
@@ -267,6 +269,7 @@ void CGraphicsPluginImpl::RomClosed()
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Finalising PSPGraphics");
 	#endif
+	MEGraphics_Shutdown();
 	DLParser_Finalise();
 	CTextureCache::Destroy();
 	DestroyRenderer();

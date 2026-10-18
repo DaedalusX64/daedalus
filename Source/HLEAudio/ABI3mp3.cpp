@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace {
 
-struct CMP3Decode {
+struct ME_SHARED_ALIGN CMP3Decode {
   u8 mp3data[0x1000];
   s32 v[32];
   u32 inPtr, outPtr;
@@ -677,13 +677,13 @@ void CMP3Decode::Decode(AudioHLECommand command) {
 
   writePtr = command.cmd1 & 0xFFFFFF;
   readPtr = writePtr;
-  memmove(mp3data + 0xCE8, rdram + readPtr,
+  Audio_ReadMemory(readPtr, mp3data + 0xCE8,
           8);   // Just do that for efficiency... may remove and use directly
                 // later anyway
   readPtr += 8; // This must be a header byte or whatnot
 
   for (u32 cnt = 0; cnt < 0x0480; cnt += 0x180) {
-    memmove(mp3data + 0xCF0, rdram + readPtr,
+    Audio_ReadMemory(readPtr, mp3data + 0xCF0,
             0x180); // DMA: 0xCF0 <- RDRAM[s5] : 0x180
     inPtr = 0xCF0;  // s7
     outPtr = 0xE70; // s3
@@ -702,7 +702,7 @@ void CMP3Decode::Decode(AudioHLECommand command) {
       inPtr += 0x40;
     }
 
-    memmove(rdram + writePtr, mp3data + 0xe70, 0x180);
+    Audio_WriteMemory(writePtr, mp3data + 0xe70, 0x180);
     writePtr += 0x180;
     readPtr += 0x180;
   }

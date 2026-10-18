@@ -122,7 +122,12 @@ else()
 		option(DAEDALUS_DIALOGS "Enable UI Dialogs" OFF)
 		option(DAEDALUS_ENABLE_DYNAREC "Enable Dynamic Recompilation, Disable if system not supported" ON)
 		option(DAEDALUS_PSP "PSP specific Options" ON)
-		option(DAEDALUS_PSP_USE_ME "Use the Media Engine" ON)
+		option(DAEDALUS_PSP_USE_ME "Process graphics display lists on the Media Engine using me-core" ON)
+		option(DAEDALUS_PSP_ME_AUDIO "Process audio HLE and feed the audio FIFO on ME" ON)
+		option(DAEDALUS_PSP_ME_DIAGNOSTICS "Trace ME commands and poll GE for freeze diagnostics" OFF)
+		option(DAEDALUS_PSP_ME_TIMING "Report ME task and main-CPU service timing every 300 tasks" OFF)
+		# The ME entry point does not inherit the main CPU global pointer.
+		add_compile_options(-G0)
 		option(DAEDALUS_PSP_USE_VFPU "Enable VFPU Instructions" ON)
 		option(DAEDALUS_SIM_DOUBLES "Simulate Doubles" ON)
 		option(INTRAFONT "Use Native Fonts" ON) #If this is off, SDL will be enabled

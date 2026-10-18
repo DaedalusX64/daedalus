@@ -43,52 +43,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/AudioBuffer.h"
 #include "HLEAudio/AudioPlugin.h"
+#include "SysPSP/ME/MEGraphics.h"
+#include "SysPSP/ME/MEAudio.h"
 // #include "SysPSP/Utility/JobManager.h"
 #include "SysPSP/Utility/CacheUtil.h"
 // #include "SysPSP/Utility/JobManager.h"
 #include "Utility/FramerateLimiter.h"
 #include "System/Thread/Thread.h"
 
-#ifdef DAEDALUS_PSP_USE_ME
-
-#include "SysPSP/PRX/MediaEngine/me.h"
-#include "SysPSP/Utility/ModulePSP.h"
-
-bool gLoadedMediaEnginePRX {false};
-
-volatile me_struct *mei;
-
-bool InitialiseMediaEngine()
-{
-	if ( gLoadedMediaEnginePRX == false)
-	{
-		if( CModule::Load("Plugins/mediaengine.prx") < 0 )	return false;
-
-		mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
-		mei = (volatile struct me_struct *)(make_uncached_ptr(mei));
-		sceKernelDcacheWritebackInvalidateAll();
-
-		if (InitME(mei) == 0)
-		{
-			gLoadedMediaEnginePRX = true;
-			return true;
-		}
-		else
-		{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
-			printf(" Couldn't initialize MediaEngine Instance\n");
-			#endif
-			return false;
-		}
-	}
-	else
-	{
-		printf("Media Engine already Initialised\n");
-		return true;
-	}
-}
-
-#endif
 
 #define RSP_AUDIO_INTR_CYCLES     1
 extern u32 gSoundSync;
@@ -169,13 +131,12 @@ AudioPluginPSP::AudioPluginPSP()
 	// Ideally we could just invalidate this range?
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 
-	#ifdef DAEDALUS_PSP_USE_ME
-	InitialiseMediaEngine();
-	#endif
 }
 
 AudioPluginPSP::~AudioPluginPSP( )
 {
+    MEGraphics_Wait();
+    MEAudio_StopOutput();
 	mAudioBuffer->~CAudioBuffer();
   free(mAudioBuffer);
   sceKernelDeleteSema(mSemaphore);
@@ -190,6 +151,7 @@ bool		AudioPluginPSP::StartEmulation()
 
 void	AudioPluginPSP::StopEmulation()
 {
+    MEGraphics_Wait();
     Audio_Reset();
   	StopAudio();
     sceKernelDeleteSema(mSemaphore);
@@ -231,6 +193,12 @@ void	AudioPluginPSP::LenChanged()
 
 EProcessResult	AudioPluginPSP::ProcessAList()
 {
+    if (gAudioPluginEnabled != APM_DISABLED)
+    {
+        const bool asynchronous = gAudioPluginEnabled == APM_ENABLED_ASYNC;
+        if (MEAudio_Process(asynchronous))
+            return asynchronous ? PR_STARTED : PR_COMPLETED;
+    }
 	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
 
 	EProcessResult	result = PR_NOT_STARTED;
@@ -241,23 +209,7 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_ASYNC:
-			{
-#ifdef DAEDALUS_PSP_USE_ME
-				sceKernelDcacheWritebackInvalidateAll();
-				if(BeginME( mei, (int)&Audio_Ucode, (int)NULL, -1, NULL, -1, NULL) < 0){
-						Audio_Ucode();
-						result = PR_COMPLETED;
-						break;
-				}
-#else
-				DAEDALUS_ERROR("Async audio is unimplemented");
-				Audio_Ucode();
-				result = PR_COMPLETED;
-				break;
-#endif
-			}
-			result = PR_COMPLETED;
-			break;
+			// Main-CPU fallback when me-core/audio offload is unavailable.
 		case APM_ENABLED_SYNC:
 			Audio_Ucode();
 			result = PR_COMPLETED;
@@ -278,6 +230,11 @@ void audioCallback( void * buf, unsigned int length, void * userdata )
 
 void AudioPluginPSP::StartAudio()
 {
+    if (!mKeepRunning && MEAudio_StartOutput())
+    {
+        mKeepRunning = true;
+        return;
+    }
 	if (mKeepRunning)
 		return;
 
@@ -295,6 +252,8 @@ pspAudioSetChannelCallback( 0, audioCallback, this );
 
 void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 {
+    if (MEAudio_IsOutputActive() && !MEGraphics_IsEnabled())
+        StopAudio();
 	if (length == 0)
 		return;
 
@@ -302,6 +261,11 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 		StartAudio();
 
 	u32 num_samples = length / sizeof( Sample );
+    if (MEAudio_IsOutputActive())
+    {
+        MEAudio_QueueSamples(start, num_samples, mFrequency);
+        return;
+    }
 
 	switch( gAudioPluginEnabled )
 	{
@@ -335,6 +299,7 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
 void AudioPluginPSP::StopAudio()
 {
+    MEAudio_StopOutput();
 	if (!mKeepRunning)
 		return;
 

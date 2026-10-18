@@ -86,6 +86,18 @@ if(DAEDALUS_PSP_USE_ME)
     add_compile_definitions(DAEDALUS_PSP_USE_ME)
 endif(DAEDALUS_PSP_USE_ME)
 
+if(DAEDALUS_PSP_USE_ME AND DAEDALUS_PSP_ME_DIAGNOSTICS)
+    add_compile_definitions(DAEDALUS_PSP_ME_DIAGNOSTICS)
+endif()
+
+if(DAEDALUS_PSP_USE_ME AND DAEDALUS_PSP_ME_TIMING)
+    add_compile_definitions(DAEDALUS_PSP_ME_TIMING)
+endif()
+
+if(DAEDALUS_PSP_USE_ME AND DAEDALUS_PSP_ME_AUDIO)
+    add_compile_definitions(DAEDALUS_PSP_ME_AUDIO)
+endif()
+
 if(DAEDALUS_PSP_USE_VFPU)
     message("DAEDALUS_PSP_USE_VFPU=ON")
     add_compile_definitions(DAEDALUS_PSP_USE_VFPU)

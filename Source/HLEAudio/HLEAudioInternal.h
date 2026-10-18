@@ -428,6 +428,7 @@ void UNKNOWN(AudioHLECommand command);
 #define dmem ((u8 *)g_pMemoryBuffers[MEM_SP_MEM] + SP_DMA_DMEM)
 #define imem ((u8 *)g_pMemoryBuffers[MEM_SP_MEM] + SP_DMA_IMEM)
 #define rdram ((u8 *)g_pMemoryBuffers[MEM_RD_RAM])
+#include "HLEAudio/AudioMemory.h"
 
 // Use these functions to interface with the HLE Audio...
 void Audio_Ucode();

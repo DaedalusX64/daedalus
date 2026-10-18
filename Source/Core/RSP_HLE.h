@@ -36,5 +36,6 @@ enum EProcessResult
 
 void RSP_HLE_Reset();
 void RSP_HLE_ProcessTask();
+void RSP_HLE_Finished(u32 setbits);
 
 #endif // CORE_RSP_HLE_H_

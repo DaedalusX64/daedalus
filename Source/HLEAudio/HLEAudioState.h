@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Base/Types.h"
 
-struct AudioHLEState {
+struct ME_SHARED_ALIGN AudioHLEState {
   void ClearBuffer(u16 addr, u16 count);
 
   void EnvMixer(u8 flags, u32 address);

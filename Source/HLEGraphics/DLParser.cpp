@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interface/ConfigOptions.h"
 #include "Core/CPU.h"
+#include "Core/RSP_HLE.h"
 #include "Core/Memory.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
@@ -32,6 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/ConvertFormats.h"			// YUVtoRGBA
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/DLParser.h"
+#ifdef DAEDALUS_PSP
+#include "SysPSP/ME/MEGraphics.h"
+#endif
 #include "HLEGraphics/BaseRenderer.h"
 #include "HLEGraphics/Microcode.h"
 #include "HLEGraphics/N64PixelFormat.h"
@@ -217,6 +221,13 @@ static inline bool IsVertexInfoValid(u32 address, u32 size, u32 v0, u32 n)
 //*****************************************************************************
 inline void FinishRDPJob()
 {
+#ifdef DAEDALUS_PSP_USE_ME
+	if (MEGraphics_IsOnME())
+	{
+		MEGraphics_RequestDPInterrupt();
+		return;
+	}
+#endif
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
 	gCPUState.AddJob(CPU_CHECK_INTERRUPTS);
 }
@@ -382,6 +393,18 @@ void DLParser_Finalise()
 //*****************************************************************************
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size )
 {
+#ifdef DAEDALUS_PSP_USE_ME
+    if (MEGraphics_IsOnME())
+    {
+        struct Request { u32 code, code_size, data, data_size; };
+        Request request{code_base, code_size, data_base, data_size};
+        MEGraphics_CallOnMainCPU([](void *data) {
+            auto &r = *static_cast<Request *>(data);
+            DLParser_InitMicrocode(r.code, r.code_size, r.data, r.data_size);
+        }, request);
+        return;
+    }
+#endif
 	if( !IsAddressValid(code_base, code_size, "InitMicrocode: ucode code") 
 		|| !IsAddressValid(data_base, data_size, "InitMicrocode: ucode data")  )
 	{
@@ -422,8 +445,17 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 
 	while(gDlistStackPointer >= 0)
 	{
+		// Recycle a full PSP list before the next command writes more GE data.
+#ifdef DAEDALUS_PSP
+		GraphicsContextPSP_ReserveDisplayListMemory(0);
+#endif
 		if (!DLParser_FetchNextCommand( &command ))
 			break;
+
+#ifdef DAEDALUS_PSP_ME_DIAGNOSTICS
+        if (MEGraphics_IsOnME())
+            MEGraphics_ReportCommand(gDlistStack.address[gDlistStackPointer] - 8, command.inst.cmd0);
+#endif
 
 		DL_BEGIN_INSTR(current_instruction_count, command.inst.cmd0, command.inst.cmd1, gDlistStackPointer, gUcodeName[command.inst.cmd]);
 
@@ -464,9 +496,26 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 //*****************************************************************************
 //
 //*****************************************************************************
+#ifdef DAEDALUS_PSP_USE_ME
+static void DLParser_CompleteME(u32)
+{
+    if (MEGraphics_TakeDPInterrupt())
+        FinishRDPJob();
+    gRenderer->EndScene();
+    if (g_ROM.GameHacks == CHAMELEON_TWIST_2)
+        gGraphicsPlugin->UpdateScreen();
+    // Until this point the emulated RSP still owns its task inputs. Games
+    // may build other work, but must wait for SP/DP before reusing this task.
+    RSP_HLE_Finished(SP_STATUS_TASKDONE | SP_STATUS_BROKE | SP_STATUS_HALT);
+}
+#endif
+
 u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 {
 	DAEDALUS_PROFILE( "DLParser_Process" );
+#ifdef DAEDALUS_PSP_USE_ME
+    MEGraphics_Wait(); // A new task reuses the single renderer and GU context.
+#endif
 
 	if ( !CGraphicsContext::Get()->IsInitialised() || !gRenderer )
 	{
@@ -532,7 +581,16 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 		gRenderer->ResetMatrices(stack_size);
 		gRenderer->Reset();
 		gRenderer->BeginScene();
-		count = DLParser_ProcessDList(instruction_limit);
+#ifdef DAEDALUS_PSP_USE_ME
+        if (MEGraphics_Submit(DLParser_ProcessDList, instruction_limit, DLParser_CompleteME))
+        {
+            CPU_RequestMEGraphicsPoll();
+            return 0; // CPU emulation resumes; EndScene runs on completion.
+        }
+        count = DLParser_ProcessDList(instruction_limit);
+#else
+        count = DLParser_ProcessDList(instruction_limit);
+#endif
 		gRenderer->EndScene();
 	}
 	else
@@ -1001,6 +1059,15 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 //This fixes the jumpy camera in DK64, also the sun and flames glare in Zelda
 void Clear_N64DepthBuffer( MicroCodeCommand command )
 {
+#ifdef DAEDALUS_PSP_USE_ME
+    if (MEGraphics_IsOnME())
+    {
+        MEGraphics_CallOnMainCPU([](void *data) {
+            Clear_N64DepthBuffer(*static_cast<MicroCodeCommand *>(data));
+        }, command);
+        return;
+    }
+#endif
 	u32 x0 = command.fillrect.x0 + 1;
 	u32 x1 = command.fillrect.x1 + 1;
 	u32 y1 = command.fillrect.y1;

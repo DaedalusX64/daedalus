@@ -11,8 +11,8 @@
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
 #include <algorithm>
-extern bool isMKABI;
-extern bool isZeldaABI;
+extern bool &isMKABI;
+extern bool &isZeldaABI;
 
 inline u16 Sample_Mask(u32 x) { return (u16)(x & 0xffff); }
 
@@ -125,7 +125,7 @@ void LOADBUFF3(AudioHLECommand command) {
   u32 cnt = (((command.cmd0 >> 0xC) + 3) & 0xFFC);
   v0 = (command.cmd1 & 0xfffffc);
   u32 src = (command.cmd0 & 0xffc) + 0x4f0;
-  memmove(gAudioHLEState.Buffer + src, rdram + v0, cnt);
+  Audio_ReadMemory(v0, gAudioHLEState.Buffer + src, cnt);
 }
 
 void SAVEBUFF(AudioHLECommand command) {
@@ -156,7 +156,7 @@ void SAVEBUFF3(AudioHLECommand command) {
   u32 cnt = ((command.cmd0 >> 0xC) + 3) & 0xFFC;
   u32 v0 = (command.cmd1 & 0xfffffc);
   u32 src = (command.cmd0 & 0xffc) + 0x4f0;
-  memmove(rdram + v0, gAudioHLEState.Buffer + src, cnt);
+  Audio_WriteMemory(v0, gAudioHLEState.Buffer + src, cnt);
 }
 
 void SEGMENT(AudioHLECommand command [[maybe_unused]]) {

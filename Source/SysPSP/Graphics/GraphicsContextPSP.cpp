@@ -25,6 +25,8 @@
 #include <pspgu.h>
 #include <pspdisplay.h>
 #include <pspdebug.h>
+#include <pspge.h>
+#include <pspkernel.h>
 
 #include "Interface/ConfigOptions.h"
 #include "Core/ROM.h"
@@ -34,6 +36,7 @@
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/PngUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"
+#include "SysPSP/ME/MEGraphics.h"
 
 #include "UI/DrawText.h"
 #include "Interface/Preferences.h"
@@ -62,6 +65,49 @@ static u32 __attribute__((aligned(16))) callList[64];
 static u32 __attribute__((aligned(16))) ilist[256];
 u32 listNum = 0;
 
+static bool WaitForGE()
+{
+#ifndef DAEDALUS_PSP_ME_DIAGNOSTICS
+    // Use the kernel's completion event in normal builds; timed polling adds
+    // scheduler latency to every frame. Keep the watchdog for diagnostics.
+    sceGuSync(GU_SYNC_FINISH, GU_SYNC_WHAT_DONE);
+    return true;
+#else
+    if (!MEGraphics_IsEnabled())
+    {
+        sceGuSync(GU_SYNC_FINISH, GU_SYNC_WHAT_DONE);
+        return true;
+    }
+    const u32 started = sceKernelGetSystemTimeLow();
+    int state;
+    // sceGeDrawSync(1) peeks without putting the SC thread into an unbounded
+    // kernel wait when a bad CALL/RET or jump prevents GE from reaching END.
+    while ((state = sceGeDrawSync(1)) != PSP_GE_LIST_DONE)
+    {
+        if (state < 0 || sceKernelGetSystemTimeLow() - started >= 3000000)
+        {
+            printf("ME graphics: GE wait failed, state=%d BASE=%08x JUMP=%08x CALL=%08x\n",
+                state, sceGeGetCmd(0x10), sceGeGetCmd(0x08), sceGeGetCmd(0x0a));
+            // Cancel the queued draw before buffers or textures are recycled.
+            sceGeBreak(1, nullptr);
+            MEGraphics_Disable("GE submission failed; using main CPU");
+            return false;
+        }
+        sceKernelDelayThread(100);
+    }
+    return true;
+#endif
+}
+
+void GraphicsContextPSP_DiscardMEFrame()
+{
+    // Close the abandoned GU_CALL context and replace it with an empty one.
+    // EndFrame/UpdateFrame can then finish normally without submitting any
+    // partially written GE command or vertex data from the failed ME task.
+    sceGuFinish();
+    sceGuStart(GU_CALL, list[listNum]);
+}
+
 // Keep transient vertex allocations from running past the fixed GU list.
 // Fog adds a second vertex stream, making dense scenes much more likely to
 // reach the limit on real hardware.
@@ -76,16 +122,32 @@ void GraphicsContextPSP_ReserveDisplayListMemory(u32 data_size)
 		return;
 	}
 
+#ifdef DAEDALUS_PSP_USE_ME
+    if (MEGraphics_IsOnME())
+    {
+        MEGraphics_CallOnMainCPU([](void *data) {
+            GraphicsContextPSP_ReserveDisplayListMemory(*static_cast<u32 *>(data));
+        }, data_size);
+        return;
+    }
+#endif
+
 	// A GU_CALL list must be invoked explicitly before it can be recycled.
 	sceGuFinish();
-	if( gDoubleDisplayEnabled )
+	if( gDoubleDisplayEnabled || MEGraphics_IsEnabled() )
 	{
+        if (MEGraphics_IsEnabled() && !WaitForGE())
+            return;
 		sceGuStart(GU_DIRECT, callList);
 		sceGuCallList(list[listNum]);
 		sceGuFinish();
 	}
-	sceGuSync(GU_SYNC_FINISH, GU_SYNC_WHAT_DONE);
-	sceGuStart(gDoubleDisplayEnabled ? GU_CALL : GU_DIRECT, list[listNum]);
+	if (!WaitForGE())
+    {
+        sceGuStart(GU_CALL, list[listNum]);
+        return;
+    }
+	sceGuStart((gDoubleDisplayEnabled || MEGraphics_IsEnabled()) ? GU_CALL : GU_DIRECT, list[listNum]);
 }
 
 extern bool g32bitColorMode;
@@ -194,9 +256,10 @@ IGraphicsContext::IGraphicsContext()
 	mpBuffers[ 1 ] = nullptr;
 
 #if 1 //1->alloc in volatile memory, 0->alloc in VRAM //Corn
-	//Set up PSP Dlists in the extra 4MB space and make sure pointer are aligned to 16 bytes
-	list[0] = (u32*)(((u32)malloc_volatile(DLISTSIZE) + 0xF) & ~0xF);
-	list[1] = (u32*)(((u32)malloc_volatile(DLISTSIZE) + 0xF) & ~0xF);
+	// Leave alignment room and keep each cached ME list on complete cache
+	// lines, away from allocator metadata and adjacent CPU allocations.
+	list[0] = (u32*)(((u32)malloc_volatile(DLISTSIZE + CACHE_ALIGN) + CACHE_ALIGN - 1) & ~(CACHE_ALIGN - 1));
+	list[1] = (u32*)(((u32)malloc_volatile(DLISTSIZE + CACHE_ALIGN) + CACHE_ALIGN - 1) & ~(CACHE_ALIGN - 1));
 #else
 	//Set up PSP Dlists in VRAM(if available)
 	void *ptr;
@@ -205,6 +268,12 @@ IGraphicsContext::IGraphicsContext()
 	list[0] = (u32*)ptr;
 	CVideoMemoryManager::Get()->Alloc( DLISTSIZE, &ptr, &is_videmem );
 	list[1] = (u32*)ptr;
+#endif
+#ifdef DAEDALUS_PSP_USE_ME
+    // SC and GE use these uncached addresses. While ME owns a GU_CALL list,
+    // it uses the cached alias and flushes it before each SC/GE handoff.
+    list[0] = make_uncached_ptr(list[0]);
+    list[1] = make_uncached_ptr(list[1]);
 #endif
 }
 
@@ -279,7 +348,7 @@ void IGraphicsContext::ClearColBufferAndDepth(const c32 & colour)
 void IGraphicsContext::BeginFrame()
 {
 	if(!gDoubleDisplayEnabled)
-		sceGuStart(GU_DIRECT,list[listNum]);
+		sceGuStart(MEGraphics_IsEnabled() ? GU_CALL : GU_DIRECT, list[listNum]);
 	/*else
 	{
 		sceGuOffset(2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
@@ -300,8 +369,34 @@ void IGraphicsContext::BeginFrame()
 //*****************************************************************************
 void IGraphicsContext::EndFrame()
 {
+    if (MEGraphics_IsFirstTask())
+        printf("ME graphics: EndFrame entered, double=%d\n", gDoubleDisplayEnabled);
 	if(!gDoubleDisplayEnabled)
-		sceGuFinish();
+    {
+        const bool trace = MEGraphics_IsFirstTask();
+        if (trace)
+            printf("ME graphics: finishing GU_CALL\n");
+        const int bytes = sceGuFinish();
+        if (MEGraphics_IsEnabled())
+        {
+            if (trace)
+                printf("ME graphics: submitting GE list %p, %d bytes, tail=%08lx\n",
+                    list[listNum], bytes,
+                    bytes >= 4 && bytes <= DLISTSIZE ? list[listNum][bytes / 4 - 1] : 0UL);
+            // ME completed and flushed the shared GU_CALL list. Only the SC
+            // enters the kernel to submit it to GE, just like me-core's sample.
+            sceGuStart(GU_DIRECT, callList);
+            sceGuCallList(list[listNum]);
+            sceGuFinish();
+            if (trace)
+                printf("ME graphics: GE submitted, waiting\n");
+            // Several N64 tasks can precede one VI flip. Do not overwrite the
+            // submission list or the task buffer while GE still reads them.
+            const bool completed = WaitForGE();
+            if (trace && completed)
+                printf("ME graphics: GE completed\n");
+        }
+    }
 }
 
 // This is used in game
@@ -311,6 +406,7 @@ void IGraphicsContext::EndFrame()
 void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 {
 	DAEDALUS_PROFILE( "IGraphicsContext::UpdateFrame" );
+    MEGraphics_Wait(); // Presentation consumes the renderer's current list.
 
 	void * p_back;
 
@@ -326,7 +422,7 @@ void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	#endif
 	}
 
-	sceGuSync(0,0);
+	WaitForGE();
 
 	//Used for GUI menu to slow things down, in game we skip this
 	if(wait_for_vbl)

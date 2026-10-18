@@ -29,6 +29,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interface/ConfigOptions.h"
 #include "Core/CPU.h"
+#ifdef DAEDALUS_PSP_USE_ME
+#include "SysPSP/ME/MEGraphics.h"
+#endif
 #include "Core/DMA.h"
 #include "Core/Memory.h"
 #include "Core/R4300.h"

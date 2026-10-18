@@ -384,6 +384,16 @@ gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH, textur
 //Ogre Battle needs to copy YUV texture to frame buffer
 static void DLParser_OB_YUV(const uObjSprite *sprite)
 {
+#ifdef DAEDALUS_PSP_USE_ME
+    if (MEGraphics_IsOnME())
+    {
+        uObjSprite request = *sprite;
+        MEGraphics_CallOnMainCPU([](void *data) {
+            DLParser_OB_YUV(static_cast<uObjSprite *>(data));
+        }, request);
+        return;
+    }
+#endif
 	f32 imageW = sprite->imageW / 32.0f;
 	f32 imageH = sprite->imageH / 32.0f;
 	f32 scaleW = sprite->scaleW / 1024.0f;
@@ -440,6 +450,15 @@ static void DLParser_OB_YUV(const uObjSprite *sprite)
 //*****************************************************************************
 static void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 {
+#ifdef DAEDALUS_PSP_USE_ME
+    if (MEGraphics_IsOnME())
+    {
+        MEGraphics_CallOnMainCPU([](void *data) {
+            DLParser_Yoshi_MemRect(*static_cast<MicroCodeCommand *>(data));
+        }, command);
+        return;
+    }
+#endif
 	//
 	// Fetch the next two instructions
 	//

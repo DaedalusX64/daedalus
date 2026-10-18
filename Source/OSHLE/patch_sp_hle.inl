@@ -185,6 +185,11 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch_osSpTaskLoad()
 {
 TEST_DISABLE_SP_FUNCS
+#ifdef DAEDALUS_PSP_USE_ME
+    // libultra waits for the SP before replacing DMEM/task state. The HLE
+    // shortcut must retain that fence now that graphics can still be active.
+    MEGraphics_Wait();
+#endif
 	u32 task = gGPR[REG_a0]._u32_0;
 	/*u32 status = SpGetStatus();
 
@@ -275,6 +280,9 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch_osSpTaskStartGo()
 {
 TEST_DISABLE_SP_FUNCS
+#ifdef DAEDALUS_PSP_USE_ME
+    MEGraphics_Wait();
+#endif
 	DAEDALUS_ASSERT( !IsSpDeviceBusy(), "Sp Device is BUSY, Need to handle!");
 	/*
 	if (IsSpDeviceBusy())	// Device busy?

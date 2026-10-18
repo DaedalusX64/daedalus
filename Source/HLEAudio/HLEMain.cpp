@@ -30,6 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
+#ifdef DAEDALUS_PSP_ME_AUDIO
+#include "SysPSP/ME/MEGraphics.h"
+#endif
 #include "Ultra/ultra_sptask.h"
 #include "Utility/Profiler.h"
 
@@ -78,15 +81,23 @@ extern AudioHLEInstruction ABI3[0x20];
 // Below functions were updated
 //
 
-AudioHLEInstruction *ABI = ABIUnknown;
-bool bAudioChanged = false;
-extern bool isMKABI;
-extern bool isZeldaABI;
+struct ME_SHARED_ALIGN AudioABIState {
+  AudioHLEInstruction *handler = ABIUnknown;
+  bool changed = false;
+};
+static AudioABIState audioABI;
+static AudioHLEInstruction *&ABI = audioABI.handler;
+static bool &bAudioChanged = audioABI.changed;
+extern bool &isMKABI;
+extern bool &isZeldaABI;
 
 //*****************************************************************************
 //
 //*****************************************************************************
 void Audio_Reset() {
+#ifdef DAEDALUS_PSP_ME_AUDIO
+  MEGraphics_Wait();
+#endif
   bAudioChanged = false;
   isMKABI = false;
   isZeldaABI = false;

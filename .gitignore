@@ -9,7 +9,6 @@ PARAM.SFO
 Makefile.cache
 Source/SysPSP/DveMgr/pspDveManager.S
 Source/SysPSP/DveMgr/pspDveManager_driver.S
-Source/SysPSP/MediaEnginePRX/MediaEngine.S
 DaedalusX64/
 Dumps/
 SaveGames/
@@ -21,6 +20,7 @@ Source/tmp
 .vscode/tasks.json
 *build
 *build_*
+build-*/
 .vs/
 *.cia
 *.3dsx

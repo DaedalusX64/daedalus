@@ -29,6 +29,7 @@ class c32;
 extern bool gFullScreenMode;
 #ifdef DAEDALUS_PSP
 void GraphicsContextPSP_ReserveDisplayListMemory(u32 data_size);
+void GraphicsContextPSP_DiscardMEFrame();
 #endif
 // This class basically provides an extra level of security for our
 // multithreaded code. Threads can Grab the CGraphicsContext to prevent

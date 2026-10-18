@@ -42,6 +42,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RSP_HLE.h"
 #include "Core/Save.h"
 #include "Interface/SaveState.h"
+#ifdef DAEDALUS_PSP_USE_ME
+#include "SysPSP/ME/MEGraphics.h"
+#endif
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "Ultra/ultra_R4300.h"
@@ -140,6 +143,18 @@ void CPU_SkipToNextEvent()
 	#endif
 	gCPUState.CPUControl[C0_COUNT]._u32 += (gCPUState.Events[ 0 ].mCount - 1);
 	gCPUState.Events[ 0 ].mCount = 1;
+}
+
+void CPU_RequestMEGraphicsPoll()
+{
+#ifdef DAEDALUS_PSP_USE_ME
+    // An earlier fence can complete a task before its polling event fires.
+    // Reuse that event if another task starts in the meantime.
+    for (u32 i = 0; i < gCPUState.NumEvents; ++i)
+        if (gCPUState.Events[i].mEventType == CPU_EVENT_ME_GRAPHICS)
+            return;
+    CPU_AddEvent(2000, CPU_EVENT_ME_GRAPHICS);
+#endif
 }
 
 static void CPU_ResetEventList()
@@ -551,6 +566,9 @@ bool CPU_Run()
 		{
 			g_pCPUCore();
 		}
+#ifdef DAEDALUS_PSP_USE_ME
+        MEGraphics_Wait(); // Menus and ROM changes may now reuse graphics.
+#endif
 
 		if (!HandleSaveStateOperationOnCPUStopRunning())
 			break;
@@ -655,6 +673,9 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			// Apply cheatcodes, if enabled
 			if( gCheatsEnabled )
 			{
+#ifdef DAEDALUS_PSP_USE_ME
+                MEGraphics_Wait(); // Cheats can overwrite graphics inputs.
+#endif
 				CheatCodes_Activate( IN_GAME );
 			}
 
@@ -706,6 +727,13 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP);
 		R4300_Interrupt_UpdateCause3();
 		break;
+#ifdef DAEDALUS_PSP_USE_ME
+    case CPU_EVENT_ME_GRAPHICS:
+        MEGraphics_Poll();
+        if (MEGraphics_IsPending())
+            CPU_RequestMEGraphicsPoll();
+        break;
+#endif
 	}
 
 	#ifdef DAEDALUS_ENABLE_ASSERTS

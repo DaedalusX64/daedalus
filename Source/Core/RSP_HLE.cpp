@@ -23,6 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fstream>
 
 #include "Core/RSP_HLE.h"
+#ifdef DAEDALUS_PSP_USE_ME
+#include "SysPSP/ME/MEGraphics.h"
+#endif
 
 #include "Core/Interrupt.h"
 #include "Core/Memory.h"
@@ -138,6 +141,10 @@ static EProcessResult RSP_HLE_Graphics()
 	if (gGraphicsEnabled && gGraphicsPlugin != nullptr)
 	{
 		gGraphicsPlugin->ProcessDList();
+#ifdef DAEDALUS_PSP_USE_ME
+        if (MEGraphics_IsPending())
+            return PR_STARTED;
+#endif
 	}
 	else
 	{
@@ -248,10 +255,19 @@ EProcessResult RSP_HLE_Hvqm(OSTask * task)
 }
 
 void RSP_HLE_Reset()
-{}
+{
+#ifdef DAEDALUS_PSP_USE_ME
+    MEGraphics_Wait();
+#endif
+}
 
 void RSP_HLE_ProcessTask()
 {
+#ifdef DAEDALUS_PSP_USE_ME
+    // Status/unfreeze writes can re-enter HLE while a task is still active.
+    if (MEGraphics_IsPending())
+        return;
+#endif
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	EProcessResult	result( PR_NOT_STARTED );
 

@@ -228,7 +228,7 @@ static const u32 kMaxN64Vertices = 80;		// F3DLP.Rej supports up to 80 verts!
 //*****************************************************************************
 //
 //*****************************************************************************
-class BaseRenderer
+class ME_SHARED_ALIGN BaseRenderer
 {
 public:
 	BaseRenderer();

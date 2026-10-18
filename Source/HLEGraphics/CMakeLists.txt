@@ -32,3 +32,9 @@ endif(DAEDALUS_PROFILE_HLEGRAPHICS)
 
 list(APPEND daed_libs "HLEGraphics")
 set(daed_libs ${daed_libs} PARENT_SCOPE)
+
+if(PSP AND DAEDALUS_PSP_USE_ME)
+    # The ME has an FPU but no VFPU. Keep VFPU available to audio and CPU HLE.
+    set_source_files_properties(BaseRenderer.cpp PROPERTIES
+        COMPILE_OPTIONS "-UDAEDALUS_PSP_USE_VFPU")
+endif()

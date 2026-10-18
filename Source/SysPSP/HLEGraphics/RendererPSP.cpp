@@ -1,5 +1,6 @@
 
 #include "Base/Types.h"
+#include "SysPSP/ME/MEGraphics.h"
 
 #include <pspgu.h>
 #include <glm/gtc/type_ptr.hpp>  
@@ -295,6 +296,20 @@ RendererPSP::SBlendStateEntry RendererPSP::LookupBlendState( u64 mux, bool two_c
 	{
 		return it->second;
 	}
+
+#ifdef DAEDALUS_PSP_USE_ME
+    if (MEGraphics_IsOnME())
+    {
+        // Cache hits stay on ME; construct new combiner trees with the SC heap.
+        struct Request { RendererPSP *renderer; u64 mux; bool two_cycles; SBlendStateEntry result; };
+        Request request{this, mux, two_cycles, {}};
+        MEGraphics_CallOnMainCPU([](void *data) {
+            auto &r = *static_cast<Request *>(data);
+            r.result = r.renderer->LookupBlendState(r.mux, r.two_cycles);
+        }, request);
+        return request.result;
+    }
+#endif
 
 	// Blendmodes with Inexact blends either get an Override blend or a Default blend (GU_TFX_MODULATE)
 	// If its not an Inexact blend then we check if we need to Force a blend mode none the less// Salvy

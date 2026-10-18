@@ -9,8 +9,8 @@
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
 
-extern bool isMKABI;
-extern bool isZeldaABI;
+extern bool &isMKABI;
+extern bool &isZeldaABI;
 
 void ADDMIXER(AudioHLECommand command) {
 #ifdef DEBUG_AUDIO

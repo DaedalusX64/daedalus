@@ -83,7 +83,9 @@ void AudioHLEState::EnvMixer(u8 flags, u32 address) {
   s32 LAdderStart = 0 , RAdderStart = 0 , LAdderEnd = 0, RAdderEnd = 0;
   s32 oMainL = 0 , oMainR = 0, oAuxL = 0 , oAuxR = 0;
 
-  s16 *buff = (s16 *)(rdram + address);
+  alignas(4) s16 state[20];
+  Audio_ReadMemory(address, state, sizeof(state));
+  s16 *buff = state;
   const auto shift_val = 0x4000;
   const auto right_shift_val = 15;
   // envmixcnt++;
@@ -269,6 +271,9 @@ void AudioHLEState::EnvMixer(u8 flags, u32 address) {
   *(s32 *)(buff + 14) = RAdderEnd;   // 14-15
   *(s32 *)(buff + 16) = LAdderStart; // 12-13
   *(s32 *)(buff + 18) = RAdderStart; // 14-15
+  Audio_WriteMemory(address, state, 2);
+  Audio_WriteMemory(address + 4, reinterpret_cast<const u8 *>(state) + 4, 2);
+  Audio_WriteMemory(address + 8, reinterpret_cast<const u8 *>(state) + 8, 32);
 
 }
 
@@ -293,8 +298,8 @@ void AudioHLEState::Resample(u8 flags, u32 pitch, u32 address) {
     in[srcPtr ^ 1] = 0;
     accumulator = 0;
   } else {
-    in[(srcPtr) ^ 1] = ((u16 *)rdram)[((address >> 1)) ^ 1];
-    accumulator = *(u16 *)(rdram + address + 10);
+    in[(srcPtr) ^ 1] = Audio_ReadHalf(((address >> 1) ^ 1) * 2);
+    accumulator = Audio_ReadHalf(address + 10);
   }
 
   for (u32 i = (((Count + 0xF) & 0xFFF0) >> 2); i != 0; i--) {
@@ -316,8 +321,8 @@ void AudioHLEState::Resample(u8 flags, u32 pitch, u32 address) {
     out[dstPtr++] = tmp;
   }
 
-  ((u16 *)rdram)[((address >> 1)) ^ 1] = in[srcPtr ^ 1];
-  *(u16 *)(rdram + address + 10) = (u16)accumulator;
+  Audio_WriteHalf(((address >> 1) ^ 1) * 2, in[srcPtr ^ 1]);
+  Audio_WriteHalf(address + 10, (u16)accumulator);
 }
 
 #else
@@ -375,9 +380,9 @@ void AudioHLEState::Resample(u8 flags, u32 pitch, u32 address) {
     accumulator = 0;
   } else {
     for (u32 x = 0; x < 4; x++) {
-      buffer[(srcPtr + x) ^ 1] = ((u16 *)rdram)[((address / 2) + x) ^ 1];
+      buffer[(srcPtr + x) ^ 1] = Audio_ReadHalf((((address / 2) + x) ^ 1) * 2);
     }
-    accumulator = *(u16 *)(rdram + address + 10);
+    accumulator = Audio_ReadHalf(address + 10);
   }
 
   u32 loops(((Count + 0xf) & 0xFFF0) / 2);
@@ -400,9 +405,9 @@ void AudioHLEState::Resample(u8 flags, u32 pitch, u32 address) {
   }
 
   for (u32 x = 0; x < 4; x++) {
-    ((u16 *)rdram)[((address / 2) + x) ^ 1] = buffer[(srcPtr + x) ^ 1];
+    Audio_WriteHalf((((address / 2) + x) ^ 1) * 2, buffer[(srcPtr + x) ^ 1]);
   }
-  *(u16 *)(rdram + address + 10) = (u16)accumulator;
+  Audio_WriteHalf(address + 10, (u16)accumulator);
 }
 #endif
 
@@ -610,7 +615,7 @@ void AudioHLEState::ADPCMDecode(u8 flags, u32 address) {
     memset(out, 0, 32);
   } else {
     u32 addr(loop ? LoopVal : address);
-    memmove(out, &rdram[addr], 32);
+    Audio_ReadMemory(addr, out, 32);
   }
 
   s32 l1 = out[15];
@@ -661,7 +666,7 @@ void AudioHLEState::ADPCMDecode(u8 flags, u32 address) {
     count -= 32;
   }
   out -= 16;
-  memmove(&rdram[address], out, 32);
+  Audio_WriteMemory(address, out, 32);
 }
 
 void AudioHLEState::LoadBuffer(u32 address) {
@@ -675,7 +680,7 @@ void AudioHLEState::SaveBuffer(u32 address) {
 void AudioHLEState::LoadBuffer(u16 dram_dst, u32 ram_src, u16 count) {
   if (count > 0) {
     // XXXX Masks look suspicious - trying to get around endian issues?
-    memmove(Buffer + (dram_dst & 0xFFFC), rdram + (ram_src & 0xfffffc),
+    Audio_ReadMemory(ram_src & 0xfffffc, Buffer + (dram_dst & 0xFFFC),
             (count + 3) & 0xFFFC);
   }
 }
@@ -683,7 +688,7 @@ void AudioHLEState::LoadBuffer(u16 dram_dst, u32 ram_src, u16 count) {
 void AudioHLEState::SaveBuffer(u32 ram_dst, u16 dmem_src, u16 count) {
   if (count > 0) {
     // XXXX Masks look suspicious - trying to get around endian issues?
-    memmove(rdram + (ram_dst & 0xfffffc), Buffer + (dmem_src & 0xFFFC),
+    Audio_WriteMemory(ram_dst & 0xfffffc, Buffer + (dmem_src & 0xFFFC),
             (count + 3) & 0xFFFC);
   }
 }
@@ -731,9 +736,11 @@ void AudioHLEState::DmemMove(u32 dst, u32 src, u16 count) {
 }
 
 void AudioHLEState::LoadADPCM(u32 address, u16 count) {
-  u32 loops(count / 16);
+  u32 loops(std::min<u32>(count, sizeof(ADPCMTable)) / 16);
 
-  const u16 *table((const u16 *)(rdram + address));
+  u16 source[0x88];
+  Audio_ReadMemory(address, source, std::min<u32>(count, sizeof(source)));
+  const u16 *table(source);
   for (u32 x = 0; x < loops; x++) {
     ADPCMTable[0x1 + (x << 3)] = table[0];
     ADPCMTable[0x0 + (x << 3)] = table[1];

@@ -9,8 +9,8 @@
 #include "HLEAudio/HLEAudioInternal.h"
 #include "HLEAudio/HLEAudioState.h"
 
-extern bool isMKABI;
-extern bool isZeldaABI;
+extern bool &isMKABI;
+extern bool &isZeldaABI;
 
 inline s32 FixedPointMul16(s32 a, s32 b) { return s32((a * b) >> 16); }
 
@@ -60,8 +60,8 @@ void RESAMPLE3(AudioHLECommand command) {
   }
 
   if ((Flags & 0x1) == 0) {
-    src[srcPtr ^ 1] = ((u16 *)rdram)[((addy / 2)) ^ 1];
-    Accum = *(u16 *)(rdram + addy + 10);
+    src[srcPtr ^ 1] = Audio_ReadHalf(((addy / 2) ^ 1) * 2);
+    Accum = Audio_ReadHalf(addy + 10);
   } else {
     src[(srcPtr) ^ 1] = 0;
     Accum = 0;
@@ -77,6 +77,6 @@ void RESAMPLE3(AudioHLECommand command) {
     Accum &= 0xFFFF;
   }
 
-  ((u16 *)rdram)[((addy / 2)) ^ 1] = src[srcPtr ^ 1];
-  *(u16 *)(rdram + addy + 10) = u16(Accum);
+  Audio_WriteHalf(((addy / 2) ^ 1) * 2, src[srcPtr ^ 1]);
+  Audio_WriteHalf(addy + 10, u16(Accum));
 }

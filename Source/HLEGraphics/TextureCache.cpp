@@ -27,6 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/TextureCache.h"
 #include "HLEGraphics/TextureInfo.h"
+#ifdef DAEDALUS_PSP
+#include "SysPSP/ME/MEGraphics.h"
+#endif
 
 #include "Utility/Profiler.h"
 
@@ -213,6 +216,23 @@ CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 	}
 	else
 	{
+#ifdef DAEDALUS_PSP_USE_ME
+        if (MEGraphics_IsOnME())
+        {
+            // Hash-table and sorted-cache hits, including unchanged source
+            // hashes, stay on ME. Only allocation needs the SC heap here.
+            struct Request { CTextureCache *cache; u8 info[sizeof(TextureInfo)]; CachedTexture *result; };
+            Request request{this, {}, nullptr};
+            memcpy(request.info, &ti, sizeof(ti));
+            MEGraphics_CallOnMainCPU([](void *data) {
+                auto &r = *static_cast<Request *>(data);
+                TextureInfo info;
+                memcpy(&info, r.info, sizeof(info));
+                r.result = r.cache->GetOrCreateCachedTexture(info);
+            }, request);
+            return request.result;
+        }
+#endif
 		texture = CachedTexture::Create( ti );
 		if (texture != nullptr)
 		{

@@ -73,10 +73,15 @@ enum	ECPUEventType
 	CPU_EVENT_COMPARE,
 	CPU_EVENT_AUDIO,
 	CPU_EVENT_SPINT,
+	CPU_EVENT_ME_GRAPHICS,
 };
 
 // In practice there should only ever be 2
+#ifdef DAEDALUS_PSP_USE_ME
+#define MAX_CPU_EVENTS 8
+#else
 #define MAX_CPU_EVENTS 4
+#endif
 
 struct CPUEvent
 {
@@ -176,6 +181,7 @@ void	CPU_EnableBreakPoint( u32 address, bool enable );		// Enable/Disable the br
 #endif
 bool	CPU_IsRunning();
 void	CPU_AddEvent( s32 count, ECPUEventType event_type );
+void CPU_RequestMEGraphicsPoll();
 void	CPU_SkipToNextEvent();
 bool	CPU_CheckStuffToDo();
 using VblCallbackFn = void(*) (void * arg);

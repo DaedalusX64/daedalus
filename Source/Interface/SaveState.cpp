@@ -26,6 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/SaveState.h"
 #include "Core/Memory.h"
 #include "Core/CPU.h"
+#ifdef DAEDALUS_PSP_USE_ME
+#include "SysPSP/ME/MEGraphics.h"
+#endif
 #include "Core/ROM.h"
 #include "Core/R4300.h"
 #include "Debug/DBGConsole.h"
@@ -191,6 +194,9 @@ private:
 
 bool SaveState_SaveToFile( const std::filesystem::path &filename )
 {
+#ifdef DAEDALUS_PSP_USE_ME
+    MEGraphics_Wait();
+#endif
 	SaveState_ostream_gzip stream( filename );
 
 	if( !stream.IsValid() )
@@ -254,6 +260,9 @@ bool SaveState_SaveToFile( const std::filesystem::path &filename )
 
 bool SaveState_LoadFromFile( const std::filesystem::path &filename )
 {
+#ifdef DAEDALUS_PSP_USE_ME
+    MEGraphics_Wait();
+#endif
 	SaveState_istream_gzip stream( filename );
 
 	if( !stream.IsValid() )

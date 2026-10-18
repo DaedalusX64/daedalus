@@ -17,11 +17,24 @@ jobs:
 
     - name: Install dependencies
       run: |
-        apk add build-base git bash cmake 
+        apk add build-base git bash cmake python3
+        git clone https://github.com/mcidclan/psp-media-engine-custom-core.git /tmp/me-core
+        git -C /tmp/me-core checkout f153f0de12d42377b4f7ecec7e328dd2f0e825bb
+        psp-cmake -S /tmp/me-core -B /tmp/me-core-build
+        cmake --build /tmp/me-core-build -j2
+        cmake --install /tmp/me-core-build
     
     - name: Compile project
       run: |
         ./build_daedalus.sh PSP
+
+    - name: Audit ME graphics and audio instructions
+      run: python3 Tools/tests/check_me_graphics.py build/Source/daedalus --audio
+
+    - name: Test audio RAM publication and PCM streaming
+      run: |
+        g++ -std=c++23 -O2 -pthread -ISource Tools/tests/test_me_audio.cpp -o /tmp/test_me_audio
+        /tmp/test_me_audio
 
     - name: Get short SHA
       id: slug

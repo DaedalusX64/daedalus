@@ -70,6 +70,14 @@ union REG32
 #define DATA_ALIGN	16
 #define CACHE_ALIGN	64
 
+// ME-writable heap objects must not share dirty cache lines with CPU heap
+// metadata or unrelated allocations while emulation runs concurrently.
+#ifdef DAEDALUS_PSP_USE_ME
+#define ME_SHARED_ALIGN alignas(CACHE_ALIGN)
+#else
+#define ME_SHARED_ALIGN
+#endif
+
 #ifdef _MSC_VER
 #define strcasecmp _stricmp
 #endif

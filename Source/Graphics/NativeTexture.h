@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 class c32;
 
-class CNativeTexture 
+class ME_SHARED_ALIGN CNativeTexture
 {
 
 		public:
